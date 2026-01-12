@@ -10,11 +10,11 @@
 [data-theme="light"] .landing-page::before {
     content: "";
     position: fixed;
-    top: 50%;
+    top: var(--landing-dots-top, 8vh);
     left: 50%;
     width: min(88vw, 1120px);
-    height: min(78vh, 760px);
-    transform: translate(-50%, -50%);
+    height: 34vh;
+    transform: translateX(-50%);
     background-image: radial-gradient(circle, rgba(26, 22, 37, 0.28) 1px, transparent 1.2px);
     background-size: 34px 34px;
     background-repeat: repeat;
