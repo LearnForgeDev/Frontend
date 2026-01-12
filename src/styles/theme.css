@@ -126,11 +126,14 @@
     --toggle-option-selected-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.16));
     --toggle-option-selected-border: rgba(99, 102, 241, 0.45);
 
-    --landing-nav-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(250, 248, 255, 0.82));
-    --landing-nav-sheen: linear-gradient(120deg, rgba(99, 102, 241, 0.12), rgba(139, 92, 246, 0.1));
-    --landing-nav-sheen-opacity: 0.75;
-    --landing-nav-shadow: 0 12px 30px rgba(99, 102, 241, 0.14);
-    --landing-nav-blend-mode: normal;
+    --landing-nav-bg:
+        radial-gradient(140% 180% at 10% 0%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 60%),
+        radial-gradient(120% 160% at 90% 20%, rgba(99, 102, 241, 0.12), rgba(255, 255, 255, 0) 58%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), rgba(245, 247, 255, 0.25));
+    --landing-nav-sheen: linear-gradient(120deg, rgba(99, 102, 241, 0.22), rgba(139, 92, 246, 0.18), rgba(255, 255, 255, 0.12));
+    --landing-nav-sheen-opacity: 0.7;
+    --landing-nav-shadow: 0 14px 34px rgba(99, 102, 241, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 0 rgba(99, 102, 241, 0.1);
+    --landing-nav-blend-mode: screen;
 
     --landing-faq-panel-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(250, 248, 255, 0.88));
     --landing-faq-panel-shadow: 0 20px 60px rgba(99, 102, 241, 0.14);
