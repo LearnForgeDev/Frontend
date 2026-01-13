@@ -1,0 +1,105 @@
+[data-theme="dark"] {
+    --bg-top: #0a1221;
+    --bg-bottom: #050912;
+    --bg: var(--bg-bottom);
+    --text: #e7f2ff;
+    --muted-text: #a7b6cf;
+    --border: #1b2740;
+    --accent: #7cf7d2;
+    --secondary: #6cbaff;
+    --success: #c7f36d;
+    --selected: rgba(124, 247, 210, 0.25);
+    --footer-bg: linear-gradient(180deg, #152035 0%, #0c1624 100%);
+    --footer-border: rgba(255, 255, 255, 0.08);
+    --footer-text: #d6dfed;
+    --footer-separator: rgba(255, 255, 255, 0.12);
+
+    --btn-gradient-start: #7cf7d2;
+    --btn-gradient-mid: #6cbaff;
+    --btn-gradient-end: #c7f36d;
+    --btn-text-color: #04111f;
+
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-bg-strong: rgba(10, 16, 28, 0.76);
+    --glass-bg-hover: rgba(14, 22, 36, 0.86);
+    --glass-border: rgba(124, 247, 210, 0.18);
+    --glass-border-strong: rgba(108, 186, 255, 0.24);
+    --glass-shadow: 0 26px 90px rgba(2, 8, 20, 0.55);
+    --glass-shadow-hover: 0 36px 120px rgba(4, 10, 24, 0.64);
+    --blur-amount: 22px;
+    --gradient-accent: linear-gradient(135deg, rgba(124, 247, 210, 0.16) 0%, rgba(108, 186, 255, 0.2) 50%, rgba(199, 243, 109, 0.18) 100%);
+    --gradient-glow: radial-gradient(circle at 18% 18%, rgba(124, 247, 210, 0.34), transparent 36%), radial-gradient(circle at 78% 10%, rgba(108, 186, 255, 0.3), transparent 34%), radial-gradient(circle at 35% 78%, rgba(199, 243, 109, 0.26), transparent 36%);
+    --landing-gradient:
+        radial-gradient(120% 120% at 12% 10%, rgba(124, 247, 210, 0.24), transparent 42%),
+        radial-gradient(120% 120% at 88% 6%, rgba(108, 186, 255, 0.24), transparent 44%),
+        linear-gradient(180deg, #0a1221 0%, #050912 100%);
+    --landing-dots-color: rgba(231, 242, 255, 0.2);
+    --landing-dots-opacity: 0;
+    --landing-dots-dot-size: 1px;
+    --landing-dots-fade-size: 1.2px;
+    --landing-dots-gap: 34px;
+    --page-gradient:
+        radial-gradient(120% 120% at 10% 12%, rgba(124, 247, 210, 0.12), transparent 42%),
+        radial-gradient(120% 120% at 82% 0%, rgba(108, 186, 255, 0.12), transparent 44%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+
+    --hero-glow-left: radial-gradient(circle at 30% 30%, rgba(124, 247, 210, 0.35), transparent 48%);
+    --hero-glow-right: radial-gradient(circle at 70% 10%, rgba(108, 186, 255, 0.3), transparent 52%);
+    --section-kicker-bg: rgba(124, 247, 210, 0.12);
+
+    --cta-shadow: 0 18px 48px rgba(10, 22, 36, 0.22), 0 6px 18px rgba(108, 186, 255, 0.22);
+    --cta-shadow-hover: 0 12px 32px rgba(108, 186, 255, 0.45), 0 10px 24px rgba(124, 247, 210, 0.2);
+    --cta-focus-outline: rgba(124, 247, 210, 0.45);
+
+    --nav-login-shadow: 0 10px 28px rgba(4, 12, 24, 0.3), 0 5px 16px rgba(108, 186, 255, 0.22);
+    --nav-login-shadow-hover: 0 12px 32px rgba(108, 186, 255, 0.45), 0 8px 20px rgba(124, 247, 210, 0.2);
+    --nav-login-outline: rgba(124, 247, 210, 0.45);
+
+    --toggle-bg-gradient: linear-gradient(135deg, rgba(124, 247, 210, 0.08), rgba(108, 186, 255, 0.06));
+    --toggle-dot-shadow: 0 6px 12px rgba(108, 186, 255, 0.35);
+    --toggle-trigger-gradient: linear-gradient(135deg, rgba(124, 247, 210, 0.14), rgba(108, 186, 255, 0.12));
+    --toggle-hover-border: rgba(124, 247, 210, 0.35);
+    --toggle-focus-outline: rgba(124, 247, 210, 0.45);
+    --toggle-arrow-gradient: linear-gradient(180deg, rgba(124, 247, 210, 0.9), rgba(108, 186, 255, 0.7));
+    --toggle-menu-gradient: linear-gradient(145deg, rgba(124, 247, 210, 0.08), rgba(108, 186, 255, 0.06));
+    --toggle-menu-surface: linear-gradient(180deg, rgba(5, 9, 18, 0.9), rgba(5, 9, 18, 0.82));
+    --toggle-option-hover-bg: rgba(124, 247, 210, 0.12);
+    --toggle-option-hover-border: rgba(124, 247, 210, 0.28);
+    --toggle-option-selected-bg: linear-gradient(135deg, rgba(124, 247, 210, 0.16), rgba(108, 186, 255, 0.14));
+    --toggle-option-selected-border: rgba(124, 247, 210, 0.4);
+
+    --landing-nav-bg: linear-gradient(135deg, rgba(10, 16, 28, 0.55), rgba(10, 16, 28, 0.35));
+    --landing-nav-sheen: linear-gradient(120deg, rgba(124, 247, 210, 0.08), rgba(108, 186, 255, 0.08));
+    --landing-nav-sheen-opacity: 0.85;
+    --landing-nav-shadow: 0 12px 38px rgba(0, 0, 0, 0.28);
+    --landing-nav-blend-mode: screen;
+
+    --landing-faq-panel-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+    --landing-faq-panel-shadow: 0 24px 80px rgba(2, 8, 20, 0.65);
+    --landing-faq-item-bg: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+    --landing-faq-item-shadow: 0 8px 26px rgba(2, 8, 20, 0.62);
+    --landing-faq-item-shadow-hover: 0 12px 30px rgba(3, 10, 24, 0.7);
+    --landing-faq-divider: rgba(255, 255, 255, 0.08);
+    --landing-faq-chevron-bg: rgba(255, 255, 255, 0.05);
+    --landing-faq-chevron-bg-open: rgba(124, 247, 210, 0.14);
+    --landing-faq-open-border: rgba(124, 247, 210, 0.5);
+    --landing-faq-accent-gradient: linear-gradient(135deg, rgba(124, 247, 210, 0.12), rgba(108, 186, 255, 0.12), rgba(199, 243, 109, 0.08));
+    --landing-faq-bar-gradient: linear-gradient(180deg, rgba(124, 247, 210, 0.9), rgba(108, 186, 255, 0.75));
+    --landing-faq-bar-gradient-open: linear-gradient(180deg, rgba(124, 247, 210, 1), rgba(108, 186, 255, 0.95));
+    --landing-faq-bar-shadow: 0 3px 14px rgba(2, 8, 20, 0.35);
+    --landing-faq-bar-shadow-open: 0 4px 18px rgba(124, 247, 210, 0.32);
+
+    --feature-card-bg-cloud: rgba(124, 247, 210, 0.16);
+    --feature-card-bg-analytics: rgba(108, 186, 255, 0.16);
+    --feature-card-bg-lessons: rgba(199, 243, 109, 0.18);
+    --feature-card-bg-meetings: rgba(255, 201, 125, 0.18);
+
+    --carousel-fade-color: rgba(5, 9, 18, 0.7);
+    --carousel-fade-transparent: rgba(5, 9, 18, 0);
+    --feature-card-shadow: 0 6px 14px rgba(2, 8, 20, 0.42);
+    --feature-card-shadow-hover: 0 8px 18px rgba(2, 8, 20, 0.5);
+    --carousel-control-shadow: 0 4px 12px rgba(2, 8, 20, 0.4);
+    --carousel-control-shadow-hover: 0 6px 16px rgba(2, 8, 20, 0.48);
+    --carousel-control-border-hover: rgba(124, 247, 210, 0.35);
+    --carousel-control-outline: rgba(124, 247, 210, 0.45);
+}

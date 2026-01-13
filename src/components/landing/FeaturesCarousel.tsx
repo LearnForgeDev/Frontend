@@ -128,7 +128,7 @@ export default function FeaturesCarousel() {
         let jumped = false;
 
         if (!options?.skipWrap) {
-            //карусель виртуально крутится чтобы при переносе мышкой или кнопкой не было скачков
+            //карусель крутится виртуально, чтобы при переносе мышкой или кнопкой не было скачков
             const minOffset = baseWidth;
             const maxOffset = Math.max(minOffset, trackWidth - baseWidth - viewportWidth);
 
@@ -171,7 +171,7 @@ export default function FeaturesCarousel() {
             const baseWidth = FEATURES.length * totalCardWidth;
             const viewportWidth = track?.parentElement?.clientWidth ?? window.innerWidth;
 
-            //если уменьшить количество карточек в каручели - они будут багаться при прокрутке
+            //если уменьшить количество карточек в карусели - они будут багаться при прокрутке
             const repeatsForBuffer = Math.ceil((viewportWidth + 5 * baseWidth) / baseWidth);
             const repeats = Math.max(6, repeatsForBuffer);
             setRepeatCount(repeats);
