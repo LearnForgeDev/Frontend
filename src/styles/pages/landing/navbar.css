@@ -81,38 +81,14 @@
 }
 
 .nav-login {
-    --btn-bg-x: 50%;
-    --btn-bg-y: 50%;
-    --btn-glow-x: 50%;
-    --btn-glow-y: 50%;
-    --btn-glow-size: 120%;
-    padding: 0.9rem 1.6rem;
-    border-radius: 12px;
-    border: none;
-    background:
-        radial-gradient(120% 120% at var(--btn-glow-x) var(--btn-glow-y), var(--btn-glow-strong, rgba(255, 255, 255, 0.55)) 0%, var(--btn-glow-soft, rgba(255, 255, 255, 0.25)) 32%, rgba(255, 255, 255, 0) 60%),
-        linear-gradient(120deg, var(--btn-gradient-start, var(--accent)) 0%, var(--btn-gradient-mid, var(--secondary)) 50%, var(--btn-gradient-end, var(--success)) 100%);
-    background-size: var(--btn-glow-size) var(--btn-glow-size), 180% 180%;
-    background-position: center, var(--btn-bg-x) var(--btn-bg-y);
-    background-repeat: no-repeat;
-    color: var(--btn-text-color, #04111f);
-    font-size: 1.02rem;
-    font-weight: 800;
-    cursor: pointer;
-    box-shadow: var(--nav-login-shadow);
+    --glow-button-padding: 0.9rem 1.6rem;
+    --glow-button-font-size: 1.02rem;
+    --glow-button-radius: 12px;
+    --glow-button-shadow: var(--nav-login-shadow);
+    --glow-button-shadow-hover: var(--nav-login-shadow-hover);
+    --glow-button-outline: var(--nav-login-outline);
     backdrop-filter: blur(var(--blur-amount));
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-size 0.35s ease;
-}
-
-.nav-login:hover {
-    --btn-glow-size: 170%;
-    transform: translateY(-1px);
-    box-shadow: var(--nav-login-shadow-hover);
-}
-
-.nav-login:focus-visible {
-    outline: 2px solid var(--nav-login-outline);
-    outline-offset: 2px;
 }
 
 @media (max-width: 768px) {

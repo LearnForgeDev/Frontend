@@ -14,6 +14,7 @@ const setButtonVars = (button: HTMLElement, x: number, y: number) => {
 type GlowButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export default function GlowButton({
+  className,
   onPointerEnter,
   onPointerLeave,
   onPointerMove,
@@ -62,6 +63,7 @@ export default function GlowButton({
   return (
     <button
       ref={buttonRef}
+      className={['glow-button', className].filter(Boolean).join(' ')}
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onPointerMove={handlePointerMove}

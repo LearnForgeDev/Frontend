@@ -96,6 +96,11 @@
         radial-gradient(120% 120% at 12% 10%, rgba(124, 58, 237, 0.16), transparent 42%),
         radial-gradient(120% 120% at 88% 6%, rgba(192, 132, 252, 0.12), transparent 44%),
         linear-gradient(180deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+    --landing-dots-color: rgba(26, 22, 37, 0.28);
+    --landing-dots-opacity: 0.6;
+    --landing-dots-dot-size: 1px;
+    --landing-dots-fade-size: 1.2px;
+    --landing-dots-gap: 34px;
     --page-gradient:
         radial-gradient(120% 120% at 10% 12%, rgba(124, 58, 237, 0.07), transparent 42%),
         radial-gradient(120% 120% at 82% 0%, rgba(192, 132, 252, 0.06), transparent 44%),
@@ -200,6 +205,11 @@
         radial-gradient(120% 120% at 12% 10%, rgba(124, 247, 210, 0.24), transparent 42%),
         radial-gradient(120% 120% at 88% 6%, rgba(108, 186, 255, 0.24), transparent 44%),
         linear-gradient(180deg, #0a1221 0%, #050912 100%);
+    --landing-dots-color: rgba(231, 242, 255, 0.2);
+    --landing-dots-opacity: 0;
+    --landing-dots-dot-size: 1px;
+    --landing-dots-fade-size: 1.2px;
+    --landing-dots-gap: 34px;
     --page-gradient:
         radial-gradient(120% 120% at 10% 12%, rgba(124, 247, 210, 0.12), transparent 42%),
         radial-gradient(120% 120% at 82% 0%, rgba(108, 186, 255, 0.12), transparent 44%),
@@ -302,6 +312,11 @@
             radial-gradient(120% 120% at 12% 10%, rgba(124, 247, 210, 0.24), transparent 42%),
             radial-gradient(120% 120% at 88% 6%, rgba(108, 186, 255, 0.24), transparent 44%),
             linear-gradient(180deg, #0a1221 0%, #050912 100%);
+        --landing-dots-color: rgba(231, 242, 255, 0.2);
+        --landing-dots-opacity: 0;
+        --landing-dots-dot-size: 1px;
+        --landing-dots-fade-size: 1.2px;
+        --landing-dots-gap: 34px;
         --page-gradient:
             radial-gradient(120% 120% at 10% 12%, rgba(124, 247, 210, 0.12), transparent 42%),
             radial-gradient(120% 120% at 82% 0%, rgba(108, 186, 255, 0.12), transparent 44%),

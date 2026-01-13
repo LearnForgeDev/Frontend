@@ -20,19 +20,6 @@
     backdrop-filter: blur(var(--blur-amount));
 }
 
-.section-kicker {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    padding: 0.55rem 1.05rem;
-    border-radius: 999px;
-    background: var(--section-kicker-bg);
-    color: var(--accent);
-    font-weight: 700;
-    font-size: 1.1rem;
-    letter-spacing: 0.03em;
-}
-
 .faq-header {
     text-align: center;
     margin-bottom: 2.5rem;
@@ -204,12 +191,6 @@
     transform: translateY(0);
 }
 
-@media (max-width: 640px) {
-    .faq-question {
-        align-items: flex-start;
-    }
-}
-
 @media (max-width: 1024px) {
     .faq-section {
         margin-top: 0;
@@ -218,6 +199,10 @@
 }
 
 @media (max-width: 640px) {
+    .faq-question {
+        align-items: flex-start;
+    }
+
     .faq-section {
         margin-top: 0;
         padding-top: clamp(3.75rem, 8vw, 5rem);
