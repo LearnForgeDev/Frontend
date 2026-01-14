@@ -9,7 +9,7 @@ import {
 import { mergeRegister } from "@lexical/utils";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $isAtNodeEnd } from "@lexical/selection";
-import "../../../../styles/pages/Lessons/components/modals/floatingLinkEditor.css";
+import "../../../../../styles/pages/Lessons/components/modals/floatingLinkEditor.css";
 
 const LowPriority = 1;
 

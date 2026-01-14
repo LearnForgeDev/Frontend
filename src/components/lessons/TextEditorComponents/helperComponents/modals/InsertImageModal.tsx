@@ -1,9 +1,9 @@
-import {Modal} from "../../../common/Modal.tsx";
+import {Modal} from "../../../../common/Modal.tsx";
 import React, {useState} from "react";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getSelection, $insertNodes, $isRangeSelection} from "lexical";
-import {$createImageNode} from "../nodes/ImageNode.tsx";
-import '../../../../styles/pages/Lessons/components/modals/insertImageModal.css';
+import {$createImageNode} from "../../nodes/ImageNode.tsx";
+import '../../../../../styles/pages/Lessons/components/modals/insertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();

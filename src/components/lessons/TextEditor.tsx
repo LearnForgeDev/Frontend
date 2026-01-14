@@ -20,10 +20,10 @@ import { YouTubeNode } from "./TextEditorComponents/nodes/YoutubeNode.tsx";
 import YouTubePlugin from "./TextEditorComponents/plugins/YoutubePlugin.tsx";
 import { RutubeNode } from './TextEditorComponents/nodes/RutubeNode.tsx';
 import RutubePlugin from './TextEditorComponents/plugins/RutubePlugin.tsx';
+import EquationsPlugin from './TextEditorComponents/plugins/EquationsPlugin.tsx';
+
 import '../../styles/pages/Lessons/components/lexicalEditorTheme.css';
-// import {OnChangePlugin} from "@lexical/react/LexicalOnChangePlugin";
-// import {useRef} from "react";
-// import type {EditorState} from "lexical";
+import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
 
 export default function TextEditor () {
   const initialConfig = {
@@ -41,11 +41,11 @@ export default function TextEditor () {
       GraphNode,
       YouTubeNode,
       RutubeNode,
+      EquationNode,
     ],
     onError: (error: Error) => console.warn(error),
   }
 
-  // const editorStateRef = useRef<EditorState | null>(null);
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <Toolbar />
@@ -54,7 +54,6 @@ export default function TextEditor () {
         contentEditable={<ContentEditable className="editor-input" />}
         ErrorBoundary={LexicalErrorBoundary}
       />
-      {/*<OnChangePlugin onChange={editorState => editorStateRef.current = editorState} />*/}
       <AutoFocusPlugin />
       <HistoryPlugin />
       <ListPlugin />
@@ -63,6 +62,7 @@ export default function TextEditor () {
       <GraphPlugin />
       <YouTubePlugin />
       <RutubePlugin />
+      <EquationsPlugin />
     </LexicalComposer>
   )
 }

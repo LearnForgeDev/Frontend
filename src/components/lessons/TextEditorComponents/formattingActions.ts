@@ -28,6 +28,7 @@ export default function formatText(
   event: string,
   onOpenImageModal: () => void,
   onOpenVideoModal: () => void,
+  onOpenEquationModal: () => void,
 ) {
   const insertLink = () => {
     editor.dispatchCommand(TOGGLE_LINK_COMMAND, "https://");
@@ -100,6 +101,10 @@ export default function formatText(
     if (onOpenVideoModal) onOpenVideoModal();
   }
 
+  const insertEquation = () => {
+    if (onOpenEquationModal) onOpenEquationModal();
+  }
+
   const formatTextCommands = new Set(["bold", "underline", "strikethrough",
     "italic", "highlight", "code", "subscript",
     "superscript", "lowercase", "uppercase", "capitalize"]);
@@ -118,6 +123,7 @@ export default function formatText(
     insertImage,
     insertGraphic,
     insertVideo,
+    insertEquation
   };
 
   const handler = commandHandlers[event];

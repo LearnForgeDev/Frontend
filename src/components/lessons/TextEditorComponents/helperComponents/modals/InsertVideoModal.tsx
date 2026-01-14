@@ -1,9 +1,9 @@
-import {Modal} from "../../../common/Modal.tsx";
+import {Modal} from "../../../../common/Modal.tsx";
 import {useState} from "react";
-import '../../../../styles/pages/Lessons/components/modals/insertVideoModal.css';
+import '../../../../../styles/pages/Lessons/components/modals/insertVideoModal.css';
 import {$getSelection, $insertNodes, $isRangeSelection, type LexicalEditor} from "lexical";
-import {$createYouTubeNode} from "../nodes/YoutubeNode.tsx";
-import {$createRutubeNode} from "../nodes/RutubeNode.tsx";
+import {$createYouTubeNode} from "../../nodes/YoutubeNode.tsx";
+import {$createRutubeNode} from "../../nodes/RutubeNode.tsx";
 
 export default function InsertVideoModal({onClose, editor}: {onClose: () => void, editor: LexicalEditor}) {
   const [videoUrl, setVideoUrl] = useState('');

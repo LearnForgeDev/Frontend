@@ -18,6 +18,7 @@ import FormatAlignJustifyOutlinedIcon from "../../../assets/images/toolbarIcons/
 import FormatAlignRightOutlinedIcon from "../../../assets/images/toolbarIcons/text-right.svg";
 import GraphIcon from "../../../assets/images/toolbarIcons/desmos.png";
 import YoutubeIcon from "../../../assets/images/toolbarIcons/youtube.svg";
+import EquationIcon from "../../../assets/images/toolbarIcons/plus-slash-minus.svg";
 
 import type {PluginItem} from "../../../types/lessonTypes.ts";
 
@@ -42,6 +43,7 @@ export const eventTypes = {
   insertImage: "insertImage",
   insertGraphic: 'insertGraphic',
   insertVideo: 'insertVideo',
+  insertEquation: 'insertEquation',
 };
 
 const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
@@ -144,6 +146,11 @@ const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
     icon: YoutubeIcon,
     event: eventTypes.insertVideo,
     label: 'Вставить видео',
+  },
+  insertEquation: {
+    icon: EquationIcon,
+    event: eventTypes.insertEquation,
+    label: 'Вставить уравнение',
   }
 };
 

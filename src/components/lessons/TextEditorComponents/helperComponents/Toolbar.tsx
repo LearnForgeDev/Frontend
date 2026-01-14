@@ -20,9 +20,11 @@ import {$isAtNodeEnd} from "@lexical/selection";
 import {$getNearestNodeOfType} from "@lexical/utils";
 import {$isListNode, ListNode} from "@lexical/list";
 import {$isHeadingNode} from "@lexical/rich-text";
-import InsertImageModal from "./InsertImageModal.tsx";
-import FloatingLinkEditor from "./FloatingLinkEditor.tsx";
-import InsertVideoModal from "./InsertVideoModal.tsx";
+import InsertImageModal from "./modals/InsertImageModal.tsx";
+import FloatingLinkEditor from "./modals/FloatingLinkEditor.tsx";
+import InsertVideoModal from "./modals/InsertVideoModal.tsx";
+import KatexEquationModal from "./modals/KatexEquationModal.tsx";
+import {INSERT_EQUATION_COMMAND} from "../plugins/EquationsPlugin.tsx";
 
 export default function Toolbar() {
   const [editor] = useLexicalComposerContext();
@@ -41,6 +43,7 @@ export default function Toolbar() {
 
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
+  const [isEquationModalOpen, setIsEquationModalOpen] = useState(false);
 
   const handlePluginClick = (event: string) => {
     formatText(
@@ -48,6 +51,7 @@ export default function Toolbar() {
       event,
       () => setIsImageModalOpen(true),
       () => setIsVideoModalOpen(true),
+      () => setIsEquationModalOpen(true),
     );
   }
 
@@ -160,6 +164,7 @@ export default function Toolbar() {
         <DefaultButton button={plugins.insertImage} action={handlePluginClick}/>
         <DefaultButton button={plugins.insertGraphic} action={handlePluginClick} />
         <DefaultButton  button={plugins.insertVideo} action={handlePluginClick} />
+        <DefaultButton  button={plugins.insertEquation} action={handlePluginClick} />
       </div>
 
       {/*MODALS*/}
@@ -180,6 +185,15 @@ export default function Toolbar() {
         />,
         document.body
       )}
+      {isEquationModalOpen && createPortal(
+        <KatexEquationModal
+          onConfirm={
+          (equation, inline) =>
+            editor.dispatchCommand(INSERT_EQUATION_COMMAND, {equation, inline})}
+          onClose={() => setIsEquationModalOpen(false)}
+        />,
+        document.body
+      ) }
     </>
   )
 }
