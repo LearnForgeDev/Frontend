@@ -9,7 +9,6 @@ interface IconBackgroundProps {
 export function IconBackground({ children, backgroundColor, size }: IconBackgroundProps) {
   return (
     <div
-      className="icon-bg"
       style={{
         backgroundColor,
         width: size,
@@ -25,4 +24,3 @@ export function IconBackground({ children, backgroundColor, size }: IconBackgrou
     </div>
   );
 }
-

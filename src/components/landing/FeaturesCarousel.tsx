@@ -340,8 +340,6 @@ export default function FeaturesCarousel() {
                         />
                     ))}
                 </div>
-                <div className="carousel-fade left" aria-hidden="true" />
-                <div className="carousel-fade right" aria-hidden="true" />
             </div>
             <CarouselControls onPrev={() => scrollByCard(-1)} onNext={() => scrollByCard(1)} trackId={trackId} />
         </section>
@@ -362,7 +360,7 @@ function CarouselControls({ onPrev, onNext, trackId }: { onPrev: () => void; onN
     return (
         <div className="carousel-controls">
             <button
-                className="carousel-btn carousel-btn-prev"
+                className="carousel-btn"
                 type="button"
                 aria-label="Перелистнуть назад"
                 aria-controls={trackId}
@@ -373,7 +371,7 @@ function CarouselControls({ onPrev, onNext, trackId }: { onPrev: () => void; onN
                 </svg>
             </button>
             <button
-                className="carousel-btn carousel-btn-next"
+                className="carousel-btn"
                 type="button"
                 aria-label="Перелистнуть вперёд"
                 aria-controls={trackId}

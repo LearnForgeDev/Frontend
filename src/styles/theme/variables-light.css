@@ -100,8 +100,6 @@
     --feature-card-bg-lessons: rgba(245, 158, 11, 0.18);
     --feature-card-bg-meetings: rgba(34, 211, 238, 0.18);
 
-    --carousel-fade-color: rgba(26, 22, 37, 0.38);
-    --carousel-fade-transparent: rgba(26, 22, 37, 0);
     --feature-card-shadow: 0 6px 14px rgba(99, 102, 241, 0.16);
     --feature-card-shadow-hover: 0 8px 20px rgba(99, 102, 241, 0.24);
     --carousel-control-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
