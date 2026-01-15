@@ -1,11 +1,11 @@
 import { createPortal } from "react-dom";
-import pluginsList from "../toolbarButtons.ts";
-import '../../../../styles/pages/Lessons/components/textEditor.css';
+import pluginsList from "../utils/toolbarButtons.ts";
+import '../../../../styles/pages/Lessons/components/toolbar.css';
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import DefaultButton from "./ToolbarDefaultButton.tsx";
 import Dropdown from "./ToolbarDropdown.tsx";
-import formatText from "../formattingActions.ts";
-import {useCallback, useEffect, useState} from "react";
+import formatText from "../utils/formattingActions.ts";
+import {useCallback, useEffect, useState, useRef} from "react";
 import { mergeRegister } from "@lexical/utils";
 import {
   $getSelection,
@@ -28,6 +28,8 @@ import {INSERT_EQUATION_COMMAND} from "../plugins/EquationsPlugin.tsx";
 
 export default function Toolbar() {
   const [editor] = useLexicalComposerContext();
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   const plugins = pluginsList;
 
@@ -44,6 +46,8 @@ export default function Toolbar() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isEquationModalOpen, setIsEquationModalOpen] = useState(false);
+
+  const [isFloating, setIsFloating] = useState(false);
 
   const handlePluginClick = (event: string) => {
     formatText(
@@ -145,10 +149,24 @@ export default function Toolbar() {
     );
   }, [editor, updateToolbar]);
 
+  useEffect(() => {
+    const target = sentinelRef.current;
+    if (!target) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsFloating(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <>
       {/*BUTTONS*/}
-      <div className="toolbar">
+      <div ref={sentinelRef} className="toolbar-sentinel" aria-hidden />
+      <div ref={toolbarRef} className={`toolbar ${isFloating ? 'floating' : ''}`}>
         <DefaultButton button={plugins.formatUndo} action={handlePluginClick} disabled={!canUndo}/>
         <DefaultButton button={plugins.formatRedo} action={handlePluginClick} disabled={!canRedo}/>
         <Dropdown buttons={[plugins.paragraph, plugins.h1, plugins.h2, plugins.quote]} action={handlePluginClick} selected={blockType}/>
@@ -162,8 +180,8 @@ export default function Toolbar() {
         <DefaultButton button={plugins.formatInsertLink} action={handlePluginClick} active={isLink} />
         <Dropdown buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight]} action={handlePluginClick}/>
         <DefaultButton button={plugins.insertImage} action={handlePluginClick}/>
-        <DefaultButton button={plugins.insertGraphic} action={handlePluginClick} />
         <DefaultButton  button={plugins.insertVideo} action={handlePluginClick} />
+        <DefaultButton button={plugins.insertGraphic} action={handlePluginClick} />
         <DefaultButton  button={plugins.insertEquation} action={handlePluginClick} />
       </div>
 

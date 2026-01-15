@@ -1,26 +1,26 @@
-import FormatText from "../../../assets/images/toolbarIcons/file-earmark-text.svg";
-import FormatHeader1 from "../../../assets/images/toolbarIcons/type-h1.svg";
-import FormatHeader2 from "../../../assets/images/toolbarIcons/type-h2.svg";
-import FormatListNumberedIcon from "../../../assets/images/toolbarIcons/list-ol.svg";
-import FormatListBulletedIcon from "../../../assets/images/toolbarIcons/list-ul.svg";
-import FormatQuoteIcon from "../../../assets/images/toolbarIcons/chat-square-quote.svg";
-import CodeIcon from "../../../assets/images/toolbarIcons/journal-code.svg";
-import RedoOutlinedIcon from "../../../assets/images/toolbarIcons/arrow-clockwise.svg";
-import UndoOutlinedIcon from "../../../assets/images/toolbarIcons/arrow-counterclockwise.svg";
-import FormatBoldOutlinedIcon from "../../../assets/images/toolbarIcons/type-bold.svg";
-import FormatItalicOutlinedIcon from "../../../assets/images/toolbarIcons/type-italic.svg";
-import FormatUnderlinedOutlinedIcon from "../../../assets/images/toolbarIcons/type-underline.svg";
-import StrikethroughSOutlinedIcon from "../../../assets/images/toolbarIcons/type-strikethrough.svg";
-import ImageIcon from "../../../assets/images/toolbarIcons/file-image.svg";
-import InsertLinkOutlinedIcon from "../../../assets/images/toolbarIcons/link.svg";
-import FormatAlignLeftOutlinedIcon from "../../../assets/images/toolbarIcons/text-left.svg";
-import FormatAlignJustifyOutlinedIcon from "../../../assets/images/toolbarIcons/text-center.svg";
-import FormatAlignRightOutlinedIcon from "../../../assets/images/toolbarIcons/text-right.svg";
-import GraphIcon from "../../../assets/images/toolbarIcons/desmos.png";
-import YoutubeIcon from "../../../assets/images/toolbarIcons/youtube.svg";
-import EquationIcon from "../../../assets/images/toolbarIcons/plus-slash-minus.svg";
+import FormatText from "../../../../assets/images/toolbarIcons/file-earmark-text.svg";
+import FormatHeader1 from "../../../../assets/images/toolbarIcons/type-h1.svg";
+import FormatHeader2 from "../../../../assets/images/toolbarIcons/type-h2.svg";
+import FormatListNumberedIcon from "../../../../assets/images/toolbarIcons/list-ol.svg";
+import FormatListBulletedIcon from "../../../../assets/images/toolbarIcons/list-ul.svg";
+import FormatQuoteIcon from "../../../../assets/images/toolbarIcons/chat-square-quote.svg";
+import CodeIcon from "../../../../assets/images/toolbarIcons/journal-code.svg";
+import RedoOutlinedIcon from "../../../../assets/images/toolbarIcons/arrow-clockwise.svg";
+import UndoOutlinedIcon from "../../../../assets/images/toolbarIcons/arrow-counterclockwise.svg";
+import FormatBoldOutlinedIcon from "../../../../assets/images/toolbarIcons/type-bold.svg";
+import FormatItalicOutlinedIcon from "../../../../assets/images/toolbarIcons/type-italic.svg";
+import FormatUnderlinedOutlinedIcon from "../../../../assets/images/toolbarIcons/type-underline.svg";
+import StrikethroughSOutlinedIcon from "../../../../assets/images/toolbarIcons/type-strikethrough.svg";
+import ImageIcon from "../../../../assets/images/toolbarIcons/file-image.svg";
+import InsertLinkOutlinedIcon from "../../../../assets/images/toolbarIcons/link.svg";
+import FormatAlignLeftOutlinedIcon from "../../../../assets/images/toolbarIcons/text-left.svg";
+import FormatAlignJustifyOutlinedIcon from "../../../../assets/images/toolbarIcons/text-center.svg";
+import FormatAlignRightOutlinedIcon from "../../../../assets/images/toolbarIcons/text-right.svg";
+import GraphIcon from "../../../../assets/images/toolbarIcons/desmos.png";
+import YoutubeIcon from "../../../../assets/images/toolbarIcons/youtube.svg";
+import EquationIcon from "../../../../assets/images/toolbarIcons/plus-slash-minus.svg";
 
-import type {PluginItem} from "../../../types/lessonTypes.ts";
+import type {PluginItem} from "../../../../types/lessonTypes.ts";
 
 export const eventTypes = {
   paragraph: "paragraph",

@@ -1,21 +1,35 @@
 
 .toolbar {
-  position: absolute;
-  top: 90vh;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   gap: 4px;
-  padding: 8px;
-  /*background-color: var(--bg);*/
-  /*border: 1px solid var(--border);*/
+  padding: 8px 1rem;
   flex-wrap: wrap;
 
-  border-radius: 28px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border:1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  background-color: var(--bg);
+  border: solid 1px var(--border);
+
+  transition: all 200ms ease-out;
+  justify-content: center;
+
+  &.floating {
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.37);
+
+    top: 0.5rem;
+    width: fit-content;
+
+    margin: 0 auto;
+  }
 }
 
 .toolbar-button {
@@ -130,27 +144,3 @@
   }
 }
 
-.editor-input {
-  border: var(--accent) 2px solid;
-  padding: 0 1rem;
-  border-radius: 10px;
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 5px rgba(100, 149, 237, 0.5);
-    backdrop-filter: blur(100px);
-  }
-  p.editor-paragraph, h1.editor-heading-h1, h2.editor-heading-h2, ul.editor-list-ul, ol.editor-list-ol {
-    text-align: start;
-
-    span.editor-image {
-      float: left;
-      margin-right: 0.5rem;
-      margin-bottom: 0.25rem;
-
-      img {
-        display: block;
-      }
-    }
-  }
-}

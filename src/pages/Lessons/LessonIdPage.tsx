@@ -12,7 +12,10 @@ export default function LessonIdPage() {
 
   return (
     <div className='lesson-id-page'>
-      <h1>Страница урока</h1>
+      <h1
+        className={`lesson-name ${isEditMode ? 'editable' : ''}`}
+        contentEditable={isEditMode}
+      >Страница урока</h1>
       { isEditMode
         ? ( <TextEditor /> )
         : ( <p>Просмотр урока с ID: {lessonId}</p> )

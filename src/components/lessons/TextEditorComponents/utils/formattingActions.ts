@@ -20,7 +20,7 @@ import {
 } from "@lexical/rich-text";
 import { TOGGLE_LINK_COMMAND } from "@lexical/link";
 import { $wrapNodes } from "@lexical/selection";
-import {$createGraphNode} from "./nodes/graphNode.tsx";
+import {$createGraphNode} from "../nodes/graphNode.tsx";
 import { $insertNodes } from "lexical";
 
 export default function formatText(
@@ -119,7 +119,7 @@ export default function formatText(
     ul: formatBulletList,
     ol: formatNumberedList,
     quote: formatQuote,
-    formatInsertLink: insertLink, //TODO: add a prompt for URL
+    formatInsertLink: insertLink,
     insertImage,
     insertGraphic,
     insertVideo,

@@ -91,7 +91,7 @@
     list-style-type: none;
 }
 
-.link-editor .link-input {
+.editor-link .link-input {
     display: block;
     width: calc(100% - 24px);
     box-sizing: border-box;
@@ -107,7 +107,7 @@
     font-family: inherit;
 }
 
-.link-editor div.link-edit {
+.editor-link div.link-edit {
     background-size: 16px;
     background-position: center;
     background-repeat: no-repeat;
@@ -120,7 +120,7 @@
     cursor: pointer;
 }
 
-.link-editor .link-input a {
+.editor-link .link-input a {
     color: var(--accent);
     text-decoration: none;
     display: block;
@@ -130,11 +130,11 @@
     text-overflow: ellipsis;
 }
 
-.link-editor .link-input a:hover {
+.editor-link .link-input a:hover {
     text-decoration: underline;
 }
 
-.link-editor .button {
+.editor-link .button {
     width: 20px;
     height: 20px;
     display: inline-block;
@@ -144,13 +144,50 @@
     margin: 0 2px;
 }
 
-.link-editor .button.hovered {
+.editor-link .button.hovered {
     width: 20px;
     height: 20px;
     display: inline-block;
     background-color: var(--bg);
 }
 
+.editor-link {
+    color: var(--accent);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.editor-link:hover {
+    text-decoration: underline;
+}
+
 .editor-input {
     min-height: 30vh;
+    border: var(--border) 1px solid;
+    padding: 0 1rem;
+
+    background-color: hsl(from var(--bg) h s calc(l + 100));
+
+    border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+
+    &:focus {
+        outline: none;
+        /*box-shadow: 0 0 0 5px rgba(100, 149, 237, 0.5);*/
+        /*backdrop-filter: blur(100px);*/
+        border-color: var(--accent);
+    }
+    p.editor-paragraph, h1.editor-heading-h1, h2.editor-heading-h2, ul.editor-list-ul, ol.editor-list-ol {
+        text-align: start;
+
+        span.editor-image {
+            float: left;
+            margin-right: 0.5rem;
+            margin-bottom: 0.25rem;
+
+            img {
+                display: block;
+            }
+        }
+    }
 }

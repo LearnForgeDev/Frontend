@@ -5,4 +5,13 @@
 
     width: min(95%, 1000px);
     margin: 0 auto;
+
+    .lesson-name {
+        text-align: center;
+        padding: 0.2rem;
+
+        &.editable {
+            border: var(--muted-text) 2px dashed;
+        }
+    }
 }
