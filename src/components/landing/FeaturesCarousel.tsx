@@ -190,7 +190,7 @@ export default function FeaturesCarousel() {
         let frame: number;
         const step = (ts: number) => {
             if (isStepAnimatingRef.current) {
-                //ударжание синхронизации прокрутки при ручном перемещении карусели
+                //удержание синхронизации прокрутки при ручном перемещении карусели
                 lastTimeRef.current = ts;
                 frame = requestAnimationFrame(step);
                 return;
