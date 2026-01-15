@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState, useId, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useId, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { CloudIcon } from "../../assets/images/featureIcons/CloudIcon";
 import type { FeatureItem } from "../../types/landingTypes";
 import { AnalyticsIcon } from "../../assets/images/featureIcons/AnalyticsIcon";
