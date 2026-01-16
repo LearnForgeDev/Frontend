@@ -1,5 +1,3 @@
-import ThemeToggle from './ThemeToggle';
-
 export default function Footer() {
   const year = new Date().getFullYear();
 
@@ -10,9 +8,6 @@ export default function Footer() {
           <span className="footer-brand">
             {'\u00A9'} {year} {'\u00B7'} learnForge
           </span>
-        </div>
-        <div className="footer-actions">
-          <ThemeToggle />
         </div>
       </div>
     </footer>
