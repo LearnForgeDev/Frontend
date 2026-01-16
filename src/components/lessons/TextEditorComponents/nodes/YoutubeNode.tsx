@@ -11,42 +11,31 @@ import type {
   DOMConversionOutput,
   DOMExportOutput,
   EditorConfig,
-  ElementFormatType,
   LexicalEditor,
   LexicalNode,
   NodeKey,
   Spread,
+  SerializedLexicalNode,
 } from 'lexical';
 import type {JSX} from 'react';
 
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
 import {
-  DecoratorBlockNode,
-  type SerializedDecoratorBlockNode,
-} from '@lexical/react/LexicalDecoratorBlockNode';
+  DecoratorNode,
+} from 'lexical';
 
 type YouTubeComponentProps = Readonly<{
-  className: Readonly<{
-    base: string;
-    focus: string;
-  }>;
-  format: ElementFormatType | null;
+  className: string;
   nodeKey: NodeKey;
   videoID: string;
 }>;
 
 // eslint-disable-next-line react-refresh/only-export-components
 function YouTubeComponent({
-                            className,
-                            format,
-                            nodeKey,
-                            videoID,
-                          }: YouTubeComponentProps) {
+  className,
+  videoID,
+}: YouTubeComponentProps) {
   return (
-    <BlockWithAlignableContents
-      className={className}
-      format={format}
-      nodeKey={nodeKey}>
+    <span className={className}>
       <iframe
         width="560"
         height="315"
@@ -56,7 +45,7 @@ function YouTubeComponent({
         allowFullScreen={true}
         title="YouTube video"
       />
-    </BlockWithAlignableContents>
+    </span>
   );
 }
 
@@ -64,7 +53,7 @@ export type SerializedYouTubeNode = Spread<
   {
     videoID: string;
   },
-  SerializedDecoratorBlockNode
+  SerializedLexicalNode
 >;
 
 function $convertYoutubeElement(
@@ -78,7 +67,7 @@ function $convertYoutubeElement(
   return null;
 }
 
-export class YouTubeNode extends DecoratorBlockNode {
+export class YouTubeNode extends DecoratorNode<JSX.Element> {
   __id: string;
 
   static getType(): string {
@@ -86,25 +75,37 @@ export class YouTubeNode extends DecoratorBlockNode {
   }
 
   static clone(node: YouTubeNode): YouTubeNode {
-    return new YouTubeNode(node.__id, node.__format, node.__key);
+    return new YouTubeNode(node.__id, node.__key);
   }
 
   static importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
-    return $createYouTubeNode(serializedNode.videoID).updateFromJSON(
-      serializedNode,
-    );
+    return $createYouTubeNode(serializedNode.videoID);
   }
 
   exportJSON(): SerializedYouTubeNode {
     return {
-      ...super.exportJSON(),
+      type: 'youtube',
+      version: 1,
       videoID: this.__id,
     };
   }
 
-  constructor(id: string, format?: ElementFormatType, key?: NodeKey) {
-    super(format, key);
+  constructor(id: string, key?: NodeKey) {
+    super(key);
     this.__id = id;
+  }
+
+  createDOM(config: EditorConfig): HTMLElement {
+    const span = document.createElement('span');
+    const className = config.theme.youtube;
+    if (className !== undefined) {
+      span.className = className;
+    }
+    return span;
+  }
+
+  updateDOM(): false {
+    return false;
   }
 
   exportDOM(): DOMExportOutput {
@@ -140,33 +141,20 @@ export class YouTubeNode extends DecoratorBlockNode {
     };
   }
 
-  updateDOM(): false {
-    return false;
-  }
-
   getId(): string {
     return this.__id;
   }
 
-  getTextContent(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _includeInert?: boolean | undefined,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _includeDirectionless?: false | undefined,
-  ): string {
+  getTextContent(): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
   decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
     const embedBlockTheme = config.theme.embedBlock || {};
-    const className = {
-      base: embedBlockTheme.base || '',
-      focus: embedBlockTheme.focus || '',
-    };
+    const className = embedBlockTheme.base || '';
     return (
       <YouTubeComponent
         className={className}
-        format={this.__format}
         nodeKey={this.getKey()}
         videoID={this.__id}
       />

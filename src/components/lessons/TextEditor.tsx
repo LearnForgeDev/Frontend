@@ -49,7 +49,6 @@ export default function TextEditor () {
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <Toolbar />
-
       <RichTextPlugin
         contentEditable={<ContentEditable className="editor-input" />}
         ErrorBoundary={LexicalErrorBoundary}

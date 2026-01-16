@@ -8,7 +8,7 @@ import {
   type ElementFormatType,
   $getSelection,
   $isRangeSelection,
-  $createParagraphNode,
+  $createParagraphNode, $addUpdateTag, SKIP_SELECTION_FOCUS_TAG,
 } from "lexical";
 import {
   INSERT_ORDERED_LIST_COMMAND,
@@ -26,6 +26,7 @@ import { $insertNodes } from "lexical";
 export default function formatText(
   editor: LexicalEditor,
   event: string,
+  blockType: string,
   onOpenImageModal: () => void,
   onOpenVideoModal: () => void,
   onOpenEquationModal: () => void,
@@ -65,11 +66,25 @@ export default function formatText(
   };
 
   const formatBulletList = () => {
-    editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+    if (blockType !== 'bullet') {
+      editor.update(() => {
+        $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined);
+      });
+    } else {
+      formatParagraph();
+    }
   };
 
   const formatNumberedList = () => {
-    editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    if (blockType !== 'number') {
+      editor.update(() => {
+        $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+      });
+    } else {
+      formatParagraph();
+    }
   };
 
   const formatQuote = () => {

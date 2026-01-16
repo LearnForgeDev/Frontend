@@ -1,5 +1,9 @@
 .equationModal {
-    width: 30%;
+    width: clamp(50%, 75%, 90%);
+
+    h1 {
+        text-align: center;
+    }
 
     .KatexEquationAlterer_defaultRow {
         display: flex;
@@ -24,6 +28,8 @@
         cursor: pointer;
         position: relative;
         transition: all 0.2s ease;
+
+        margin-left: 1rem;
     }
 
     input[type="checkbox"]:checked {
@@ -49,7 +55,15 @@
         overflow: hidden;
         margin-top: 20px;
         margin-bottom: 0;
-        justify-content: right;
+        justify-content: center;
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: var(--accent);
+            color: var(--alt-text);
+            border-radius: 28px;
+            border: none;
+        }
     }
 
     .KatexEquationAlterer_centerRow {
@@ -65,5 +79,16 @@
         width: 100%;
         resize: none;
         padding: 7px;
+    }
+
+    .previewBox {
+        border: var(--muted-text) 1px dashed;
+        min-height: 2rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .equationModal {
+        width: 80%;
     }
 }

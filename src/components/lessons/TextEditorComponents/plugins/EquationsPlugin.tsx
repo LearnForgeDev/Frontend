@@ -9,6 +9,7 @@
 import type {JSX} from 'react';
 
 import 'katex/dist/katex.css';
+import '../../../../styles/pages/Lessons/components/modals/katexEquationModal.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$wrapNodeInElement} from '@lexical/utils';
@@ -21,7 +22,10 @@ import {
   type LexicalCommand,
   type LexicalEditor,
 } from 'lexical';
-import {useCallback, useEffect} from 'react';
+import {
+  useCallback,
+  useEffect
+} from 'react';
 
 
 import {$createEquationNode, EquationNode} from '../nodes/EquationNode';
@@ -50,7 +54,10 @@ export function InsertEquationDialog({
     [activeEditor, onClose],
   );
 
-  return <KatexEquationModal onConfirm={onEquationConfirm} />;
+  return <KatexEquationModal
+    onConfirm={onEquationConfirm}
+    onClose={() => {}}
+  />;
 }
 
 export default function EquationsPlugin(): JSX.Element | null {

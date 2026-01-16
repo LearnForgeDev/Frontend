@@ -47,6 +47,7 @@ export default function KatexEquationModal({
       onClose={onClose}
       className={'equationModal'}
     >
+      <h1>Вставить уравнение</h1>
       <div className="KatexEquationAlterer_defaultRow">
         Занимать всю строку?
         <input type="checkbox" checked={!inline} onChange={onCheckboxChange} />
@@ -72,7 +73,7 @@ export default function KatexEquationModal({
         )}
       </div>
       <p>Визуализация</p>
-      <div className="KatexEquationAlterer_centerRow">
+      <div className="KatexEquationAlterer_centerRow previewBox">
         <ErrorBoundary onError={(e) => editor._onError(e)} fallback={null}>
           <KatexRenderer
             equation={equation}
@@ -82,7 +83,7 @@ export default function KatexEquationModal({
         </ErrorBoundary>
       </div>
       <div className="KatexEquationAlterer_dialogActions">
-        <button onClick={onClick}>Confirm</button>
+        <button onClick={onClick}>Вставить</button>
       </div>
     </Modal>
   );

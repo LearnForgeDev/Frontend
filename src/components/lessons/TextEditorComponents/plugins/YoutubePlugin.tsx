@@ -9,8 +9,7 @@
 import type {JSX} from 'react';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$insertNodeToNearestRoot} from '@lexical/utils';
-import {COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand} from 'lexical';
+import {COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand, $getSelection, $isRangeSelection} from 'lexical';
 import {useEffect} from 'react';
 
 import {$createYouTubeNode, YouTubeNode} from '../nodes/YoutubeNode.tsx';
@@ -30,8 +29,11 @@ export default function YouTubePlugin(): JSX.Element | null {
     return editor.registerCommand<string>(
       INSERT_YOUTUBE_COMMAND,
       (payload) => {
-        const youTubeNode = $createYouTubeNode(payload);
-        $insertNodeToNearestRoot(youTubeNode);
+        const selection = $getSelection();
+        if ($isRangeSelection(selection)) {
+          const youTubeNode = $createYouTubeNode(payload);
+          selection.insertNodes([youTubeNode]);
+        }
 
         return true;
       },

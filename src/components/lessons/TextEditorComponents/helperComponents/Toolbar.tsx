@@ -53,6 +53,7 @@ export default function Toolbar() {
     formatText(
       editor,
       event,
+      blockType,
       () => setIsImageModalOpen(true),
       () => setIsVideoModalOpen(true),
       () => setIsEquationModalOpen(true),
@@ -166,6 +167,7 @@ export default function Toolbar() {
     <>
       {/*BUTTONS*/}
       <div ref={sentinelRef} className="toolbar-sentinel" aria-hidden />
+      {/*TODO fix buttons wrapping*/}
       <div ref={toolbarRef} className={`toolbar ${isFloating ? 'floating' : ''}`}>
         <DefaultButton button={plugins.formatUndo} action={handlePluginClick} disabled={!canUndo}/>
         <DefaultButton button={plugins.formatRedo} action={handlePluginClick} disabled={!canRedo}/>

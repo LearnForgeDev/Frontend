@@ -4,6 +4,7 @@ import '../../../../../styles/pages/Lessons/components/modals/insertVideoModal.c
 import {$getSelection, $insertNodes, $isRangeSelection, type LexicalEditor} from "lexical";
 import {$createYouTubeNode} from "../../nodes/YoutubeNode.tsx";
 import {$createRutubeNode} from "../../nodes/RutubeNode.tsx";
+import {isRutubeUrl, isYoutubeUrl, parseRutubeId, parseYoutubeId} from "../../utils/url.ts";
 
 export default function InsertVideoModal({onClose, editor}: {onClose: () => void, editor: LexicalEditor}) {
   const [videoUrl, setVideoUrl] = useState('');
@@ -84,32 +85,3 @@ export default function InsertVideoModal({onClose, editor}: {onClose: () => void
   );
 }
 
-function isYoutubeUrl (url: string): boolean {
-  const serverName = url.split('/')[2];
-  return (
-    serverName === 'www.youtube.com'
-    || serverName === 'youtu.be'
-  )
-}
-
-function parseYoutubeId (url: string): string | null {
-  const serverName = url.split('/')[2];
-  if (serverName === 'www.youtube.com') {
-    const urlObj = new URL(url);
-    return urlObj.searchParams.get('v');
-  } else if (serverName === 'youtu.be') {
-    return url.split('/').pop()?.split('?')[0] || null;
-  }
-  return null;
-}
-
-function isRutubeUrl (url: string): boolean {
-  const serverName = url.split('/')[2];
-  return serverName === 'rutube.ru'
-}
-
-function parseRutubeId (url: string): string | null {
-  const id = url.split('/')[4];
-  if (id) return id;
-  return null;
-}

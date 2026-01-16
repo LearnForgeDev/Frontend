@@ -181,7 +181,7 @@
         text-align: start;
 
         span.editor-image {
-            float: left;
+            /*float: left;*/
             margin-right: 0.5rem;
             margin-bottom: 0.25rem;
 

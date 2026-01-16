@@ -1,4 +1,4 @@
-.insert-video-modal {
+.insert-image-modal {
     max-width: 700px;
     width: 95vw;
     display: flex;
@@ -83,6 +83,8 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
+
+            aspect-ratio: 1/0.5;
 
             &:hover {
                 border-color: var(--muted-text);
