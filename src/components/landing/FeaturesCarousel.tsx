@@ -1,4 +1,13 @@
-import { useCallback, useEffect, useMemo, useRef, useState, useId, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import {
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    useId,
+    type CSSProperties,
+    type PointerEvent as ReactPointerEvent,
+} from "react";
 import { CloudIcon } from "../../assets/images/featureIcons/CloudIcon";
 import type { FeatureItem } from "../../types/landingTypes";
 import { AnalyticsIcon } from "../../assets/images/featureIcons/AnalyticsIcon";
@@ -214,13 +223,38 @@ export default function FeaturesCarousel() {
         return () => cancelAnimationFrame(frame);
     }, [applyOffset, isPaused, isDragging, prefersReducedMotion, repeatCount]);
 
-    const scrollByCard = (direction: -1 | 1) => {
+    const getCenteredIndex = (offsetValue: number) => {
         const track = trackRef.current;
-        if (!track) return;
+        if (!track) return 0;
 
         const gap = getTrackGap(track);
         const cardWidth = getCardWidth(track);
-        const step = (cardWidth + gap) * direction;
+        const step = cardWidth + gap;
+        if (step <= 0) return 0;
+
+        const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
+        const center = offsetValue + viewportWidth / 2;
+        return (center - cardWidth / 2) / step;
+    };
+
+    const getOffsetForIndex = (index: number) => {
+        const track = trackRef.current;
+        if (!track) return offsetRef.current;
+
+        const gap = getTrackGap(track);
+        const cardWidth = getCardWidth(track);
+        const step = cardWidth + gap;
+        if (step <= 0) return offsetRef.current;
+
+        const viewportWidth = track.parentElement?.clientWidth ?? window.innerWidth;
+        return index * step + cardWidth / 2 - viewportWidth / 2;
+    };
+
+    const animateByDelta = (delta: number) => {
+        if (delta === 0) return;
+
+        const track = trackRef.current;
+        if (!track) return;
 
         const baseWidth = getBaseWidth();
         if (!baseWidth) return;
@@ -230,10 +264,10 @@ export default function FeaturesCarousel() {
         const minOffset = baseWidth;
         const maxOffset = Math.max(minOffset, trackWidth - baseWidth - viewportWidth);
 
-        //избегание скрытых скачков
         let current = offsetRef.current;
-        let target = current + step;
+        let target = current + delta;
         const needsRebase = target < minOffset || target > maxOffset;
+
         if (needsRebase) {
             const middleCycle = Math.floor(repeatCount / 2);
             const middleOffset = baseWidth * middleCycle;
@@ -248,7 +282,7 @@ export default function FeaturesCarousel() {
                 current += baseWidth * cyclesForward;
             }
 
-            target = current + step;
+            target = current + delta;
 
             setDisableTransition(true);
             setOffset(current);
@@ -263,6 +297,13 @@ export default function FeaturesCarousel() {
 
         runStepAnimation();
         applyOffset(target, { skipWrap: true });
+    };
+
+    const scrollByCard = (direction: -1 | 1) => {
+        const currentIndex = getCenteredIndex(offsetRef.current);
+        const targetIndex = Math.round(currentIndex) + direction;
+        const targetOffset = getOffsetForIndex(targetIndex);
+        animateByDelta(targetOffset - offsetRef.current);
     };
 
     const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -289,7 +330,10 @@ export default function FeaturesCarousel() {
         }
         setIsDragging(false);
         setIsPaused(false);
-        applyOffset(offsetRef.current);
+        const currentIndex = getCenteredIndex(offsetRef.current);
+        const targetIndex = Math.round(currentIndex);
+        const targetOffset = getOffsetForIndex(targetIndex);
+        animateByDelta(targetOffset - offsetRef.current);
     };
 
     const trackStyle: CSSProperties = {

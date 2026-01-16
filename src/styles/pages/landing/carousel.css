@@ -69,8 +69,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
-    min-height: 340px;
-    padding: 1.85rem;
+    min-height: 270px;
+    padding: 1.35rem;
     background: var(--glass-bg-strong);
     border: 1px solid var(--glass-border-strong);
     border-radius: 20px;
@@ -143,15 +143,15 @@
 
     .features-carousel .feature {
         flex-basis: 340px;
-        min-height: 320px;
-        padding: 1.65rem;
+        min-height: 250px;
+        padding: 1.25rem;
     }
 }
 
 @media (max-width: 640px) {
     .features-carousel .feature {
         flex-basis: 90vw;
-        min-height: 300px;
-        padding: 1.45rem;
+        min-height: 230px;
+        padding: 1.05rem;
     }
 }
