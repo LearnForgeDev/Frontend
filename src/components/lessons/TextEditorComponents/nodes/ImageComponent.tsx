@@ -21,6 +21,7 @@ interface ImageComponentProps {
   altText: string;
   width?: number;
   height?: number;
+  float?: 'left' | 'right' | 'center';
   nodeKey: NodeKey;
 }
 
@@ -30,6 +31,7 @@ export default function ImageComponent({
   width,
   height,
   nodeKey,
+  float,
 }: ImageComponentProps): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const imageRef = useRef<HTMLImageElement>(null);
@@ -99,6 +101,12 @@ export default function ImageComponent({
     <div
       className={`image-wrapper ${isSelected ? "selected" : ""} ${isResizing ? "resizing" : ""}`}
       draggable={!isResizing}
+      style={{
+        float:
+          float === 'center' || float === undefined
+            ? 'none'
+            : float
+    }}
     >
       <img
         ref={imageRef}

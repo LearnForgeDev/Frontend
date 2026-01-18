@@ -8,26 +8,11 @@ import {
 } from "lexical";
 import { mergeRegister } from "@lexical/utils";
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from "@lexical/link";
-import { $isAtNodeEnd } from "@lexical/selection";
+
 import "../../../../../styles/pages/Lessons/components/modals/floatingLinkEditor.css";
+import getSelectedNode from "../../utils/getSelectedNode.ts";
 
 const LowPriority = 1;
-
-function getSelectedNode(selection: RangeSelection) {
-  const anchor = selection.anchor;
-  const focus = selection.focus;
-  const anchorNode = selection.anchor.getNode();
-  const focusNode = selection.focus.getNode();
-  if (anchorNode === focusNode) {
-    return anchorNode;
-  }
-  const isBackward = selection.isBackward();
-  if (isBackward) {
-    return $isAtNodeEnd(focus) ? anchorNode : focusNode;
-  } else {
-    return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
-  }
-}
 
 function positionEditorElement(editorElem: HTMLDivElement, rect: DOMRect | null, editorInputRect: DOMRect | null) {
   if (rect === null || editorInputRect === null) {

@@ -4,11 +4,11 @@ import {useEffect, useEffectEvent, useRef, useState} from "react";
 export default function Dropdown({
   buttons,
   action,
-  selected: selectedType
+  value
 }: {
   buttons: Array<PluginItem>,
   action: (event: string) => void,
-  selected?: string
+  value?: string,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState(buttons[0]);
@@ -17,13 +17,13 @@ export default function Dropdown({
   const setSelectedElement = useEffectEvent((item: PluginItem) => setSelected(item));
 
   useEffect(() => {
-    if (selectedType) {
-      const button = buttons.find(b => b.event === selectedType);
+    if (value) {
+      const button = buttons.find(b => b.event === value);
       if (button) {
         setSelectedElement(button);
       }
     }
-  }, [selectedType, buttons]);
+  }, [value, buttons]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

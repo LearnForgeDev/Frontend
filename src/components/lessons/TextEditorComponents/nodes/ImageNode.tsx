@@ -18,6 +18,7 @@ export interface ImagePayload {
   src: string;
   width?: number;
   height?: number;
+  float?: 'left' | 'right' | 'center';
   key?: NodeKey;
 }
 
@@ -36,6 +37,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __altText: string;
   __width?: number;
   __height?: number;
+  __float?: "left" | "right" | "center";
 
   static getType(): string {
     return "image";
@@ -47,6 +49,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
       node.__altText,
       node.__width,
       node.__height,
+      node.__float,
       node.__key
     );
   }
@@ -56,6 +59,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     altText: string,
     width?: number,
     height?: number,
+    float?: 'left' | 'right' | 'center',
     key?: NodeKey
   ) {
     super(key);
@@ -63,6 +67,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__altText = altText;
     this.__width = width;
     this.__height = height;
+    this.__float = float;
   }
 
   createDOM(config: EditorConfig): HTMLElement {
@@ -162,6 +167,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   decorate(): JSX.Element {
     return (
       <ImageComponent
+        float={this.__float}
         src={this.__src}
         altText={this.__altText}
         width={this.__width}
@@ -172,16 +178,19 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   }
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function $createImageNode({
   altText,
   src,
   width,
   height,
+  float,
   key,
 }: ImagePayload): ImageNode {
-  return new ImageNode(src, altText, width, height, key);
+  return new ImageNode(src, altText, width, height, float, key);
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function $isImageNode(
   node: LexicalNode | null | undefined
 ): node is ImageNode {

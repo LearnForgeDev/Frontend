@@ -13,10 +13,8 @@ import {
   CAN_REDO_COMMAND,
   CAN_UNDO_COMMAND,
   SELECTION_CHANGE_COMMAND,
-  type RangeSelection,
 } from "lexical";
 import {$isLinkNode} from "@lexical/link";
-import {$isAtNodeEnd} from "@lexical/selection";
 import {$getNearestNodeOfType} from "@lexical/utils";
 import {$isListNode, ListNode} from "@lexical/list";
 import {$isHeadingNode} from "@lexical/rich-text";
@@ -25,6 +23,7 @@ import FloatingLinkEditor from "./modals/FloatingLinkEditor.tsx";
 import InsertVideoModal from "./modals/InsertVideoModal.tsx";
 import KatexEquationModal from "./modals/KatexEquationModal.tsx";
 import {INSERT_EQUATION_COMMAND} from "../plugins/EquationsPlugin.tsx";
+import getSelectedNode from "../utils/getSelectedNode.ts";
 
 export default function Toolbar() {
   const [editor] = useLexicalComposerContext();
@@ -36,6 +35,7 @@ export default function Toolbar() {
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
   const [blockType, setBlockType] = useState("paragraph");
+  const [alignment, setAlignment] = useState<'left' | 'center' | 'right' | 'justify'>('left');
   const [isBold, setIsBold] = useState(false);
   const [isItalic, setIsItalic] = useState(false);
   const [isUnderline, setIsUnderline] = useState(false);
@@ -61,59 +61,48 @@ export default function Toolbar() {
   }
 
   const updateToolbar = useCallback(() => {
-    function getSelectedNode(selection: RangeSelection) {
-      const anchor = selection.anchor;
-      const focus = selection.focus;
-      const anchorNode = selection.anchor.getNode();
-      const focusNode = selection.focus.getNode();
-      if (anchorNode === focusNode) {
-        return anchorNode;
-      }
-      const isBackward = selection.isBackward();
-      if (isBackward) {
-        return $isAtNodeEnd(focus) ? anchorNode : focusNode;
-      } else {
-        return $isAtNodeEnd(anchor) ? focusNode : anchorNode;
-      }
-    }
-
     const selection = $getSelection();
-    if ($isRangeSelection(selection)) {
-      const anchorNode = selection.anchor.getNode();
-      const element =
-        anchorNode.getKey() === "root"
-          ? anchorNode
-          : anchorNode.getTopLevelElementOrThrow();
-      const elementKey = element.getKey();
-      const elementDOM = editor.getElementByKey(elementKey);
+    if (!$isRangeSelection(selection)) return;
 
-      setIsBold(selection.hasFormat("bold"));
-      setIsItalic(selection.hasFormat("italic"));
-      setIsUnderline(selection.hasFormat("underline"));
-      setIsStrikethrough(selection.hasFormat("strikethrough"));
-      setIsCode(selection.hasFormat("code"));
+    const anchorNode = selection.anchor.getNode();
+    const element =
+      anchorNode.getKey() === "root"
+        ? anchorNode
+        : anchorNode.getTopLevelElementOrThrow();
+    const elementKey = element.getKey();
+    const elementDOM = editor.getElementByKey(elementKey);
 
-      const node = getSelectedNode(selection);
-      const parent = node.getParent();
-      if ($isLinkNode(parent) || $isLinkNode(node)) {
-        setIsLink(true);
+    setIsBold(selection.hasFormat("bold"));
+    setIsItalic(selection.hasFormat("italic"));
+    setIsUnderline(selection.hasFormat("underline"));
+    setIsStrikethrough(selection.hasFormat("strikethrough"));
+    setIsCode(selection.hasFormat("code"));
+
+    const node = getSelectedNode(selection);
+    const parent = node.getParent();
+    if ($isLinkNode(parent) || $isLinkNode(node)) {
+      setIsLink(true);
+    } else {
+      setIsLink(false);
+    }
+
+    if (elementDOM !== null) {
+      if ($isListNode(element)) {
+        const parentList = $getNearestNodeOfType(anchorNode, ListNode);
+        const type = parentList ? parentList.getListType() : element.getListType();
+        setBlockType(type);
       } else {
-        setIsLink(false);
-      }
-
-      if (elementDOM !== null) {
-        if ($isListNode(element)) {
-          const parentList = $getNearestNodeOfType(anchorNode, ListNode);
-          const type = parentList ? parentList.getListType() : element.getListType();
-          setBlockType(type);
-        } else {
-          const type = $isHeadingNode(element)
-            ? element.getTag()
-            : element.getType();
-          setBlockType(type);
-        }
+        const type = $isHeadingNode(element)
+          ? element.getTag()
+          : element.getType();
+        setBlockType(type);
       }
     }
+
+    const elementAlignNum = element.getFormat();
+    const alignMap = ['left', 'justify', 'center', 'right'] as const;
+    setAlignment(alignMap[elementAlignNum] || 'left');
+
   }, [editor]);
 
   useEffect(() => {
@@ -171,7 +160,11 @@ export default function Toolbar() {
       <div ref={toolbarRef} className={`toolbar ${isFloating ? 'floating' : ''}`}>
         <DefaultButton button={plugins.formatUndo} action={handlePluginClick} disabled={!canUndo}/>
         <DefaultButton button={plugins.formatRedo} action={handlePluginClick} disabled={!canRedo}/>
-        <Dropdown buttons={[plugins.paragraph, plugins.h1, plugins.h2, plugins.quote]} action={handlePluginClick} selected={blockType}/>
+        <Dropdown
+          buttons={[plugins.paragraph, plugins.h1, plugins.h2, plugins.quote]}
+          action={handlePluginClick}
+          value={blockType}
+        />
         <DefaultButton button={plugins.ul} action={handlePluginClick} active={blockType === "bullet"}/>
         <DefaultButton button={plugins.ol} action={handlePluginClick} active={blockType === "number"}/>
         <DefaultButton button={plugins.formatCode} action={handlePluginClick} active={isCode}/>
@@ -180,11 +173,15 @@ export default function Toolbar() {
         <DefaultButton button={plugins.formatUnderline} action={handlePluginClick} active={isUnderline}/>
         <DefaultButton button={plugins.formatStrike} action={handlePluginClick} active={isStrikethrough}/>
         <DefaultButton button={plugins.formatInsertLink} action={handlePluginClick} active={isLink} />
-        <Dropdown buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight]} action={handlePluginClick}/>
+        <Dropdown
+          buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight]}
+          action={handlePluginClick}
+          value={alignment}
+        />
         <DefaultButton button={plugins.insertImage} action={handlePluginClick}/>
-        <DefaultButton  button={plugins.insertVideo} action={handlePluginClick} />
+        <DefaultButton button={plugins.insertVideo} action={handlePluginClick} />
         <DefaultButton button={plugins.insertGraphic} action={handlePluginClick} />
-        <DefaultButton  button={plugins.insertEquation} action={handlePluginClick} />
+        <DefaultButton button={plugins.insertEquation} action={handlePluginClick} />
       </div>
 
       {/*MODALS*/}
