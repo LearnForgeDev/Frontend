@@ -100,7 +100,8 @@ export default function Toolbar() {
     }
 
     const elementAlignNum = element.getFormat();
-    const alignMap = ['left', 'justify', 'center', 'right'] as const;
+    console.log('Element alignment number:', elementAlignNum);
+    const alignMap = ['left', '', 'center', 'right', 'justify'] as const;
     setAlignment(alignMap[elementAlignNum] || 'left');
 
   }, [editor]);
@@ -174,7 +175,7 @@ export default function Toolbar() {
         <DefaultButton button={plugins.formatStrike} action={handlePluginClick} active={isStrikethrough}/>
         <DefaultButton button={plugins.formatInsertLink} action={handlePluginClick} active={isLink} />
         <Dropdown
-          buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight]}
+          buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight, plugins.formatAlignJustify]}
           action={handlePluginClick}
           value={alignment}
         />

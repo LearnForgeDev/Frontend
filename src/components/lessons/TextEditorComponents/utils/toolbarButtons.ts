@@ -14,11 +14,12 @@ import StrikethroughSOutlinedIcon from "../../../../assets/images/toolbarIcons/t
 import ImageIcon from "../../../../assets/images/toolbarIcons/file-image.svg";
 import InsertLinkOutlinedIcon from "../../../../assets/images/toolbarIcons/link.svg";
 import FormatAlignLeftOutlinedIcon from "../../../../assets/images/toolbarIcons/text-left.svg";
-import FormatAlignJustifyOutlinedIcon from "../../../../assets/images/toolbarIcons/text-center.svg";
+import FormatAlignCenterOutlinedIcon from "../../../../assets/images/toolbarIcons/text-center.svg";
 import FormatAlignRightOutlinedIcon from "../../../../assets/images/toolbarIcons/text-right.svg";
 import GraphIcon from "../../../../assets/images/toolbarIcons/desmos.png";
 import YoutubeIcon from "../../../../assets/images/toolbarIcons/youtube.svg";
 import EquationIcon from "../../../../assets/images/toolbarIcons/plus-slash-minus.svg";
+import JustifyIcon from "../../../../assets/images/toolbarIcons/justify.svg";
 
 import type {PluginItem} from "../../../../types/lessonTypes.ts";
 
@@ -40,6 +41,7 @@ export const eventTypes = {
   formatAlignLeft: "left",
   formatAlignCenter: "center",
   formatAlignRight: "right",
+  formatAlignJustify: "justify",
   insertImage: "insertImage",
   insertGraphic: 'insertGraphic',
   insertVideo: 'insertVideo',
@@ -128,7 +130,7 @@ const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
     label: "Выровнять по левому краю",
   },
   formatAlignCenter: {
-    icon: FormatAlignJustifyOutlinedIcon,
+    icon: FormatAlignCenterOutlinedIcon,
     event: eventTypes.formatAlignCenter,
     label: "Выровнять по центру",
   },
@@ -136,6 +138,11 @@ const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
     icon: FormatAlignRightOutlinedIcon,
     event: eventTypes.formatAlignRight,
     label: "Выровнять по правому краю",
+  },
+  formatAlignJustify: {
+    icon: JustifyIcon,
+    event: eventTypes.formatAlignJustify,
+    label: "Выровнять по ширине",
   },
   insertGraphic: {
     icon: GraphIcon,
