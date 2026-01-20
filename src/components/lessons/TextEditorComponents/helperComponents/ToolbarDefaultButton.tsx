@@ -15,6 +15,7 @@ export default function DefaultButton({
     <button
       onClick={() => action(button.event)}
       aria-label={button.label}
+      title={button.label}
       className={`toolbar-button ${active ? 'active' : ''}`}
       disabled={disabled}
     >

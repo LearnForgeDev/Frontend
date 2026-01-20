@@ -25,6 +25,7 @@ import EquationsPlugin from './TextEditorComponents/plugins/EquationsPlugin.tsx'
 import '../../styles/pages/Lessons/components/lexicalEditorTheme.css';
 import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
 import ToggleIsEditable from "./TextEditorComponents/plugins/ToggleIsEditable.tsx";
+import ControlsPlugin from "./TextEditorComponents/plugins/ControlsPlugin.tsx";
 
 export default function TextEditor ({
   isEditMode,
@@ -70,8 +71,10 @@ export default function TextEditor ({
       <YouTubePlugin />
       <RutubePlugin />
       <EquationsPlugin />
-
       <ToggleIsEditable isEditable={isEditMode} />
+
+
+      {isEditMode && <ControlsPlugin />}
     </LexicalComposer>
   )
 }
