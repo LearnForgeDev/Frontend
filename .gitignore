@@ -27,3 +27,4 @@ dist-ssr
 # To potentially be used later in the project
 ./iconsFromExamples
 /.env
+/iconsFromExamples/

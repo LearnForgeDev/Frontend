@@ -8,3 +8,9 @@ export type PluginItem = {
     event: string;
     label: string;
 };
+
+export type viewLessonProps = {
+    id: number | string;
+    title: string;
+    content?: string;
+};
