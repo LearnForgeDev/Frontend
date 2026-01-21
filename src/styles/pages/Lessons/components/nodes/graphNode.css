@@ -1,0 +1,12 @@
+.calculator-desmos {
+  display: block;
+  max-width: 100%;
+  width: 100%;
+  aspect-ratio: 1/0.5;
+}
+
+@media (max-width: 768px){
+    .calculator-desmos {
+        aspect-ratio: 1/2;
+    }
+}

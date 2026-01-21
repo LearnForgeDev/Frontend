@@ -1,0 +1,106 @@
+.insert-image-modal {
+    max-width: 700px;
+    width: 95vw;
+    display: flex;
+    flex-direction: column;
+
+    .title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin: 0 0 1rem 0;
+        color: var(--text);
+        text-align: center;
+    }
+
+    .content {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        gap: 1rem;
+
+        .src-input-group {
+            display: flex;
+            border-radius: 200px;
+            overflow: hidden;
+
+            input {
+                flex: 1;
+                padding: 0.5rem 0.75rem;
+                border: 1px solid var(--border);
+                border-top-left-radius: inherit;
+                border-bottom-left-radius: inherit;
+                font-size: 1rem;
+                color: var(--text);
+                background: var(--bg);
+
+                &:focus {
+                    outline: none;
+                    border-color: var(--accent);
+                }
+            }
+
+            button {
+                padding: 0.5rem 1rem;
+                background: var(--accent);
+                color: var(--alt-text);
+                border: none;
+                font-weight: 600;
+                cursor: pointer;
+                white-space: nowrap;
+
+                animation: ease 1s opacity;
+
+                &:hover {
+                    opacity: 0.9;
+                }
+            }
+
+        }
+
+        .error-txt {
+            color: var(--danger);
+            font-size: 0.875rem;
+            margin: -0.5rem;
+            align-self: center;
+
+           background-color: color-mix(in srgb, var(--danger) 12%, transparent);
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+        }
+
+        .or-txt {
+            text-align: center;
+            color: var(--muted-text);
+            margin: 0;
+        }
+
+        .drag-and-drop-area {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+
+            aspect-ratio: 1/0.5;
+
+            &:hover {
+                border-color: var(--muted-text);
+                background: color-mix(in srgb, var(--muted-text) 8%, transparent);
+                cursor: pointer;
+            }
+
+            &.dragging {
+                border-color: var(--accent);
+                background: color-mix(in srgb, var(--accent) 12%, transparent);
+            }
+
+            span {
+                color: var(--text);
+                font-size: 1rem;
+            }
+        }
+    }
+}

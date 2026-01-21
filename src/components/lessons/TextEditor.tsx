@@ -4,23 +4,64 @@ import {LexicalErrorBoundary} from "@lexical/react/LexicalErrorBoundary";
 import {HistoryPlugin} from "@lexical/react/LexicalHistoryPlugin";
 import {ContentEditable} from "@lexical/react/LexicalContentEditable";
 import {AutoFocusPlugin} from "@lexical/react/LexicalAutoFocusPlugin";
+import {ListPlugin} from "@lexical/react/LexicalListPlugin";
+import LinkPlugin from "./TextEditorComponents/plugins/LinkPlugin.tsx";
+import {HeadingNode, QuoteNode} from "@lexical/rich-text";
+import {ListNode, ListItemNode} from "@lexical/list";
+import {LinkNode, AutoLinkNode} from "@lexical/link";
+import {CodeNode} from "@lexical/code";
+import Toolbar from "./TextEditorComponents/helperComponents/Toolbar.tsx";
+import lexicalEditorTheme from "./TextEditorComponents/utils/lexicalEditorTheme.ts";
+import { ImageNode } from "./TextEditorComponents/nodes/ImageNode";
+import ImagesPlugin from "./TextEditorComponents/plugins/ImagesPlugin.tsx";
+import { GraphNode } from "./TextEditorComponents/nodes/graphNode.tsx";
+import GraphPlugin from "./TextEditorComponents/plugins/GraphPlugin.tsx";
+import { YouTubeNode } from "./TextEditorComponents/nodes/YoutubeNode.tsx";
+import YouTubePlugin from "./TextEditorComponents/plugins/YoutubePlugin.tsx";
+import { RutubeNode } from './TextEditorComponents/nodes/RutubeNode.tsx';
+import RutubePlugin from './TextEditorComponents/plugins/RutubePlugin.tsx';
+import EquationsPlugin from './TextEditorComponents/plugins/EquationsPlugin.tsx';
 
+import '../../styles/pages/Lessons/components/lexicalEditorTheme.css';
+import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
 
 export default function TextEditor () {
   const initialConfig = {
     namespace: 'PostEditor',
-    onError: (error: Error) => console.warn(error)
+    theme: lexicalEditorTheme,
+    nodes: [
+      HeadingNode,
+      QuoteNode,
+      ListNode,
+      ListItemNode,
+      LinkNode,
+      AutoLinkNode,
+      CodeNode,
+      ImageNode,
+      GraphNode,
+      YouTubeNode,
+      RutubeNode,
+      EquationNode,
+    ],
+    onError: (error: Error) => console.warn(error),
   }
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
+      <Toolbar />
       <RichTextPlugin
         contentEditable={<ContentEditable className="editor-input" />}
-        placeholder={<div>Enter some text...</div>}
         ErrorBoundary={LexicalErrorBoundary}
       />
       <AutoFocusPlugin />
       <HistoryPlugin />
+      <ListPlugin />
+      <LinkPlugin />
+      <ImagesPlugin />
+      <GraphPlugin />
+      <YouTubePlugin />
+      <RutubePlugin />
+      <EquationsPlugin />
     </LexicalComposer>
   )
 }
