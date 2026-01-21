@@ -24,8 +24,16 @@ import EquationsPlugin from './TextEditorComponents/plugins/EquationsPlugin.tsx'
 
 import '../../styles/pages/Lessons/components/lexicalEditorTheme.css';
 import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
+import ToggleIsEditable from "./TextEditorComponents/plugins/ToggleIsEditable.tsx";
+import ControlsPlugin from "./TextEditorComponents/plugins/ControlsPlugin.tsx";
 
-export default function TextEditor () {
+export default function TextEditor ({
+  isEditMode,
+  // id
+}: {
+  isEditMode: boolean,
+  id: number | string
+}) {
   const initialConfig = {
     namespace: 'PostEditor',
     theme: lexicalEditorTheme,
@@ -48,7 +56,8 @@ export default function TextEditor () {
 
   return (
     <LexicalComposer initialConfig={initialConfig}>
-      <Toolbar />
+      {isEditMode && <Toolbar/>}
+
       <RichTextPlugin
         contentEditable={<ContentEditable className="editor-input" />}
         ErrorBoundary={LexicalErrorBoundary}
@@ -62,6 +71,10 @@ export default function TextEditor () {
       <YouTubePlugin />
       <RutubePlugin />
       <EquationsPlugin />
+      <ToggleIsEditable isEditable={isEditMode} />
+
+
+      {isEditMode && <ControlsPlugin />}
     </LexicalComposer>
   )
 }

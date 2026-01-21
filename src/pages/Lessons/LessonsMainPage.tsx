@@ -1,4 +1,4 @@
-import type {lessonObject} from "../../types/lessonTypes.ts";
+import type {lessonObject, viewLessonProps} from "../../types/lessonTypes.ts";
 import {LessonItem} from "../../components/lessons/LessonItem.tsx";
 import "../../styles/pages/Lessons/LessonsMainPage.css";
 import {useNavigate} from "react-router-dom";
@@ -14,9 +14,20 @@ export default function LessonsMainPage() {
 
   const lessons = mockLessons; // TODO: Замените на реальный источник данных
 
+  const viewLesson = (
+    isEditMode: boolean,
+    id: number | string,
+    title: string
+  ) => {
+    // I don't want to expose edit mode to a user when they are just viewing a lesson`
+    const path = isEditMode ? `/Lessons/${id}?edit=true` : `/Lessons/${id}`;
 
-  const handleEdit = (id: number | string) => {
-    navigate(`/Lessons/${id}?edit=true`);
+    navigate(path, {
+      state: {
+        id,
+        title,
+      } as viewLessonProps,
+    });
   }
 
   return (
@@ -27,17 +38,17 @@ export default function LessonsMainPage() {
       <main>
         {
           lessons.length === 0
-            ? ( <span className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</span> )
+            ? ( <PlaceHolder /> )
             : (
               <>
-                <input className='lessons-search-bar' />
                 {lessons.map((lesson) => {
                   return (
                     <LessonItem
                       id={lesson.id}
                       title={lesson.title}
-                      isEditable={true}
-                      handleEdit={handleEdit}
+                      isEditable={true} //TODO: Замените на реальную логику проверки прав редактирования
+                      handleEdit={(id, title) => viewLesson(true, id, title)}
+                      handleClick={(id, title) => viewLesson(false, id, title)}
                     />
                   );
                   })
@@ -51,4 +62,8 @@ export default function LessonsMainPage() {
       </main>
     </div>
   )
+}
+
+function PlaceHolder() {
+  return <span className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</span>;
 }

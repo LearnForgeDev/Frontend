@@ -100,7 +100,6 @@ export default function Toolbar() {
     }
 
     const elementAlignNum = element.getFormat();
-    console.log('Element alignment number:', elementAlignNum);
     const alignMap = ['left', '', 'center', 'right', 'justify'] as const;
     setAlignment(alignMap[elementAlignNum] || 'left');
 
@@ -162,7 +161,10 @@ export default function Toolbar() {
         <DefaultButton button={plugins.formatUndo} action={handlePluginClick} disabled={!canUndo}/>
         <DefaultButton button={plugins.formatRedo} action={handlePluginClick} disabled={!canRedo}/>
         <Dropdown
-          buttons={[plugins.paragraph, plugins.h1, plugins.h2, plugins.quote]}
+          buttons={[plugins.paragraph,
+                    plugins.h1,
+                    plugins.h2,
+                    plugins.quote]}
           action={handlePluginClick}
           value={blockType}
         />
@@ -175,7 +177,10 @@ export default function Toolbar() {
         <DefaultButton button={plugins.formatStrike} action={handlePluginClick} active={isStrikethrough}/>
         <DefaultButton button={plugins.formatInsertLink} action={handlePluginClick} active={isLink} />
         <Dropdown
-          buttons={[plugins.formatAlignLeft, plugins.formatAlignCenter, plugins.formatAlignRight, plugins.formatAlignJustify]}
+          buttons={[plugins.formatAlignLeft,
+                    plugins.formatAlignCenter,
+                    plugins.formatAlignRight,
+                    plugins.formatAlignJustify]}
           action={handlePluginClick}
           value={alignment}
         />

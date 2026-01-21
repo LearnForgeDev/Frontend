@@ -54,6 +54,7 @@ export default function Dropdown({
         aria-label={selected.label}
         aria-expanded={isOpen}
         className='toolbar-button dropdown-trigger'
+        title={selected.label}
       >
         <img src={selected.icon} alt={selected.label} />
         <span>{selected.label}</span><span className="dropdown-arrow">▼</span>
@@ -66,6 +67,7 @@ export default function Dropdown({
               onClick={() => handleSelect(button)}
               className={`dropdown-item ${selected.event === button.event ? 'selected' : ''}`}
               aria-label={button.label}
+              title={button.label}
             >
               <img src={button.icon} alt="" />
               <span>{button.label}</span>
