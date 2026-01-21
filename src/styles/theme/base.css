@@ -1,0 +1,25 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family: 'Montserrat', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+html, body, #root, #id {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body, #id {
+    background: var(--page-gradient), var(--bg);
+    background-color: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+}

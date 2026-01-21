@@ -1,0 +1,157 @@
+.features-carousel {
+    position: relative;
+    padding: 1.6rem 0 4.4rem;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    width: 100vw;
+    overflow: hidden;
+    font-family: inherit;
+    background: none;
+}
+
+.features-carousel .carousel-header {
+    max-width: 1280px;
+    margin: 0 auto 1.9rem;
+    padding: 0 clamp(1rem, 4vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    text-align: center;
+}
+
+.features-carousel .carousel-title {
+    display: grid;
+    gap: 0.65rem;
+    max-width: 780px;
+}
+
+.features-carousel .carousel-title h2 {
+    margin: 0;
+    font-size: clamp(1.6rem, 3vw, 2rem);
+}
+
+.features-carousel .carousel-title p {
+    margin: 0;
+    color: var(--muted-text);
+    line-height: 1.7;
+}
+
+.features-carousel .carousel-viewport {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+
+.features-carousel .carousel-track {
+    display: flex;
+    gap: 1.25rem;
+    padding: 0.35rem 0;
+    width: max-content;
+    will-change: transform;
+    cursor: grab;
+    user-select: none;
+    touch-action: pan-y;
+    transition: transform 0.05s linear;
+}
+
+.features-carousel .carousel-track.dragging {
+    cursor: grabbing;
+    transition: none;
+}
+
+.features-carousel .carousel-viewport::-webkit-scrollbar {
+    display: none;
+}
+
+.features-carousel .feature {
+    flex: 0 0 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    min-height: 270px;
+    padding: 1.35rem;
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border-strong);
+    border-radius: 20px;
+    backdrop-filter: blur(var(--blur-amount));
+    box-shadow: var(--feature-card-shadow);
+    color: var(--text);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+    scroll-snap-align: center;
+}
+
+.features-carousel .feature:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--feature-card-shadow-hover);
+}
+
+.features-carousel .feature h3 {
+    margin: 0.4rem 0 0;
+    font-size: 1.25rem;
+}
+
+.features-carousel .feature p {
+    margin: 0;
+    color: var(--muted-text);
+    line-height: 1.6;
+}
+
+.features-carousel .carousel-controls {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.features-carousel .carousel-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 1px solid var(--glass-border-strong);
+    background: var(--glass-bg-strong);
+    color: var(--text);
+    cursor: pointer;
+    box-shadow: var(--carousel-control-shadow);
+    backdrop-filter: blur(var(--blur-amount));
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.features-carousel .carousel-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--carousel-control-border-hover);
+    box-shadow: var(--carousel-control-shadow-hover);
+}
+
+.features-carousel .carousel-btn:focus-visible {
+    outline: 2px solid var(--carousel-control-outline);
+    outline-offset: 2px;
+}
+
+.features-carousel .carousel-btn:active {
+    transform: scale(0.97);
+}
+
+@media (max-width: 900px) {
+    .features-carousel {
+        padding-inline: 0;
+    }
+
+    .features-carousel .feature {
+        flex-basis: 340px;
+        min-height: 250px;
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .features-carousel .feature {
+        flex-basis: 90vw;
+        min-height: 230px;
+        padding: 1.05rem;
+    }
+}

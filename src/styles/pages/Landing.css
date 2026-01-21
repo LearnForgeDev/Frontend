@@ -1,153 +1,87 @@
+@import "./landing/navbar.css";
+@import "./landing/hero.css";
+@import "./landing/carousel.css";
+@import "./landing/faq.css";
+
 .landing-page {
-    background-color: var(--bg);
+    background: var(--landing-gradient);
     min-height: 100vh;
-}
-
-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    width: 100%;
-    min-height: 50vh;
-    margin: 0 auto;
-    max-width: 1200px;
-    padding: 1rem 2rem;
-
     color: var(--text);
-    background-color: var(--bg);
-
-    .headerText {
-        flex: 1 1 auto;
-        min-width: 0;
-
-        .companyName {
-            font-size: clamp(1rem, 7vw, 5rem);
-            font-weight: 600;
-            margin: 0;
-            text-wrap: wrap;
-            max-width: 700px;
-
-            color: var(--text);
-            background-color: var(--bg);
-        }
-        .slogan {
-            font-size: 1rem;
-            font-weight: 400;
-            margin: 0;
-            color: var(--muted-text);
-        }
-    }
-
-    img {
-        height: 50vh;
-        aspect-ratio: 1.5 / 1;
-        object-fit: cover;
-        border-radius: 10%;
-        margin: 0;
-        flex-shrink: 0;
-    }
+    overflow-x: hidden;
+    position: relative;
+    z-index: 0;
 }
 
-.features-carousel {
-    margin-top: 2rem;
-    box-sizing: border-box;
-    display: flex;
-    width: 100vw;
-    overflow-x: auto;
-    flex-direction: row;
-    padding: 0 3rem;
-
-    .features-group {
-        gap: 2rem;
-        flex-direction: row;
-        display: flex;
-        padding-right: 2rem;
-        animation: spin 15s linear infinite;
-
-        .feature {
-            display: flex;
-            flex-direction: column;
-            padding: 1rem 1.5rem;
-            flex: 0 0 auto;
-            min-height: 200px;
-            border: var(--border) 1px solid;
-            background-color: var(--bg);
-            color: var(--text);
-            border-radius: 8px;
-            width: calc(100vw / 3 - 5rem);
-            flex-shrink: 0;
-            scroll-snap-align: center;
-
-            h3 {
-                font-size: 1.5rem;
-                margin: 1rem 0 0.5rem 0;
-            }
-            p {
-                margin: 0;
-            }
-        }
-    }
-}
-.features-carousel::-webkit-scrollbar {
-   display: none;
+.landing-page::before {
+    content: "";
+    position: fixed;
+    top: var(--landing-dots-top, 8vh);
+    left: 50%;
+    width: min(88vw, 1120px);
+    height: 34vh;
+    transform: translateX(-50%);
+    background-image:
+        radial-gradient(
+            circle,
+            var(--landing-dots-color, rgba(26, 22, 37, 0.28)) var(--landing-dots-dot-size, 1px),
+            transparent var(--landing-dots-fade-size, 1.2px)
+        );
+    background-size: var(--landing-dots-gap, 34px) var(--landing-dots-gap, 34px);
+    background-repeat: repeat;
+    opacity: var(--landing-dots-opacity, 0.6);
+    pointer-events: none;
+    z-index: -1;
 }
 
-.features-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 1rem;
-
-    button {
-        width: 3rem;
-        aspect-ratio: 1/1;
-        border: none;
-        background-color: var(--bg);
-        color: var(--text);
-        border-color: var(--border);
-        cursor: pointer;
-        padding: 0;
-
-        &.active {
-            border-radius: 50%;
-            background-color: #666;
-        }
-    }
+.landing-page .section-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.55rem 1.05rem;
+    border-radius: 999px;
+    background: var(--section-kicker-bg);
+    color: var(--accent);
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.03em;
 }
 
-/* Responsive: stack on narrow screens */
-@media (max-width: 900px) {
-    header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        height: auto;
-        padding-bottom: 2rem;
-
-        .headerText {
-            order: 2;
-            .companyName {
-                font-size: clamp(1rem, 3.5rem, 4rem);
-            }
-        }
-        img {
-            order: 1;
-            width: 100%;
-            height: auto;
-            aspect-ratio: 1.5/1;
-        }
-    }
-
-    .features-carousel {
-        .feature {
-            width: 85vw;
-            padding: 1.5rem;
-        }
-    }
+.landing-page .glow-button {
+    --btn-bg-x: 50%;
+    --btn-bg-y: 50%;
+    --btn-glow-x: 50%;
+    --btn-glow-y: 50%;
+    --btn-glow-size: 120%;
+    padding: var(--glow-button-padding, 1rem 2.4rem);
+    font-size: var(--glow-button-font-size, 1.05rem);
+    font-weight: 800;
+    color: var(--glow-button-text, var(--btn-text-color, #04111f));
+    background:
+        radial-gradient(120% 120% at var(--btn-glow-x) var(--btn-glow-y), var(--btn-glow-strong, rgba(255, 255, 255, 0.55)) 0%, var(--btn-glow-soft, rgba(255, 255, 255, 0.25)) 32%, rgba(255, 255, 255, 0) 60%),
+        linear-gradient(120deg, var(--btn-gradient-start, var(--accent)) 0%, var(--btn-gradient-mid, var(--secondary)) 50%, var(--btn-gradient-end, var(--success)) 100%);
+    background-size: var(--btn-glow-size) var(--btn-glow-size), 180% 180%;
+    background-position: center, var(--btn-bg-x) var(--btn-bg-y);
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: var(--glow-button-radius, 16px);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, background-size 0.35s ease;
+    box-shadow: var(--glow-button-shadow, var(--cta-shadow));
 }
 
-@keyframes spin {
-    from { translate: 0; }
-    to { translate: -100%; }
+.landing-page .glow-button:hover {
+    --btn-glow-size: 170%;
+    transform: translateY(-1px);
+    box-shadow: var(--glow-button-shadow-hover, var(--cta-shadow-hover));
+}
+
+.landing-page .glow-button:focus-visible {
+    outline: 2px solid var(--glow-button-outline, var(--cta-focus-outline));
+    outline-offset: 2px;
+}
+
+.landing-page #home,
+.landing-page #features,
+.landing-page #faq {
+    scroll-margin-top: clamp(4.5rem, 8vw, 6rem);
 }

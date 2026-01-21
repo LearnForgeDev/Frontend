@@ -1,14 +1,13 @@
-import  { type ComponentType } from 'react';
-import * as React from "react";
+import type { ComponentType, SVGProps } from 'react';
 
-export type featureProps = {
-  name: string,
-  description: string,
-  icon: ComponentType,
-  backgroundColor: string,
-}
+export type FeatureItem = {
+  name: string;
+  description: string;
+  icon: ComponentType<IconProps>;
+  backgroundColor: string;
+};
 
-export type IconProps = React.SVGProps<SVGSVGElement> & {
+export type IconProps = SVGProps<SVGSVGElement> & {
   size?: number | string;
   color?: string;
   title?: string;
