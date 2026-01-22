@@ -1,5 +1,5 @@
 import type {lessonObject, viewLessonProps} from "../../types/lessonTypes.ts";
-import {LessonItem} from "../../components/lessons/LessonItem.tsx";
+import {LessonItem} from "./Components/LessonItem.tsx";
 import "../../styles/pages/Lessons/LessonsMainPage.css";
 import {useNavigate} from "react-router-dom";
 
