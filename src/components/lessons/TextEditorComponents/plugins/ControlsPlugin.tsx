@@ -1,4 +1,4 @@
-import 'src/styles/pages/Lessons/components/Controls.css';
+import '../../../../styles/pages/Lessons/components/Controls.css';
 import {serializedDocumentFromEditorState} from "@lexical/file";
 import type {LexicalEditor} from "lexical";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';

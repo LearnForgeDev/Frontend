@@ -45,6 +45,7 @@ const DEFAULT_GAP_PX = 20;
 const DEFAULT_CARD_WIDTH = 420;
 const AUTO_SPEED_PX_PER_SEC = 36;
 const STEP_TRANSITION = "transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1)";
+const PAUSE_AFTER_INTERACTION_MS = 2000;
 
 const getTrackGap = (track: HTMLElement | null) => {
     if (!track || typeof window === "undefined") {
@@ -70,12 +71,14 @@ export default function FeaturesCarousel() {
     const [isStepAnimating, setIsStepAnimating] = useState(false);
     const [offset, setOffset] = useState(0);
     const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+    const [isPausedAfterInteraction, setIsPausedAfterInteraction] = useState(false);
 
     const offsetRef = useRef(0);
     const dragStartRef = useRef(0);
     const lastTimeRef = useRef<number | null>(null);
     const stepTimerRef = useRef<number | null>(null);
     const isStepAnimatingRef = useRef(false);
+    const pauseTimerRef = useRef<number | null>(null);
     const trackId = useId();
 
     const loopedFeatures = useMemo(
@@ -211,7 +214,7 @@ export default function FeaturesCarousel() {
             const delta = ts - lastTimeRef.current;
             lastTimeRef.current = ts;
 
-            if (!isPaused && !isDragging && !prefersReducedMotion) {
+            if (!isPaused && !isDragging && !prefersReducedMotion && !isPausedAfterInteraction) {
                 const move = (AUTO_SPEED_PX_PER_SEC * delta) / 1000;
                 applyOffset(offsetRef.current + move);
             }
@@ -221,7 +224,7 @@ export default function FeaturesCarousel() {
 
         frame = requestAnimationFrame(step);
         return () => cancelAnimationFrame(frame);
-    }, [applyOffset, isPaused, isDragging, prefersReducedMotion, repeatCount]);
+    }, [applyOffset, isPaused, isDragging, prefersReducedMotion, isPausedAfterInteraction, repeatCount]);
 
     const getCenteredIndex = (offsetValue: number) => {
         const track = trackRef.current;
@@ -304,6 +307,7 @@ export default function FeaturesCarousel() {
         const targetIndex = Math.round(currentIndex) + direction;
         const targetOffset = getOffsetForIndex(targetIndex);
         animateByDelta(targetOffset - offsetRef.current);
+        startPauseAfterInteraction();
     };
 
     const handlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -334,6 +338,7 @@ export default function FeaturesCarousel() {
         const targetIndex = Math.round(currentIndex);
         const targetOffset = getOffsetForIndex(targetIndex);
         animateByDelta(targetOffset - offsetRef.current);
+        startPauseAfterInteraction();
     };
 
     const trackStyle: CSSProperties = {
@@ -341,10 +346,24 @@ export default function FeaturesCarousel() {
         transition: disableTransition || isDragging || prefersReducedMotion ? "none" : isStepAnimating ? STEP_TRANSITION : "none",
     };
 
+    const startPauseAfterInteraction = useCallback(() => {
+        if (pauseTimerRef.current) {
+            window.clearTimeout(pauseTimerRef.current);
+        }
+        setIsPausedAfterInteraction(true);
+        pauseTimerRef.current = window.setTimeout(() => {
+            setIsPausedAfterInteraction(false);
+            pauseTimerRef.current = null;
+        }, PAUSE_AFTER_INTERACTION_MS);
+    }, []);
+
     useEffect(
         () => () => {
             if (stepTimerRef.current) {
                 window.clearTimeout(stepTimerRef.current);
+            }
+            if (pauseTimerRef.current) {
+                window.clearTimeout(pauseTimerRef.current);
             }
         },
         [],

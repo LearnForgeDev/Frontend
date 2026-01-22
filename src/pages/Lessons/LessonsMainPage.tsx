@@ -49,6 +49,7 @@ export default function LessonsMainPage() {
                       isEditable={true} //TODO: Замените на реальную логику проверки прав редактирования
                       handleEdit={(id, title) => viewLesson(true, id, title)}
                       handleClick={(id, title) => viewLesson(false, id, title)}
+                      key={lesson.id}
                     />
                   );
                   })
