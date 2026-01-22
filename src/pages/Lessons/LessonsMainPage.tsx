@@ -1,18 +1,24 @@
-import type {lessonCompactObject, viewLessonProps} from "../../types/lessonTypes.ts";
+import type {viewLessonProps, lessonCompactObject} from "../../types/lessonTypes.ts";
 import {LessonItem} from "./Components/LessonItem.tsx";
 import "../../styles/pages/Lessons/LessonsMainPage.css";
 import {useNavigate} from "react-router-dom";
-
-const mockLessons: lessonCompactObject[] = [
-  { id: 1, title: 'Урок 1: Введение в программирование' },
-  { id: 2, title: 'Урок 2: Основы JavaScript' },
-  { id: 3, title: 'Урок 3: Работа с DOM' },
-]
+import {getCompactLessons} from "../../server/Lessons.ts";
+import {useEffect, useState} from "react";
 
 export default function LessonsMainPage() {
   const navigate = useNavigate();
+  const [lessons, setLessons] = useState<lessonCompactObject[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const lessons = mockLessons; // TODO: Замените на реальный источник данных
+  useEffect(() => {
+    let active = true;
+    getCompactLessons()
+      .then((data) => { if (active) setLessons(data); })
+      .catch((err) => { if (active) setError(err.message); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
   const viewLesson = (
     isEditMode: boolean,
@@ -36,34 +42,48 @@ export default function LessonsMainPage() {
         <h1>Мои уроки</h1>
       </header>
       <main>
-        {
-          lessons.length === 0
-            ? ( <PlaceHolder /> )
-            : (
+        {loading && <LessonsSkeletonLoader />}
+        {!loading && error && (
+          <span className='placeholderText'>Не удалось загрузить уроки: {error}</span>
+        )}
+        {!loading && !error && (
+          <>
+            {lessons.length === 0 ? (
+              <PlaceHolder />
+            ) : (
               <>
-                {lessons.map((lesson) => {
-                  return (
-                    <LessonItem
-                      id={lesson.id}
-                      title={lesson.title}
-                      isEditable={true} //TODO: Замените на реальную логику проверки прав редактирования
-                      handleEdit={(id: string | number, title: string) => viewLesson(true, id, title)}
-                      handleClick={(id: string | number, title: string) => viewLesson(false, id, title)}
-                      key={lesson.id}
-                    />
-                  );
-                  })
-                }
+                {lessons.map((lesson) => (
+                  <LessonItem
+                    id={lesson.id}
+                    title={lesson.title}
+                    isEditable={true}
+                    handleEdit={(id: string | number, title: string) => viewLesson(true, id, title)}
+                    handleClick={(id: string | number, title: string) => viewLesson(false, id, title)}
+                    key={lesson.id}
+                  />
+                ))}
               </>
-            )
-        }
+            )}
+          </>
+        )}
         <button className="create-lesson-button" aria-label="Создать новый урок">
           Создать урок
         </button>
       </main>
     </div>
-  )
+  );
 }
+
+function LessonsSkeletonLoader() {
+  return (
+    <>
+      {[1, 2, 3, 4].map((i) => (
+        <div key={i} className="lesson-item skeleton-animation" style={{width: '2rem'}}></div>
+      ))}
+    </>
+  );
+}
+
 
 function PlaceHolder() {
   return <span className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</span>;

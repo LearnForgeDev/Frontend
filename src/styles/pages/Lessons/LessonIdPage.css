@@ -1,17 +1,20 @@
+@import "../../theme/animations.css";
+
 .lesson-id-page {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
-    width: min(95%, 1000px);
-    margin: 0 auto;
+  width: min(95%, 1000px);
+  margin: 0 auto;
 
-    .lesson-name {
-        text-align: center;
-        padding: 0.2rem;
+  .lesson-name {
+    text-align: center;
+    padding: 0.2rem;
 
-        &.editable {
-            border: var(--muted-text) 2px dashed;
-        }
+    &.editable {
+      border: var(--muted-text) 2px dashed;
     }
+  }
 }
+

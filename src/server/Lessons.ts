@@ -1,5 +1,5 @@
 import type {SerializedEditor} from "lexical";
-import type {lessonObject} from "../types/lessonTypes.ts";
+import type {lessonCompactObject, lessonObject} from "../types/lessonTypes.ts";
 
 export async function sendEditorStateAsJson(
   id: string | number,
@@ -32,4 +32,18 @@ export async function getEditorStateAsJson(
   }
   const data = await res.json();
   return data as lessonObject;
+}
+
+export async function getCompactLessons(): Promise<lessonCompactObject[]> {
+  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+  }
+  const data = await res.json();
+  return data as lessonCompactObject[];
 }

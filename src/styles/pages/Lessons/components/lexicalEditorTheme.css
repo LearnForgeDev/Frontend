@@ -164,7 +164,7 @@
 .editor-input {
     min-height: 30vh;
     border: var(--border) 1px solid;
-    padding: 0 1rem;
+    padding:  1rem 3rem;
 
     background-color: hsl(from var(--bg) h s calc(l + 100));
 
@@ -189,5 +189,20 @@
                 display: block;
             }
         }
+    }
+}
+
+@media (max-width: 768px) {
+    #root, body, html {
+        box-sizing: border-box;
+    }
+
+    .lesson-id-page {
+        margin: 0;
+    }
+
+    .editor-input {
+        width: 100%;
+        padding: 1rem;
     }
 }
