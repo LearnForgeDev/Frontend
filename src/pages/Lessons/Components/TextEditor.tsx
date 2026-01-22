@@ -26,13 +26,17 @@ import '../../../styles/pages/Lessons/components/lexicalEditorTheme.css';
 import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
 import ToggleIsEditable from "./TextEditorComponents/plugins/ToggleIsEditable.tsx";
 import ControlsPlugin from "./TextEditorComponents/plugins/ControlsPlugin.tsx";
+import LoadPreviousStatePlugin from "./TextEditorComponents/plugins/LoadPreviousStatePlugin.tsx";
+import type {lessonObject} from "../../../types/lessonTypes.ts";
 
 export default function TextEditor ({
   isEditMode,
-  // id
+  id,
+  editorStatePromise
 }: {
   isEditMode: boolean,
-  id: number | string
+  id: number | string,
+  editorStatePromise: Promise<lessonObject>
 }) {
   const initialConfig = {
     namespace: 'PostEditor',
@@ -72,9 +76,9 @@ export default function TextEditor ({
       <RutubePlugin />
       <EquationsPlugin />
       <ToggleIsEditable isEditable={isEditMode} />
+      <LoadPreviousStatePlugin editorStatePromise={editorStatePromise} />
 
-
-      {isEditMode && <ControlsPlugin />}
+      {isEditMode && <ControlsPlugin lessonId={id} />}
     </LexicalComposer>
   )
 }

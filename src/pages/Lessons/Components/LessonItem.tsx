@@ -1,4 +1,4 @@
-import type {lessonObject} from "../../../types/lessonTypes.ts";
+import type {lessonCompactObject} from "../../../types/lessonTypes.ts";
 import LessonItemIcon from "../../../assets/images/LessonItemIcon.tsx";
 import "../../../styles/pages/Lessons/components/lessonItem.css";
 import type {MouseEvent} from "react";
@@ -9,7 +9,7 @@ export function LessonItem(
     isEditable,
     handleEdit,
     handleClick,
-  }: lessonObject &
+  }: lessonCompactObject &
     {
       isEditable?: boolean,
       handleEdit: (id: number | string, title: string) => void,
@@ -34,7 +34,9 @@ export function LessonItem(
             }}>
             ✏️
           </button>
-          <button className="delete-lesson-button" aria-label={`Удалить ${title}`}>
+          <button className="delete-lesson-button" aria-label={`Удалить ${title}`} onClick={(event: MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+          }}>
             🗑️
           </button>
         </div>

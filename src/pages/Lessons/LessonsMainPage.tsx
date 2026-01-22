@@ -1,9 +1,9 @@
-import type {lessonObject, viewLessonProps} from "../../types/lessonTypes.ts";
+import type {lessonCompactObject, viewLessonProps} from "../../types/lessonTypes.ts";
 import {LessonItem} from "./Components/LessonItem.tsx";
 import "../../styles/pages/Lessons/LessonsMainPage.css";
 import {useNavigate} from "react-router-dom";
 
-const mockLessons: lessonObject[] = [
+const mockLessons: lessonCompactObject[] = [
   { id: 1, title: 'Урок 1: Введение в программирование' },
   { id: 2, title: 'Урок 2: Основы JavaScript' },
   { id: 3, title: 'Урок 3: Работа с DOM' },
@@ -47,8 +47,8 @@ export default function LessonsMainPage() {
                       id={lesson.id}
                       title={lesson.title}
                       isEditable={true} //TODO: Замените на реальную логику проверки прав редактирования
-                      handleEdit={(id, title) => viewLesson(true, id, title)}
-                      handleClick={(id, title) => viewLesson(false, id, title)}
+                      handleEdit={(id: string | number, title: string) => viewLesson(true, id, title)}
+                      handleClick={(id: string | number, title: string) => viewLesson(false, id, title)}
                       key={lesson.id}
                     />
                   );

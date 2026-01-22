@@ -6,7 +6,7 @@ import {sendEditorStateAsJson} from "../../../../../server/Lessons.ts";
 import {BeatLoader} from "react-spinners";
 import { useState } from 'react';
 
-export default function ControlsPlugin() {
+export default function ControlsPlugin({lessonId} : {lessonId: string | number}) {
   const [editor] = useLexicalComposerContext();
 
   return (
@@ -15,22 +15,23 @@ export default function ControlsPlugin() {
     >
       <SaveButton
         editor={editor}
+        lessonId={lessonId}
       />
     </div>
   );
 }
 
-function SaveButton({editor}: {editor: LexicalEditor}) {
+function SaveButton({lessonId, editor}: {lessonId: string | number, editor: LexicalEditor}) {
   const [isLoading, setIsLoading] = useState(false);
 
   const serializeEditor = async (editor: LexicalEditor) => {
     return serializedDocumentFromEditorState(editor.getEditorState(),);
   }
 
-  const handleSave = () => {
+  const handleSave = (id: number | string) => {
     setIsLoading(true);
     serializeEditor(editor)
-      .then((serializedEditor) => sendEditorStateAsJson(serializedEditor))
+      .then((serializedEditor) => sendEditorStateAsJson(id, serializedEditor))
       .then(() => {
         alert('Урок успешно сохранён');
       })
@@ -44,7 +45,7 @@ function SaveButton({editor}: {editor: LexicalEditor}) {
 
   return (
     <button
-      onClick={handleSave}
+      onClick={() => handleSave(lessonId)}
       disabled={isLoading}
     >
       {isLoading ? <BeatLoader size={8} color="#ffffff" /> : 'Сохранить'}

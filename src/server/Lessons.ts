@@ -1,28 +1,35 @@
 import type {SerializedEditor} from "lexical";
+import type {lessonObject} from "../types/lessonTypes.ts";
 
 export async function sendEditorStateAsJson(
+  id: string | number,
   serializedEditor: SerializedEditor,
 ) {
-  // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 3000));
-
-  if (serializedEditor) {
-    console.log(serializedEditor)
-    return true;
+  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons/${id}/editor-state`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(serializedEditor),
+  });
+  if (!res.ok) {
+    throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
   }
+  return res;
+}
 
-  // const res = await fetch('example.com', {
-  //   method: 'POST',
-  //   headers: {
-  //     'Content-Type': 'application/json',
-  //     // Add auth header if needed:
-  //     // 'Authorization': `Bearer ${token}`,
-  //   },
-  //   credentials: 'same-origin', // or 'include' if you rely on cookies
-  //   body: JSON.stringify(serializedEditor),
-  // });
-  // if (!res.ok) {
-  //   throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
-  // }
-  // return res;
+export async function getEditorStateAsJson(
+  id: string | number,
+): Promise<lessonObject> {
+  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons/${id}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!res.ok) {
+    throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+  }
+  const data = await res.json();
+  return data as lessonObject;
 }
