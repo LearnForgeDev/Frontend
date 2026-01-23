@@ -28,6 +28,7 @@ import ToggleIsEditable from "./TextEditorComponents/plugins/ToggleIsEditable.ts
 import ControlsPlugin from "./TextEditorComponents/plugins/ControlsPlugin.tsx";
 import LoadPreviousStatePlugin from "./TextEditorComponents/plugins/LoadPreviousStatePlugin.tsx";
 import type {lessonObject} from "../../../types/lessonTypes.ts";
+import AutoSavePlugin from "./TextEditorComponents/plugins/AutoSavePlugin.tsx";
 
 export default function TextEditor ({
   isEditMode,
@@ -76,7 +77,11 @@ export default function TextEditor ({
       <RutubePlugin />
       <EquationsPlugin />
       <ToggleIsEditable isEditable={isEditMode} />
-      <LoadPreviousStatePlugin editorStatePromise={editorStatePromise} />
+      <LoadPreviousStatePlugin
+        editorStatePromise={editorStatePromise}
+        lessonId={id}
+      />
+      <AutoSavePlugin lessonId={id} />
 
       {isEditMode && <ControlsPlugin lessonId={id} />}
     </LexicalComposer>
