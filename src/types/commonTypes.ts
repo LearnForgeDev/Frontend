@@ -6,3 +6,10 @@ export type IconProps = React.SVGProps<SVGSVGElement> & {
   title?: string;
   backgroundColor?: string;
 };
+
+export type NotificationProps = {
+  success?: boolean
+  title?: string,
+  message: string,
+  durationMS?: number,
+}
