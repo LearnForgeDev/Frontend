@@ -1,31 +1,71 @@
 .skeleton-animation {
-  background-color: rgba(128, 128, 128, 0.2);
+  --skeleton-delay: 0s;
+  background-color: var(--skeleton-base, rgba(128, 128, 128, 0.2));
   position: relative;
   overflow: hidden;
   border: 1px solid var(--border);
+  border-color: color-mix(in srgb, var(--border) 70%, transparent);
+  border-radius: inherit;
+  animation: skeletonPulse 2.4s ease-in-out infinite;
+  animation-delay: var(--skeleton-delay);
 }
 
 .skeleton-animation::before {
   content: '';
   position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  transform: translateX(-120%);
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.2) 50%,
+    var(--skeleton-highlight, rgba(255, 255, 255, 0.35)) 45%,
     transparent 100%
   );
-  animation: shimmer 1.5s infinite ease-in-out;
+  animation: skeletonShimmer 1.6s infinite ease-in-out;
+  animation-delay: var(--skeleton-delay);
 }
 
-@keyframes shimmer {
+@keyframes skeletonShimmer {
   0% {
-    left: -100%;
+    transform: translateX(-120%);
   }
   100% {
-    left: 100%;
+    transform: translateX(120%);
+  }
+}
+
+@keyframes skeletonPulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes lessonPageIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px) scale(0.995);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-animation {
+    animation: none;
+  }
+
+  .skeleton-animation::before {
+    animation: none;
+  }
+
+  .lessons-main-page,
+  .lesson-id-page {
+    animation: none;
   }
 }

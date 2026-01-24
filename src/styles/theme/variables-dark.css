@@ -5,6 +5,9 @@
     --text: #e7f2ff;
     --muted-text: #a7b6cf;
     --border: #1b2740;
+    --skeleton-base: rgba(11, 18, 32, 0.78);
+    --skeleton-highlight: rgba(231, 242, 255, 0.16);
+    --skeleton-glow: rgba(124, 247, 210, 0.24);
     --accent: #7cf7d2;
     --secondary: #6cbaff;
     --success: #c7f36d;

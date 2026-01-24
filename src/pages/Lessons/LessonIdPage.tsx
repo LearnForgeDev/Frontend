@@ -2,7 +2,7 @@ import {useLocation, useParams, useSearchParams} from "react-router-dom";
 import TextEditor from "./Components/TextEditor.tsx";
 import '../../styles/pages/Lessons/LessonIdPage.css';
 import type {viewLessonProps} from "../../types/lessonTypes.ts";
-import {Suspense, useMemo} from "react";
+import {Suspense, useMemo, type CSSProperties} from "react";
 import {getEditorStateAsJson} from "../../server/Lessons.ts";
 
 export default function LessonIdPage() {
@@ -37,23 +37,36 @@ export default function LessonIdPage() {
 }
 
 function SkeletonBox() {
+  const lines = [
+    { width: '52%', height: '1.5rem', margin: '0.8rem auto 0.2rem' },
+    { width: '70%', height: '1rem' },
+    { width: '100%', height: '1rem' },
+    { width: '95%', height: '1rem' },
+    { width: '100%', height: '1rem' },
+    { width: '85%', height: '1rem' },
+    { width: '44%', height: '1.2rem', margin: '1.8rem auto 0.6rem' },
+    { width: '100%', height: '1rem' },
+    { width: '100%', height: '1rem' },
+    { width: '92%', height: '1rem' },
+    { width: '88%', height: '1rem' },
+    { width: '100%', height: '1rem' },
+    { width: '97%', height: '1rem' },
+  ];
+
   return (
-    <div className="editor-input" style={{display: 'flex', flexDirection: 'column', gap: "1rem"}} >
-      <div className='skeleton-animation' style={{width: '50%', margin: '1rem auto', height: '1.5rem', borderRadius: 10}}></div>
-      <div className='skeleton-animation' style={{width: '70%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '95%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '85%', borderRadius: 10, height: '1rem'}}></div>
-
-      <div className='skeleton-animation' style={{width: '40%', margin: '2rem auto 1rem auto', height: '1.2rem', borderRadius: 10}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '92%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '88%', borderRadius: 10, height: '1rem'}}></div>
-
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '97%', borderRadius: 10, height: '1rem'}}></div>
+    <div className="editor-input lesson-editor-skeleton" aria-hidden="true">
+      {lines.map((line, index) => (
+        <div
+          key={`${line.width}-${index}`}
+          className="skeleton-animation lesson-editor-skeleton__line"
+          style={{
+            width: line.width,
+            height: line.height,
+            margin: line.margin,
+            '--skeleton-delay': `${index * 0.08}s`,
+          } as CSSProperties}
+        />
+      ))}
     </div>
   );
 }
