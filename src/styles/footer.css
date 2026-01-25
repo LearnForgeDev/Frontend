@@ -1,5 +1,5 @@
 .site-footer {
-    margin-top: clamp(2.5rem, 5vw, 3.5rem);
+    margin-top: auto;
     padding: 1rem clamp(1rem, 4vw, 2.8rem);
     background: transparent;
     color: var(--text);

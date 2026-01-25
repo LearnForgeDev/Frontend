@@ -167,6 +167,7 @@
     padding:  1rem 3rem;
 
     background-color: hsl(from var(--bg) h s calc(l + 100));
+    color: var(--text);
 
     border-bottom-right-radius: 10px;
     border-bottom-left-radius: 10px;
@@ -190,6 +191,11 @@
             }
         }
     }
+}
+
+[data-theme="dark"] .editor-input {
+    background-color: var(--glass-bg-strong);
+    border-color: var(--glass-border-strong);
 }
 
 @media (max-width: 768px) {

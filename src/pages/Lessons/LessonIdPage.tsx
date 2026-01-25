@@ -1,4 +1,4 @@
-import {useLocation, useParams, useSearchParams} from "react-router-dom";
+import {useLocation, useNavigate, useParams, useSearchParams} from "react-router-dom";
 import TextEditor from "./Components/TextEditor.tsx";
 import '../../styles/pages/Lessons/LessonIdPage.css';
 import type {viewLessonProps} from "../../types/lessonTypes.ts";
@@ -12,6 +12,7 @@ export default function LessonIdPage() {
   const { id: paramId } = useParams<{id: string}>();
   const locationState = useLocation()?.state as viewLessonProps | null;
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const isEditMode = searchParams.get('edit') === 'true';
 
   const id = locationState?.id ?? paramId;
@@ -21,10 +22,36 @@ export default function LessonIdPage() {
 
   return (
     <div className='lesson-id-page'>
-      <h1
-        className={`lesson-name ${isEditMode ? 'editable' : ''}`}
-        contentEditable={isEditMode}
-      >{title}</h1>
+      <div className="lesson-header">
+        <button
+          type="button"
+          className="lesson-back-button"
+          aria-label="Назад"
+          onClick={() => {
+            if (window.history.length > 1) {
+              navigate(-1);
+            } else {
+              navigate('/Lessons');
+            }
+          }}
+        >
+          <svg className="lesson-back-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M15 5L8 12l7 7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <h1
+          className={`lesson-name ${isEditMode ? 'editable' : ''}`}
+          contentEditable={isEditMode}
+        >{title}</h1>
+        <span className="lesson-header-spacer" aria-hidden="true" />
+      </div>
       <Suspense fallback={<SkeletonBox />}>
         <TextEditor
           isEditMode={isEditMode}

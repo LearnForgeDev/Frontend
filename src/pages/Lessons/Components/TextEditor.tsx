@@ -80,8 +80,9 @@ export default function TextEditor ({
       <LoadPreviousStatePlugin
         editorStatePromise={editorStatePromise}
         lessonId={id}
+        isEditMode={isEditMode}
       />
-      <AutoSavePlugin lessonId={id} />
+      {isEditMode && <AutoSavePlugin lessonId={id} />}
 
       {isEditMode && <ControlsPlugin lessonId={id} />}
     </LexicalComposer>

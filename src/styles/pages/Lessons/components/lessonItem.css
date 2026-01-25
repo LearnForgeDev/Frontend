@@ -84,6 +84,11 @@
                 box-shadow: 0 12px 24px rgba(2, 8, 20, 0.22);
             }
 
+            &.edit-lesson-button:hover {
+                background-color: var(--secondary);
+                border-color: var(--secondary);
+            }
+
             &.delete-lesson-button:hover {
                 background-color: var(--danger);
                 border-color: var(--danger);
@@ -162,4 +167,9 @@
             height: 28px;
         }
     }
+}
+
+[data-theme="dark"] .lesson-item .controls button.edit-lesson-button:hover {
+    background-color: var(--accent);
+    border-color: var(--accent);
 }

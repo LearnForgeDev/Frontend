@@ -10,7 +10,9 @@
     --accent: #7cf7d2;
     --secondary: #6cbaff;
     --success: #c7f36d;
+    --danger: #f87171;
     --selected: rgba(124, 247, 210, 0.25);
+    --alt-text: #04111f;
     --footer-separator: rgba(255, 255, 255, 0.12);
 
     --btn-gradient-start: #7cf7d2;

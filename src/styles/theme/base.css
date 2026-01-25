@@ -16,6 +16,12 @@ html, body, #root, #id {
     width: 100%;
 }
 
+#root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
 body, #id {
     background: var(--page-gradient), var(--bg);
     background-color: var(--bg);
