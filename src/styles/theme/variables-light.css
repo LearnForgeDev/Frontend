@@ -8,14 +8,10 @@
     --border: #e8e0f0;
     --skeleton-base: rgba(229, 223, 242, 0.9);
     --skeleton-highlight: rgba(255, 255, 255, 0.85);
-    --skeleton-glow: rgba(139, 92, 246, 0.18);
     --accent: #8b5cf6;
     --secondary: #ec4899;
-    --success: #f59e0b;
+    --success: #22c55e;
     --selected: rgba(139, 92, 246, 0.14);
-    --footer-bg: linear-gradient(180deg, #1e1b2e 0%, #13111c 100%);
-    --footer-border: rgba(26, 22, 37, 0.12);
-    --footer-text: #3d3654;
     --footer-separator: rgba(139, 92, 246, 0.15);
 
     --btn-gradient-start: #4c2ab0;
@@ -31,10 +27,7 @@
     --glass-border: rgba(139, 92, 246, 0.2);
     --glass-border-strong: rgba(99, 102, 241, 0.25);
     --glass-shadow: 0 26px 90px rgba(99, 102, 241, 0.12);
-    --glass-shadow-hover: 0 36px 120px rgba(99, 102, 241, 0.18);
     --blur-amount: 20px;
-    --gradient-accent: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(139, 92, 246, 0.18) 50%, rgba(167, 139, 250, 0.14) 100%);
-    --gradient-glow: radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.25), transparent 36%), radial-gradient(circle at 78% 10%, rgba(139, 92, 246, 0.22), transparent 34%), radial-gradient(circle at 35% 78%, rgba(167, 139, 250, 0.18), transparent 36%);
     --landing-gradient:
         radial-gradient(120% 120% at 12% 10%, rgba(124, 58, 237, 0.16), transparent 42%),
         radial-gradient(120% 120% at 88% 6%, rgba(192, 132, 252, 0.12), transparent 44%),
@@ -60,19 +53,6 @@
     --nav-login-shadow: 0 12px 26px rgba(44, 38, 96, 0.2), 0 10px 22px rgba(90, 86, 196, 0.28), 0 0 34px rgba(136, 130, 246, 0.5);
     --nav-login-shadow-hover: 0 16px 34px rgba(44, 38, 96, 0.24), 0 14px 28px rgba(90, 86, 196, 0.38), 0 0 46px rgba(136, 130, 246, 0.65);
     --nav-login-outline: rgba(104, 104, 220, 0.5);
-
-    --toggle-bg-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.08));
-    --toggle-dot-shadow: 0 6px 12px rgba(99, 102, 241, 0.4);
-    --toggle-trigger-gradient: linear-gradient(135deg, rgba(99, 102, 241, 0.16), rgba(139, 92, 246, 0.14));
-    --toggle-hover-border: rgba(99, 102, 241, 0.4);
-    --toggle-focus-outline: rgba(99, 102, 241, 0.5);
-    --toggle-arrow-gradient: linear-gradient(180deg, rgba(99, 102, 241, 0.95), rgba(139, 92, 246, 0.8));
-    --toggle-menu-gradient: linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.08));
-    --toggle-menu-surface: linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(250, 248, 255, 0.92));
-    --toggle-option-hover-bg: rgba(99, 102, 241, 0.14);
-    --toggle-option-hover-border: rgba(99, 102, 241, 0.32);
-    --toggle-option-selected-bg: linear-gradient(135deg, rgba(99, 102, 241, 0.18), rgba(139, 92, 246, 0.16));
-    --toggle-option-selected-border: rgba(99, 102, 241, 0.45);
 
     --landing-nav-bg:
         radial-gradient(140% 180% at 10% 0%, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0) 60%),

@@ -7,7 +7,7 @@ import type { LexicalEditor } from "lexical";
 export default function AutoSavePlugin({lessonId}: {lessonId: number | string}): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
-  const SAVE_LOCALLY_INTERVAL_MS = 30_000;
+  const SAVE_LOCALLY_INTERVAL_MS = 10_000;
   const SAVE_TO_SERVER_INTERVAL_MS = 15 * 60_000;
 
   useEffect(() => {
