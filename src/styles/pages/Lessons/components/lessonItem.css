@@ -102,12 +102,16 @@
 
             &.delete-lesson-button:hover {
                 background:
+                    radial-gradient(120% 120% at 20% 20%, color-mix(in srgb, var(--danger) 75%, #ffffff) 0%, rgba(255, 255, 255, 0) 55%),
                     linear-gradient(
                         120deg,
-                        color-mix(in srgb, var(--danger) 85%, #ffffff) 0%,
+                        color-mix(in srgb, var(--danger) 88%, #ff7a7a) 0%,
                         var(--danger) 55%,
-                        color-mix(in srgb, var(--danger) 85%, #000000) 100%
+                        color-mix(in srgb, var(--danger) 82%, #4c0b0b) 100%
                     );
+                background-size: 140% 140%, 180% 180%;
+                background-position: center, 50% 50%;
+                background-repeat: no-repeat;
                 border-color: transparent;
             }
 
