@@ -77,6 +77,12 @@
             box-shadow: 0 8px 18px rgba(2, 8, 20, 0.16);
             transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
 
+            svg {
+                width: 18px;
+                height: 18px;
+                filter: none;
+            }
+
             &:hover {
                 background-color: var(--accent);
                 border-color: var(--accent);
@@ -85,13 +91,24 @@
             }
 
             &.edit-lesson-button:hover {
-                background-color: var(--secondary);
-                border-color: var(--secondary);
+                background:
+                    radial-gradient(120% 120% at 20% 20%, var(--btn-glow-strong, rgba(255, 255, 255, 0.55)) 0%, var(--btn-glow-soft, rgba(255, 255, 255, 0.25)) 32%, rgba(255, 255, 255, 0) 60%),
+                    linear-gradient(120deg, var(--btn-gradient-start, var(--accent)) 0%, var(--btn-gradient-mid, var(--secondary)) 50%, var(--btn-gradient-end, var(--success)) 100%);
+                background-size: 140% 140%, 180% 180%;
+                background-position: center, 50% 50%;
+                background-repeat: no-repeat;
+                border-color: transparent;
             }
 
             &.delete-lesson-button:hover {
-                background-color: var(--danger);
-                border-color: var(--danger);
+                background:
+                    linear-gradient(
+                        120deg,
+                        color-mix(in srgb, var(--danger) 85%, #ffffff) 0%,
+                        var(--danger) 55%,
+                        color-mix(in srgb, var(--danger) 85%, #000000) 100%
+                    );
+                border-color: transparent;
             }
 
             &:active {

@@ -124,6 +124,31 @@
     gap: 0.9rem;
 }
 
+[data-theme="light"] .lessons-main-page {
+    .create-lesson-button {
+        --btn-glow-size: 140%;
+        color: var(--btn-text-color);
+        background:
+            radial-gradient(120% 120% at 20% 20%, var(--btn-glow-strong, rgba(255, 255, 255, 0.55)) 0%, var(--btn-glow-soft, rgba(255, 255, 255, 0.25)) 32%, rgba(255, 255, 255, 0) 60%),
+            linear-gradient(120deg, var(--btn-gradient-start, var(--accent)) 0%, var(--btn-gradient-mid, var(--secondary)) 50%, var(--btn-gradient-end, var(--success)) 100%);
+        background-size: var(--btn-glow-size) var(--btn-glow-size), 180% 180%;
+        background-position: center, 50% 50%;
+        background-repeat: no-repeat;
+        box-shadow: var(--cta-shadow);
+        transition: transform 0.2s ease, box-shadow 0.25s ease, background-size 0.35s ease;
+    }
+
+    .create-lesson-button:hover {
+        --btn-glow-size: 170%;
+        box-shadow: var(--cta-shadow-hover);
+        transform: translateY(-1px);
+    }
+
+    .create-lesson-button:active {
+        transform: translateY(0);
+    }
+}
+
 [data-theme="dark"] .lessons-main-page {
     main {
         background: var(--glass-bg-strong);
