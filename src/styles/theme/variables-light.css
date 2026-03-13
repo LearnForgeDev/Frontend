@@ -8,7 +8,8 @@
     --border: #e8e0f0;
     --accent: #8b5cf6;
     --secondary: #ec4899;
-    --success: #f59e0b;
+    --success: #1f8b4c;
+    --danger: #b02424;
     --selected: rgba(139, 92, 246, 0.14);
     --footer-bg: linear-gradient(180deg, #1e1b2e 0%, #13111c 100%);
     --footer-border: rgba(26, 22, 37, 0.12);
