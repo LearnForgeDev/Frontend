@@ -1,5 +1,5 @@
 import type {NotificationProps} from "../types/commonTypes";
-import Notification from "../CommonComponents/Notification";
+import Notification from "../assets/CommonComponents/Notification";
 import {createRoot} from "react-dom/client";
 
 export default function sendNotification ({success, title = '', message, durationMS}: NotificationProps) {

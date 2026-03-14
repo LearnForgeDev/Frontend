@@ -1,4 +1,4 @@
-import type { NotificationProps } from "../types/commonTypes";
+import type { NotificationProps } from "../../types/commonTypes.ts";
 import { useEffect, useState } from "react";
 
 type NotificationWithClose = NotificationProps & {

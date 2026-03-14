@@ -1,4 +1,4 @@
-import {Modal} from "../../../../../../CommonComponents/Modal.tsx";
+import {Modal} from "../../../../../../assets/CommonComponents/Modal.tsx";
 import {useState} from "react";
 import '../../../../../../styles/pages/Lessons/components/modals/insertVideoModal.css';
 import {$getSelection, $insertNodes, $isRangeSelection, type LexicalEditor} from "lexical";

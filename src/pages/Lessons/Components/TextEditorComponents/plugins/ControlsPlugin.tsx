@@ -2,7 +2,6 @@ import '../../../../../styles/pages/Lessons/components/Controls.css';
 import {serializedDocumentFromEditorState} from "@lexical/file";
 import type {LexicalEditor} from "lexical";
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {sendEditorStateAsJson} from "../../../../../server/Lessons.ts";
 import {BeatLoader} from "react-spinners";
 import { useState } from 'react';
 
@@ -31,9 +30,9 @@ function SaveButton({lessonId, editor}: {lessonId: string | number, editor: Lexi
   const handleSave = (id: number | string) => {
     setIsLoading(true);
     serializeEditor(editor)
-      .then((serializedEditor) => sendEditorStateAsJson(id, serializedEditor))
+      // .then((serializedEditor) => sendEditorStateAsJson(id, serializedEditor))
       .then(() => {
-        alert('Урок успешно сохранён');
+        alert(`Урок успешно сохранён! (id: ${id})`);
       })
       .catch(() => {
         alert('Не удалось сохранить урок');

@@ -2,7 +2,6 @@ import type {viewLessonProps, lessonCompactObject} from "../../types/lessonTypes
 import {LessonItem} from "./Components/LessonItem.tsx";
 import "../../styles/pages/Lessons/LessonsMainPage.css";
 import {useNavigate} from "react-router-dom";
-import {getCompactLessons} from "../../server/Lessons.ts";
 import {useEffect, useState} from "react";
 
 export default function LessonsMainPage() {
@@ -13,7 +12,7 @@ export default function LessonsMainPage() {
 
   useEffect(() => {
     let active = true;
-    getCompactLessons()
+    getMockLessons()
       .then((data) => { if (active) setLessons(data); })
       .catch((err) => { if (active) setError(err.message); })
       .finally(() => { if (active) setLoading(false); });
@@ -84,7 +83,20 @@ function LessonsSkeletonLoader() {
   );
 }
 
-
 function PlaceHolder() {
   return <span className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</span>;
+}
+
+const MOCK_LESSONS: lessonCompactObject[] = [
+  { id: 1, title: "Введение в математику" },
+  { id: 2, title: "Алгебра: линейные уравнения" },
+  { id: 3, title: "Геометрия: теорема Пифагора" },
+  { id: 4, title: "Физика: законы Ньютона" },
+  { id: 5, title: "История: Древний Рим" },
+];
+
+async function getMockLessons(): Promise<lessonCompactObject[]> {
+  return new Promise((resolve) => {
+    setTimeout(() => resolve(MOCK_LESSONS), 500);
+  });
 }

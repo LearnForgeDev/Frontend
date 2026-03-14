@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Landing from './pages/Landing/Landing.tsx';
 import Footer from './pages/Landing/Components/Footer.tsx';
-import { applyTheme, getSystemTheme } from './theme/theme';
+import { applyTheme, getSystemTheme } from './styles/theme.tsx';
 import LessonsMainPage from "./pages/Lessons/LessonsMainPage.tsx";
 import LessonIdPage from "./pages/Lessons/LessonIdPage.tsx";
 

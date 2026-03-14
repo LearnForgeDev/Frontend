@@ -1,6 +1,11 @@
 import type {SerializedEditor} from "lexical";
 import type {lessonCompactObject, lessonObject} from "../types/lessonTypes.ts";
 
+/**
+ * Пока нет связи с бэкендом, поэтому эти функции лежат,
+ * как пример связи с бэкендом
+ * */
+
 export async function sendEditorStateAsJson(
   id: string | number,
   serializedEditor: SerializedEditor,

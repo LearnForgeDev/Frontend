@@ -16,7 +16,7 @@ import {useCallback, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
 
 import KatexRenderer from '../KatexRenderer.tsx';
-import {Modal} from "../../../../../../CommonComponents/Modal.tsx";
+import {Modal} from "../../../../../../assets/CommonComponents/Modal.tsx";
 
 type Props = {
   initialEquation?: string;
