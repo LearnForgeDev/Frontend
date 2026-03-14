@@ -11,7 +11,7 @@ applyTheme(getSystemTheme());
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename='/Frontend/'>
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/Lessons" element={<LessonsMainPage />} />

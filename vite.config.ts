@@ -1,9 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-// @ts-expect-error @types/node missing
+
 import path from 'path';
 
 export default defineConfig({
+  base: "/Frontend/",
   plugins: [react()],
   resolve: {
     alias: {

@@ -28,3 +28,6 @@ dist-ssr
 ./iconsFromExamples
 /.env
 /iconsFromExamples/
+/githubPersonal
+/githubPersonal.pub
+/skills-lock.json
