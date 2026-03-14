@@ -3,7 +3,6 @@ import TextEditor from "./Components/TextEditor.tsx";
 import '../../styles/pages/Lessons/LessonIdPage.css';
 import type {viewLessonProps} from "../../types/lessonTypes.ts";
 import {Suspense, useMemo} from "react";
-import {getEditorStateAsJson} from "../../server/Lessons.ts";
 
 export default function LessonIdPage() {
   // TODO: Добавить проверку на существование lessonId
@@ -17,7 +16,7 @@ export default function LessonIdPage() {
   const id = locationState?.id ?? paramId;
   const title = locationState?.title ?? 'Loading...';
 
-  const editorStatePromise = useMemo(() => getEditorStateAsJson(id!), [id]);
+  const editorStatePromise = useMemo(() => Promise.resolve(undefined), [id]);
 
   return (
     <div className='lesson-id-page'>

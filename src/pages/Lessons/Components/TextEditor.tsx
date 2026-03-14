@@ -37,7 +37,7 @@ export default function TextEditor ({
 }: {
   isEditMode: boolean,
   id: number | string,
-  editorStatePromise: Promise<lessonObject>
+  editorStatePromise?: Promise<lessonObject | undefined | null>
 }) {
   const initialConfig = {
     namespace: 'PostEditor',
