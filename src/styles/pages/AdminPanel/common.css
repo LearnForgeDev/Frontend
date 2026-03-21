@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@200..500,0..1&display=swap');
+
+:root {
+    --admin-bg: #faf9f6;
+    --admin-surface: #ffffff;
+    --admin-surface-low: #f4f4f0;
+    --admin-surface-container: #eeeeea;
+    --admin-surface-high: #e7e9e4;
+    --admin-text: #303330;
+    --admin-muted: #5d605c;
+    --admin-border: #e1e3de;
+    --admin-outline: #b0b3ae;
+    --admin-primary: #4958ac;
+    --admin-primary-soft: #96a5ff;
+    --admin-secondary: #446749;
+    --admin-secondary-soft: #c5edc7;
+    --admin-danger: #a8364b;
+    --admin-success: #3f7f50;
+    --admin-warning: #766b2f;
+    --admin-shadow: 0 20px 40px rgba(48, 51, 48, 0.05);
+}
+
+body {
+    background: var(--admin-bg);
+    color: var(--admin-text);
+    font-family: 'Inter', sans-serif;
+}
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 22px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 350, 'GRAD' 0, 'opsz' 24;
+}
+
+.admin-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.admin-page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.admin-page-title {
+    margin: 0;
+    color: var(--admin-text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.admin-page-description {
+    margin: 0.35rem 0 0;
+    color: var(--admin-muted);
+    max-width: 680px;
+}
+
+.admin-card {
+    background: var(--admin-surface);
+    border: 1px solid var(--admin-border);
+    border-radius: 1.5rem;
+    box-shadow: var(--admin-shadow);
+}
+
+.admin-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: 1px solid transparent;
+}
+
+.admin-chip.active {
+    color: var(--admin-secondary);
+    background: rgba(197, 237, 199, 0.35);
+}
+
+.admin-chip.inactive {
+    color: var(--admin-muted);
+    background: var(--admin-surface-container);
+}
+
+.admin-chip.configuring {
+    color: #8b6a1b;
+    background: #f9efd2;
+}
+
+.admin-chip.error {
+    color: var(--admin-danger);
+    background: #fbd8df;
+}
+
+.admin-chip.beta {
+    color: #4f5863;
+    background: #e8eaf6;
+}
+
+.admin-button {
+    border: 1px solid var(--admin-border);
+    background: var(--admin-surface);
+    color: var(--admin-text);
+    font-weight: 700;
+    border-radius: 0.7rem;
+    font-size: 0.85rem;
+    font-family: 'Manrope', sans-serif;
+    padding: 0.6rem 0.9rem;
+    cursor: pointer;
+}
+
+.admin-button.primary {
+    border-color: var(--admin-primary);
+    background: var(--admin-primary);
+    color: #fff;
+}
+
+.admin-button.ghost {
+    background: transparent;
+    border-color: transparent;
+    color: var(--admin-primary);
+}
+
+.admin-button:hover {
+    filter: brightness(0.96);
+}
+
+.admin-empty-state {
+    border: 1px dashed var(--admin-outline);
+    border-radius: 1.5rem;
+    background: var(--admin-surface);
+    padding: 1.75rem;
+    color: var(--admin-muted);
+}
+
+.service-config-wrapper {
+    padding: 1.5rem;
+}
+
+.service-config-wrapper h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    color: var(--admin-text);
+}
+
