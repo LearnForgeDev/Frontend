@@ -1,28 +1,29 @@
 import React from 'react';
 
-export type ServiceStatus = 'active' | 'inactive' | 'error' | 'beta' | 'configuring';
-
 export interface ServiceManifest {
-    id: string;          // unique ID ('lessons', 'whiteboard')
-    name: string;        // display name ('Lesson Editor')
+    id: string;
+    name: string;
     description: string;
-    icon?: React.ReactNode; // Icon component or element
-    version: string;
-
-    // Routing inside Admin Panel
-    adminRoute: string;  // e.g., 'lessons' (relative to /admin/services/)
-
-    // React Component for configuring the service
-    ConfigComponent?: React.FC;
-
+    adminRoute: string;
+    icon?: React.ReactNode | string;
+    version?: string;
     // Widget for the main Dashboard
     DashboardWidget?: React.FC;
+    isEnabled: boolean,
+    isBought: boolean,
+    price: number,
+    features: string[],
 }
 
 export interface ServiceConfig {
     id: string;
-    status: ServiceStatus;
-    config: Record<string, any>;
+    isEnabled: boolean,
     lastUpdated?: string;
 }
 
+
+export type ServiceContext = {
+    selectedServices: ServiceManifest[];
+    selectService: (service: ServiceManifest) => void;
+    deselectService: (service: ServiceManifest) => void;
+}

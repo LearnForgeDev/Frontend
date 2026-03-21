@@ -1,11 +1,12 @@
 import React, { useMemo, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { registry } from '../../services/ServiceRegistry';
+import { serviceRegistry } from '../../services/ServiceRegistry';
+import type { ServiceManifest } from '../../types/serviceTypes.ts';
 import '../../styles/pages/AdminPanel/layout.css';
 
 const AdminPanelLayout: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const services = registry.getAll();
+    const [services] = useState<ServiceManifest[]>(serviceRegistry.getAll());
     const location = useLocation();
 
     const pageTitle = useMemo(() => {
@@ -14,7 +15,7 @@ const AdminPanelLayout: React.FC = () => {
         }
 
         if (location.pathname.includes('/services/')) {
-            const [, route] = location.pathname.split('/services/');
+            const [route] = location.pathname.split('/services/');
             const service = services.find((item) => item.adminRoute === route);
             return service?.name ?? 'Service';
         }
@@ -88,7 +89,9 @@ const AdminPanelLayout: React.FC = () => {
                         Services
                     </div>
                     
-                    {services.map(service => (
+                    {services
+                        .filter(service => service.isBought && service.isEnabled)
+                        .map(service => (
                         <NavLink 
                             key={service.id}
                             to={`services/${service.adminRoute}`}

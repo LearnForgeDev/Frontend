@@ -6,29 +6,9 @@ import LessonIdPage from './pages/Lessons/LessonIdPage';
 import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout';
 import DashboardHome from './pages/AdminPanel/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
-import { registry } from './services/ServiceRegistry';
 import './styles/pages/AdminPanel/common.css';
 
 const AppRoutes = () => {
-    // We need to force update when registry changes to re-render routes
-    // For now, simpler approach: just render static routes and dynamic ones
-    const services = registry.getAll();
-
-    const serviceRoutes: RouteObject[] = services.map(service => ({
-        path: `services/${service.adminRoute}`,
-        element: service.ConfigComponent ? (
-            <div className="service-config-wrapper admin-card">
-                <h2>{service.name} Configuration</h2>
-                <service.ConfigComponent />
-            </div>
-        ) : (
-            <div className="admin-empty-state">
-                <h3 className="admin-widget-title">Configuration unavailable</h3>
-                <p>This service does not expose settings yet. Use Marketplace for activation and lifecycle actions.</p>
-            </div>
-        )
-    }));
-
     const routes: RouteObject[] = [
         {
             element: <PublicLayout />,
@@ -67,8 +47,7 @@ const AppRoutes = () => {
                             <p>Select a service from the sidebar to configure access, limits, and integration settings.</p>
                         </div>
                     )
-                },
-                ...serviceRoutes
+                }
             ]
         }
     ];

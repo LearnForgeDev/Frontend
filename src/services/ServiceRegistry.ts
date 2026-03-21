@@ -1,15 +1,13 @@
-import type { ServiceManifest } from '../types/serviceTypes'; // Correct import path
-import { lessonsManifest } from './Lessons/manifest.tsx';
+import type { ServiceManifest } from '../types/serviceTypes';
 
-// Registry as a specialized Map
 class ServiceRegistry {
     private services: Map<string, ServiceManifest> = new Map();
 
-    register(manifest: ServiceManifest) {
-        if (this.services.has(manifest.id)) {
-            console.warn(`Service ${manifest.id} is already registered. Overwriting.`);
-        }
-        this.services.set(manifest.id, manifest);
+
+    register(manifests: ServiceManifest[]) {
+        manifests.forEach(manifest => {
+            this.services.set(manifest.id, manifest);
+        })
     }
 
     getAll(): ServiceManifest[] {
@@ -21,7 +19,4 @@ class ServiceRegistry {
     }
 }
 
-export const registry = new ServiceRegistry();
-
-// Initialize with core services
-registry.register(lessonsManifest);
+export const serviceRegistry = new ServiceRegistry();
