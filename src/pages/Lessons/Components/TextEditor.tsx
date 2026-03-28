@@ -22,7 +22,7 @@ import { RutubeNode } from './TextEditorComponents/nodes/RutubeNode.tsx';
 import RutubePlugin from './TextEditorComponents/plugins/RutubePlugin.tsx';
 import EquationsPlugin from './TextEditorComponents/plugins/EquationsPlugin.tsx';
 
-import '../../../styles/pages/Lessons/components/lexicalEditorTheme.css';
+import './lexicalEditorTheme.css';
 import {EquationNode} from "./TextEditorComponents/nodes/EquationNode.tsx";
 import ToggleIsEditable from "./TextEditorComponents/plugins/ToggleIsEditable.tsx";
 import ControlsPlugin from "./TextEditorComponents/plugins/ControlsPlugin.tsx";

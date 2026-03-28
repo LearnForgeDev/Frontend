@@ -1,5 +1,6 @@
 import type { NotificationProps } from "../../types/commonTypes.ts";
 import { useEffect, useState } from "react";
+import './Notification.css';
 
 type NotificationWithClose = NotificationProps & {
   onClose?: () => void;

@@ -1,6 +1,6 @@
 import {type ReactNode, useCallback} from "react";
 import { useState, useEffect } from "react";
-import '../../styles/common/Modal.css'
+import './Modal.css'
 
 /**
  * Modal component - renders an accessible modal dialog.

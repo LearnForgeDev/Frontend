@@ -1,5 +1,5 @@
 import React from 'react';
-import '../../styles/services/Lessons/styles.css';
+import './styles.css';
 
 export const LessonsConfig: React.FC = () => {
     return (

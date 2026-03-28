@@ -1,3 +1,4 @@
+import './Header.css';
 import GlowButton from './GlowButton.tsx';
 import {useNavigate} from "react-router-dom";
 

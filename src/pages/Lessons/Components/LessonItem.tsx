@@ -1,6 +1,6 @@
 import type {lessonCompactObject} from "../../../types/lessonTypes.ts";
 import LessonItemIcon from "../../../assets/images/LessonItemIcon.tsx";
-import "../../../styles/pages/Lessons/components/lessonItem.css";
+import './lessonItem.css';
 import type {MouseEvent} from "react";
 
 export function LessonItem(

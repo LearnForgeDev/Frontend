@@ -6,7 +6,7 @@ import LessonIdPage from './pages/Lessons/LessonIdPage';
 import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout';
 import DashboardHome from './pages/AdminPanel/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
-import './styles/pages/AdminPanel/common.css';
+import './pages/AdminPanel/common.css';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [

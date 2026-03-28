@@ -9,7 +9,7 @@
 import type {JSX} from 'react';
 
 import 'katex/dist/katex.css';
-import '../../../../../styles/pages/Lessons/components/modals/katexEquationModal.css';
+import './katexEquationModal.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$wrapNodeInElement} from '@lexical/utils';

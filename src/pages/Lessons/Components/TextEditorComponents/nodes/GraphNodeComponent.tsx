@@ -14,7 +14,7 @@ import {
 // @ts-expect-error fuck ts
 import Desmos from "desmos";
 import { $isGraphNode } from "./graphNode.tsx";
-import "../../../../../styles/pages/Lessons/components/nodes/graphNode.css";
+import './graphNode.css';
 
 interface GraphComponentProps {
   nodeKey: NodeKey;

@@ -1,6 +1,6 @@
 import React, {type JSX} from 'react';
 import { serviceRegistry } from '../../services/ServiceRegistry';
-import '../../styles/pages/AdminPanel/dashboard.css';
+import './dashboard.css';
 import type {ServiceManifest} from "../../types/serviceTypes.ts";
 
 const DashboardHome: React.FC = () => {
