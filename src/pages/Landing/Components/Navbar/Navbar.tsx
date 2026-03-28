@@ -1,5 +1,5 @@
 import './Navbar.css';
-import GlowButton from './GlowButton.tsx';
+import GlowButton from '../GlowButton/GlowButton.tsx';
 
 export default function Navbar() {
   return (

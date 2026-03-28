@@ -3,10 +3,9 @@ import PublicLayout from './layouts/PublicLayout';
 import Landing from './pages/Landing/Landing';
 import LessonsMainPage from './pages/Lessons/LessonsMainPage';
 import LessonIdPage from './pages/Lessons/LessonIdPage';
-import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout';
-import DashboardHome from './pages/AdminPanel/DashboardHome';
+import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout/AdminPanelLayout';
+import DashboardHome from './pages/AdminPanel/DashboardHome/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
-import './pages/AdminPanel/common.css';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [

@@ -1,5 +1,5 @@
 import './Header.css';
-import GlowButton from './GlowButton.tsx';
+import GlowButton from '../GlowButton/GlowButton.tsx';
 import {useNavigate} from "react-router-dom";
 
 export default function Header() {

@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import Footer from '../pages/Landing/Components/Footer';
+import Footer from '../pages/Landing/Components/Footer/Footer';
 
 const PublicLayout = () => {
     return (
@@ -11,4 +11,3 @@ const PublicLayout = () => {
 };
 
 export default PublicLayout;
-

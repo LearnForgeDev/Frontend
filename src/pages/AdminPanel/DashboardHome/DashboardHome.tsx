@@ -1,7 +1,7 @@
 import React, {type JSX} from 'react';
-import { serviceRegistry } from '../../services/ServiceRegistry';
-import './dashboard.css';
-import type {ServiceManifest} from "../../types/serviceTypes.ts";
+import { serviceRegistry } from '../../../services/ServiceRegistry';
+import './DashboardHome.css';
+import type {ServiceManifest} from "../../../types/serviceTypes.ts";
 
 const DashboardHome: React.FC = () => {
     const services = serviceRegistry.getAll();

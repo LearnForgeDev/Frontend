@@ -8,11 +8,11 @@ import {
     type CSSProperties,
     type PointerEvent as ReactPointerEvent,
 } from "react";
-import { CloudIcon } from "../../../assets/images/featureIcons/CloudIcon.tsx";
-import type { FeatureItem } from "../../../types/landingTypes.ts";
-import { AnalyticsIcon } from "../../../assets/images/featureIcons/AnalyticsIcon.tsx";
-import { LessonsIcon } from "../../../assets/images/featureIcons/LessonsIcon.tsx";
-import { VideoMeetingIcon } from "../../../assets/images/featureIcons/VideoMeetingIcon.tsx";
+import { CloudIcon } from "../../../../assets/images/featureIcons/CloudIcon.tsx";
+import type { FeatureItem } from "../../../../types/landingTypes.ts";
+import { AnalyticsIcon } from "../../../../assets/images/featureIcons/AnalyticsIcon.tsx";
+import { LessonsIcon } from "../../../../assets/images/featureIcons/LessonsIcon.tsx";
+import { VideoMeetingIcon } from "../../../../assets/images/featureIcons/VideoMeetingIcon.tsx";
 import './FeaturesCarousel.css';
 
 const FEATURES: FeatureItem[] = [

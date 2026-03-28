@@ -1,8 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { serviceRegistry } from '../../services/ServiceRegistry';
-import type { ServiceManifest } from '../../types/serviceTypes.ts';
-import './layout.css';
+import React, { useMemo, useState } from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { serviceRegistry } from "../../../services/ServiceRegistry";
+import type { ServiceManifest } from "../../../types/serviceTypes.ts";
+import "./AdminPanelCommon.css";
+import "./AdminPanelLayout.css";
 
 const AdminPanelLayout: React.FC = () => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
