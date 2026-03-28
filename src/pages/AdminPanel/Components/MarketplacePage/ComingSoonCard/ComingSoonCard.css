@@ -1,0 +1,41 @@
+.admin-marketplace-coming-soon {
+    border-radius: 1.5rem;
+    border: 1px dashed var(--admin-outline);
+    background: rgba(244, 244, 240, 0.7);
+    min-height: 390px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1.8rem;
+}
+
+.admin-marketplace-coming-soon-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--admin-surface-container);
+    color: var(--admin-muted);
+}
+
+.admin-marketplace-coming-soon h3 {
+    margin: 0.9rem 0 0.3rem;
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.12rem;
+}
+
+.admin-marketplace-coming-soon p {
+    margin: 0;
+    color: var(--admin-muted);
+    max-width: 220px;
+}
+
+.admin-marketplace-coming-soon .admin-button {
+    margin-top: 1rem;
+}
+
+

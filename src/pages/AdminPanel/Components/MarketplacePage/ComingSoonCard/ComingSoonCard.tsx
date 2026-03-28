@@ -1,3 +1,5 @@
+import './ComingSoonCard.css';
+
 export default function ComingSoonCard () {
     return (
         <article className="admin-marketplace-coming-soon">

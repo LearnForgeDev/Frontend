@@ -1,0 +1,64 @@
+.admin-marketplace-billing {
+    background: #0d0f0d;
+    color: #faf8ff;
+    border-radius: 2rem;
+    padding: 1.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.admin-marketplace-billing h3 {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 1.3rem;
+}
+
+.admin-marketplace-billing-row {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.9rem;
+    color: rgba(250, 248, 255, 0.82);
+    margin-top: 0.5rem;
+}
+
+.admin-marketplace-billing-row span:last-child::after {
+    content: '₽';
+    color: var(--admin-muted);
+    font-size: 0.75rem;
+}
+
+.admin-marketplace-billing-row.new span {
+    color: var(--admin-success);
+}
+
+.admin-marketplace-billing-total {
+    margin-top: auto;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+.admin-marketplace-billing-total span {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.68rem;
+    color: rgba(250, 248, 255, 0.6);
+    height: 50%;
+}
+
+.admin-marketplace-billing-total strong {
+    font-size: 2rem;
+    font-family: 'Manrope', sans-serif;
+}
+
+.admin-marketplace-billing .admin-button.primary {
+    margin-top: 0.4rem;
+    width: 100%;
+    border: none;
+    background: linear-gradient(135deg, #4958ac 0%, #96a5ff 100%);
+}
+
+

@@ -1,6 +1,7 @@
 import {type JSX, type MouseEventHandler, useState} from "react";
-import type {ServiceManifest} from "../../../../types/serviceTypes.ts";
-import {useServiceContext} from "../../hooks/useServiceContext.ts";
+import type {ServiceManifest} from "../../../../../types/serviceTypes.ts";
+import {useServiceContext} from "../../../hooks/useServiceContext.ts";
+import './ServiceCard.css';
 
 export default function ServiceCard ({service}: {service: ServiceManifest}): JSX.Element {
     const {selectService, deselectService} = useServiceContext();

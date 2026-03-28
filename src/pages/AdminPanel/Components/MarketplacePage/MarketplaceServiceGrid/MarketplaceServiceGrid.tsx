@@ -1,10 +1,11 @@
 import {type JSX, useEffect, useState} from "react";
-import {serviceRegistry} from "../../../../services/ServiceRegistry.ts";
-import {ServiceContextProvider} from "./ServiceContextProvider.tsx";
-import BillingCard from "./BillingCard.tsx";
-import ServiceCard from "./ServiceCard.tsx";
-import ComingSoonCard from "./ComingSoonCard.tsx";
-import {getServicesFromServer} from "../../../../endpoints/admin.ts";
+import {serviceRegistry} from "../../../../../services/ServiceRegistry.ts";
+import {ServiceContextProvider} from "../ServiceContextProvider/ServiceContextProvider.tsx";
+import BillingCard from "../BillingCard/BillingCard.tsx";
+import ServiceCard from "../ServiceCard/ServiceCard.tsx";
+import ComingSoonCard from "../ComingSoonCard/ComingSoonCard.tsx";
+import {getServicesFromServer} from "../../../../../endpoints/admin.ts";
+import './MarketplaceServiceGrid.css';
 
 export default function MarketplaceServiceGrid(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(true);

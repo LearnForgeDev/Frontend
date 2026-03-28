@@ -1,6 +1,6 @@
 import {type ReactNode, useState} from "react";
-import type {ServiceManifest} from "../../../../types/serviceTypes.ts";
-import {ServicesContext} from "../../hooks/useServiceContext.ts";
+import type {ServiceManifest} from "../../../../../types/serviceTypes.ts";
+import {ServicesContext} from "../../../hooks/useServiceContext.ts";
 
 /**
  * Provides context of services selected by the user
