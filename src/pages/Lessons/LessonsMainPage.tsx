@@ -1,6 +1,6 @@
 import type {viewLessonProps, lessonCompactObject} from "../../types/lessonTypes.ts";
-import {LessonItem} from "./Components/LessonItem.tsx";
-import "../../styles/pages/Lessons/LessonsMainPage.css";
+import {LessonItem} from "./Components/LessonItem/LessonItem.tsx";
+import './LessonsMainPage.css';
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
 

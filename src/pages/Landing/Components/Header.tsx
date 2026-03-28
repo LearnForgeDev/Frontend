@@ -1,6 +1,13 @@
+import './Header.css';
 import GlowButton from './GlowButton.tsx';
+import {useNavigate} from "react-router-dom";
 
 export default function Header() {
+    const navigate = useNavigate();
+    const handlePress = (): void => {
+        navigate("/admin");
+    }
+
   return (
     <header className="hero" id="home">
       <div className="hero-glow hero-glow-left" aria-hidden="true" />
@@ -11,8 +18,12 @@ export default function Header() {
           <p className="slogan">Создавайте и запускайте обучение быстрее, чем когда-либо.</p>
           <div className="hero-actions">
             <div className="cta-buttons">
-              <GlowButton className="btn-primary" type="button">
-                Попробовать
+              <GlowButton 
+                  className="btn-primary" 
+                  type="button"
+                  onClick={handlePress}
+              >
+                Тест Admin panel
               </GlowButton>
             </div>
           </div>

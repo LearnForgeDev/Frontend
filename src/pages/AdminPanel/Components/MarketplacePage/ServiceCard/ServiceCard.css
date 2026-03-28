@@ -1,0 +1,171 @@
+.admin-marketplace-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    min-height: 390px;
+    transition: border-color 0.2s ease;
+}
+
+.admin-marketplace-card.skeleton {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    border-radius: 1.25rem;
+    border: 1px solid var(--admin-border);
+    background: linear-gradient(110deg, rgba(150, 165, 255, 0.12) 10%, rgba(150, 165, 255, 0.22) 45%, rgba(150, 165, 255, 0.12) 80%);
+    background-size: 220% 100%;
+}
+
+.admin-marketplace-card.skeleton::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+    transform: translateX(-100%);
+    animation: admin-marketplace-shimmer 1.35s infinite ease-in-out;
+}
+
+.admin-marketplace-card.inactive {
+    border-color: color-mix(in srgb, var(--admin-border) 78%, #8e949f 22%);
+}
+
+.admin-marketplace-card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 1.5rem;
+}
+
+.admin-marketplace-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.admin-marketplace-icon-box {
+    width: 56px;
+    height: 56px;
+    border-radius: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(150, 165, 255, 0.2);
+    color: var(--admin-primary);
+}
+
+.admin-marketplace-card.inactive .admin-marketplace-icon-box {
+    background: color-mix(in srgb, var(--admin-surface-low) 86%, #8f96a3 14%);
+    color: #8f96a3;
+}
+
+.admin-marketplace-icon-box .material-symbols-outlined {
+    font-size: 32px;
+}
+
+.admin-marketplace-card.inactive .admin-marketplace-icon-box .material-symbols-outlined {
+    color: #8f96a3;
+}
+
+.admin-marketplace-card-title {
+    margin: 0 0 0.55rem;
+    font-size: 1.3rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+}
+
+.admin-marketplace-card-desc {
+    margin: 0;
+    color: var(--admin-muted);
+    line-height: 1.55;
+    font-size: 0.92rem;
+}
+
+.admin-marketplace-card.inactive .admin-marketplace-card-title,
+.admin-marketplace-card.inactive .admin-marketplace-card-desc,
+.admin-marketplace-card.inactive .admin-marketplace-price {
+    color: color-mix(in srgb, var(--admin-muted) 88%, #8f96a3 12%);
+}
+
+.admin-marketplace-card.inactive .admin-chip {
+    background: color-mix(in srgb, var(--admin-surface-low) 84%, #8f96a3 16%);
+    color: #6b7280;
+}
+
+.admin-marketplace-card.selected {
+    border: var(--admin-primary) 2px solid;
+    box-shadow: var(--admin-primary) 2px solid;
+}
+
+.admin-marketplace-feature-list {
+    margin: 1.2rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.7rem;
+}
+
+.admin-marketplace-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.88rem;
+    color: color-mix(in srgb, var(--admin-text) 82%, transparent);
+}
+
+.admin-marketplace-feature-item .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--admin-secondary);
+}
+
+.admin-marketplace-card.inactive .admin-marketplace-feature-item,
+.admin-marketplace-card.inactive .admin-marketplace-feature-item .material-symbols-outlined {
+    color: #9ca3af;
+}
+
+.admin-marketplace-card-footer {
+    margin-top: auto;
+    padding: 1.1rem 1.5rem 1.35rem;
+    border-top: 1px solid var(--admin-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.admin-marketplace-price-free,
+.admin-marketplace-price {
+    font-size: 1.25rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-marketplace-price::after {
+    content: ' ₽/мес';
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--admin-muted);
+}
+
+.admin-button.ghost {
+    box-sizing: border-box;
+    padding: 0;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+@keyframes admin-marketplace-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .admin-marketplace-card.skeleton::before {
+        animation: none;
+        transform: translateX(0);
+    }
+}

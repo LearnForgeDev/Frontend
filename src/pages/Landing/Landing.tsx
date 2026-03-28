@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import '../../styles/pages/Landing.css';
+import './Landing.css';
 import Navbar from './Components/Navbar.tsx';
 import Header from './Components/Header.tsx';
 import FeaturesCarousel from './Components/FeaturesCarousel.tsx';

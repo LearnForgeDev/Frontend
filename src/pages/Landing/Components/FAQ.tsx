@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import './FAQ.css';
 
 interface FAQItem {
   id: string;

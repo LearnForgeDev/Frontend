@@ -1,6 +1,6 @@
 import { createPortal } from "react-dom";
 import pluginsList from "../utils/toolbarButtons.ts";
-import '../../../../../styles/pages/Lessons/components/toolbar.css';
+import './Toolbar.css';
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import DefaultButton from "./ToolbarDefaultButton.tsx";
 import Dropdown from "./ToolbarDropdown.tsx";

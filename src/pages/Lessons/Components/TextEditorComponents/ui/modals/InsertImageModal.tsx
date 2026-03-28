@@ -3,7 +3,7 @@ import React, {useState} from "react";
 import {useLexicalComposerContext} from "@lexical/react/LexicalComposerContext";
 import {$getSelection, $insertNodes, $isRangeSelection} from "lexical";
 import {$createImageNode} from "../../nodes/ImageNode.tsx";
-import '../../../../../../styles/pages/Lessons/components/modals/insertImageModal.css';
+import './InsertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, type ButtonHTMLAttributes, type PointerEvent as ReactPointerEvent } from 'react';
+import './GlowButton.css';
 
 const clampPercent = (value: number) => Math.max(0, Math.min(100, value));
 

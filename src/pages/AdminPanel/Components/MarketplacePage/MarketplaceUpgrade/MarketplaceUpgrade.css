@@ -1,0 +1,55 @@
+.admin-marketplace-upgrade {
+    margin-top: 1.25rem;
+    padding: 2.2rem;
+    display: grid;
+    grid-template-columns: 1fr minmax(220px, 35%);
+    gap: 1.25rem;
+    background: rgba(73, 88, 172, 0.05);
+    border: none;
+}
+
+.admin-marketplace-upgrade .admin-widget-title {
+    margin-bottom: 0.7rem;
+    font-size: 1.5rem;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+}
+
+.admin-marketplace-upgrade p {
+    margin: 0;
+    color: var(--admin-muted);
+    line-height: 1.55;
+}
+
+.admin-marketplace-upgrade .admin-button {
+    margin-top: 1rem;
+}
+
+.admin-marketplace-upgrade .admin-button.ghost {
+    box-sizing: border-box;
+    padding: 0;
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.admin-marketplace-upgrade-media {
+    border-radius: 1.2rem;
+    min-height: 210px;
+    background: radial-gradient(circle at 30% 15%, #96a5ff 0%, #4958ac 35%, #242b56 100%);
+    position: relative;
+}
+
+.admin-marketplace-upgrade-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 1.2rem;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.35), transparent);
+}
+
+@media (max-width: 980px) {
+    .admin-marketplace-upgrade {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+    }
+}

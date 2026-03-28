@@ -14,7 +14,7 @@ import {
 } from "lexical";
 import { $isImageNode, RESIZE_IMAGE_COMMAND } from "./ImageNode.tsx";
 import { useResizable } from "../../../../../hooks/useResizable.ts";
-import "../../../../../styles/pages/Lessons/components/nodes/imageNode.css";
+import './imageNode.css';
 
 interface ImageComponentProps {
   src: string;

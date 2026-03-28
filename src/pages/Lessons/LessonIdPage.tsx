@@ -1,6 +1,6 @@
 import {useLocation, useParams, useSearchParams} from "react-router-dom";
-import TextEditor from "./Components/TextEditor.tsx";
-import '../../styles/pages/Lessons/LessonIdPage.css';
+import TextEditor from "./Components/TextEditor/TextEditor.tsx";
+import './LessonIdPage.css';
 import type {viewLessonProps} from "../../types/lessonTypes.ts";
 import {Suspense, useMemo} from "react";
 
