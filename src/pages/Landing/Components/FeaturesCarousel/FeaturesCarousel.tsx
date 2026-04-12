@@ -8,6 +8,7 @@ import {
     type CSSProperties,
     type PointerEvent as ReactPointerEvent,
 } from "react";
+import { Box, IconButton, Typography } from '@mui/material';
 import { CloudIcon } from "../../../../assets/images/featureIcons/CloudIcon.tsx";
 import type { FeatureItem } from "../../../../types/landingTypes.ts";
 import { AnalyticsIcon } from "../../../../assets/images/featureIcons/AnalyticsIcon.tsx";
@@ -371,16 +372,16 @@ export default function FeaturesCarousel() {
     );
 
     return (
-        <section className="features-carousel" id="features" aria-label="Возможности learnForge">
-            <header className="carousel-header">
-                <div className="section-kicker">Возможности</div>
-                <div className="carousel-title">
-                    <h2>Инструменты для онлайн-школы</h2>
-                    <p>Мы собрали ключевые возможности — чтобы вы могли быстрее обучать и поддерживать пользователей.</p>
-                </div>
-            </header>
-            <div className="carousel-viewport">
-                <div
+        <Box component="section" className="features-carousel" id="features" aria-label="Возможности learnForge">
+            <Box component="header" className="carousel-header">
+                <Box component="span" className="section-kicker">Возможности</Box>
+                <Box className="carousel-title">
+                    <Typography component="h2">Инструменты для онлайн-школы</Typography>
+                    <Typography component="p">Мы собрали ключевые возможности — чтобы вы могли быстрее обучать и поддерживать пользователей.</Typography>
+                </Box>
+            </Box>
+            <Box className="carousel-viewport">
+                <Box
                     className={`carousel-track ${isDragging ? "dragging" : ""}`}
                     id={trackId}
                     ref={trackRef}
@@ -403,48 +404,52 @@ export default function FeaturesCarousel() {
                             backgroundColor={value.backgroundColor}
                         />
                     ))}
-                </div>
-            </div>
+                </Box>
+            </Box>
             <CarouselControls onPrev={() => scrollByCard(-1)} onNext={() => scrollByCard(1)} trackId={trackId} />
-        </section>
+        </Box>
     );
 }
 
 function Feature({ name, description, icon: IconComp, iconSize, backgroundColor }: FeatureItem & { iconSize: number }) {
     return (
-        <div className="feature" role="listitem">
+        <Box className="feature" role="listitem">
             <IconComp size={iconSize} backgroundColor={backgroundColor} />
-            <h3>{name}</h3>
-            <p>{description}</p>
-        </div>
+            <Typography component="h3">{name}</Typography>
+            <Typography component="p">{description}</Typography>
+        </Box>
     );
 }
 
 function CarouselControls({ onPrev, onNext, trackId }: { onPrev: () => void; onNext: () => void; trackId: string }) {
     return (
-        <div className="carousel-controls">
-            <button
+        <Box className="carousel-controls">
+            <IconButton
                 className="carousel-btn"
                 type="button"
                 aria-label="Перелистнуть назад"
                 aria-controls={trackId}
                 onClick={onPrev}
+                disableRipple
+                sx={{ padding: 0 }}
             >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <polyline points="15 18 9 12 15 6" />
                 </svg>
-            </button>
-            <button
+            </IconButton>
+            <IconButton
                 className="carousel-btn"
                 type="button"
                 aria-label="Перелистнуть вперёд"
                 aria-controls={trackId}
                 onClick={onNext}
+                disableRipple
+                sx={{ padding: 0 }}
             >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <polyline points="9 18 15 12 9 6" />
                 </svg>
-            </button>
-        </div>
+            </IconButton>
+        </Box>
     );
 }

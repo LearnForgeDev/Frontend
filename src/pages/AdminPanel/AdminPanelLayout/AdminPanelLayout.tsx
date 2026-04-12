@@ -1,150 +1,69 @@
 import React, { useMemo, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
+import { Box, Drawer, GlobalStyles, useMediaQuery } from "@mui/material";
 import { serviceRegistry } from "../../../services/ServiceRegistry";
 import type { ServiceManifest } from "../../../types/serviceTypes.ts";
-import "./AdminPanelCommon.css";
-import "./AdminPanelLayout.css";
+import AdminPanelDrawerContent from './AdminPanelDrawerContent';
+import AdminPanelTopBar from './AdminPanelTopBar';
+import { drawerPaperSx, drawerRootSx, layoutRootSx, mainContentSx } from './AdminPanelLayout.styles';
+import { adminPanelCommonStyles } from './AdminPanelCommon.styles';
 
 const AdminPanelLayout: React.FC = () => {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [services] = useState<ServiceManifest[]>(serviceRegistry.getAll());
-    const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [services] = useState<ServiceManifest[]>(serviceRegistry.getAll());
+  const location = useLocation();
+  const isDesktop = useMediaQuery("(min-width:980px)");
 
-    const pageTitle = useMemo(() => {
-        if (location.pathname.includes('/marketplace')) {
-            return 'Marketplace';
-        }
+  const pageTitle = useMemo(() => {
+    if (location.pathname.includes('/marketplace')) {
+      return 'Marketplace';
+    }
 
-        if (location.pathname.includes('/services/')) {
-            const [route] = location.pathname.split('/services/');
-            const service = services.find((item) => item.adminRoute === route);
-            return service?.name ?? 'Service';
-        }
+    if (location.pathname.includes('/services/')) {
+      const [route] = location.pathname.split('/services/');
+      const service = services.find((item) => item.adminRoute === route);
+      return service?.name ?? 'Service';
+    }
 
-        return 'Dashboard';
-    }, [location.pathname, services]);
+    return 'Dashboard';
+  }, [location.pathname, services]);
 
-    const closeMenu = () => setIsMenuOpen(false);
+  const closeMenu = () => setIsMenuOpen(false);
 
-    return (
-        <div className="admin-layout">
-            <button
-                type="button"
-                className="admin-mobile-menu-button"
-                onClick={() => setIsMenuOpen((prev) => !prev)}
-            >
-                Menu
-            </button>
+  const drawerContent = (
+    <AdminPanelDrawerContent
+      services={services}
+      pathname={location.pathname}
+      onCloseMenu={closeMenu}
+    />
+  );
 
-            {isMenuOpen ? (
-                <button type="button" className="admin-sidebar-backdrop" onClick={closeMenu} aria-label="Close menu" />
-            ) : null}
+  return (
+    <Box sx={layoutRootSx}>
+      <GlobalStyles styles={adminPanelCommonStyles} />
+      <AdminPanelTopBar
+        isDesktop={isDesktop}
+        pageTitle={pageTitle}
+        onToggleMenu={() => setIsMenuOpen((prev) => !prev)}
+      />
 
-            <aside className={`admin-sidebar ${isMenuOpen ? 'is-open' : ''}`}>
-                <div className="admin-sidebar-header">
-                    <h2 className="admin-sidebar-title">
-                        <span className="admin-sidebar-logo material-symbols-outlined">brush</span>
-                        The Atelier
-                    </h2>
-                    <p className="admin-sidebar-subtitle">Обучающее пространство</p>
-                </div>
-                
-                <nav className="admin-nav">
-                    <div className="admin-nav-section-title">Platform</div>
+      <Drawer
+        variant={isDesktop ? 'permanent' : 'temporary'}
+        open={isDesktop || isMenuOpen}
+        onClose={closeMenu}
+        ModalProps={{ keepMounted: true }}
+        slotProps={{ paper: { sx: drawerPaperSx } }}
+        sx={drawerRootSx}
+      >
+        {drawerContent}
+      </Drawer>
 
-                    <NavLink 
-                        to="/admin" 
-                        end
-                        onClick={closeMenu}
-                        className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
-                    >
-                        <span className="admin-nav-link-icon material-symbols-outlined">dashboard</span>
-                        <span>Панель управления</span>
-                    </NavLink>
-                    
-                    <NavLink 
-                        to="/admin/marketplace" 
-                        onClick={closeMenu}
-                        className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
-                    >
-                        <span className="admin-nav-link-icon material-symbols-outlined">storefront</span>
-                        <span>Сервисы</span>
-                    </NavLink>
-
-                    <span className="admin-nav-link" aria-disabled="true">
-                        <span className="admin-nav-link-icon material-symbols-outlined">assignment</span>
-                        <span>Домашние задания</span>
-                    </span>
-
-                    <span className="admin-nav-link" aria-disabled="true">
-                        <span className="admin-nav-link-icon material-symbols-outlined">calendar_today</span>
-                        <span>Календарь</span>
-                    </span>
-
-                    <span className="admin-nav-link" aria-disabled="true">
-                        <span className="admin-nav-link-icon material-symbols-outlined">group</span>
-                        <span>Студенты</span>
-                    </span>
-                    
-                    <div className="admin-nav-section-title margin-top">
-                        Services
-                    </div>
-                    
-                    {services
-                        .filter(service => service.isBought && service.isEnabled)
-                        .map(service => (
-                        <NavLink 
-                            key={service.id}
-                            to={`services/${service.adminRoute}`}
-                            onClick={closeMenu}
-                            className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
-                        >
-                            {({ isActive }) => (
-                                <>
-                                    <span className={`admin-nav-link-icon ${isActive ? 'active' : ''}`} aria-hidden="true">
-                                        {service.icon}
-                                    </span>
-                                    <span>{service.name}</span>
-                                </>
-                            )}
-                        </NavLink>
-                    ))}
-                </nav>
-
-                <div className="admin-sidebar-footer">
-                    <NavLink to="/" onClick={closeMenu} className="admin-back-link">
-                        <span className="material-symbols-outlined">arrow_back</span>
-                        Return to site
-                    </NavLink>
-                </div>
-            </aside>
-
-            <header className="admin-topbar">
-                <div className="admin-topbar-crumbs">
-                    <span>Рабочее пространство</span>
-                    <span className="material-symbols-outlined">chevron_right</span>
-                    <strong>{pageTitle}</strong>
-                </div>
-                <div className="admin-topbar-right">
-                    <label className="admin-search" aria-label="Search modules">
-                        <span className="material-symbols-outlined">search</span>
-                        <input type="search" placeholder="Поиск модулей..." />
-                    </label>
-                    <button type="button" className="admin-icon-button" aria-label="Notifications">
-                        <span className="material-symbols-outlined">notifications</span>
-                    </button>
-                    <button type="button" className="admin-icon-button" aria-label="Settings">
-                        <span className="material-symbols-outlined">settings</span>
-                    </button>
-                    <span className="admin-avatar" aria-hidden="true">AT</span>
-                </div>
-            </header>
-
-            <main className="admin-main-content">
-                <Outlet />
-            </main>
-        </div>
-    );
+      <Box component="main" sx={mainContentSx(isDesktop)}>
+        <Outlet />
+      </Box>
+    </Box>
+  );
 };
+
 
 export default AdminPanelLayout;

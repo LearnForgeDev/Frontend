@@ -1,7 +1,7 @@
-import {type JSX, type MouseEventHandler, useState} from "react";
+import {type JSX, type KeyboardEvent, type MouseEventHandler, useState} from "react";
+import { Box, Button, Chip, List, ListItem, Typography } from "@mui/material";
 import type {ServiceManifest} from "../../../../../types/serviceTypes.ts";
 import {useServiceContext} from "../../../hooks/useServiceContext.ts";
-import './ServiceCard.css';
 
 export default function ServiceCard ({service}: {service: ServiceManifest}): JSX.Element {
     const {selectService, deselectService} = useServiceContext();
@@ -24,54 +24,63 @@ export default function ServiceCard ({service}: {service: ServiceManifest}): JSX
 
     const handleButtonPress: MouseEventHandler<HTMLButtonElement> = (event): void => {
         event.stopPropagation();
-    }
+    };
+
+    const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>): void => {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleToggle();
+        }
+    };
 
     return (
-        <div key={service.id}
-             className={`admin-card admin-marketplace-card 
-                    ${service.isBought || isSelected ? 'active' : 'inactive'}
-                    ${isSelected ? 'selected' : ''}`}
-             onClick={handleToggle}
+        <Box
+            component="article"
+            className={`admin-card admin-marketplace-card ${service.isBought || isSelected ? 'active' : 'inactive'} ${isSelected ? 'selected' : ''}`}
+            onClick={handleToggle}
+            onKeyDown={handleCardKeyDown}
+            role="button"
+            tabIndex={0}
         >
-            <div className="admin-marketplace-card-body">
-                <div className="admin-marketplace-card-header">
-                    <div className="admin-marketplace-icon-box">
+            <Box className="admin-marketplace-card-body">
+                <Box className="admin-marketplace-card-header">
+                    <Box className="admin-marketplace-icon-box">
                         <span className="material-symbols-outlined">{service.icon}</span>
-                    </div>
-                    <span
-                        className={`admin-chip ${service.isEnabled ? 'active' : 'inactive'}`}
-                        style={ service.isBought ? {} : {display: "none"} }
-                    >
-                    {service.isEnabled ? 'Включен' : 'Выключен'}
-                </span>
-                </div>
+                    </Box>
+                    {service.isBought ? (
+                        <Chip
+                            label={service.isEnabled ? 'Включен' : 'Выключен'}
+                            className={`admin-chip ${service.isEnabled ? 'active' : 'inactive'}`}
+                        />
+                    ) : null}
+                </Box>
 
-                <h3 className="admin-marketplace-card-title">{service.name}</h3>
+                <Typography component="h3" className="admin-marketplace-card-title">
+                    {service.name}
+                </Typography>
 
-                <p className="admin-marketplace-card-desc">
+                <Typography component="p" className="admin-marketplace-card-desc">
                     {service.description}
-                </p>
+                </Typography>
 
-                <ul className="admin-marketplace-feature-list">
+                <List disablePadding className="admin-marketplace-feature-list">
                     {service.features.map((feature) => (
-                        <li key={feature} className="admin-marketplace-feature-item">
-                            <input
-                                className="material-symbols-outlined"
-                                type="checkbox"
-                            />
+                        <ListItem key={feature} disablePadding className="admin-marketplace-feature-item">
+                            <span className="material-symbols-outlined" aria-hidden="true">check_circle</span>
                             <span>{feature}</span>
-                        </li>
+                        </ListItem>
                     ))}
-                </ul>
-            </div>
+                </List>
+            </Box>
 
-            <div className="admin-marketplace-card-footer">
-                <span className={`admin-marketplace-price${service.price === 0 ? '-free' : ''}`}>
+            <Box className="admin-marketplace-card-footer">
+                <Typography component="span" className={`admin-marketplace-price${service.price === 0 ? '-free' : ''}`}>
                     {service.price === 0 ? 'Бесплатно' : `${service.price}`}
-                </span>
-                <button
+                </Typography>
+                <Button
                     className={`admin-button ${service.isEnabled ? 'ghost' : 'primary'}`}
                     onClick={handleButtonPress}
+                    disableRipple
                 >
                     {service.isBought
                         ? service.isEnabled
@@ -79,8 +88,8 @@ export default function ServiceCard ({service}: {service: ServiceManifest}): JSX
                             : 'Включить'
                         : 'Купить'
                     }
-                </button>
-            </div>
-        </div>
+                </Button>
+            </Box>
+        </Box>
     );
 }

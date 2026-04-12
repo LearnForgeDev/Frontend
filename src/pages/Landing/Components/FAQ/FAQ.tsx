@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { Box, ButtonBase, Typography } from '@mui/material';
 import './FAQ.css';
 
 interface FAQItem {
@@ -56,34 +57,33 @@ export default function FAQ() {
   }, []);
 
   return (
-    <section className="faq-section" id="faq" aria-labelledby="faq-heading">
-      <div className="faq-container">
-        <header className="faq-header">
-          <span className="section-kicker">FAQ</span>
-          <h2 id="faq-heading">Ответы на популярные вопросы</h2>
-        </header>
-        <div className="faq-list" role="list">
+    <Box component="section" className="faq-section" id="faq" aria-labelledby="faq-heading">
+      <Box className="faq-container">
+        <Box component="header" className="faq-header">
+          <Box component="span" className="section-kicker">FAQ</Box>
+          <Typography component="h2" id="faq-heading">Ответы на популярные вопросы</Typography>
+        </Box>
+        <Box className="faq-list" role="list">
           {faqData.map((item) => {
             const isOpen = openItems.has(item.id);
             const questionId = `faq-question-${item.id}`;
             const answerId = `faq-answer-${item.id}`;
             return (
-              <div
+              <Box
                 key={item.id}
                 className={`faq-item ${isOpen ? 'faq-item--open' : ''}`}
                 role="listitem"
               >
-                <button
+                <ButtonBase
                   className="faq-question"
-                  type="button"
                   onClick={() => toggleItem(item.id)}
                   id={questionId}
                   aria-expanded={isOpen}
                   aria-controls={answerId}
                 >
-                  <div className="faq-question-text">
-                    <span>{item.question}</span>
-                  </div>
+                  <Box className="faq-question-text">
+                    <Typography component="span">{item.question}</Typography>
+                  </Box>
                   <svg
                     className="faq-chevron"
                     width="20"
@@ -98,21 +98,21 @@ export default function FAQ() {
                   >
                     <polyline points="6 9 12 15 18 9" />
                   </svg>
-                </button>
-                <div
+                </ButtonBase>
+                <Box
                   id={answerId}
                   className="faq-answer"
                   role="region"
                   aria-hidden={!isOpen}
                   aria-labelledby={questionId}
                 >
-                  <p>{item.answer}</p>
-                </div>
-              </div>
+                  <Typography component="p">{item.answer}</Typography>
+                </Box>
+              </Box>
             );
           })}
-        </div>
-      </div>
-    </section>
+        </Box>
+      </Box>
+    </Box>
   );
 }

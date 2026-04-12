@@ -1,4 +1,3 @@
-import './ComingSoonCard.css';
 
 export default function ComingSoonCard () {
     return (

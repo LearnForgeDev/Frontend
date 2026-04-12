@@ -12,8 +12,11 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@lexical/file": "^0.39.0",
     "@lexical/react": "^0.39.0",
+    "@mui/material": "^9.0.0",
     "desmos": "^1.5.4",
     "install": "^0.13.0",
     "katex": "^0.16.27",

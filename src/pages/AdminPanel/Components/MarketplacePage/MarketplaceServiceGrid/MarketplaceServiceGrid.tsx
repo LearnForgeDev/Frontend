@@ -5,7 +5,6 @@ import BillingCard from "../BillingCard/BillingCard.tsx";
 import ServiceCard from "../ServiceCard/ServiceCard.tsx";
 import ComingSoonCard from "../ComingSoonCard/ComingSoonCard.tsx";
 import {getServicesFromServer} from "../../../../../endpoints/admin.ts";
-import './MarketplaceServiceGrid.css';
 
 export default function MarketplaceServiceGrid(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(true);

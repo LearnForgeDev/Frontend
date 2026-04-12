@@ -1,5 +1,4 @@
 import type {JSX} from "react";
-import './MarketplaceBanner.css';
 
 export default function MarketplaceBanner(): JSX.Element {
     return (

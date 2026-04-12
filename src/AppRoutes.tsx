@@ -6,6 +6,7 @@ import LessonIdPage from './pages/Lessons/LessonIdPage';
 import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout/AdminPanelLayout';
 import DashboardHome from './pages/AdminPanel/DashboardHome/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
+import AdminPlaceholder from './pages/AdminPanel/AdminPlaceholder';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [
@@ -40,12 +41,7 @@ const AppRoutes = () => {
                 },
                 {
                     path: 'services',
-                    element: (
-                        <div className="admin-empty-state">
-                            <h3 className="admin-widget-title">Choose a service</h3>
-                            <p>Select a service from the sidebar to configure access, limits, and integration settings.</p>
-                        </div>
-                    )
+                    element: <AdminPlaceholder />
                 }
             ]
         }

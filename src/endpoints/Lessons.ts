@@ -1,5 +1,6 @@
 import type {SerializedEditor} from "lexical";
 import type {lessonCompactObject, lessonObject} from "../types/lessonTypes.ts";
+import config from "../config.ts";
 
 /**
  * Пока нет связи с бэкендом, поэтому эти функции лежат,
@@ -10,7 +11,7 @@ export async function sendEditorStateAsJson(
   id: string | number,
   serializedEditor: SerializedEditor,
 ) {
-  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons/${id}/editor-state`, {
+  const res = await fetch(`${config.endpointUrl}/lessons/${id}/editor-state`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -26,7 +27,7 @@ export async function sendEditorStateAsJson(
 export async function getEditorStateAsJson(
   id: string | number,
 ): Promise<lessonObject> {
-  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons/${id}`, {
+  const res = await fetch(`${config.endpointUrl}/lessons/${id}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
@@ -40,7 +41,7 @@ export async function getEditorStateAsJson(
 }
 
 export async function getCompactLessons(): Promise<lessonCompactObject[]> {
-  const res = await fetch(`${import.meta.env.VITE_SERVER_LINK}/lessons`, {
+  const res = await fetch(`${config.endpointUrl}/lessons`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',

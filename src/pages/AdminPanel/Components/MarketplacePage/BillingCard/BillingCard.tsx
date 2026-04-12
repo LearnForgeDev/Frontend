@@ -1,7 +1,6 @@
 import type {JSX} from "react";
 import {useServiceContext} from "../../../hooks/useServiceContext.ts";
 import {serviceRegistry} from "../../../../../services/ServiceRegistry.ts";
-import './BillingCard.css';
 
 export default function BillingCard (): JSX.Element {
     const services = serviceRegistry.getAll();

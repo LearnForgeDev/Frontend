@@ -1,5 +1,4 @@
 import type {JSX} from "react";
-import './MarketplaceUpgrade.css';
 
 export default function MarketplaceUpgrade(): JSX.Element {
     return(

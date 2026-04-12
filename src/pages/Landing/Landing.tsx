@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { Box } from '@mui/material';
 import './Landing.css';
 import Navbar from './Components/Navbar/Navbar.tsx';
 import Header from './Components/Header/Header.tsx';
@@ -53,11 +54,11 @@ export default function Landing() {
   }, []);
 
   return (
-    <main className="landing-page" ref={landingRef}>
+    <Box component="main" className="landing-page" ref={landingRef}>
       <Navbar />
       <Header />
       <FeaturesCarousel />
       <FAQ />
-    </main>
+    </Box>
   );
 }

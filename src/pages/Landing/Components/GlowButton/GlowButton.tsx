@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, type ButtonHTMLAttributes, type PointerEvent as ReactPointerEvent } from 'react';
+import { useCallback, useEffect, useRef, type PointerEvent as ReactPointerEvent } from 'react';
+import ButtonBase, { type ButtonBaseProps } from '@mui/material/ButtonBase';
 import './GlowButton.css';
 
 const clampPercent = (value: number) => Math.max(0, Math.min(100, value));
@@ -12,7 +13,7 @@ const setButtonVars = (button: HTMLElement, x: number, y: number) => {
   button.style.setProperty('--btn-glow-y', `${yPos}%`);
 };
 
-type GlowButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
+type GlowButtonProps = ButtonBaseProps<'button'>;
 
 export default function GlowButton({
   className,
@@ -62,9 +63,11 @@ export default function GlowButton({
   );
 
   return (
-    <button
+    <ButtonBase
       ref={buttonRef}
+      component="button"
       className={['glow-button', className].filter(Boolean).join(' ')}
+      disableRipple
       onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onPointerMove={handlePointerMove}
