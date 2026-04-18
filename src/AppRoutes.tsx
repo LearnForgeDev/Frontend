@@ -40,7 +40,7 @@ const AppRoutes = () => {
                     element: <MarketplacePage />
                 },
                 {
-                    path: 'services',
+                    path: 'services/*',
                     element: <AdminPlaceholder />
                 }
             ]
