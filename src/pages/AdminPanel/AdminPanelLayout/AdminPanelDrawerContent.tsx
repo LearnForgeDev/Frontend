@@ -120,7 +120,13 @@ export default function AdminPanelDrawerContent({
                         : 'color-mix(in srgb, var(--admin-text) 60%, transparent)',
                     }}
                   >
-                    {service.icon}
+                    {typeof service.icon === 'string' ? (
+                      <Box component="span" className="material-symbols-outlined">
+                        {service.icon}
+                      </Box>
+                    ) : (
+                      service.icon
+                    )}
                   </Box>
                 </ListItemIcon>
                 <ListItemText primary={service.name} />
