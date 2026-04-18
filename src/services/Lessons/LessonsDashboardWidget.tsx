@@ -1,12 +1,13 @@
 import React from 'react';
+import { Box, Typography } from '@mui/material';
 import './styles.css';
 
 export const LessonsDashboardWidget: React.FC = () => {
     return (
-        <div className="lessons-widget-inner">
-            <h4>Lessons Stats</h4>
-            <p><strong>12</strong> New Lessons this week</p>
-            <p><strong>540</strong> Total Views</p>
-        </div>
+        <Box className="lessons-widget-inner">
+            <Typography variant="h6" component="h4">Lessons Stats</Typography>
+            <Typography><Box component="strong" sx={{ fontWeight: 'bold' }}>12</Box> New Lessons this week</Typography>
+            <Typography><Box component="strong" sx={{ fontWeight: 'bold' }}>540</Box> Total Views</Typography>
+        </Box>
     );
 };

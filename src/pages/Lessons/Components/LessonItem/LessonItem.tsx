@@ -1,10 +1,14 @@
 import type {lessonCompactObject} from "../../../../types/lessonTypes.ts";
 import LessonItemIcon from "../../../../assets/images/LessonItemIcon.tsx";
+import { Box, Typography, IconButton } from "@mui/material";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import './LessonItem.css';
-import type {MouseEvent} from "react";
+import type {MouseEvent, JSX} from "react";
 
 export function LessonItem(
-  { id,
+  {
+    id,
     title,
     isEditable,
     handleEdit,
@@ -14,33 +18,41 @@ export function LessonItem(
       isEditable?: boolean,
       handleEdit: (id: number | string, title: string) => void,
       handleClick: (id: number | string, title: string) => void,
-    }) {
+    }): JSX.Element {
   return (
-    <div
+    <Box
       className="lesson-item"
       key={id}
       onClick={() => handleClick(id, title)}
+      sx={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
     >
       <LessonItemIcon size={28} color="var(--accent)" />
-      <span>{title}</span>
+      <Typography component="span">{title}</Typography>
       {isEditable && (
-        <div className='controls'>
-          <button
+        <Box className='controls'>
+          <IconButton
             className="edit-lesson-button"
             aria-label={`Редактировать ${title}`}
             onClick={(event: MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
               handleEdit(id, title);
-            }}>
-            ✏️
-          </button>
-          <button className="delete-lesson-button" aria-label={`Удалить ${title}`} onClick={(event: MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
-          }}>
-            🗑️
-          </button>
-        </div>
+            }}
+            size="small"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            className="delete-lesson-button" 
+            aria-label={`Удалить ${title}`} 
+            onClick={(event: MouseEvent<HTMLButtonElement>) => {
+              event.stopPropagation();
+            }}
+            size="small"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }

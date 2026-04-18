@@ -1,4 +1,5 @@
-import type { SxProps, SystemStyleObject, Theme } from '@mui/material/styles';
+import type { SxProps, Theme } from '@mui/material/styles';
+import type { SystemStyleObject } from '@mui/system';
 
 export const SIDEBAR_WIDTH = 256;
 
@@ -219,4 +220,3 @@ export const mainContentSx = (isDesktop: boolean): SxProps<Theme> => ({
   width: '100%',
   boxSizing: 'border-box',
 });
-

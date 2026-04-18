@@ -44,3 +44,15 @@ When working on this codebase, adhere strictly to the following rules to maintai
 
 ## 9. Performance & Optimization
 - **Memoization:** Use `React.memo`, `useMemo`, and `useCallback` judiciously to prevent unnecessary re-renders in performance-critical sections (e.g., large lists or complex data grids).
+
+## 10. Naming Conventions
+- **PascalCase for Components:** React components and interfaces should always use PascalCase (e.g., `LessonsMainPage.tsx`, `LessonItem`).
+- **camelCase for Functions/Variables:** Variables, constants, and utility functions should use camelCase (e.g., `handleEdit`, `viewLesson`).
+- **Hooks naming:** Custom hooks must start with `use` (e.g., `useNotification`).
+
+## 11. Form Handling
+- **Forms & Inputs:** If possible, use controlled components with MUI elements or a robust library like `react-hook-form` rather than managing all inputs manually.
+
+## 12. Code Formatting & Linting
+- **Strict Linting:** Ensure all code passes formatting and ESLint standards without warnings.
+- **Avoid Commented Code:** Do not leave large blocks of commented-out code. Remove them before creating a PR or finalizing the task.
