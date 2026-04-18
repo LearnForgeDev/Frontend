@@ -12,8 +12,12 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
     "@lexical/file": "^0.39.0",
     "@lexical/react": "^0.39.0",
+    "@mui/icons-material": "^9.0.0",
+    "@mui/material": "^9.0.0",
     "desmos": "^1.5.4",
     "install": "^0.13.0",
     "katex": "^0.16.27",
@@ -39,6 +43,6 @@
     "globals": "^16.5.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "8.0.5"
   }
 }

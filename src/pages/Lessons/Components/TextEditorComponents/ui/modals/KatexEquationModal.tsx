@@ -8,7 +8,7 @@
 
 import type {JSX} from 'react';
 
-import '../../../../../../styles/pages/Lessons/components/katexEquationModal.css';
+import './KatexEquationModal.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 

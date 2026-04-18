@@ -1,8 +1,9 @@
 import type {viewLessonProps, lessonCompactObject} from "../../types/lessonTypes.ts";
-import {LessonItem} from "./Components/LessonItem.tsx";
-import "../../styles/pages/Lessons/LessonsMainPage.css";
+import {LessonItem} from "./Components/LessonItem/LessonItem.tsx";
+import './LessonsMainPage.css';
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
+import { Box, Typography, Button, Skeleton } from "@mui/material";
 
 export default function LessonsMainPage() {
   const navigate = useNavigate();
@@ -36,14 +37,14 @@ export default function LessonsMainPage() {
   }
 
   return (
-    <div className='lessons-main-page'>
-      <header>
-        <h1>Мои уроки</h1>
-      </header>
-      <main>
+    <Box className='lessons-main-page'>
+      <Box component="header">
+        <Typography variant="h4" component="h1">Мои уроки</Typography>
+      </Box>
+      <Box component="main">
         {loading && <LessonsSkeletonLoader />}
         {!loading && error && (
-          <span className='placeholderText'>Не удалось загрузить уроки: {error}</span>
+          <Typography className='placeholderText'>Не удалось загрузить уроки: {error}</Typography>
         )}
         {!loading && !error && (
           <>
@@ -65,11 +66,11 @@ export default function LessonsMainPage() {
             )}
           </>
         )}
-        <button className="create-lesson-button" aria-label="Создать новый урок">
+        <Button variant="contained" className="create-lesson-button" aria-label="Создать новый урок">
           Создать урок
-        </button>
-      </main>
-    </div>
+        </Button>
+      </Box>
+    </Box>
   );
 }
 
@@ -77,14 +78,14 @@ function LessonsSkeletonLoader() {
   return (
     <>
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="lesson-item skeleton-animation" style={{width: '2rem'}}></div>
+        <Skeleton key={i} variant="rectangular" height={60} sx={{ mb: 2, borderRadius: 1 }} />
       ))}
     </>
   );
 }
 
 function PlaceHolder() {
-  return <span className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</span>;
+  return <Typography className='placeholderText'>У Вас пока нет уроков. Добавим парочку?</Typography>;
 }
 
 const MOCK_LESSONS: lessonCompactObject[] = [

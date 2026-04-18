@@ -1,6 +1,5 @@
-import {type ReactNode, useCallback} from "react";
-import { useState, useEffect } from "react";
-import '../../styles/common/Modal.css'
+import { type ReactNode, useCallback, useState } from 'react';
+import { Box, Dialog, DialogContent, IconButton, Fade } from '@mui/material';
 
 /**
  * Modal component - renders an accessible modal dialog.
@@ -12,47 +11,72 @@ import '../../styles/common/Modal.css'
  *   (overlay clicks or close button). The parent should unmount the modal.
  *   */
 export function Modal({ children, onClose, className }: { children: ReactNode; className?: string; onClose: () => void }) {
-  const [isClosing, setIsClosing] = useState(false);
+  const [open, setOpen] = useState(true);
 
   const handleClose = useCallback(() => {
-    const ANIMATION_DURATION = 200;
+    setOpen(false);
+  }, []);
 
-    setIsClosing(true);
-    setTimeout(() => {
-      onClose();
-    }, ANIMATION_DURATION);
+  const handleExited = useCallback(() => {
+    onClose();
   }, [onClose]);
 
-
-  useEffect(() => {
-
-  const handleEscape = (e: KeyboardEvent) => {
-    if (e.key === 'Escape') handleClose();
-  }
-    document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
-  }, [handleClose]);
-
   return (
-    <div
-      className={`modalOverlay ${isClosing ? 'closing' : ''}`}
-      role="dialog"
+    <Dialog
+      open={open}
+      onClose={handleClose}
       aria-modal="true"
-      onClick={handleClose}
+      slots={{ transition: Fade }}
+      slotProps={{
+        transition: { onExited: handleExited },
+        backdrop: {
+          sx: {
+            backgroundColor: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(2px)',
+          },
+        },
+        paper: {
+          className,
+          sx: {
+            background: 'var(--bg)',
+            color: 'var(--text)',
+            borderRadius: '8px',
+            boxShadow: '0 8px 24px rgba(0, 0, 0, 0.2)',
+            overflow: 'hidden',
+            position: 'relative',
+            padding: 0,
+            maxHeight: 'calc(100vh - 2rem)',
+          },
+        },
+      }}
     >
-      <div
-        className={`modal ${className ?? ''}`}
-        onClick={(e) => e.stopPropagation()}
+      <DialogContent
+        sx={{
+          padding: '1.25rem',
+          paddingRight: '3rem',
+          overflowY: 'auto',
+        }}
       >
-        <button
-          className="closeBtn"
-          onClick={handleClose}
+        <IconButton
           aria-label="закрыть"
+          onClick={handleClose}
+          sx={{
+            position: 'absolute',
+            top: '0.5rem',
+            right: '0.5rem',
+            color: 'var(--muted-text)',
+            borderRadius: '4px',
+            '&:hover': {
+              background: 'rgba(0, 0, 0, 0.05)',
+            },
+          }}
         >
-          ×
-        </button>
+          <Box component="span" sx={{ fontSize: '2rem', lineHeight: 1 }}>
+            ×
+          </Box>
+        </IconButton>
         {children}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

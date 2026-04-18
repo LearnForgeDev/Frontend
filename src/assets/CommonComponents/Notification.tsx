@@ -1,9 +1,12 @@
-import type { NotificationProps } from "../../types/commonTypes.ts";
-import { useEffect, useState } from "react";
+import type { NotificationProps } from '../../types/commonTypes.ts';
+import { Alert, AlertTitle, Slide, Snackbar, type SnackbarCloseReason } from '@mui/material';
+import type { ComponentProps, SyntheticEvent } from 'react';
 
 type NotificationWithClose = NotificationProps & {
   onClose?: () => void;
 };
+
+const UpSlide = (props: ComponentProps<typeof Slide>) => <Slide {...props} direction="up" />;
 
 export default function Notification({
   title,
@@ -12,36 +15,40 @@ export default function Notification({
   durationMS,
   onClose,
 }: NotificationWithClose) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    // trigger slide-in on mount
-    setVisible(true);
-  }, []);
-
-  useEffect(() => {
-    if (!durationMS || !onClose) return;
-    const id = setTimeout(onClose, durationMS);
-    return () => clearTimeout(id);
-  }, [durationMS, onClose]);
-
   const notificationTitle =
-    title !== undefined && title !== ""
+    title !== undefined && title !== ''
       ? title
       : success !== undefined
-      ? success
-        ? "Успешно"
-        : "Ошибка"
-      : "Уведомление";
+        ? success
+          ? 'Успешно'
+          : 'Ошибка'
+        : 'Уведомление';
+
+  const handleClose = (_event?: Event | SyntheticEvent, reason?: SnackbarCloseReason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    onClose?.();
+  };
 
   return (
-    <div
-      className={`notification ${success !== undefined ? (success ? "success" : "error") : ""} ${
-        visible ? "visible" : ""
-      }`}
+    <Snackbar
+      open
+      onClose={handleClose}
+      autoHideDuration={durationMS}
+      slots={{ transition: UpSlide }}
+      anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+      sx={{
+        '& .MuiAlert-root': {
+          minWidth: 260,
+          maxWidth: 420,
+        },
+      }}
     >
-      <p>{notificationTitle}</p>
-      <p>{message ?? ""}</p>
-    </div>
+      <Alert severity={success === undefined ? 'info' : success ? 'success' : 'error'} variant="filled" onClose={onClose ? handleClose : undefined}>
+        <AlertTitle>{notificationTitle}</AlertTitle>
+        {message ?? ''}
+      </Alert>
+    </Snackbar>
   );
 }

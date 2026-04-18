@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
-import '../../styles/pages/Landing.css';
-import Navbar from './Components/Navbar.tsx';
-import Header from './Components/Header.tsx';
-import FeaturesCarousel from './Components/FeaturesCarousel.tsx';
-import FAQ from './Components/FAQ.tsx';
+import { Box } from '@mui/material';
+import './Landing.css';
+import Navbar from './Components/Navbar/Navbar.tsx';
+import Header from './Components/Header/Header.tsx';
+import FeaturesCarousel from './Components/FeaturesCarousel/FeaturesCarousel.tsx';
+import FAQ from './Components/FAQ/FAQ.tsx';
 
 export default function Landing() {
   const landingRef = useRef<HTMLElement | null>(null);
@@ -53,11 +54,11 @@ export default function Landing() {
   }, []);
 
   return (
-    <main className="landing-page" ref={landingRef}>
+    <Box component="main" className="landing-page" ref={landingRef}>
       <Navbar />
       <Header />
       <FeaturesCarousel />
       <FAQ />
-    </main>
+    </Box>
   );
 }

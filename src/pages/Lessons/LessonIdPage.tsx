@@ -1,6 +1,7 @@
 import {useLocation, useParams, useSearchParams} from "react-router-dom";
-import TextEditor from "./Components/TextEditor.tsx";
-import '../../styles/pages/Lessons/LessonIdPage.css';
+import TextEditor from "./Components/TextEditor/TextEditor.tsx";
+import './LessonIdPage.css';
+import { Box, Skeleton, Typography } from '@mui/material';
 import type {viewLessonProps} from "../../types/lessonTypes.ts";
 import {Suspense, useMemo} from "react";
 
@@ -19,11 +20,12 @@ export default function LessonIdPage() {
   const editorStatePromise = useMemo(() => Promise.resolve(undefined), [id]);
 
   return (
-    <div className='lesson-id-page'>
-      <h1
+    <Box className='lesson-id-page'>
+      <Typography
+        variant="h1"
         className={`lesson-name ${isEditMode ? 'editable' : ''}`}
         contentEditable={isEditMode}
-      >{title}</h1>
+      >{title}</Typography>
       <Suspense fallback={<SkeletonBox />}>
         <TextEditor
           isEditMode={isEditMode}
@@ -31,28 +33,28 @@ export default function LessonIdPage() {
           editorStatePromise={editorStatePromise}
         />
       </Suspense>
-    </div>
+    </Box>
   )
 }
 
 function SkeletonBox() {
   return (
-    <div className="editor-input" style={{display: 'flex', flexDirection: 'column', gap: "1rem"}} >
-      <div className='skeleton-animation' style={{width: '50%', margin: '1rem auto', height: '1.5rem', borderRadius: 10}}></div>
-      <div className='skeleton-animation' style={{width: '70%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '95%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '85%', borderRadius: 10, height: '1rem'}}></div>
+    <Box className="editor-input" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+      <Skeleton variant="rectangular" sx={{ width: '50%', margin: '1rem auto', height: '1.5rem', borderRadius: '10px' }} />
+      <Skeleton variant="rectangular" sx={{ width: '70%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '95%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '85%', borderRadius: '10px', height: '1rem' }} />
 
-      <div className='skeleton-animation' style={{width: '40%', margin: '2rem auto 1rem auto', height: '1.2rem', borderRadius: 10}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '92%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '88%', borderRadius: 10, height: '1rem'}}></div>
+      <Skeleton variant="rectangular" sx={{ width: '40%', margin: '2rem auto 1rem auto', height: '1.2rem', borderRadius: '10px' }} />
+      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '92%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '88%', borderRadius: '10px', height: '1rem' }} />
 
-      <div className='skeleton-animation' style={{width: '100%', borderRadius: 10, height: '1rem'}}></div>
-      <div className='skeleton-animation' style={{width: '97%', borderRadius: 10, height: '1rem'}}></div>
-    </div>
+      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
+      <Skeleton variant="rectangular" sx={{ width: '97%', borderRadius: '10px', height: '1rem' }} />
+    </Box>
   );
 }

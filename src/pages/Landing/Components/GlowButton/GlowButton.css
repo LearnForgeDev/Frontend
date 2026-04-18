@@ -1,0 +1,34 @@
+.landing-page .glow-button {
+    --btn-bg-x: 50%;
+    --btn-bg-y: 50%;
+    --btn-glow-x: 50%;
+    --btn-glow-y: 50%;
+    --btn-glow-size: 120%;
+    padding: var(--glow-button-padding, 1rem 2.4rem);
+    font-size: var(--glow-button-font-size, 1.05rem);
+    font-weight: 800;
+    color: var(--glow-button-text, var(--btn-text-color, #04111f));
+    background:
+        radial-gradient(120% 120% at var(--btn-glow-x) var(--btn-glow-y), var(--btn-glow-strong, rgba(255, 255, 255, 0.55)) 0%, var(--btn-glow-soft, rgba(255, 255, 255, 0.25)) 32%, rgba(255, 255, 255, 0) 60%),
+        linear-gradient(120deg, var(--btn-gradient-start, var(--accent)) 0%, var(--btn-gradient-mid, var(--secondary)) 50%, var(--btn-gradient-end, var(--success)) 100%);
+    background-size: var(--btn-glow-size) var(--btn-glow-size), 180% 180%;
+    background-position: center, var(--btn-bg-x) var(--btn-bg-y);
+    background-repeat: no-repeat;
+    border: none;
+    border-radius: var(--glow-button-radius, 16px);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, background-size 0.35s ease;
+    box-shadow: var(--glow-button-shadow, var(--cta-shadow));
+}
+
+.landing-page .glow-button:hover {
+    --btn-glow-size: 170%;
+    transform: translateY(-1px);
+    box-shadow: var(--glow-button-shadow-hover, var(--cta-shadow-hover));
+}
+
+.landing-page .glow-button:focus-visible {
+    outline: 2px solid var(--glow-button-outline, var(--cta-focus-outline));
+    outline-offset: 2px;
+}
+
