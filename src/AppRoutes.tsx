@@ -8,6 +8,9 @@ import DashboardHome from './pages/AdminPanel/DashboardHome/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
 import AdminPlaceholder from './pages/AdminPanel/AdminPlaceholder';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
+import AuthLayout from './pages/Auth/AuthLayout';
+import LoginPage from './pages/Auth/LoginPage';
+import RegisterPage from './pages/Auth/RegisterPage';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [
@@ -43,6 +46,20 @@ const AppRoutes = () => {
                 {
                     path: 'services/*',
                     element: <AdminPlaceholder />
+                }
+            ]
+        },
+        {
+            path: '/auth',
+            element: <AuthLayout />,
+            children: [
+                {
+                    path: 'login',
+                    element: <LoginPage />
+                },
+                {
+                    path: 'register',
+                    element: <RegisterPage />
                 }
             ]
         },

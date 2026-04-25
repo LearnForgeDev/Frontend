@@ -13,3 +13,5 @@ export type NotificationProps = {
   message: string,
   durationMS?: number,
 }
+
+export type AuthRole = 'student' | 'teacher';

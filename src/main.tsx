@@ -8,13 +8,12 @@ import AppRoutes from './AppRoutes';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename='/Frontend'>
-      <Routes>
-        <Route path="/" element={<Landing />} />
-        <Route path="/Lessons" element={<LessonsMainPage />} />
-        <Route path='/Lessons/:lessonId' element={<LessonIdPage />} />
-      </Routes>
-      <Footer />
-    </BrowserRouter>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppGlobalStyles />
+      <BrowserRouter basename='/Frontend'>
+        <AppRoutes />
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>,
 );
