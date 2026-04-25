@@ -7,6 +7,7 @@ import AdminPanelLayout from './pages/AdminPanel/AdminPanelLayout/AdminPanelLayo
 import DashboardHome from './pages/AdminPanel/DashboardHome/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
 import AdminPlaceholder from './pages/AdminPanel/AdminPlaceholder';
+import NotFoundPage from './pages/NotFound/NotFoundPage';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [
@@ -44,6 +45,10 @@ const AppRoutes = () => {
                     element: <AdminPlaceholder />
                 }
             ]
+        },
+        {
+            path: '*',
+            element: <NotFoundPage />
         }
     ];
 
