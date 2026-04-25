@@ -1,20 +1,21 @@
 import type {JSX} from "react";
+import {Box, Typography} from "@mui/material";
 
 export default function MarketplaceBanner(): JSX.Element {
     return (
-        <section className="admin-marketplace-hero admin-card">
-            <div className="admin-marketplace-hero-content">
-                <h1 className="admin-page-title">
+        <Box component="section" className="admin-marketplace-hero admin-card">
+            <Box component="div" className="admin-marketplace-hero-content">
+                <Typography component="h1" className="admin-page-title">
                     <span>Создайте свое рабочее пространство.</span>
-                    <br />
+                    <Box component="br" />
                     Платите только за то, чем пользуетесь.
-                </h1>
-                <p className="admin-page-description">
+                </Typography>
+                <Typography component="p" className="admin-page-description">
                     LearnForge растет вместе с Вами.
                     Масштабируйтесь или ли сохраняйте минималистичный набор для уроков.
-                </p>
-            </div>
-            <div className="admin-marketplace-hero-orbit" aria-hidden="true" />
-        </section>
+                </Typography>
+            </Box>
+            <Box component="div" className="admin-marketplace-hero-orbit" aria-hidden="true" />
+        </Box>
     );
 }

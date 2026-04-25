@@ -20,7 +20,8 @@ const AdminPanelLayout: React.FC = () => {
     }
 
     if (location.pathname.includes('/services/')) {
-      const [route] = location.pathname.split('/services/');
+      const [, servicePath = ''] = location.pathname.split('/services/');
+      const [route] = servicePath.split('/');
       const service = services.find((item) => item.adminRoute === route);
       return service?.name ?? 'Service';
     }
