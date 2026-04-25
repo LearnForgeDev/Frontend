@@ -1,4 +1,4 @@
-import {type JSX, useEffect, useState} from "react";
+import {type JSX, useCallback, useEffect, useState} from "react";
 import {serviceRegistry} from "../../../../../services/ServiceRegistry.ts";
 import {ServiceContextProvider} from "../ServiceContextProvider/ServiceContextProvider.tsx";
 import BillingCard from "../BillingCard/BillingCard.tsx";
@@ -9,11 +9,24 @@ import {getServicesFromServer} from "../../../../../endpoints/admin.ts";
 export default function MarketplaceServiceGrid(): JSX.Element {
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
+    const getServicesWithRetries = useCallback((retries: number) => {
+        const getService = (retry: number) => {
+            if (retry > retries) {
+                return ;
+            }
+
+            getServicesFromServer()
+                .then(services => {serviceRegistry.register(services)})
+                .catch( () => getService( ++retry ) )
+                .finally(() => setIsLoading(false));
+        }
+
+        getService(0);
+    }, []);
+
     useEffect(() => {
-        getServicesFromServer()
-            .then(services => {serviceRegistry.register(services)})
-            .then(() => setIsLoading(false));
-    }, [])
+        getServicesWithRetries(3);
+    }, [getServicesWithRetries])
 
     if (isLoading) {
         return <SkeletonBox />

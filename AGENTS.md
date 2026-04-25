@@ -56,3 +56,10 @@ When working on this codebase, adhere strictly to the following rules to maintai
 ## 12. Code Formatting & Linting
 - **Strict Linting:** Ensure all code passes formatting and ESLint standards without warnings.
 - **Avoid Commented Code:** Do not leave large blocks of commented-out code. Remove them before creating a PR or finalizing the task.
+
+## 13. Testing (Proposed)
+- **Unit Tests:** All new reusable components or hooks should include basic unit tests covering standard use cases.
+- **Integration Tests:** Critical flows (like authentication or payment) must be covered by integration tests.
+
+## 14. Responsive Design (Proposed)
+- **Mobile First Approach:** Ensure components scale accurately on smaller screens. ALWAYS utilize MUI grid layout and breakpoint props (`xs`, `sm`, `md`, `lg`, `xl`) rather than hardcoding px widths.
