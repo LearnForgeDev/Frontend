@@ -41,8 +41,22 @@ export const slotText = {
     fontWeight: 'bold',
 };
 
+export const schoolInput = {
+    '& .MuiOutlinedInput-root': {
+        borderRadius: '50px',
+    },
+};
+
 export const pillButton = {
     mt: 2,
     borderRadius: '50px',
+};
+
+export const backButton = {
+    mt: 1,
+};
+
+export const submitButton = {
+    mt: 2,
 };
 

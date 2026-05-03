@@ -1,4 +1,7 @@
-const BASE_PATH = 'api/ApiAuth/';
+import config from '../config.ts';
+import type {UserIdentity} from "../types/commonTypes.ts";
+
+const BASE_PATH = `${config.endpointUrl}/api/ApiAuth`;
 
 type LoginParams = {
     name: string;
@@ -21,13 +24,6 @@ type RefreshTokenParams = {
     refreshToken: string;
 }
 
-type RegisterUserResponse = {
-    jwtToken: string;
-    refreshToken: string;
-    userName: string;
-    userPublicId: string;
-}
-
 type InviteParams = {
     schoolPublicId: string;
     role: '0' | '1' | '2';
@@ -35,7 +31,7 @@ type InviteParams = {
     expiresInMinutes: number | string;
 }
 
-export async function registerStudent(params: RegisterStudentParams): Promise<RegisterUserResponse> {
+export async function registerStudent(params: RegisterStudentParams): Promise<UserIdentity> {
     const res = await fetch(`${BASE_PATH}/reg`, {
         method: 'POST',
         headers: {
@@ -45,10 +41,10 @@ export async function registerStudent(params: RegisterStudentParams): Promise<Re
     })
 
     const data = await res.json();
-    return data as RegisterUserResponse;
+    return data as UserIdentity;
 }
 
-export async function registerFounder(params: RegisterFounderParams): Promise<RegisterUserResponse> {
+export async function registerFounder(params: RegisterFounderParams): Promise<UserIdentity> {
     const res = await fetch(`${BASE_PATH}/register-founder`, {
         method: 'POST',
         headers: {
@@ -57,8 +53,14 @@ export async function registerFounder(params: RegisterFounderParams): Promise<Re
         body: JSON.stringify(params),
     })
 
+    if (!res.ok) {
+        if (res.status === 409) {
+            throw new Error('Пользователь с таким именем уже существует');
+        }
+    }
+
     const data = await res.json();
-    return data as RegisterUserResponse;
+    return data as UserIdentity;
 }
 
 export async function requestSchool(params: RequestSchoolParams) {
@@ -70,11 +72,20 @@ export async function requestSchool(params: RequestSchoolParams) {
         body: JSON.stringify(params),
     })
 
+    if (!res.ok) {
+        if (res.status === 401) {
+            return {
+                status: 'pending',
+                message: 'Заявка на создание школы уже отправлена и ожидает рассмотрения',
+            };
+        }
+    }
+
     const data = await res.json();
     return data;
 }
 
-export async function login(params: LoginParams) {
+export async function login(params: LoginParams): Promise<UserIdentity> {
     const res = await fetch(`${BASE_PATH}/login`, {
         method: 'POST',
         headers: {
@@ -84,7 +95,7 @@ export async function login(params: LoginParams) {
     })
 
     const data = await res.json();
-    return data;
+    return data as UserIdentity;
 }
 
 export async function refreshToken(params: RefreshTokenParams) {

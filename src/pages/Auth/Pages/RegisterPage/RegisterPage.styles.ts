@@ -15,11 +15,6 @@ export const toggleGroup = {
     mb: 1,
 };
 
-export const toggleButton = {
-    flex: 1,
-    textTransform: 'none',
-};
-
 
 export const linkText = {
     mt: 2,

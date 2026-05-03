@@ -8,9 +8,9 @@ import DashboardHome from './pages/AdminPanel/DashboardHome/DashboardHome';
 import MarketplacePage from './pages/AdminPanel/MarketplacePage';
 import AdminPlaceholder from './pages/AdminPanel/AdminPlaceholder';
 import NotFoundPage from './pages/NotFound/NotFoundPage';
-import AuthLayout from './pages/Auth/AuthLayout';
-import LoginPage from './pages/Auth/LoginPage';
-import RegisterPage from './pages/Auth/RegisterPage';
+import AuthLayout from './pages/Auth/Pages/AuthLayout/AuthLayout.tsx';
+import LoginPage from './pages/Auth/Pages/LoginPage/LoginPage.tsx';
+import RegisterPage from './pages/Auth/Pages/RegisterPage/RegisterPage.tsx';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [

@@ -15,13 +15,12 @@ export const toggleGroup = {
     mb: 1,
 };
 
-export const toggleButton = {
-    flex: 1,
-    textTransform: 'none',
-};
-
 export const submitButton = {
     mt: 2,
+};
+
+export const backButton = {
+    mt: 1,
 };
 
 export const linkText = {

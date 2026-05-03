@@ -1,11 +1,14 @@
 import React, { type JSX } from 'react';
 import { Box, Button, Chip, Typography } from '@mui/material';
+
+import PendingSchoolRequestWidget from './Components/PendingSchoolRequestWidget';
 import { serviceRegistry } from '../../../services/ServiceRegistry';
 import type { ServiceManifest } from "../../../types/serviceTypes.ts";
 
 const DashboardHome: React.FC = () => {
     const services = serviceRegistry.getAll();
-    const widgetServices = services.filter((service) => Boolean(service.DashboardWidget));
+    const widgetServices = services
+        .filter((service) => Boolean(service.DashboardWidget))
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
@@ -50,7 +53,9 @@ const DashboardHome: React.FC = () => {
 
             <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
                 {widgetServices.length === 0 ? (
-                    <WidgetsPlaceholder />
+                    (<PendingSchoolRequestWidget /> !== null ?
+                        <PendingSchoolRequestWidget /> :
+                        <WidgetsPlaceholder />)
                 ) : (
                     widgetServices.map((service) => <ServiceWidget key={service.id} service={service} />)
                 )}

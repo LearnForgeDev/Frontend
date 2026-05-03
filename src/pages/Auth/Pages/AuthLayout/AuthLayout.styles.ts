@@ -13,3 +13,6 @@ export const paper = {
     maxWidth: 400,
 };
 
+export const widgetContainer = {
+    mb: 2,
+};
