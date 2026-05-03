@@ -1,7 +1,10 @@
 import { Box, Link, Stack, Typography } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import GlowButton from '../GlowButton/GlowButton.tsx';
 
 export default function Navbar() {
+  const navigate = useNavigate();
+
   return (
     <Box
       component="nav"
@@ -119,6 +122,7 @@ export default function Navbar() {
           <GlowButton
             className="nav-login"
             type="button"
+            onClick={() => navigate('/auth/login')}
             sx={{
               padding: '0.9rem 1.6rem',
               fontSize: '1.02rem',
