@@ -10,7 +10,7 @@ When working on this codebase, adhere strictly to the following rules to maintai
 ## 2. Styling Rules
 - **All styling must be in separate files.** Do not clutter React component files (`.tsx`) with large inline style objects or extensive `sx` properties.
 - **CSS Modules/Files:** Prefer `sx` styles over css. If that cannot be done use css to style components. Place custom styles in an external `.css` file next to the associated component (e.g., `ComponentName.css` imported into `ComponentName.tsx`).
-- **MUI Styled Components:** If using MUI's `styled` or defining complicated `sx` objects, place these overrides and definitions into a separate file (e.g., `ComponentName.styles.ts`) and import them. Never mix complex style logic and component logic in the same file.
+- **MUI Styled Components:** If using MUI's `styled` or defining complicated `sx` objects, place these overrides and definitions into a separate file (e.g., `ComponentName.styles.ts`) and import them. Never mix style logic and component logic in the same file.
 
 ## 3. Strong Typing
 - **TypeScript:** The project is strictly typed. Define interfaces and types rigorously.
@@ -19,7 +19,7 @@ When working on this codebase, adhere strictly to the following rules to maintai
 
 ## 4. File Structure & Component Organization
 - **Colocation:** Keep related styling (`.css`) and minor sub-components grouped inside specific domain folders under `src/pages/` or `src/components/`.
-- **Reusable Assets:** Treat `src/assets/CommonComponents/` as the hub for globally shared interface elements like `<Modal />` and `<Notification />`.
+- **Reusable Assets:** Treat `src/assets/CommonComponents/` as the hub for globally shared interface elements like `<Modal />` and `<Notification />`. If a component is only used within a specific page or domain, it should be placed in that domain's folder instead. Do not hesitate to add shared components to `src/assets/CommonComponents/` if you plan to reuse it
 - **Pages and Routing:** Page entry points should be added correctly within `src/pages/` and exported logically into `AppRoutes.tsx`.
 
 ## 5. Imports
@@ -57,9 +57,5 @@ When working on this codebase, adhere strictly to the following rules to maintai
 - **Strict Linting:** Ensure all code passes formatting and ESLint standards without warnings.
 - **Avoid Commented Code:** Do not leave large blocks of commented-out code. Remove them before creating a PR or finalizing the task.
 
-## 13. Testing (Proposed)
-- **Unit Tests:** All new reusable components or hooks should include basic unit tests covering standard use cases.
-- **Integration Tests:** Critical flows (like authentication or payment) must be covered by integration tests.
-
-## 14. Responsive Design (Proposed)
+## 13. Responsive Design
 - **Mobile First Approach:** Ensure components scale accurately on smaller screens. ALWAYS utilize MUI grid layout and breakpoint props (`xs`, `sm`, `md`, `lg`, `xl`) rather than hardcoding px widths.
