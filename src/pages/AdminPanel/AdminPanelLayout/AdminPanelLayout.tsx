@@ -1,32 +1,46 @@
-import React, { useMemo, useState } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Box, Drawer, GlobalStyles, useMediaQuery } from "@mui/material";
 import { serviceRegistry } from "../../../services/ServiceRegistry";
 import type { ServiceManifest } from "../../../types/serviceTypes.ts";
-import AdminPanelDrawerContent from './AdminPanelDrawerContent';
-import AdminPanelTopBar from './AdminPanelTopBar';
-import { drawerPaperSx, drawerRootSx, layoutRootSx, mainContentSx } from './AdminPanelLayout.styles';
-import { adminPanelCommonStyles } from './AdminPanelCommon.styles';
+import AdminPanelDrawerContent from "./AdminPanelDrawerContent";
+import AdminPanelTopBar from "./AdminPanelTopBar";
+import {
+  drawerPaperSx,
+  drawerRootSx,
+  layoutRootSx,
+  mainContentSx,
+} from "./AdminPanelLayout.styles";
+import { adminPanelCommonStyles } from "./AdminPanelCommon.styles";
+import { useUser } from "../../../contexts/UserContext";
 
 const AdminPanelLayout: React.FC = () => {
+  const { user } = useUser();
+  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [services] = useState<ServiceManifest[]>(serviceRegistry.getAll());
   const location = useLocation();
   const isDesktop = useMediaQuery("(min-width:980px)");
 
+  useEffect(() => {
+    if (!user) {
+      navigate("/auth/login");
+    }
+  }, [user, navigate]);
+
   const pageTitle = useMemo(() => {
-    if (location.pathname.includes('/marketplace')) {
-      return 'Marketplace';
+    if (location.pathname.includes("/marketplace")) {
+      return "Marketplace";
     }
 
-    if (location.pathname.includes('/services/')) {
-      const [, servicePath = ''] = location.pathname.split('/services/');
-      const [route] = servicePath.split('/');
+    if (location.pathname.includes("/services/")) {
+      const [, servicePath = ""] = location.pathname.split("/services/");
+      const [route] = servicePath.split("/");
       const service = services.find((item) => item.adminRoute === route);
-      return service?.name ?? 'Service';
+      return service?.name ?? "Service";
     }
 
-    return 'Dashboard';
+    return "Dashboard";
   }, [location.pathname, services]);
 
   const closeMenu = () => setIsMenuOpen(false);
@@ -49,7 +63,7 @@ const AdminPanelLayout: React.FC = () => {
       />
 
       <Drawer
-        variant={isDesktop ? 'permanent' : 'temporary'}
+        variant={isDesktop ? "permanent" : "temporary"}
         open={isDesktop || isMenuOpen}
         onClose={closeMenu}
         ModalProps={{ keepMounted: true }}
@@ -65,6 +79,5 @@ const AdminPanelLayout: React.FC = () => {
     </Box>
   );
 };
-
 
 export default AdminPanelLayout;
