@@ -30,10 +30,7 @@ export default function AdminPanelDrawerContent({
     <Box sx={drawerContentSx}>
       <Box sx={drawerHeaderSx}>
         <Typography component="h2" sx={drawerTitleSx}>
-          <Box component="span" className="material-symbols-outlined" sx={{ color: 'var(--admin-primary)' }}>
-            brush
-          </Box>
-          The Atelier
+          Admin Panel
         </Typography>
         <Typography component="p" sx={drawerSubtitleSx}>
           Обучающее пространство

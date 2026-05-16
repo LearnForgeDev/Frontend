@@ -21,6 +21,9 @@ export const theme = createTheme({
     error: {
       main: '#d32f2f',
     },
+    warning: {
+      main: '#e4ae18',
+    },
     background: {
       default: '#f7f8fb',
       paper: '#ffffff',
