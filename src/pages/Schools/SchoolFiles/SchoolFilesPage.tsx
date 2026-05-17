@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Alert,
   Box,
@@ -10,8 +10,8 @@ import {
   LinearProgress,
   TextField,
   Typography,
-} from '@mui/material';
-import { useNavigate, useParams } from 'react-router-dom';
+} from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   ApiError,
   completeDirectUpload,
@@ -19,11 +19,10 @@ import {
   downloadSchoolFileContent,
   getSchoolFiles,
   requestDirectUpload,
-  uploadSchoolFile,
   uploadToPresignedUrl,
-} from '../../../endpoints/files';
-import type { SchoolFileItem } from '../../../types/schoolTypes';
-import { useUser } from '../../../contexts/UserContext';
+} from "../../../endpoints/files";
+import type { SchoolFileItem } from "../../../types/schoolTypes";
+import { useUser } from "../../../contexts/UserContext";
 import {
   cardHeaderSx,
   cardSx,
@@ -39,14 +38,12 @@ import {
   statusChipSx,
   uploadActionsSx,
   uploadFormSx,
-  uploadInputSx,
   uploadRowSx,
-} from './SchoolFilesPage.styles';
-
-type UploadMode = 'api' | 'direct';
+} from "./SchoolFilesPage.styles";
+import { calculateFileMd5 } from "../../../pages/Auth/utils";
 
 type UploadState = {
-  status: 'idle' | 'uploading' | 'success' | 'error' | 'canceled';
+  status: "idle" | "uploading" | "success" | "error" | "canceled";
   progress: number;
   message?: string;
 };
@@ -56,42 +53,52 @@ const MAX_FILE_SIZE_BYTES = 200 * 1024 * 1024;
 const SchoolFilesPage = () => {
   const { schoolPublicId } = useParams();
   const navigate = useNavigate();
-  const { clearUser } = useUser();
+  const { user, clearUser } = useUser();
   const [files, setFiles] = useState<SchoolFileItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [uploadMode, setUploadMode] = useState<UploadMode>('api');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [fileName, setFileName] = useState('');
-  const [allowedUsers, setAllowedUsers] = useState('');
-  const [allowedGroups, setAllowedGroups] = useState('');
-  const [contentMd5, setContentMd5] = useState('');
+  const [fileName, setFileName] = useState("");
+  const [allowedUsers, setAllowedUsers] = useState("");
+  const [allowedGroups, setAllowedGroups] = useState("");
   const [uploadState, setUploadState] = useState<UploadState>({
-    status: 'idle',
+    status: "idle",
     progress: 0,
   });
   const uploadAbortRef = useRef<() => void>(() => undefined);
 
-  const accessPayload = useMemo(() => ({
-    allowedUserPublicIds: parseCommaList(allowedUsers),
-    allowedGroupIds: parseCommaList(allowedGroups),
-  }), [allowedGroups, allowedUsers]);
+  const accessPayload = useMemo(
+    () => ({
+      allowedUserPublicIds: parseCommaList(allowedUsers),
+      allowedGroupIds: parseCommaList(allowedGroups),
+    }),
+    [allowedGroups, allowedUsers],
+  );
 
-  const handleApiError = useCallback((err: unknown) => {
-    if (err instanceof ApiError) {
-      setError(err.message);
-      if (err.status === 401) {
-        clearUser();
-        navigate('/auth/login');
+  const handleApiError = useCallback(
+    (err: unknown) => {
+      if (err instanceof ApiError) {
+        setError(err.message);
+        if (err.status === 401) {
+          clearUser();
+          navigate("/auth/login");
+        }
+        return;
       }
-      return;
-    }
 
-    setError(err instanceof Error ? err.message : 'Не удалось получить файлы.');
-  }, [clearUser, navigate]);
+      setError(
+        err instanceof Error ? err.message : "Не удалось получить файлы.",
+      );
+    },
+    [clearUser, navigate],
+  );
 
   const loadFiles = useCallback(async () => {
-    if (!schoolPublicId) {
+    if (!schoolPublicId || !user?.jwtToken) {
+      console.log(
+        "[SchoolFilesPage] Missing schoolPublicId or jwtToken, skipping load",
+      );
+      setIsLoading(false);
       return;
     }
 
@@ -99,28 +106,37 @@ const SchoolFilesPage = () => {
     setError(null);
 
     try {
-      const response = await getSchoolFiles(schoolPublicId);
+      console.log(
+        `[SchoolFilesPage] Loading files for school: ${schoolPublicId}`,
+      );
+      const response = await getSchoolFiles(schoolPublicId, user.jwtToken);
+      console.log("[SchoolFilesPage] Files loaded successfully:", response);
       setFiles(response);
     } catch (err) {
+      console.error("[SchoolFilesPage] Error loading files:", err);
       handleApiError(err);
     } finally {
       setIsLoading(false);
     }
-  }, [handleApiError, schoolPublicId]);
+  }, [handleApiError, schoolPublicId, user?.jwtToken]);
 
   useEffect(() => {
     loadFiles();
   }, [loadFiles]);
 
   const handleDownload = async (file: SchoolFileItem) => {
-    if (!schoolPublicId) {
+    if (!schoolPublicId || !user?.jwtToken) {
       return;
     }
 
     try {
-      const blob = await downloadSchoolFileContent(schoolPublicId, file.filePublicId);
+      const blob = await downloadSchoolFileContent(
+        schoolPublicId,
+        file.publicId,
+        user.jwtToken,
+      );
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
       link.download = file.fileName;
       link.click();
@@ -131,73 +147,98 @@ const SchoolFilesPage = () => {
   };
 
   const handleDelete = async (file: SchoolFileItem) => {
-    if (!schoolPublicId) {
+    if (!schoolPublicId || !user?.jwtToken) {
       return;
     }
 
     try {
-      await deleteSchoolFile(schoolPublicId, file.filePublicId);
-      setFiles((prev) => prev.filter((item) => item.filePublicId !== file.filePublicId));
+      await deleteSchoolFile(schoolPublicId, file.publicId, user.jwtToken);
+      setFiles((prev) =>
+        prev.filter((item) => item.publicId !== file.publicId),
+      );
     } catch (err) {
       handleApiError(err);
     }
   };
 
   const handleUpload = async () => {
-    if (!schoolPublicId) {
+    console.log("[SchoolFilesPage] handleUpload triggered", {
+      schoolPublicId,
+      hasUser: !!user,
+      hasToken: !!user?.jwtToken,
+    });
+
+    if (!schoolPublicId || !user?.jwtToken) {
+      console.error("[SchoolFilesPage] Upload aborted: missing identifiers", {
+        schoolPublicId,
+        jwtToken: user?.jwtToken ? "exists" : "missing",
+      });
+      setUploadState({
+        status: "error",
+        progress: 0,
+        message: "Ошибка авторизации или ID школы не найден.",
+      });
       return;
     }
 
     if (!selectedFile) {
-      setUploadState({ status: 'error', progress: 0, message: 'Выберите файл для загрузки.' });
+      setUploadState({
+        status: "error",
+        progress: 0,
+        message: "Выберите файл для загрузки.",
+      });
       return;
     }
 
     if (selectedFile.size === 0 || selectedFile.size > MAX_FILE_SIZE_BYTES) {
-      setUploadState({ status: 'error', progress: 0, message: 'Некорректный размер файла.' });
-      return;
-    }
-
-    setUploadState({ status: 'uploading', progress: 0 });
-
-    if (uploadMode === 'api') {
-      const task = uploadSchoolFile(schoolPublicId, {
-        file: selectedFile,
-        fileName: fileName.trim() || undefined,
-        access: accessPayload,
-        onProgress: (progress) => setUploadState((prev) => ({ ...prev, progress })),
+      setUploadState({
+        status: "error",
+        progress: 0,
+        message: "Некорректный размер файла.",
       });
-
-      uploadAbortRef.current = () => task.abort();
-
-      try {
-        const result = await task.promise;
-        setFiles((prev) => [result, ...prev]);
-        setUploadState({ status: 'success', progress: 100, message: 'Файл загружен.' });
-        resetUploadForm();
-      } catch (err) {
-        handleUploadError(err);
-      }
       return;
     }
+
+    setUploadState({
+      status: "uploading",
+      progress: 0,
+      message: "Расчет MD5...",
+    });
 
     const controller = new AbortController();
     uploadAbortRef.current = () => controller.abort();
 
     try {
+      const computedMd5 = await calculateFileMd5(selectedFile);
+      console.log(`[SchoolFilesPage] Computed MD5: ${computedMd5}`);
+
       const presign = await requestDirectUpload(
         schoolPublicId,
+        user.jwtToken,
         {
           fileName: selectedFile.name,
-          contentMd5: contentMd5.trim() || undefined,
+          sizeBytes: Number(selectedFile.size),
+          mimeType: selectedFile.type || "application/octet-stream",
+          contentMd5: computedMd5,
         },
         controller.signal,
       );
 
+      // Важно: не меняем presign.uploadUrl, так как это ломает подпись S3.
+      // Вместо этого добавьте '127.0.0.1 minio' в ваш /etc/hosts.
+      const uploadUrl = presign.uploadUrl;
+      console.log(`[SchoolFilesPage] Uploading to: ${uploadUrl}`);
+
+      const uploadHeaders: Record<string, string> = {
+        ...presign.headers,
+        "Content-Type": selectedFile.type || "application/octet-stream",
+        "Content-MD5": computedMd5,
+      };
+
       const uploadTask = uploadToPresignedUrl(
-        presign.uploadUrl,
+        uploadUrl,
         selectedFile,
-        presign.headers ?? { 'Content-Type': selectedFile.type || 'application/octet-stream' },
+        uploadHeaders,
         (progress) => setUploadState((prev) => ({ ...prev, progress })),
         controller.signal,
       );
@@ -208,21 +249,34 @@ const SchoolFilesPage = () => {
       };
 
       await uploadTask.promise;
+
+      const completionPayload: DirectUploadCompleteRequest = {
+        storageKey: presign.storageKey,
+        fileName: fileName.trim() || selectedFile.name,
+        sizeBytes: Number(selectedFile.size),
+        mimeType: selectedFile.type || "application/octet-stream",
+        allowedUserPublicIds: accessPayload.allowedUserPublicIds,
+        allowedGroupIds: accessPayload.allowedGroupIds,
+      };
+
+      console.log(
+        "[SchoolFilesPage] Sending completion request:",
+        completionPayload,
+      );
+
       const completeResponse = await completeDirectUpload(
         schoolPublicId,
-        {
-          storageKey: presign.storageKey,
-          fileName: fileName.trim() || selectedFile.name,
-          sizeBytes: selectedFile.size,
-          mimeType: selectedFile.type || 'application/octet-stream',
-          allowedUserPublicIds: accessPayload.allowedUserPublicIds,
-          allowedGroupIds: accessPayload.allowedGroupIds,
-        },
+        user.jwtToken,
+        completionPayload,
         controller.signal,
       );
 
       setFiles((prev) => [completeResponse, ...prev]);
-      setUploadState({ status: 'success', progress: 100, message: 'Файл загружен.' });
+      setUploadState({
+        status: "success",
+        progress: 100,
+        message: "Файл загружен.",
+      });
       resetUploadForm();
     } catch (err) {
       handleUploadError(err);
@@ -231,33 +285,44 @@ const SchoolFilesPage = () => {
 
   const handleUploadError = (err: unknown) => {
     if (err instanceof ApiError && err.status === 499) {
-      setUploadState({ status: 'canceled', progress: 0, message: 'Загрузка отменена.' });
+      setUploadState({
+        status: "canceled",
+        progress: 0,
+        message: "Загрузка отменена.",
+      });
       return;
     }
 
     if (err instanceof ApiError) {
-      setUploadState({ status: 'error', progress: 0, message: err.message });
+      setUploadState({ status: "error", progress: 0, message: err.message });
       if (err.status === 401) {
         clearUser();
-        navigate('/auth/login');
+        navigate("/auth/login");
       }
       return;
     }
 
-    setUploadState({ status: 'error', progress: 0, message: 'Не удалось загрузить файл.' });
+    setUploadState({
+      status: "error",
+      progress: 0,
+      message: "Не удалось загрузить файл.",
+    });
   };
 
   const resetUploadForm = () => {
     setSelectedFile(null);
-    setFileName('');
-    setAllowedUsers('');
-    setAllowedGroups('');
-    setContentMd5('');
+    setFileName("");
+    setAllowedUsers("");
+    setAllowedGroups("");
   };
 
   const handleCancelUpload = () => {
     uploadAbortRef.current?.();
-    setUploadState({ status: 'canceled', progress: 0, message: 'Загрузка отменена.' });
+    setUploadState({
+      status: "canceled",
+      progress: 0,
+      message: "Загрузка отменена.",
+    });
   };
 
   return (
@@ -280,7 +345,10 @@ const SchoolFilesPage = () => {
         <Grid item xs={12} lg={7}>
           <Box className="admin-card" sx={cardSx}>
             <Box sx={cardHeaderSx}>
-              <Typography component="h2" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+              <Typography
+                component="h2"
+                sx={{ fontFamily: "Manrope, sans-serif", fontWeight: 700 }}
+              >
                 Каталог
               </Typography>
               <Chip
@@ -290,12 +358,8 @@ const SchoolFilesPage = () => {
               />
             </Box>
             <Divider />
-            {error && (
-              <Alert severity="error">{error}</Alert>
-            )}
-            {isLoading && (
-              <LinearProgress />
-            )}
+            {error && <Alert severity="error">{error}</Alert>}
+            {isLoading && <LinearProgress />}
             {!isLoading && files.length === 0 && (
               <Box className="admin-empty-state">
                 <Typography>Файлы пока не загружены.</Typography>
@@ -303,19 +367,36 @@ const SchoolFilesPage = () => {
             )}
             <Box sx={fileListSx}>
               {files.map((file) => (
-                <Box key={file.filePublicId} sx={fileRowSx}>
+                <Box key={file.publicId} sx={fileRowSx}>
                   <Box sx={fileMetaSx}>
                     <Typography sx={fileNameSx}>{file.fileName}</Typography>
                     <Typography sx={helperTextSx}>
-                      {formatFileSize(file.sizeBytes)} · {file.mimeType || 'unknown'}
+                      {formatFileSize(file.sizeBytes)} ·{" "}
+                      {file.mimeType || "unknown"}
                     </Typography>
                   </Box>
                   <Box sx={fileActionsSx}>
-                    <IconButton aria-label="Скачать файл" onClick={() => handleDownload(file)}>
-                      <Box component="span" className="material-symbols-outlined">download</Box>
+                    <IconButton
+                      aria-label="Скачать файл"
+                      onClick={() => handleDownload(file)}
+                    >
+                      <Box
+                        component="span"
+                        className="material-symbols-outlined"
+                      >
+                        download
+                      </Box>
                     </IconButton>
-                    <IconButton aria-label="Удалить файл" onClick={() => handleDelete(file)}>
-                      <Box component="span" className="material-symbols-outlined">delete</Box>
+                    <IconButton
+                      aria-label="Удалить файл"
+                      onClick={() => handleDelete(file)}
+                    >
+                      <Box
+                        component="span"
+                        className="material-symbols-outlined"
+                      >
+                        delete
+                      </Box>
                     </IconButton>
                   </Box>
                 </Box>
@@ -326,11 +407,14 @@ const SchoolFilesPage = () => {
         <Grid item xs={12} lg={5}>
           <Box className="admin-card" sx={cardSx}>
             <Box sx={cardHeaderSx}>
-              <Typography component="h2" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+              <Typography
+                component="h2"
+                sx={{ fontFamily: "Manrope, sans-serif", fontWeight: 700 }}
+              >
                 Загрузка
               </Typography>
               <Chip
-                label={uploadMode === 'api' ? 'API' : 'Direct Upload'}
+                label="Direct Upload"
                 size="small"
                 className="admin-chip"
                 sx={statusChipSx}
@@ -339,24 +423,16 @@ const SchoolFilesPage = () => {
             <Divider />
             <Box sx={uploadFormSx}>
               <Box sx={uploadRowSx}>
-                <TextField
-                  label="Режим загрузки"
-                  value={uploadMode === 'api' ? 'Через API' : 'Через storage'}
-                  size="small"
-                  select
-                  SelectProps={{ native: true }}
-                  onChange={(event) => setUploadMode(event.target.value as UploadMode)}
-                  sx={uploadInputSx}
-                >
-                  <option value="api">Через API</option>
-                  <option value="direct">Через storage</option>
-                </TextField>
                 <Button
                   variant="outlined"
                   component="label"
-                  sx={{ textTransform: 'none', borderRadius: '0.7rem' }}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: "0.7rem",
+                    flex: 1,
+                  }}
                 >
-                  {selectedFile ? 'Файл выбран' : 'Выбрать файл'}
+                  {selectedFile ? "Файл выбран" : "Выбрать файл"}
                   <Box
                     component="input"
                     type="file"
@@ -367,6 +443,20 @@ const SchoolFilesPage = () => {
                     }}
                   />
                 </Button>
+                {selectedFile && (
+                  <Typography
+                    sx={{
+                      ...helperTextSx,
+                      ml: 1,
+                      flex: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {selectedFile.name}
+                  </Typography>
+                )}
               </Box>
 
               <TextField
@@ -387,14 +477,6 @@ const SchoolFilesPage = () => {
                 onChange={(event) => setAllowedGroups(event.target.value)}
                 size="small"
               />
-              {uploadMode === 'direct' && (
-                <TextField
-                  label="Content-MD5 (base64, опционально)"
-                  value={contentMd5}
-                  onChange={(event) => setContentMd5(event.target.value)}
-                  size="small"
-                />
-              )}
               <Typography sx={helperTextSx}>
                 Максимальный размер: {formatFileSize(MAX_FILE_SIZE_BYTES)}.
               </Typography>
@@ -402,33 +484,41 @@ const SchoolFilesPage = () => {
                 <Button
                   variant="contained"
                   onClick={handleUpload}
-                  disabled={uploadState.status === 'uploading'}
-                  sx={{ borderRadius: '0.7rem', textTransform: 'none' }}
+                  disabled={uploadState.status === "uploading"}
+                  sx={{ borderRadius: "0.7rem", textTransform: "none" }}
                 >
                   Загрузить
                 </Button>
                 <Button
                   variant="text"
                   onClick={handleCancelUpload}
-                  disabled={uploadState.status !== 'uploading'}
-                  sx={{ textTransform: 'none' }}
+                  disabled={uploadState.status !== "uploading"}
+                  sx={{ textTransform: "none" }}
                 >
                   Отменить
                 </Button>
               </Box>
-              {uploadState.status !== 'idle' && (
+              {uploadState.status !== "idle" && (
                 <Box sx={progressRowSx}>
                   <LinearProgress
                     variant="determinate"
                     value={uploadState.progress}
-                    sx={{ flex: 1, borderRadius: '999px' }}
+                    sx={{ flex: 1, borderRadius: "999px" }}
                   />
-                  <Typography sx={helperTextSx}>{uploadState.progress}%</Typography>
+                  <Typography sx={helperTextSx}>
+                    {uploadState.progress}%
+                  </Typography>
                 </Box>
               )}
               {uploadState.message && (
                 <Alert
-                  severity={uploadState.status === 'success' ? 'success' : uploadState.status === 'canceled' ? 'info' : 'error'}
+                  severity={
+                    uploadState.status === "success"
+                      ? "success"
+                      : uploadState.status === "canceled"
+                        ? "info"
+                        : "error"
+                  }
                 >
                   {uploadState.message}
                 </Alert>
@@ -443,7 +533,7 @@ const SchoolFilesPage = () => {
 
 function parseCommaList(value: string): string[] | undefined {
   const items = value
-    .split(',')
+    .split(",")
     .map((entry) => entry.trim())
     .filter(Boolean);
   return items.length > 0 ? items : undefined;

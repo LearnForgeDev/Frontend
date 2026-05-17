@@ -4,11 +4,11 @@ export type SchoolFileAccess = {
 };
 
 export type SchoolFileItem = {
-  filePublicId: string;
+  publicId: string;
   fileName: string;
   sizeBytes: number;
   mimeType: string;
-  createdAt?: string;
+  uploadedAt?: string;
   uploaderName?: string;
   access?: SchoolFileAccess;
 };
@@ -30,5 +30,7 @@ export type DirectUploadCompleteRequest = {
 
 export type DirectUploadPresignRequest = {
   fileName: string;
+  sizeBytes: number;
+  mimeType?: string;
   contentMd5?: string;
 };

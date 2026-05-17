@@ -1,11 +1,11 @@
-import config from '../config.ts';
+import config from "../config.ts";
 import type {
   DirectUploadCompleteRequest,
   DirectUploadPresignRequest,
   DirectUploadPresignResponse,
   SchoolFileAccess,
   SchoolFileItem,
-} from '../types/schoolTypes.ts';
+} from "../types/schoolTypes.ts";
 
 type UploadProgressHandler = (progress: number) => void;
 
@@ -26,12 +26,12 @@ export class ApiError extends Error {
 const BASE_PATH = `${config.endpointUrl}/api/ApiFiles`;
 
 const defaultErrorMessages: Record<number, string> = {
-  400: 'Некорректные данные запроса.',
-  401: 'Сессия истекла. Требуется вход.',
-  403: 'Недостаточно прав для выполнения действия.',
-  404: 'Запрашиваемый ресурс не найден.',
-  429: 'Слишком много запросов. Попробуйте позже.',
-  500: 'Внутренняя ошибка сервера.',
+  400: "Некорректные данные запроса.",
+  401: "Сессия истекла. Требуется вход.",
+  403: "Недостаточно прав для выполнения действия.",
+  404: "Запрашиваемый ресурс не найден.",
+  429: "Слишком много запросов. Попробуйте позже.",
+  500: "Внутренняя ошибка сервера.",
 };
 
 function getDefaultMessage(status: number): string {
@@ -39,10 +39,13 @@ function getDefaultMessage(status: number): string {
 }
 
 async function parseErrorMessage(response: Response): Promise<string> {
-  const contentType = response.headers.get('content-type') ?? '';
-  if (contentType.includes('application/json')) {
+  const contentType = response.headers.get("content-type") ?? "";
+  if (contentType.includes("application/json")) {
     try {
-      const data = (await response.json()) as { message?: string; error?: string };
+      const data = (await response.json()) as {
+        message?: string;
+        error?: string;
+      };
       return data.message ?? data.error ?? getDefaultMessage(response.status);
     } catch {
       return getDefaultMessage(response.status);
@@ -66,98 +69,43 @@ async function assertOk(response: Response): Promise<void> {
   throw new ApiError(response.status, message);
 }
 
-export async function getSchoolFiles(schoolPublicId: string): Promise<SchoolFileItem[]> {
-  const response = await fetch(`${BASE_PATH}/${encodeURIComponent(schoolPublicId)}`, {
-    method: 'GET',
-    credentials: 'include',
-  });
+export async function getSchoolFiles(
+  schoolPublicId: string,
+  jwtToken: string,
+): Promise<SchoolFileItem[]> {
+  const response = await fetch(
+    `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    },
+  );
 
   await assertOk(response);
   const data = (await response.json()) as SchoolFileItem[];
   return data ?? [];
 }
 
-export function uploadSchoolFile(
-  schoolPublicId: string,
-  payload: {
-    file: File;
-    fileName?: string;
-    access?: SchoolFileAccess;
-    onProgress?: UploadProgressHandler;
-  },
-): UploadTask<SchoolFileItem> {
-  const formData = new FormData();
-  formData.append('File', payload.file);
-  if (payload.fileName) {
-    formData.append('FileName', payload.fileName);
-  }
-  if (payload.access?.allowedUserPublicIds) {
-    formData.append('AllowedUserPublicIds', JSON.stringify(payload.access.allowedUserPublicIds));
-  }
-  if (payload.access?.allowedGroupIds) {
-    formData.append('AllowedGroupIds', JSON.stringify(payload.access.allowedGroupIds));
-  }
-
-  const xhr = new XMLHttpRequest();
-
-  const promise = new Promise<SchoolFileItem>((resolve, reject) => {
-    xhr.open('POST', `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}`);
-    xhr.withCredentials = true;
-
-    xhr.upload.onprogress = (event) => {
-      if (!event.lengthComputable) {
-        return;
-      }
-      const progress = Math.round((event.loaded / event.total) * 100);
-      payload.onProgress?.(progress);
-    };
-
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        try {
-          const parsed = JSON.parse(xhr.responseText) as SchoolFileItem;
-          resolve(parsed);
-        } catch {
-          resolve({
-            filePublicId: '',
-            fileName: payload.fileName ?? payload.file.name,
-            sizeBytes: payload.file.size,
-            mimeType: payload.file.type,
-          });
-        }
-        return;
-      }
-
-      reject(new ApiError(xhr.status, xhr.responseText || getDefaultMessage(xhr.status)));
-    };
-
-    xhr.onerror = () => {
-      reject(new ApiError(500, 'Не удалось загрузить файл.'));
-    };
-
-    xhr.send(formData);
-  });
-
-  return {
-    promise,
-    abort: () => xhr.abort(),
-  };
-}
-
 export async function requestDirectUpload(
   schoolPublicId: string,
+  jwtToken: string,
   payload: DirectUploadPresignRequest,
   signal?: AbortSignal,
 ): Promise<DirectUploadPresignResponse> {
-  const response = await fetch(`${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/direct-upload/presign`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/direct-upload/presign`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(payload),
+      signal,
     },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-    signal,
-  });
+  );
 
   await assertOk(response);
   return (await response.json()) as DirectUploadPresignResponse;
@@ -173,7 +121,7 @@ export function uploadToPresignedUrl(
   const xhr = new XMLHttpRequest();
 
   const promise = new Promise<void>((resolve, reject) => {
-    xhr.open('PUT', uploadUrl);
+    xhr.open("PUT", uploadUrl);
     Object.entries(headers).forEach(([key, value]) => {
       xhr.setRequestHeader(key, value);
     });
@@ -192,17 +140,22 @@ export function uploadToPresignedUrl(
         return;
       }
 
-      reject(new ApiError(xhr.status, xhr.responseText || getDefaultMessage(xhr.status)));
+      reject(
+        new ApiError(
+          xhr.status,
+          xhr.responseText || getDefaultMessage(xhr.status),
+        ),
+      );
     };
 
     xhr.onerror = () => {
-      reject(new ApiError(500, 'Не удалось загрузить файл в хранилище.'));
+      reject(new ApiError(500, "Не удалось загрузить файл в хранилище."));
     };
 
     if (signal) {
-      signal.addEventListener('abort', () => {
+      signal.addEventListener("abort", () => {
         xhr.abort();
-        reject(new ApiError(499, 'Загрузка отменена.'));
+        reject(new ApiError(499, "Загрузка отменена."));
       });
     }
 
@@ -217,18 +170,22 @@ export function uploadToPresignedUrl(
 
 export async function completeDirectUpload(
   schoolPublicId: string,
+  jwtToken: string,
   payload: DirectUploadCompleteRequest,
   signal?: AbortSignal,
 ): Promise<SchoolFileItem> {
-  const response = await fetch(`${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/direct-upload/complete`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/direct-upload/complete`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
+      },
+      body: JSON.stringify(payload),
+      signal,
     },
-    credentials: 'include',
-    body: JSON.stringify(payload),
-    signal,
-  });
+  );
 
   await assertOk(response);
   return (await response.json()) as SchoolFileItem;
@@ -237,12 +194,15 @@ export async function completeDirectUpload(
 export async function downloadSchoolFileContent(
   schoolPublicId: string,
   filePublicId: string,
+  jwtToken: string,
 ): Promise<Blob> {
   const response = await fetch(
     `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/${encodeURIComponent(filePublicId)}/content`,
     {
-      method: 'GET',
-      credentials: 'include',
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
     },
   );
 
@@ -250,12 +210,18 @@ export async function downloadSchoolFileContent(
   return await response.blob();
 }
 
-export async function deleteSchoolFile(schoolPublicId: string, filePublicId: string): Promise<void> {
+export async function deleteSchoolFile(
+  schoolPublicId: string,
+  filePublicId: string,
+  jwtToken: string,
+): Promise<void> {
   const response = await fetch(
     `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/${encodeURIComponent(filePublicId)}`,
     {
-      method: 'DELETE',
-      credentials: 'include',
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
     },
   );
 
@@ -265,16 +231,17 @@ export async function deleteSchoolFile(schoolPublicId: string, filePublicId: str
 export async function updateSchoolFileAccess(
   schoolPublicId: string,
   filePublicId: string,
+  jwtToken: string,
   access: SchoolFileAccess,
 ): Promise<void> {
   const response = await fetch(
     `${BASE_PATH}/${encodeURIComponent(schoolPublicId)}/${encodeURIComponent(filePublicId)}/access`,
     {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${jwtToken}`,
       },
-      credentials: 'include',
       body: JSON.stringify(access),
     },
   );

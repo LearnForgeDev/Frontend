@@ -1,15 +1,20 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import * as signalR from '@microsoft/signalr';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as signalR from "@microsoft/signalr";
 
 export type ChatMessage = {
   id: string;
   senderName: string;
   message: string;
   createdAt: string;
-  status: 'sending' | 'sent' | 'failed' | 'queued';
+  status: "sending" | "sent" | "failed" | "queued";
 };
 
-export type ConnectionStatus = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
+export type ConnectionStatus =
+  | "idle"
+  | "connecting"
+  | "connected"
+  | "reconnecting"
+  | "disconnected";
 
 type PendingMessage = {
   id: string;
@@ -27,6 +32,7 @@ type SignalRChatOptions = {
   hubUrl: string | null;
   sendMethod: string;
   buildSendArgs: (message: string) => unknown[];
+  jwtToken?: string;
   localUserName?: string;
   maxMessageLength?: number;
   throttleMs?: number;
@@ -36,7 +42,7 @@ type SignalRChatOptions = {
 const defaultReconnectDelays = [0, 2000, 5000, 10000, 20000];
 
 function createId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
     return crypto.randomUUID();
   }
 
@@ -64,13 +70,14 @@ export function useSignalRChat(options: SignalRChatOptions) {
     hubUrl,
     sendMethod,
     buildSendArgs,
+    jwtToken,
     localUserName,
     maxMessageLength = 1000,
     throttleMs = 800,
     onUnauthorized,
   } = options;
 
-  const [status, setStatus] = useState<ConnectionStatus>('idle');
+  const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
   const connectionRef = useRef<signalR.HubConnection | null>(null);
@@ -86,26 +93,30 @@ export function useSignalRChat(options: SignalRChatOptions) {
   const reconcilePending = useCallback(
     (senderName: string, text: string) => {
       setMessages((prev) => {
-        const pendingIndex = prev.findIndex((item) =>
-          item.status !== 'sent' &&
-          item.message === text &&
-          (!localUserName || item.senderName === localUserName),
+        const pendingIndex = prev.findIndex(
+          (item) =>
+            item.status !== "sent" &&
+            item.message === text &&
+            (!localUserName || item.senderName === localUserName),
         );
 
         if (pendingIndex === -1) {
-          return [...prev, {
-            id: createId(),
-            senderName,
-            message: text,
-            createdAt: nowIso(),
-            status: 'sent',
-          }];
+          return [
+            ...prev,
+            {
+              id: createId(),
+              senderName,
+              message: text,
+              createdAt: nowIso(),
+              status: "sent",
+            },
+          ];
         }
 
         const updated = [...prev];
         updated[pendingIndex] = {
           ...updated[pendingIndex],
-          status: 'sent',
+          status: "sent",
           senderName,
         };
         return updated;
@@ -116,7 +127,10 @@ export function useSignalRChat(options: SignalRChatOptions) {
 
   const flushQueue = useCallback(async () => {
     const connection = connectionRef.current;
-    if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
+    if (
+      !connection ||
+      connection.state !== signalR.HubConnectionState.Connected
+    ) {
       return;
     }
 
@@ -129,7 +143,9 @@ export function useSignalRChat(options: SignalRChatOptions) {
           await connection.invoke(sendMethod, ...buildSendArgs(item.message));
         } catch (err) {
           setMessages((prev) =>
-            prev.map((msg) => (msg.id === item.id ? { ...msg, status: 'failed' } : msg)),
+            prev.map((msg) =>
+              msg.id === item.id ? { ...msg, status: "failed" } : msg,
+            ),
           );
           if (isUnauthorizedError(err)) {
             onUnauthorized?.();
@@ -141,72 +157,82 @@ export function useSignalRChat(options: SignalRChatOptions) {
 
   useEffect(() => {
     if (!hubUrl) {
-      setStatus('idle');
+      setStatus("idle");
       return;
     }
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl(hubUrl, { withCredentials: true })
+      .withUrl(hubUrl, {
+        withCredentials: true,
+        accessTokenFactory: jwtToken ? () => jwtToken : undefined,
+      })
       .withAutomaticReconnect(defaultReconnectDelays)
       .build();
 
-    connection.on('ReceiveMessage', (senderName: string, message: string) => {
+    connection.on("ReceiveMessage", (senderName: string, message: string) => {
       reconcilePending(senderName, message);
     });
 
     connection.onreconnecting(() => {
-      setStatus('reconnecting');
+      setStatus("reconnecting");
     });
 
     connection.onreconnected(() => {
-      setStatus('connected');
+      setStatus("connected");
       flushQueue();
     });
 
     connection.onclose((err) => {
-      setStatus('disconnected');
+      setStatus("disconnected");
       if (isUnauthorizedError(err)) {
         onUnauthorized?.();
       }
     });
 
     connectionRef.current = connection;
-    setStatus('connecting');
+    setStatus("connecting");
 
     connection
       .start()
       .then(() => {
-        setStatus('connected');
+        setStatus("connected");
         flushQueue();
       })
       .catch((err) => {
-        setStatus('disconnected');
-        setError(err instanceof Error ? err.message : 'Не удалось подключиться к чату.');
+        setStatus("disconnected");
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Не удалось подключиться к чату.",
+        );
         if (isUnauthorizedError(err)) {
           onUnauthorized?.();
         }
       });
 
     return () => {
-      connection.off('ReceiveMessage');
+      connection.off("ReceiveMessage");
       connection.stop();
     };
-  }, [flushQueue, hubUrl, onUnauthorized, reconcilePending]);
+  }, [flushQueue, hubUrl, jwtToken, onUnauthorized, reconcilePending]);
 
   const sendMessage = useCallback(
     async (message: string): Promise<SendResult> => {
       const trimmed = message.trim();
       if (!trimmed) {
-        return { ok: false, error: 'Введите сообщение.' };
+        return { ok: false, error: "Введите сообщение." };
       }
 
       if (trimmed.length > maxMessageLength) {
-        return { ok: false, error: `Сообщение слишком длинное (макс. ${maxMessageLength} символов).` };
+        return {
+          ok: false,
+          error: `Сообщение слишком длинное (макс. ${maxMessageLength} символов).`,
+        };
       }
 
       const now = Date.now();
       if (now - lastSendAtRef.current < throttleMs) {
-        return { ok: false, error: 'Слишком часто. Подождите немного.' };
+        return { ok: false, error: "Слишком часто. Подождите немного." };
       }
 
       lastSendAtRef.current = now;
@@ -215,17 +241,22 @@ export function useSignalRChat(options: SignalRChatOptions) {
 
       appendMessage({
         id,
-        senderName: localUserName ?? 'Вы',
+        senderName: localUserName ?? "Вы",
         message: trimmed,
         createdAt,
-        status: 'sending',
+        status: "sending",
       });
 
       const connection = connectionRef.current;
-      if (!connection || connection.state !== signalR.HubConnectionState.Connected) {
+      if (
+        !connection ||
+        connection.state !== signalR.HubConnectionState.Connected
+      ) {
         pendingQueueRef.current.push({ id, message: trimmed, createdAt });
         setMessages((prev) =>
-          prev.map((msg) => (msg.id === id ? { ...msg, status: 'queued' } : msg)),
+          prev.map((msg) =>
+            msg.id === id ? { ...msg, status: "queued" } : msg,
+          ),
         );
         return { ok: true, queued: true };
       }
@@ -235,9 +266,14 @@ export function useSignalRChat(options: SignalRChatOptions) {
         return { ok: true };
       } catch (err) {
         setMessages((prev) =>
-          prev.map((msg) => (msg.id === id ? { ...msg, status: 'failed' } : msg)),
+          prev.map((msg) =>
+            msg.id === id ? { ...msg, status: "failed" } : msg,
+          ),
         );
-        const errorMessage = err instanceof Error ? err.message : 'Не удалось отправить сообщение.';
+        const errorMessage =
+          err instanceof Error
+            ? err.message
+            : "Не удалось отправить сообщение.";
         setError(errorMessage);
         if (isUnauthorizedError(err)) {
           onUnauthorized?.();
@@ -245,14 +281,22 @@ export function useSignalRChat(options: SignalRChatOptions) {
         return { ok: false, error: errorMessage };
       }
     },
-    [appendMessage, buildSendArgs, localUserName, maxMessageLength, onUnauthorized, sendMethod, throttleMs],
+    [
+      appendMessage,
+      buildSendArgs,
+      localUserName,
+      maxMessageLength,
+      onUnauthorized,
+      sendMethod,
+      throttleMs,
+    ],
   );
 
   const resetMessages = useCallback(() => {
     setMessages([]);
   }, []);
 
-  const isConnected = status === 'connected';
+  const isConnected = status === "connected";
 
   return useMemo(
     () => ({
@@ -264,6 +308,14 @@ export function useSignalRChat(options: SignalRChatOptions) {
       clearError,
       resetMessages,
     }),
-    [clearError, error, isConnected, messages, resetMessages, sendMessage, status],
+    [
+      clearError,
+      error,
+      isConnected,
+      messages,
+      resetMessages,
+      sendMessage,
+      status,
+    ],
   );
 }
