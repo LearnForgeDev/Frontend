@@ -11,6 +11,7 @@ import NotFoundPage from './pages/NotFound/NotFoundPage';
 import AuthLayout from './pages/Auth/Pages/AuthLayout/AuthLayout.tsx';
 import LoginPage from './pages/Auth/Pages/LoginPage/LoginPage.tsx';
 import RegisterPage from './pages/Auth/Pages/RegisterPage/RegisterPage.tsx';
+import MeetPage from './pages/Meet/MeetPage.tsx';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [
