@@ -23,7 +23,7 @@ export class ApiError extends Error {
   }
 }
 
-const BASE_PATH = `${config.endpointUrl}/api/files`;
+const BASE_PATH = `${config.endpointUrl}/api/ApiFiles`;
 
 const defaultErrorMessages: Record<number, string> = {
   400: 'Некорректные данные запроса.',
