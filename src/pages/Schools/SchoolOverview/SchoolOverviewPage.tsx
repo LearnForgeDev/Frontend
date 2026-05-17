@@ -1,0 +1,39 @@
+import { Box, Typography } from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { cardGridSx, headerRowSx, helperTextSx, infoCardSx, pageSx } from './SchoolOverviewPage.styles';
+
+const SchoolOverviewPage = () => {
+  const { schoolPublicId } = useParams();
+
+  return (
+    <Box sx={pageSx} className="admin-page">
+      <Box sx={headerRowSx}>
+        <Box>
+          <Typography component="h1" className="admin-page-title">
+            Обзор школы
+          </Typography>
+          <Typography className="admin-page-description">
+            Управляйте файлами, чатами и доступом внутри школы.
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={cardGridSx}>
+        <Box className="admin-card" sx={infoCardSx}>
+          <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+            Идентификатор школы
+          </Typography>
+          <Typography sx={helperTextSx}>{schoolPublicId ?? 'Не задано'}</Typography>
+        </Box>
+        <Box className="admin-card" sx={infoCardSx}>
+          <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
+            Быстрые действия
+          </Typography>
+          <Typography sx={helperTextSx}>Перейдите в разделы “Файлы” и “Чаты” для работы.</Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default SchoolOverviewPage;
