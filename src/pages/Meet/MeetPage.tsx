@@ -1,140 +1,174 @@
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { JitsiMeeting } from '@jitsi/react-sdk';
 import type { IJitsiMeetExternalApi } from '@jitsi/react-sdk/lib/types';
-import React, { useRef, useState } from 'react';
+import { Alert, Box, Button, CircularProgress, Stack, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import ScreenShareIcon from '@mui/icons-material/ScreenShare';
+import SettingsIcon from '@mui/icons-material/Settings';
+import { useParams, useSearchParams } from 'react-router-dom';
 
-const App = () => {
-    const apiRef = useRef<IJitsiMeetExternalApi | null>(null);
+import { useUser } from '../../contexts/UserContext.tsx';
+import { getMeetToken } from '../../endpoints/Meet.ts';
+import type { MeetTokenResponse } from '../../types/meetTypes.ts';
+import * as S from './MeetPage.styles.ts';
+
+export default function MeetPage() {
+  const apiRef = useRef<IJitsiMeetExternalApi | null>(null);
+  const { user } = useUser();
+  const { meetId } = useParams<{ meetId: string }>();
+  const [searchParams] = useSearchParams();
+
+  const [meet, setMeet] = useState<MeetTokenResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const room = searchParams.get('room') ?? meetId ?? 'MyTestRoom';
+  const schoolPublicId = searchParams.get('schoolPublicId') ?? '';
+
+  useEffect(() => {
+    if (!user?.jwtToken) {
+      setError('Нужно войти в аккаунт');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!schoolPublicId) {
+      setError('Не указан schoolPublicId');
+      setIsLoading(false);
+      return;
+    }
+
+    let active = true;
+    setIsLoading(true);
+    setError(null);
+
+    getMeetToken(user.jwtToken, { room, schoolPublicId })
+      .then((data) => {
+        if (active) setMeet(data);
+      })
+      .catch((err: unknown) => {
+        if (active) {
+          setError(err instanceof Error ? err.message : 'Не удалось получить токен встречи');
+        }
+      })
+      .finally(() => {
+        if (active) setIsLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [room, schoolPublicId, user?.jwtToken]);
+
+  const canShareScreen = Boolean(
+    meet?.permissions.canShareScreen ?? meet?.permissions.screenSharing,
+  );
+
+  const canApproveScreenSharing = Boolean(
+    meet?.permissions.canApproveScreenSharing ?? meet?.permissions.moderator,
+  );
+
+  const toolbarButtons = useMemo(
+    () =>
+      canShareScreen
+        ? ['microphone', 'camera', 'desktop', 'chat', 'participants-pane', 'tileview', 'settings', 'hangup']
+        : ['microphone', 'camera', 'chat', 'participants-pane', 'tileview', 'settings', 'hangup'],
+    [canShareScreen],
+  );
+
+  const handleShareScreen = () => {
     apiRef.current?.executeCommand('toggleShareScreen');
-    apiRef.current?.executeCommand('hangup');
+  };
 
-
-
-    const resolveKnockingParticipants = condition => {
-        knockingParticipants.forEach(participant => {
-            apiRef.current.executeCommand('answerKnockingParticipant', participant?.id, condition(participant));
-            updateKnockingParticipants(participants => participants.filter(item => item.id === participant.id));
-        });
-    };
-
-    const handleJitsiIFrameRef1 = iframeRef => {
-        iframeRef.style.border = '10px solid #3d3d3d';
-        iframeRef.style.background = '#3d3d3d';
-        iframeRef.style.height = '400px';
-        iframeRef.style.marginBottom = '20px';
-    };
-
-
-
-    const handleApiReady = apiObj => {
-        apiRef.current = apiObj;
-        apiRef.current.on('titleViewChanged', printEventOutput);
-    };
-
-    const handleReadyToClose = () => {
-        /* eslint-disable-next-line no-alert */
-        alert('Ready to close...');
-    };
-
-    const generateRoomName = () => `JitsiMeetRoomNo${Math.random() * 100}-${Date.now()}`;
-
-   
-    const renderButtons = () => (
-        <div style = {{ margin: '15px 0' }}>
-            <div style = {{
-                display: 'flex',
-                justifyContent: 'center'
-            }}>
-                <button
-                    type = 'text'
-                    title = 'Click to execute toggle raise hand command'
-                    style = {{
-                        border: 0,
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        background: '#f8ae1a',
-                        color: '#040404',
-                        padding: '12px 46px',
-                        margin: '2px 2px'
-                    }}
-                    onClick = { () => apiRef.current.executeCommand('toggleRaiseHand') }>
-                    Raise hand
-                </button>
-
-                <button
-                    type = 'text'
-                    title = 'Click to execute subject command'
-                    style = {{
-                        border: 0,
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        background: '#df486f',
-                        color: 'white',
-                        padding: '12px 46px',
-                        margin: '2px 2px'
-                    }}
-                    onClick = { () => apiRef.current.executeCommand('subject', 'New Subject')}>
-                    Change subject
-                </button>
-                <button
-                    type = 'text'
-                    title = 'Click to create a new JitsiMeeting instance'
-                    style = {{
-                        border: 0,
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        background: '#3D3D3D',
-                        color: 'white',
-                        padding: '12px 46px',
-                        margin: '2px 2px'
-                    }}
-                    onClick = { () => toggleShowNew(!showNew) }>
-                    Toggle new instance
-                </button>
-            </div>
-        </div>
-    );
-
-
-    const renderSpinner = () => (
-        <div style = {{
-            fontFamily: 'sans-serif',
-            textAlign: 'center'
-        }}>
-            Loading..
-        </div>
-    );
-
-
+  if (isLoading) {
     return (
-        <>
-            <h1 style = {{
-                fontFamily: 'sans-serif',
-                textAlign: 'center'
-            }}>
-                JitsiMeeting Demo App
-            </h1>
-            <JitsiMeeting
-                roomName = { generateRoomName() }
-                spinner = { renderSpinner }
-                configOverwrite = {{
-                    subject: 'lalalala',
-                    hideConferenceSubject: false
-                }}
-                lang = 'de'
-                onApiReady = { externalApi => handleApiReady(externalApi) }
-                onReadyToClose = { handleReadyToClose }
-                getIFrameRef = { handleJitsiIFrameRef1 } />
-            <JaaSMeeting
-                roomName = { generateRoomName() }
-
-                // Update this with the `8x8.vc` or `stage.8x8.vc` version of interest
-                // and avoid mixing up different domains and release versions
-                // on the same page at the same time, as only the first
-                // external api script will be loaded.
-                // release = 'release-1234'
-
-                useStaging = { true } />
-        </>
+      <Box sx={S.centerStateSx}>
+        <CircularProgress />
+      </Box>
     );
-};
+  }
 
-export default App;
+  if (error || !meet) {
+    return (
+      <Box sx={S.centerStateSx}>
+        <Alert severity="error">{error ?? 'Встреча недоступна'}</Alert>
+      </Box>
+    );
+  }
+
+  const permissions = meet.permissions;
+  const meetDomain = new URL(meet.roomUrl).host;
+
+  return (
+    <Box sx={S.pageSx}>
+      <Box sx={S.headerSx}>
+        <Box>
+          <Typography variant="h5" component="h1">
+            {meet.room}
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Доступ до {new Date(meet.expiresAt).toLocaleString()}
+          </Typography>
+        </Box>
+
+        <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1}>
+          {permissions.canCreateRoom && (
+            <Button variant="outlined" startIcon={<AddIcon />}>
+              Создать
+            </Button>
+          )}
+
+          {permissions.canManageRoom && (
+            <Button variant="outlined" startIcon={<SettingsIcon />}>
+              Управление
+            </Button>
+          )}
+
+          {canShareScreen && (
+            <Button variant="contained" startIcon={<ScreenShareIcon />} onClick={handleShareScreen}>
+              Демонстрация
+            </Button>
+          )}
+
+          {permissions.canRequestScreenShare && (
+            <Button variant="contained" startIcon={<ScreenShareIcon />}>
+              Запросить демонстрацию
+            </Button>
+          )}
+        </Stack>
+      </Box>
+
+      {canApproveScreenSharing && (
+        <Alert severity="info" sx={S.moderatorAlertSx}>
+          Здесь будет approve/reject UI для запросов демонстрации экрана.
+        </Alert>
+      )}
+
+      <Box sx={S.meetingFrameSx}>
+        <JitsiMeeting
+          domain={meetDomain}
+          roomName={meet.room}
+          jwt={meet.token}
+          userInfo={{
+            displayName: user?.userName ?? 'LearnForge User',
+            email: '',
+          }}
+          configOverwrite={{
+            startWithAudioMuted: true,
+            toolbarButtons,
+          }}
+          interfaceConfigOverwrite={{
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+          }}
+          onApiReady={(externalApi) => {
+            apiRef.current = externalApi;
+          }}
+          getIFrameRef={(iframeRef) => {
+            iframeRef.style.height = '100%';
+            iframeRef.style.width = '100%';
+          }}
+        />
+      </Box>
+    </Box>
+  );
+}

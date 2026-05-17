@@ -30,6 +30,10 @@ const AppRoutes = () => {
                     path: '/Lessons/:lessonId',
                     element: <LessonIdPage />,
                 },
+                {
+                    path: '/Meet/:meetId',
+                    element: <MeetPage />,
+                },
             ]
         },
         {
