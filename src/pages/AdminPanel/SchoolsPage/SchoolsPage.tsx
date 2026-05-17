@@ -16,7 +16,6 @@ import { getMySchools, type UserSchoolInfo } from "../../../endpoints/Schools";
 import {
   requestSchool as apiRequestSchool,
   joinSchool as apiJoinSchool,
-  getAllSchoolRequests,
 } from "../../../endpoints/apiAuth";
 import { useUser } from "../../../contexts/UserContext";
 import { useSchoolRequestPolling } from "../../../hooks/useSchoolRequestPolling";
@@ -36,7 +35,6 @@ export default function SchoolsPage() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
-  const [pendingRequests, setPendingRequests] = useState<any[]>([]); // Assuming setPendingRequests exists or is needed
 
   const fetchData = async () => {
     if (!user?.jwtToken) {
@@ -114,13 +112,6 @@ export default function SchoolsPage() {
 
       if (result.requestPublicId) {
         startPolling(result.requestPublicId, newSchoolName.trim());
-        // Refresh requests immediately if needed
-        try {
-          const updated = await getAllSchoolRequests(user.jwtToken);
-          setPendingRequests(updated);
-        } catch (e) {
-          console.error("Failed to fetch requests", e);
-        }
       }
 
       setNewSchoolName("");
