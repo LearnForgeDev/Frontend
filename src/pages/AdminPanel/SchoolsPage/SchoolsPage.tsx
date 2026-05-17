@@ -8,12 +8,15 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  CardActions,
 } from "@mui/material";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { getMySchools, type UserSchoolInfo } from "../../../endpoints/Schools";
 import {
   requestSchool as apiRequestSchool,
   joinSchool as apiJoinSchool,
+  getAllSchoolRequests,
 } from "../../../endpoints/apiAuth";
 import { useUser } from "../../../contexts/UserContext";
 import { useSchoolRequestPolling } from "../../../hooks/useSchoolRequestPolling";
@@ -21,6 +24,7 @@ import { useSchoolRequestPolling } from "../../../hooks/useSchoolRequestPolling"
 export default function SchoolsPage() {
   const { user, setUser } = useUser();
   const { startPolling } = useSchoolRequestPolling();
+  const navigate = useNavigate();
 
   const [schools, setSchools] = useState<UserSchoolInfo[]>([]);
   const [isLoadingSchools, setIsLoadingSchools] = useState(true);
@@ -32,6 +36,7 @@ export default function SchoolsPage() {
   const [createError, setCreateError] = useState<string | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
+  const [pendingRequests, setPendingRequests] = useState<any[]>([]); // Assuming setPendingRequests exists or is needed
 
   const fetchData = async () => {
     if (!user?.jwtToken) {
@@ -109,9 +114,13 @@ export default function SchoolsPage() {
 
       if (result.requestPublicId) {
         startPolling(result.requestPublicId, newSchoolName.trim());
-        // Refresh requests immediately
-        const updated = await getAllSchoolRequests(user.jwtToken);
-        setPendingRequests(updated);
+        // Refresh requests immediately if needed
+        try {
+          const updated = await getAllSchoolRequests(user.jwtToken);
+          setPendingRequests(updated);
+        } catch (e) {
+          console.error("Failed to fetch requests", e);
+        }
       }
 
       setNewSchoolName("");
@@ -130,6 +139,12 @@ export default function SchoolsPage() {
       Admin: "Администратор",
     };
     return roles.map((r) => roleMap[r] || r).join(", ");
+  };
+
+  const handleNavigateToSchool = (school: UserSchoolInfo) => {
+    navigate(`/admin/schools/${school.schoolPublicId}`, {
+      state: { schoolName: school.schoolName },
+    });
   };
 
   return (
@@ -188,6 +203,9 @@ export default function SchoolsPage() {
                   borderRadius: "1rem",
                   border: "1px solid var(--admin-border)",
                   boxShadow: "var(--admin-shadow)",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
               >
                 <CardContent>
@@ -201,6 +219,17 @@ export default function SchoolsPage() {
                     Моя роль: {formatRoles(school.roles)}
                   </Typography>
                 </CardContent>
+                <CardActions sx={{ px: 2, pb: 2 }}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    fullWidth
+                    onClick={() => handleNavigateToSchool(school)}
+                    sx={{ textTransform: "none", borderRadius: "0.7rem" }}
+                  >
+                    Перейти
+                  </Button>
+                </CardActions>
               </Card>
             ))
           )}

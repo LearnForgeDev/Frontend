@@ -12,6 +12,10 @@ import NotFoundPage from "./pages/NotFound/NotFoundPage";
 import AuthLayout from "./pages/Auth/Pages/AuthLayout/AuthLayout.tsx";
 import LoginPage from "./pages/Auth/Pages/LoginPage/LoginPage.tsx";
 import RegisterPage from "./pages/Auth/Pages/RegisterPage/RegisterPage.tsx";
+import SchoolLayout from "./pages/Schools/SchoolLayout/SchoolLayout.tsx";
+import SchoolOverviewPage from "./pages/Schools/SchoolOverview/SchoolOverviewPage.tsx";
+import SchoolFilesPage from "./pages/Schools/SchoolFiles/SchoolFilesPage.tsx";
+import SchoolChatsPage from "./pages/Schools/SchoolChats/SchoolChatsPage.tsx";
 
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -51,6 +55,24 @@ const AppRoutes = () => {
         {
           path: "services/*",
           element: <AdminPlaceholder />,
+        },
+      ],
+    },
+    {
+      path: "/admin/schools/:schoolPublicId",
+      element: <SchoolLayout />,
+      children: [
+        {
+          index: true,
+          element: <SchoolOverviewPage />,
+        },
+        {
+          path: "files",
+          element: <SchoolFilesPage />,
+        },
+        {
+          path: "chats",
+          element: <SchoolChatsPage />,
         },
       ],
     },
