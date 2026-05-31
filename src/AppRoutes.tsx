@@ -12,6 +12,7 @@ import AuthLayout from './pages/Auth/Pages/AuthLayout/AuthLayout.tsx';
 import LoginPage from './pages/Auth/Pages/LoginPage/LoginPage.tsx';
 import RegisterPage from './pages/Auth/Pages/RegisterPage/RegisterPage.tsx';
 import MeetPage from './pages/Meet/MeetPage.tsx';
+import CreateConferencePage from './pages/Meet/CreateConferencePage.tsx';
 
 const AppRoutes = () => {
     const routes: RouteObject[] = [
@@ -29,6 +30,10 @@ const AppRoutes = () => {
                 {
                     path: '/Lessons/:lessonId',
                     element: <LessonIdPage />,
+                },
+                {
+                    path: '/Meet/create',
+                    element: <CreateConferencePage />,
                 },
                 {
                     path: '/Meet/:meetId',

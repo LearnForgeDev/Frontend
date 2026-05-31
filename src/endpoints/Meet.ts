@@ -1,7 +1,7 @@
 import config from '../config.ts';
 import type { MeetTokenRequest, MeetTokenResponse } from '../types/meetTypes.ts';
 
-const BASE_PATH = `${config.endpointUrl}/api/ApiMeet`;
+const BASE_PATH = `${config.jitsiBaseUrl}/api/ApiMeet`;
 
 export async function getMeetToken(
   jwtToken: string,

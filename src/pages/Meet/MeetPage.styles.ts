@@ -4,9 +4,10 @@ export const pageSx: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',
   gap: 2,
-  minHeight: '100vh',
+  height: '100vh',
   p: { xs: 2, md: 3 },
   bgcolor: 'background.default',
+  position: 'relative',
 };
 
 export const headerSx: SxProps<Theme> = {
@@ -15,13 +16,15 @@ export const headerSx: SxProps<Theme> = {
   alignItems: { xs: 'stretch', md: 'center' },
   gap: 2,
   flexDirection: { xs: 'column', md: 'row' },
+  zIndex: 1,
 };
 
 export const meetingFrameSx: SxProps<Theme> = {
-  flex: 1,
-  minHeight: { xs: 520, md: 640 },
+  position: 'fixed',
+  inset: 0,
+  zIndex: 0,
   overflow: 'hidden',
-  borderRadius: 2,
+  borderRadius: 0,
   bgcolor: 'background.paper',
 };
 

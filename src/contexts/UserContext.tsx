@@ -2,6 +2,39 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 
 import type { UserIdentity } from '../types/commonTypes';
 
+const storageKey = 'userIdentity';
+
+function readStoredUser(): UserIdentity | null {
+    try {
+        const stored = localStorage.getItem(storageKey);
+        if (!stored) {
+            return null;
+        }
+
+        const parsed = JSON.parse(stored) as UserIdentity;
+        if (!parsed?.jwtToken || !parsed?.refreshToken || !parsed?.userName || !parsed?.userPublicId) {
+            return null;
+        }
+
+        return parsed;
+    } catch {
+        return null;
+    }
+}
+
+function writeStoredUser(user: UserIdentity | null) {
+    try {
+        if (!user) {
+            localStorage.removeItem(storageKey);
+            return;
+        }
+
+        localStorage.setItem(storageKey, JSON.stringify(user));
+    } catch {
+        // Ignore storage errors.
+    }
+}
+
 type UserContextValue = {
     user: UserIdentity | null;
     setUser: (user: UserIdentity) => void;
@@ -11,14 +44,16 @@ type UserContextValue = {
 const UserContext = createContext<UserContextValue | undefined>(undefined);
 
 export function UserProvider({ children }: { children: ReactNode }) {
-    const [user, setUserState] = useState<UserIdentity | null>(null);
+    const [user, setUserState] = useState<UserIdentity | null>(() => readStoredUser());
 
     const setUser = useCallback((nextUser: UserIdentity) => {
         setUserState(nextUser);
+        writeStoredUser(nextUser);
     }, []);
 
     const clearUser = useCallback(() => {
         setUserState(null);
+        writeStoredUser(null);
     }, []);
 
     const value = useMemo<UserContextValue>(
@@ -43,4 +78,3 @@ export function useUser(): UserContextValue {
 
     return context;
 }
-
