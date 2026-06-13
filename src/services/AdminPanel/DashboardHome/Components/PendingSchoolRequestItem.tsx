@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import ClockIcon from '@/Assets/Art/images/ClockIcon.tsx';
-import StatusIcon from '@/Assets/Components/StatusIcon';
+import StatusIcon from '@/Assets/Components/StatusIcon/StatusIcon';
 import * as S from './PendingSchoolRequestWidget.styles';
 import type { SchoolRequestStatusDto } from '@/Endpoints/apiAuth';
 

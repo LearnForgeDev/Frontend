@@ -1,4 +1,4 @@
-import {Modal} from '@/Assets/Components/Modal.tsx';
+import { Modal } from '@/Assets/Components/Modal/Modal';
 import {useState} from 'react';
 import './InsertVideoModal.css';
 import {$getSelection, $insertNodes, $isRangeSelection, type LexicalEditor} from 'lexical';

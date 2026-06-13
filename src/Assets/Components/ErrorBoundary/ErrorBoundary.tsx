@@ -1,23 +1,16 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, type ErrorInfo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { styles } from './ErrorBoundary.styles';
+import type { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundary.types';
+import { ERROR_BOUNDARY_DEFAULTS } from './ErrorBoundary.const';
 
-interface Props {
-  children: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-  error: Error | null;
-}
-
-class ErrorBoundary extends Component<Props, State> {
-  public override state: State = {
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  public override state: ErrorBoundaryState = {
     hasError: false,
     error: null,
   };
 
-  public static getDerivedStateFromError(error: Error): State {
+  public static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return { hasError: true, error };
   }
 
@@ -35,13 +28,13 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <Box sx={styles.container}>
           <Typography variant="h5" component="h2" sx={styles.title}>
-            Что-то пошло не так
+            {ERROR_BOUNDARY_DEFAULTS.defaultTitle}
           </Typography>
           <Typography variant="body1" sx={styles.message}>
-            {this.state.error?.message || 'Произошла непредвиденная ошибка.'}
+            {this.state.error?.message || ERROR_BOUNDARY_DEFAULTS.defaultMessage}
           </Typography>
           <Button variant="contained" onClick={this.handleRetry} sx={styles.button}>
-            Повторить попытку
+            {ERROR_BOUNDARY_DEFAULTS.retryButtonText}
           </Button>
         </Box>
       );

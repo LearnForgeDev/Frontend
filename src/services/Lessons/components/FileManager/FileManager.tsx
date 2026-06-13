@@ -17,7 +17,7 @@ import FileManagerToolbar from '../FileManagerToolbar/FileManagerToolbar';
 import FolderItem from '../FolderItem/FolderItem';
 import LessonCard from '../LessonCard/LessonCard';
 import LessonListItem from '../LessonListItem/LessonListItem';
-import { Modal } from '@/Assets/Components/Modal';
+import { Modal } from '@/Assets/Components/Modal/Modal';
 import { styles } from './FileManager.styles';
 
 export interface FileManagerProps {

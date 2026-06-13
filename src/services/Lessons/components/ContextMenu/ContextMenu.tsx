@@ -4,7 +4,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import DriveFileMoveOutlinedIcon from '@mui/icons-material/DriveFileMoveOutlined';
 import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { Modal } from '@/Assets/Components/Modal';
+import { Modal } from '@/Assets/Components/Modal/Modal';
 import { styles } from './ContextMenu.styles';
 
 export interface ContextMenuProps {

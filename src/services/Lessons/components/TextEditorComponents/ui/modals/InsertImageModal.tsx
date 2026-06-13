@@ -1,4 +1,4 @@
-import {Modal} from '@/Assets/Components/Modal.tsx';
+import { Modal } from '@/Assets/Components/Modal/Modal';
 import React, {useState} from 'react';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';

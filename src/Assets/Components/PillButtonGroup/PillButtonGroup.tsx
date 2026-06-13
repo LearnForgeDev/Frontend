@@ -1,18 +1,7 @@
 import React from 'react';
 import { ToggleButton, Box, useTheme } from '@mui/material';
-import type { ToggleButtonGroupProps } from '@mui/material';
+import type { PillButtonGroupProps } from './PillButtonGroup.types';
 import * as S from './PillButtonGroup.styles';
-
-export interface PillChoice<T> {
-    label: React.ReactNode;
-    value: T;
-}
-
-export interface PillButtonGroupProps<T> extends Omit<ToggleButtonGroupProps, 'value' | 'onChange'> {
-    options: PillChoice<T>[];
-    value: T;
-    onChange: (value: T) => void;
-}
 
 export default function PillButtonGroup<T extends NonNullable<unknown>>({ options, value, onChange, ...props }: PillButtonGroupProps<T>) {
     const theme = useTheme();
