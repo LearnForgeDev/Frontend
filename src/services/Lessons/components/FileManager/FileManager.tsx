@@ -28,9 +28,6 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   const navigate = useNavigate();
   const {
     folderId,
-    search,
-    sort,
-    order,
     view,
     selectedItemId,
     setSelectedItemId,
@@ -38,15 +35,12 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setSelectedItemType,
     setSearch,
     setFolderId,
+    createFolder,
+    deleteFolder,
   } = useLessonsContext();
 
   // Load backend data via hook
-  const { lessons, folders, isLoading, isError, refetch } = useLessons({
-    folderId,
-    search,
-    sort,
-    order,
-  });
+  const { lessons, folders, isLoading, isError, refetch } = useLessons();
 
   // Load mutations hook
   const mutations = useLessonMutations();
@@ -85,7 +79,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    mutations.createFolder.mutate({
+    createFolder({
       name: newFolderName,
       parentId: folderId,
     });
@@ -97,7 +91,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     if (!selectedItemId || !selectedItemType) return;
 
     if (selectedItemType === 'folder') {
-      mutations.deleteFolder.mutate({ id: selectedItemId });
+      deleteFolder(selectedItemId);
     } else {
       mutations.deleteLesson.mutate({ id: selectedItemId });
     }

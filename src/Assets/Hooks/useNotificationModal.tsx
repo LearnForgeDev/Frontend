@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, type ReactElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { Modal } from '../Components/Modal';
-import Notification from '../Components/Notification';
+import { Modal } from '../Components/Modal/Modal';
+import Notification from '../Components/Notification/Notification';
 import type { ModalTriggerProps, NotificationProps } from '@/Assets/Types/commonTypes';
 
 type CleanupFn = () => void;
@@ -57,10 +57,10 @@ export default function useNotificationModal() {
     ({ success, title = '', message, durationMS }: NotificationProps) => {
       return mountComponent((onClose) => (
         <Notification
-          success={success}
-          title={title}
-          message={message}
-          durationMS={durationMS}
+          title={title || (success ? 'Success' : 'Error')}
+          subtitle={message}
+          time={durationMS}
+          icon={success ? 'check_circle' : 'error'}
           onClose={onClose}
         />
       ));

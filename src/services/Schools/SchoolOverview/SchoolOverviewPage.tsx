@@ -26,9 +26,6 @@ const SchoolOverviewPage = () => {
           <Typography sx={helperTextSx}>{schoolPublicId ?? 'Не задано'}</Typography>
         </Box>
         <Box className="admin-card" sx={infoCardSx}>
-          <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700 }}>
-            Быстрые действия
-          </Typography>
           <Typography sx={helperTextSx}>Перейдите в разделы “Файлы” и “Чаты” для работы.</Typography>
         </Box>
       </Box>

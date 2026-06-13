@@ -60,6 +60,27 @@ export default function SchoolDrawerContent({
           </ListItemIcon>
           <ListItemText primary="Обзор" />
         </ListItemButton>
+
+        <ListItemButton disabled sx={schoolNavItemSx}>
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">assignment</Box>
+          </ListItemIcon>
+          <ListItemText primary="Домашние задания" />
+        </ListItemButton>
+
+        <ListItemButton disabled sx={schoolNavItemSx}>
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">calendar_today</Box>
+          </ListItemIcon>
+          <ListItemText primary="Календарь" />
+        </ListItemButton>
+
+        <ListItemButton disabled sx={schoolNavItemSx}>
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">group</Box>
+          </ListItemIcon>
+          <ListItemText primary="Студенты" />
+        </ListItemButton>
       </List>
 
       <Box sx={navFooterSx}>

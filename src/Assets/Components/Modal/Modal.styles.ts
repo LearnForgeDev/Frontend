@@ -1,6 +1,5 @@
-import type { SxProps, Theme } from '@mui/material';
 
-export const styles: Record<string, SxProps<Theme>> = {
+export const styles = {
   dialogPaper: {
     background: 'var(--bg, #fff)',
     color: 'var(--text, #000)',

@@ -95,32 +95,7 @@ export default function AdminPanelDrawerContent({
           <ListItemText primary="Сервисы" />
         </ListItemButton>
 
-        <ListItemButton disabled sx={navItemSx}>
-          <ListItemIcon sx={navIconSx}>
-            <Box component="span" className="material-symbols-outlined">
-              assignment
-            </Box>
-          </ListItemIcon>
-          <ListItemText primary="Домашние задания" />
-        </ListItemButton>
 
-        <ListItemButton disabled sx={navItemSx}>
-          <ListItemIcon sx={navIconSx}>
-            <Box component="span" className="material-symbols-outlined">
-              calendar_today
-            </Box>
-          </ListItemIcon>
-          <ListItemText primary="Календарь" />
-        </ListItemButton>
-
-        <ListItemButton disabled sx={navItemSx}>
-          <ListItemIcon sx={navIconSx}>
-            <Box component="span" className="material-symbols-outlined">
-              group
-            </Box>
-          </ListItemIcon>
-          <ListItemText primary="Студенты" />
-        </ListItemButton>
 
         <Typography
           component="div"

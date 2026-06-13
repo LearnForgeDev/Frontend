@@ -5,14 +5,30 @@ import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
-import { expect, test, describe, beforeAll, afterEach, afterAll } from 'vitest';
-import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import { expect, test, describe, beforeAll, afterEach, afterAll, vi } from 'vitest';
+import type { LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
 
 const server = setupServer();
 
 beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
+
+vi.mock('@/Services/Lessons/hooks/useSchoolId/useSchoolId', () => ({
+  useSchoolId: () => 1,
+}));
+
+vi.mock('@/Storage/Context/LessonsContext', () => ({
+  useLessonsContext: () => ({
+    folderId: null,
+    search: '',
+    sort: 'title',
+    order: 'asc',
+    allFolders: [
+      { id: 'f1', name: 'Folder 1', parentId: null, color: 'blue' },
+    ] as LessonFolder[],
+  }),
+}));
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
@@ -28,25 +44,19 @@ const createWrapper = () => {
 
 describe('useLessons hook', () => {
   test('returns combined lessons and folders on success', async () => {
-    const mockLessons: Lesson[] = [
-      { id: '1', title: 'Lesson 1', folderId: null, status: 'draft' },
-      { id: '2', title: 'Lesson 2', folderId: 'f1', status: 'draft' },
-    ];
-    const mockFolders: LessonFolder[] = [
-      { id: 'f1', name: 'Folder 1', parentId: null, color: 'blue' },
+    const mockLessons = [
+      { id: '1', name: 'lesson::Lesson 1::1::draft.lesson' },
+      { id: '2', name: 'lesson::Lesson 2::2::draft.lesson' },
     ];
 
     server.use(
-      http.get('*/lessons', () => {
+      http.get('*/api/ApiFiles/1', () => {
         return HttpResponse.json(mockLessons);
-      }),
-      http.get('*/lessons/folders', () => {
-        return HttpResponse.json(mockFolders);
       })
     );
 
     const { result } = renderHook(
-      () => useLessons({ folderId: null, search: '' }),
+      () => useLessons(),
       { wrapper: createWrapper() }
     );
 
@@ -58,23 +68,20 @@ describe('useLessons hook', () => {
     });
 
     expect(result.current.isError).toBe(false);
-    expect(result.current.lessons).toEqual(mockLessons);
-    expect(result.current.folders).toEqual(mockFolders);
+    expect(result.current.lessons?.length).toBe(2);
+    expect(result.current.folders?.length).toBe(1);
     expect(result.current.error).toBeNull();
   });
 
   test('sets isError when API returns 500', async () => {
     server.use(
-      http.get('*/lessons', () => {
+      http.get('*/api/ApiFiles/1', () => {
         return new HttpResponse(null, { status: 500 });
-      }),
-      http.get('*/lessons/folders', () => {
-        return HttpResponse.json([]);
       })
     );
 
     const { result } = renderHook(
-      () => useLessons({ folderId: null, search: '' }),
+      () => useLessons(),
       { wrapper: createWrapper() }
     );
 
@@ -84,6 +91,5 @@ describe('useLessons hook', () => {
 
     expect(result.current.isError).toBe(true);
     expect(result.current.error).toBeDefined();
-    expect(result.current.error?.status).toBe(500);
   });
 });

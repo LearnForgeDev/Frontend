@@ -1,4 +1,3 @@
-import React from 'react';
 import { ToggleButton, Box, useTheme } from '@mui/material';
 import type { PillButtonGroupProps } from './PillButtonGroup.types';
 import * as S from './PillButtonGroup.styles';

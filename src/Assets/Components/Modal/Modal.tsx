@@ -3,7 +3,7 @@ import { Box, Dialog, DialogContent, IconButton, Fade, Typography, Icon } from '
 import type { ModalProps } from './Modal.types';
 import { styles } from './Modal.styles';
 
-export function Modal({ title, subtitle, icon, time, onClose }: ModalProps) {
+export function Modal({ title, subtitle, icon, time, className, onClose, children }: ModalProps) {
   const [open, setOpen] = useState(true);
   const [timeLeft, setTimeLeft] = useState(time ?? 0);
 
@@ -38,6 +38,7 @@ export function Modal({ title, subtitle, icon, time, onClose }: ModalProps) {
   return (
     <Dialog
       open={open}
+      className={className}
       onClose={handleClose}
       aria-modal="true"
       slots={{ transition: Fade }}
@@ -65,27 +66,30 @@ export function Modal({ title, subtitle, icon, time, onClose }: ModalProps) {
           </Box>
         </IconButton>
         
-        <Box sx={styles.header}>
-          {icon && (
-            <Icon sx={{ fontSize: '2rem' }}>{icon}</Icon>
-          )}
-          <Box>
-            <Typography variant="h6" component="h2" sx={styles.title}>
-              {title}
-            </Typography>
-            {subtitle && (
-              <Typography variant="body2" sx={styles.subtitle}>
-                {subtitle}
-              </Typography>
+        {title && (
+          <Box sx={styles.header}>
+            {icon && (
+              <Icon sx={{ fontSize: '2rem' }}>{icon}</Icon>
             )}
+            <Box>
+              <Typography variant="h6" component="h2" sx={styles.title}>
+                {title}
+              </Typography>
+              {subtitle && (
+                <Typography variant="body2" sx={styles.subtitle}>
+                  {subtitle}
+                </Typography>
+              )}
+            </Box>
           </Box>
-        </Box>
+        )}
 
         {time && time > 0 && (
           <Box sx={styles.progressBarContainer}>
             <Box sx={styles.progressBar(progress)} />
           </Box>
         )}
+        {children}
       </DialogContent>
     </Dialog>
   );

@@ -1,6 +1,5 @@
-import type { SxProps, Theme } from '@mui/material';
 
-export const styles: Record<string, SxProps<Theme>> = {
+export const styles = {
   alert: {
     minWidth: 260,
     maxWidth: 420,

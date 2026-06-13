@@ -1,192 +1,112 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { useSchoolId } from '@/Services/Lessons/hooks/useSchoolId/useSchoolId';
+import { apiFileToLesson } from '@/Endpoints/files.types';
 import type { AppError } from '@/Endpoints/factory';
 import type {
   CreateLessonVars,
-  UpdateLessonVars,
+  RenameLessonVars,
   DeleteLessonVars,
-  CreateFolderVars,
-  UpdateFolderVars,
-  DeleteFolderVars,
 } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.types';
-import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
+function buildLessonFileName(title: string, lessonId: string, status: Lesson['status']): string {
+  return `lesson::${encodeURIComponent(title)}::${lessonId}::${status}.lesson`;
+}
+
+function buildInitialContent(title: string): string {
+  return JSON.stringify({
+    root: {
+      children: [{ children: [{ detail: 0, format: 0, mode: 'normal',
+        style: '', text: title, type: 'text', version: 1 }],
+        direction: 'ltr', format: '', indent: 0,
+        type: 'paragraph', version: 1 }],
+      direction: 'ltr', format: '', indent: 0,
+      type: 'root', version: 1
+    }
+  });
+}
 
 export function useLessonMutations() {
   const queryClient = useQueryClient();
+  const schoolId = useSchoolId();
 
-  // 1. Create Lesson
-  const createLessonMutation = useMutation<Lesson, AppError, CreateLessonVars>({
-    mutationFn: (vars) => lessonsEndpoints.createLesson(vars),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-    },
-  });
+  const createLesson = useMutation<Lesson, AppError, CreateLessonVars>({
+    mutationFn: async ({ title, folderId }: CreateLessonVars): Promise<Lesson> => {
+      const lessonId = crypto.randomUUID();
+      const status: Lesson['status'] = 'draft';
+      const content = buildInitialContent(title);
+      const blob = new Blob([content], { type: 'application/json' });
+      const fileName = buildLessonFileName(title, lessonId, status);
 
-  // 2. Update Lesson (with optimistic updates)
-  const updateLessonMutation = useMutation<
-    Lesson,
-    AppError,
-    UpdateLessonVars,
-    { previousQueries: Array<[readonly unknown[], unknown]> }
-  >({
-    mutationFn: ({ id, ...body }) => lessonsEndpoints.updateLesson(id, body),
-    onMutate: async (updatedLesson) => {
-      await queryClient.cancelQueries({ queryKey: ['lessons'] });
-      const previousQueries = queryClient.getQueriesData({ queryKey: ['lessons'] });
-
-      previousQueries.forEach(([queryKey]) => {
-        if (queryKey.includes('folders')) return;
-
-        // If it's a detail query, e.g. ['lessons', id]
-        if (queryKey.length === 2 && queryKey[1] === updatedLesson.id) {
-          queryClient.setQueryData<Lesson>(queryKey, (old) => {
-            if (!old) return old;
-            return { ...old, ...updatedLesson };
-          });
-          return;
-        }
-
-        // If it's a list query
-        queryClient.setQueryData<Lesson[]>(queryKey, (old) => {
-          if (!old) return old;
-          return old.map((lesson) =>
-            lesson.id === updatedLesson.id ? { ...lesson, ...updatedLesson } : lesson
-          );
-        });
+      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolId, {
+        fileName, sizeBytes: blob.size,
+      });
+      await filesEndpoints.uploadFileDirect(uploadUrl, content);
+      const apiFile = await filesEndpoints.completeUpload(schoolId, {
+        storageKey, fileName, sizeBytes: blob.size,
       });
 
-      return { previousQueries };
+      const lesson = apiFileToLesson(apiFile);
+      // folderId is client-side only — patch it in since the API has no folder concept
+      return { ...lesson, folderId };
     },
-    onError: (_err, _vars, context) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, previousData]) => {
-          queryClient.setQueryData(queryKey, previousData);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
     },
   });
 
-  // 3. Delete Lesson (with optimistic updates)
-  const deleteLessonMutation = useMutation<
-    void,
-    AppError,
-    DeleteLessonVars,
-    { previousQueries: Array<[readonly unknown[], unknown]> }
-  >({
-    mutationFn: ({ id }) => lessonsEndpoints.deleteLesson(id),
+  const deleteLesson = useMutation<void, AppError, DeleteLessonVars, { previousData: Lesson[] | undefined }>({
+    mutationFn: ({ id }) => filesEndpoints.deleteFile(schoolId, id),
     onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ['lessons'] });
-      const previousQueries = queryClient.getQueriesData({ queryKey: ['lessons'] });
+      await queryClient.cancelQueries({ queryKey: ['lessons', schoolId] });
+      const previousData = queryClient.getQueryData<Lesson[]>(['lessons', schoolId]);
 
-      previousQueries.forEach(([queryKey]) => {
-        if (queryKey.includes('folders')) return;
-
-        // If it's a list query
-        queryClient.setQueryData<Lesson[]>(queryKey, (old) => {
+      if (previousData) {
+        queryClient.setQueryData<Lesson[]>(['lessons', schoolId], (old) => {
           if (!old) return old;
           return old.filter((lesson) => lesson.id !== id);
         });
-      });
+      }
 
-      return { previousQueries };
+      return { previousData };
     },
     onError: (_err, _vars, context) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, previousData]) => {
-          queryClient.setQueryData(queryKey, previousData);
-        });
+      if (context?.previousData) {
+        queryClient.setQueryData(['lessons', schoolId], context.previousData);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
     },
   });
 
-  // 4. Create Folder
-  const createFolderMutation = useMutation<LessonFolder, AppError, CreateFolderVars>({
-    mutationFn: (vars) => lessonsEndpoints.createFolder(vars),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-    },
-  });
+  // TODO: replace with PATCH /api/ApiFiles/{id}/rename when endpoint exists
+  const renameLesson = useMutation<void, AppError, RenameLessonVars>({
+    mutationFn: async ({ id, title }) => {
+      const content = await filesEndpoints.getFileContent(schoolId, id);
+      await filesEndpoints.deleteFile(schoolId, id);
 
-  // 5. Update Folder (with optimistic updates)
-  const updateFolderMutation = useMutation<
-    LessonFolder,
-    AppError,
-    UpdateFolderVars,
-    { previousQueries: Array<[readonly unknown[], unknown]> }
-  >({
-    mutationFn: ({ id, ...body }) => lessonsEndpoints.updateFolder(id, body),
-    onMutate: async (updatedFolder) => {
-      await queryClient.cancelQueries({ queryKey: ['lessons'] });
-      const previousQueries = queryClient.getQueriesData({ queryKey: ['lessons', 'folders'] });
+      const status: Lesson['status'] = 'draft';
+      const blob = new Blob([content], { type: 'application/json' });
+      const fileName = buildLessonFileName(title, id, status);
 
-      previousQueries.forEach(([queryKey]) => {
-        queryClient.setQueryData<LessonFolder[]>(queryKey, (old) => {
-          if (!old) return old;
-          return old.map((folder) =>
-            folder.id === updatedFolder.id ? { ...folder, ...updatedFolder } : folder
-          );
-        });
+      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolId, {
+        fileName, sizeBytes: blob.size,
       });
-
-      return { previousQueries };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, previousData]) => {
-          queryClient.setQueryData(queryKey, previousData);
-        });
-      }
+      await filesEndpoints.uploadFileDirect(uploadUrl, content);
+      await filesEndpoints.completeUpload(schoolId, {
+        storageKey, fileName, sizeBytes: blob.size,
+      });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
-    },
-  });
-
-  // 6. Delete Folder (with optimistic updates)
-  const deleteFolderMutation = useMutation<
-    void,
-    AppError,
-    DeleteFolderVars,
-    { previousQueries: Array<[readonly unknown[], unknown]> }
-  >({
-    mutationFn: ({ id }) => lessonsEndpoints.deleteFolder(id),
-    onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ['lessons'] });
-      const previousQueries = queryClient.getQueriesData({ queryKey: ['lessons', 'folders'] });
-
-      previousQueries.forEach(([queryKey]) => {
-        queryClient.setQueryData<LessonFolder[]>(queryKey, (old) => {
-          if (!old) return old;
-          return old.filter((folder) => folder.id !== id);
-        });
-      });
-
-      return { previousQueries };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previousQueries) {
-        context.previousQueries.forEach(([queryKey, previousData]) => {
-          queryClient.setQueryData(queryKey, previousData);
-        });
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
     },
   });
 
   return {
-    createLesson: createLessonMutation,
-    updateLesson: updateLessonMutation,
-    deleteLesson: deleteLessonMutation,
-    createFolder: createFolderMutation,
-    updateFolder: updateFolderMutation,
-    deleteFolder: deleteFolderMutation,
+    createLesson,
+    deleteLesson,
+    renameLesson,
   };
 }
