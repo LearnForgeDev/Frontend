@@ -1,4 +1,4 @@
-import type {ServiceManifest} from "../types/serviceTypes.ts";
+import type {ServiceManifest} from '@/Assets/Types/serviceTypes';
 
 export async function getServicesFromServer(): Promise<ServiceManifest[]> {
     return new Promise(

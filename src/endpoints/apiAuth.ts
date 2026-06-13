@@ -1,5 +1,6 @@
-import config from "../config.ts";
-import type { UserIdentity } from "../types/commonTypes.ts";
+import config from '../config.ts';
+import type { UserIdentity } from '@/Assets/Types/commonTypes';
+import { USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
 
 const BASE_PATH = `${config.endpointUrl}/api/ApiAuth`;
 
@@ -45,7 +46,6 @@ export type SchoolRequestStatusDto = {
 export async function registerStudent(
   params: RegisterStudentParams,
 ): Promise<UserIdentity> {
-  console.log(`[API Request] POST ${BASE_PATH}/reg`, params);
   const res = await fetch(`${BASE_PATH}/reg`, {
     method: "POST",
     headers: {
@@ -54,7 +54,6 @@ export async function registerStudent(
     body: JSON.stringify(params),
   });
 
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
   if (!res.ok) {
     const err = await res.text();
     console.error(`[API Error] ${err}`);
@@ -62,14 +61,17 @@ export async function registerStudent(
   }
 
   const data = await res.json();
-  console.log(`[API Data]`, data);
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.error('Failed to persist user after registerStudent:', err);
+  }
   return data as UserIdentity;
 }
 
 export async function registerFounder(
   params: RegisterFounderParams,
 ): Promise<UserIdentity> {
-  console.log(`[API Request] POST ${BASE_PATH}/register-founder`, params);
   const res = await fetch(`${BASE_PATH}/register-founder`, {
     method: "POST",
     headers: {
@@ -78,19 +80,20 @@ export async function registerFounder(
     body: JSON.stringify(params),
   });
 
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
   if (!res.ok) {
     if (res.status === 409) {
-      console.error(`[API Error] User already exists`);
       throw new Error("Пользователь с таким именем уже существует");
     }
-    const err = await res.text();
-    console.error(`[API Error] ${err}`);
+
     throw new Error(`Ошибка регистрации: ${res.status} ${res.statusText}`);
   }
 
   const data = await res.json();
-  console.log(`[API Data]`, data);
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.error('Failed to persist user after registerFounder:', err);
+  }
   return data as UserIdentity;
 }
 
@@ -98,7 +101,14 @@ export async function requestSchool(
   params: RequestSchoolParams,
   jwtToken: string,
 ): Promise<SchoolRequestStatusDto> {
-  console.log(`[API Request] POST ${BASE_PATH}/request-school`, params);
+  // if jwtToken not provided, try to get from storage
+  if (!jwtToken) {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
+    } catch {}
+  }
+
   const res = await fetch(`${BASE_PATH}/request-school`, {
     method: "POST",
     headers: {
@@ -108,7 +118,6 @@ export async function requestSchool(
     body: JSON.stringify(params),
   });
 
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
   if (!res.ok) {
     let errorMessage = `Ошибка сервера: ${res.status}`;
     try {
@@ -144,6 +153,14 @@ export async function getSchoolRequestStatus(
   console.log(
     `[API Request] GET ${BASE_PATH}/request-school/${publicId}/status`,
   );
+  // fallback to stored user if jwtToken not provided
+  if (!jwtToken) {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
+    } catch {}
+  }
+
   const res = await fetch(`${BASE_PATH}/request-school/${publicId}/status`, {
     method: "GET",
     headers: {
@@ -167,6 +184,12 @@ export async function getAllSchoolRequests(
   jwtToken: string,
 ): Promise<SchoolRequestStatusDto[]> {
   console.log(`[API Request] GET ${BASE_PATH}/request-school/all`);
+  if (!jwtToken) {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
+    } catch {}
+  }
   const res = await fetch(`${BASE_PATH}/request-school/all`, {
     method: "GET",
     headers: {
@@ -208,6 +231,11 @@ export async function login(params: LoginParams): Promise<UserIdentity> {
 
   const data = await res.json();
   console.log(`[API Data]`, data);
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.error('Failed to persist user after login:', err);
+  }
   return data as UserIdentity;
 }
 
@@ -216,6 +244,13 @@ export async function joinSchool(
   jwtToken: string,
 ): Promise<UserIdentity> {
   console.log(`[API Request] POST ${BASE_PATH}/join-school`, params);
+  if (!jwtToken) {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
+    } catch {}
+  }
+
   const res = await fetch(`${BASE_PATH}/join-school`, {
     method: "POST",
     headers: {
@@ -236,6 +271,11 @@ export async function joinSchool(
 
   const data = await res.json();
   console.log(`[API Data]`, data);
+  try {
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+  } catch (err) {
+    console.error('Failed to persist user after joinSchool:', err);
+  }
   return data as UserIdentity;
 }
 
@@ -257,11 +297,30 @@ export async function refreshToken(params: RefreshTokenParams) {
 
   const data = await res.json();
   console.log(`[API Data]`, data);
+  // If response contains new tokens, merge with stored user and persist
+  try {
+    const storedRaw = localStorage.getItem(USER_STORAGE_KEY);
+    if (storedRaw) {
+      const stored = JSON.parse(storedRaw) as UserIdentity;
+      const updated = { ...stored, ...(data as Partial<UserIdentity>) } as UserIdentity;
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updated));
+    }
+  } catch (err) {
+    console.error('Failed to persist updated tokens after refresh:', err);
+  }
+
   return data;
 }
 
 export async function invite(params: InviteParams, jwtToken: string) {
   console.log(`[API Request] POST ${BASE_PATH}/invite`, params);
+  if (!jwtToken) {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
+    } catch {}
+  }
+
   const res = await fetch(`${BASE_PATH}/invite`, {
     method: "POST",
     headers: {

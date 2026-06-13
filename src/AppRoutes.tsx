@@ -1,21 +1,18 @@
-import { useRoutes, type RouteObject } from "react-router-dom";
-import PublicLayout from "./layouts/PublicLayout";
-import Landing from "./pages/Landing/Landing";
-import LessonsMainPage from "./pages/Lessons/LessonsMainPage";
-import LessonIdPage from "./pages/Lessons/LessonIdPage";
-import AdminPanelLayout from "./pages/AdminPanel/AdminPanelLayout/AdminPanelLayout";
-import DashboardHome from "./pages/AdminPanel/DashboardHome/DashboardHome";
-import MarketplacePage from "./pages/AdminPanel/MarketplacePage";
-import SchoolsPage from "./pages/AdminPanel/SchoolsPage/SchoolsPage";
-import AdminPlaceholder from "./pages/AdminPanel/AdminPlaceholder";
-import NotFoundPage from "./pages/NotFound/NotFoundPage";
-import AuthLayout from "./pages/Auth/Pages/AuthLayout/AuthLayout.tsx";
-import LoginPage from "./pages/Auth/Pages/LoginPage/LoginPage.tsx";
-import RegisterPage from "./pages/Auth/Pages/RegisterPage/RegisterPage.tsx";
-import SchoolLayout from "./pages/Schools/SchoolLayout/SchoolLayout.tsx";
-import SchoolOverviewPage from "./pages/Schools/SchoolOverview/SchoolOverviewPage.tsx";
-import SchoolFilesPage from "./pages/Schools/SchoolFiles/SchoolFilesPage.tsx";
-import SchoolChatsPage from "./pages/Schools/SchoolChats/SchoolChatsPage.tsx";
+import {useRoutes, type RouteObject, Navigate} from 'react-router-dom';
+import PublicLayout from './layouts/PublicLayout';
+import LessonsMainPage from './Services/Lessons/LessonsMainPage';
+import LessonIdPage from './Services/Lessons/LessonIdPage';
+import AdminPanelLayout from './Services/AdminPanel/AdminPanelLayout/AdminPanelLayout';
+import DashboardHome from './Services/AdminPanel/DashboardHome/DashboardHome';
+import MarketplacePage from './Services/AdminPanel/MarketplacePage';
+import SchoolsPage from './Services/AdminPanel/SchoolsPage/SchoolsPage';
+import AdminPlaceholder from './Services/AdminPanel/AdminPlaceholder';
+import NotFoundPage from './Services/NotFound/NotFoundPage';
+import AuthLayout from './Services/Auth/Pages/AuthLayout/AuthLayout.tsx';
+import LoginPage from './Services/Auth/Pages/LoginPage/LoginPage.tsx';
+import RegisterPage from './Services/Auth/Pages/RegisterPage/RegisterPage.tsx';
+import SchoolLayout from './Services/Schools/SchoolLayout/SchoolLayout.tsx';
+import SchoolOverviewPage from './Services/Schools/SchoolOverview/SchoolOverviewPage.tsx';
 
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -24,7 +21,7 @@ const AppRoutes = () => {
       children: [
         {
           path: "/",
-          element: <Landing />,
+          element: <Navigate to="/auth/login"/>,
         },
         {
           path: "/Lessons",
@@ -65,14 +62,6 @@ const AppRoutes = () => {
         {
           index: true,
           element: <SchoolOverviewPage />,
-        },
-        {
-          path: "files",
-          element: <SchoolFilesPage />,
-        },
-        {
-          path: "chats",
-          element: <SchoolChatsPage />,
         },
       ],
     },

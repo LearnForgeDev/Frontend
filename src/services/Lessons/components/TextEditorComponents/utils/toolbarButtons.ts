@@ -1,0 +1,164 @@
+import FormatText from '@/Assets/Art/images/toolbarIcons/file-earmark-text.svg';
+import FormatHeader1 from '@/Assets/Art/images/toolbarIcons/type-h1.svg';
+import FormatHeader2 from '@/Assets/Art/images/toolbarIcons/type-h2.svg';
+import FormatListNumberedIcon from '@/Assets/Art/images/toolbarIcons/list-ol.svg';
+import FormatListBulletedIcon from '@/Assets/Art/images/toolbarIcons/list-ul.svg';
+import FormatQuoteIcon from '@/Assets/Art/images/toolbarIcons/chat-square-quote.svg';
+import CodeIcon from '@/Assets/Art/images/toolbarIcons/journal-code.svg';
+import RedoOutlinedIcon from '@/Assets/Art/images/toolbarIcons/arrow-clockwise.svg';
+import UndoOutlinedIcon from '@/Assets/Art/images/toolbarIcons/arrow-counterclockwise.svg';
+import FormatBoldOutlinedIcon from '@/Assets/Art/images/toolbarIcons/type-bold.svg';
+import FormatItalicOutlinedIcon from '@/Assets/Art/images/toolbarIcons/type-italic.svg';
+import FormatUnderlinedOutlinedIcon from '@/Assets/Art/images/toolbarIcons/type-underline.svg';
+import StrikethroughSOutlinedIcon from '@/Assets/Art/images/toolbarIcons/type-strikethrough.svg';
+import ImageIcon from '@/Assets/Art/images/toolbarIcons/file-image.svg';
+import InsertLinkOutlinedIcon from '@/Assets/Art/images/toolbarIcons/link.svg';
+import FormatAlignLeftOutlinedIcon from '@/Assets/Art/images/toolbarIcons/text-left.svg';
+import FormatAlignCenterOutlinedIcon from '@/Assets/Art/images/toolbarIcons/text-center.svg';
+import FormatAlignRightOutlinedIcon from '@/Assets/Art/images/toolbarIcons/text-right.svg';
+import GraphIcon from '@/Assets/Art/images/toolbarIcons/desmos.png';
+import YoutubeIcon from '@/Assets/Art/images/toolbarIcons/youtube.svg';
+import EquationIcon from '@/Assets/Art/images/toolbarIcons/plus-slash-minus.svg';
+import JustifyIcon from '@/Assets/Art/images/toolbarIcons/justify.svg';
+
+import type {PluginItem} from '@/Services/Lessons/lessonTypes';
+
+export const eventTypes = {
+  paragraph: "paragraph",
+  h1: "h1",
+  h2: "h2",
+  ul: "ul",
+  ol: "ol",
+  quote: "quote",
+  formatCode: "code",
+  formatUndo: "undo",
+  formatRedo: "redo",
+  formatBold: "bold",
+  formatItalic: "italic",
+  formatUnderline: "underline",
+  formatStrike: "strikethrough",
+  formatInsertLink: "formatInsertLink",
+  formatAlignLeft: "left",
+  formatAlignCenter: "center",
+  formatAlignRight: "right",
+  formatAlignJustify: "justify",
+  insertImage: "insertImage",
+  insertGraphic: 'insertGraphic',
+  insertVideo: 'insertVideo',
+  insertEquation: 'insertEquation',
+};
+
+const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
+  formatRedo: {
+    icon: RedoOutlinedIcon,
+    event: eventTypes.formatRedo,
+    label: "Повторить",
+  },
+  formatUndo: {
+    icon: UndoOutlinedIcon,
+    event: eventTypes.formatUndo,
+    label: "Отменить",
+  },
+  paragraph: {
+    icon: FormatText,
+    event: eventTypes.paragraph,
+    label: "Обычный текст",
+  },
+  h1: {
+    icon: FormatHeader1,
+    event: eventTypes.h1,
+    label: "Заголовок 1",
+  },
+  h2: {
+    icon: FormatHeader2,
+    event: eventTypes.h2,
+    label: "Заголовок 2",
+  },
+  ul: {
+    icon: FormatListBulletedIcon,
+    event: eventTypes.ul,
+    label: "Маркированный список",
+  },
+  ol: {
+    icon: FormatListNumberedIcon,
+    event: eventTypes.ol,
+    label: "Нумерованный список",
+  },
+  quote: {
+    icon: FormatQuoteIcon,
+    event: eventTypes.quote,
+    label: "Цитата",
+  },
+  formatCode: {
+    icon: CodeIcon,
+    event: eventTypes.formatCode,
+    label: "Код",
+  },
+  formatBold: {
+    icon: FormatBoldOutlinedIcon,
+    event: eventTypes.formatBold,
+    label: "Жирный",
+  },
+  formatItalic: {
+    icon: FormatItalicOutlinedIcon,
+    event: eventTypes.formatItalic,
+    label: "Курсив",
+  },
+  formatUnderline: {
+    icon: FormatUnderlinedOutlinedIcon,
+    event: eventTypes.formatUnderline,
+    label: "Подчеркнутый",
+  },
+  formatStrike: {
+    icon: StrikethroughSOutlinedIcon,
+    event: eventTypes.formatStrike,
+    label: "Зачеркнутый",
+  },
+  insertImage: {
+    icon: ImageIcon,
+    event: eventTypes.insertImage,
+    label: "Вставить изображение",
+  },
+  formatInsertLink: {
+    icon: InsertLinkOutlinedIcon,
+    event: eventTypes.formatInsertLink,
+    label: "Вставить ссылку",
+  },
+  formatAlignLeft: {
+    icon: FormatAlignLeftOutlinedIcon,
+    event: eventTypes.formatAlignLeft,
+    label: "Выровнять по левому краю",
+  },
+  formatAlignCenter: {
+    icon: FormatAlignCenterOutlinedIcon,
+    event: eventTypes.formatAlignCenter,
+    label: "Выровнять по центру",
+  },
+  formatAlignRight: {
+    icon: FormatAlignRightOutlinedIcon,
+    event: eventTypes.formatAlignRight,
+    label: "Выровнять по правому краю",
+  },
+  formatAlignJustify: {
+    icon: JustifyIcon,
+    event: eventTypes.formatAlignJustify,
+    label: "Выровнять по ширине",
+  },
+  insertGraphic: {
+    icon: GraphIcon,
+    event: eventTypes.insertGraphic,
+    label: "Вставить график",
+  },
+  insertVideo: {
+    icon: YoutubeIcon,
+    event: eventTypes.insertVideo,
+    label: 'Вставить видео',
+  },
+  insertEquation: {
+    icon: EquationIcon,
+    event: eventTypes.insertEquation,
+    label: 'Вставить уравнение',
+  }
+};
+
+export default pluginsList;

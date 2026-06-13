@@ -8,8 +8,11 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      // This maps "src" to the actual file system path of your src folder
       "src": path.resolve(__dirname, "./src"),
+      "@/Endpoints": path.resolve(__dirname, "./src/Endpoints"),
+      "@/Services": path.resolve(__dirname, "./src/Services"),
+      "@/Storage": path.resolve(__dirname, "./src/Storage"),
+      "@/Assets": path.resolve(__dirname, "./src/Assets"),
     },
   },
 })

@@ -1,6 +1,6 @@
-import type {SerializedEditor} from "lexical";
-import type {lessonCompactObject, lessonObject} from "../types/lessonTypes.ts";
-import config from "../config.ts";
+import type {SerializedEditor} from 'lexical';
+import type {lessonCompactObject, lessonObject} from '@/Services/Lessons/lessonTypes';
+import config from '../config.ts';
 
 /**
  * Пока нет связи с бэкендом, поэтому эти функции лежат,

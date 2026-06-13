@@ -1,4 +1,4 @@
-import type { ServiceManifest } from '../types/serviceTypes';
+import type { ServiceManifest } from '@/Assets/Types/serviceTypes';
 
 class ServiceRegistry {
     private services: Map<string, ServiceManifest> = new Map();
@@ -8,6 +8,7 @@ class ServiceRegistry {
         manifests.forEach(manifest => {
             this.services.set(manifest.id, manifest);
         })
+        return this;
     }
 
     getAll(): ServiceManifest[] {

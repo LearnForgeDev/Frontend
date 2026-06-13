@@ -1,4 +1,4 @@
-import config from "../config.ts";
+import config from '../config.ts';
 
 const BASE_PATH = `${config.endpointUrl}/api/ApiSchool`;
 
