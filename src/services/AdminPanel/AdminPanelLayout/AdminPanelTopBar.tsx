@@ -51,10 +51,10 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
               sx={searchFieldSx}
             />
           )}
-          <IconButton sx={topbarIconButtonSx} aria-label="Notifications">
+          <IconButton sx={topbarIconButtonSx} aria-label="Уведомления">
             <Box component="span" className="material-symbols-outlined">notifications</Box>
           </IconButton>
-          <IconButton sx={topbarIconButtonSx} aria-label="Settings">
+          <IconButton sx={topbarIconButtonSx} aria-label="Настройки">
             <Box component="span" className="material-symbols-outlined">settings</Box>
           </IconButton>
           <Box sx={avatarSx}>AT</Box>

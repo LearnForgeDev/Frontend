@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 import axios from 'axios';
 import type { AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
@@ -99,8 +100,8 @@ export function createApiClient(baseURL: string): AxiosInstance {
         if (typeof window !== 'undefined') {
           try {
             localStorage.removeItem(USER_STORAGE_KEY);
-          } catch {}
-          window.location.href = '/auth/login';
+          } catch { }
+          window.location.href = '/Frontend/auth/login';
         }
         return Promise.reject(normaliseError(refreshErr));
       } finally {

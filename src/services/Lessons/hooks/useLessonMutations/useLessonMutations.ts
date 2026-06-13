@@ -8,7 +8,7 @@ import type {
   CreateFolderVars,
   UpdateFolderVars,
   DeleteFolderVars,
-} from './useLessonMutations.types';
+} from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.types';
 import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
 
 export function useLessonMutations() {

@@ -1,15 +1,40 @@
-import { createElement, useMemo, type FormEvent } from 'react';
+import { createElement, useMemo, useEffect, type FormEvent } from 'react';
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
+import { useUser, USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
+import { refreshToken } from '@/Endpoints/apiAuth';
 
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
 
 function LoginPageContent() {
+  const navigate = useNavigate();
+  const { setUser } = useUser();
   const { name, password, error, isLoading, setField, handleSubmit } =
     useAuthFlow();
+
+  useEffect(() => {
+    const checkAndRefresh = async () => {
+      try {
+        const storedStr = localStorage.getItem(USER_STORAGE_KEY);
+        if (!storedStr) return;
+        
+        const storedUser = JSON.parse(storedStr);
+        if (storedUser?.refreshToken) {
+          const result = await refreshToken({ refreshToken: storedUser.refreshToken });
+          if (result) {
+            setUser({ ...storedUser, ...result });
+            navigate("/admin", { replace: true });
+          }
+        }
+      } catch (err) {
+        console.error("Auto-refresh failed", err);
+      }
+    };
+    checkAndRefresh();
+  }, [navigate, setUser]);
 
   const loginSteps = useMemo(
     () =>

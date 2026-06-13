@@ -15,7 +15,7 @@ export default function LessonIdPage() {
   const isEditMode = searchParams.get('edit') === 'true';
 
   const id = locationState?.id ?? paramId;
-  const title = locationState?.title ?? 'Loading...';
+  const title = locationState?.title ?? 'Загрузка...';
 
   const editorStatePromise = useMemo(() => Promise.resolve(undefined), [id]);
 

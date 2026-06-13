@@ -1,6 +1,7 @@
+import { createApiClient } from '@/Endpoints/factory';
 import config from '../config.ts';
 
-const BASE_PATH = `${config.endpointUrl}/api/ApiSchool`;
+const client = createApiClient(`${config.endpointUrl}/api/ApiSchool`);
 
 export type SchoolRole = "Teacher" | "Student" | "Founder" | "Admin";
 
@@ -10,27 +11,26 @@ export type UserSchoolInfo = {
   roles: SchoolRole[];
 };
 
+function getErrorMessage(err: unknown, defaultMsg: string): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    return String((err as { message?: unknown }).message || defaultMsg);
+  }
+  return defaultMsg;
+}
+
 export async function getMySchools(
   jwtToken: string,
 ): Promise<UserSchoolInfo[]> {
-  console.log(`[API Request] GET ${BASE_PATH}/my-schools`);
-  const res = await fetch(`${BASE_PATH}/my-schools`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    console.error(`[API Error] Status: ${res.status}`);
+  try {
+    const res = await client.get<UserSchoolInfo[]>('/my-schools', {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    return res.data;
+  } catch (err: unknown) {
     throw new Error(
-      `Ошибка при загрузке списка школ: ${res.status} ${res.statusText}`,
+      getErrorMessage(err, 'Ошибка при загрузке списка школ')
     );
   }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
-  return data;
 }

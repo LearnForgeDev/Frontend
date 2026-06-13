@@ -32,7 +32,7 @@ const DashboardHome: React.FC = () => {
               lineHeight: 1.2,
             }}
           >
-            Dashboard
+            Панель управления
           </Typography>
           <Typography
             sx={{
@@ -41,7 +41,7 @@ const DashboardHome: React.FC = () => {
               maxWidth: "680px",
             }}
           >
-            Live status of services, users, and platform health.
+            Текущий статус сервисов, пользователей и работоспособности платформы.
           </Typography>
         </Box>
       </Box>
@@ -84,11 +84,10 @@ const WidgetsPlaceholder = () => {
           fontFamily: "Manrope, sans-serif",
         }}
       >
-        No service widgets yet
+        Пока нет виджетов сервисов
       </Typography>
       <Typography sx={{ marginTop: "0.35rem" }}>
-        Install and activate services in Marketplace to display operational
-        metrics here.
+        Установите и активируйте сервисы в Маркетплейсе, чтобы отображать здесь операционные метрики.
       </Typography>
     </Box>
   );

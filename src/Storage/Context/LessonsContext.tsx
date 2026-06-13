@@ -51,6 +51,7 @@ export function LessonsProvider({ children }: { children: ReactNode }) {
   return <LessonsContext.Provider value={value}>{children}</LessonsContext.Provider>;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useLessonsContext(): LessonsContextValue {
   const context = useContext(LessonsContext);
   if (!context) {

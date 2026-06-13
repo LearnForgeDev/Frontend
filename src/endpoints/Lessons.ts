@@ -1,6 +1,9 @@
-import type {SerializedEditor} from 'lexical';
-import type {lessonCompactObject, lessonObject} from '@/Services/Lessons/lessonTypes';
+import type { SerializedEditor } from 'lexical';
+import type { lessonCompactObject, lessonObject } from '@/Services/Lessons/lessonTypes';
+import { createApiClient } from '@/Endpoints/factory';
 import config from '../config.ts';
+
+const client = createApiClient(config.endpointUrl);
 
 /**
  * Пока нет связи с бэкендом, поэтому эти функции лежат,
@@ -11,45 +14,15 @@ export async function sendEditorStateAsJson(
   id: string | number,
   serializedEditor: SerializedEditor,
 ) {
-  const res = await fetch(`${config.endpointUrl}/lessons/${id}/editor-state`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(serializedEditor),
-  });
-  if (!res.ok) {
-    throw new Error(`Upload failed: ${res.status} ${res.statusText}`);
-  }
-  return res;
+  return client.post(`/lessons/${id}/editor-state`, serializedEditor);
 }
 
 export async function getEditorStateAsJson(
   id: string | number,
 ): Promise<lessonObject> {
-  const res = await fetch(`${config.endpointUrl}/lessons/${id}`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-  }
-  const data = await res.json();
-  return data as lessonObject;
+  return client.get<lessonObject>(`/lessons/${id}`).then((res) => res.data);
 }
 
 export async function getCompactLessons(): Promise<lessonCompactObject[]> {
-  const res = await fetch(`${config.endpointUrl}/lessons`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!res.ok) {
-    throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
-  }
-  const data = await res.json();
-  return data as lessonCompactObject[];
+  return client.get<lessonCompactObject[]>('/lessons').then((res) => res.data);
 }

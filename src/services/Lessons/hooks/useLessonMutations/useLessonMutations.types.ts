@@ -1,16 +1,12 @@
 
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
 export interface CreateLessonVars {
   title: string;
   folderId: string | null;
 }
 
-export interface UpdateLessonVars {
-  id: string;
-  title?: string;
-  folderId?: string | null;
-  status?: string;
-  content?: unknown;
-}
+export type UpdateLessonVars = { id: string } & Partial<Lesson>;
 
 export interface DeleteLessonVars {
   id: string;

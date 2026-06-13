@@ -49,7 +49,7 @@ export default function LessonCard({
   };
 
   const isPublished = lesson.status === 'published';
-  const lastEdited = lesson.updatedAt ? formatRelativeTime(lesson.updatedAt) : 'just now';
+  const lastEdited = lesson.updatedAt ? formatRelativeTime(lesson.updatedAt) : 'только что';
 
   const cardStyle = selected
     ? ({ ...styles.card, ...styles.cardSelected } as SxProps<Theme>)

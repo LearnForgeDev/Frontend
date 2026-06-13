@@ -37,7 +37,7 @@ export default function AdminPanelDrawerContent({
     <Box sx={drawerContentSx}>
       <Box sx={drawerHeaderSx}>
         <Typography component="h2" sx={drawerTitleSx}>
-          Admin Panel
+          Панель управления
         </Typography>
         <Typography component="p" sx={drawerSubtitleSx}>
           Обучающее пространство
@@ -46,7 +46,7 @@ export default function AdminPanelDrawerContent({
 
       <List sx={navListSx}>
         <Typography component="div" sx={navSectionTitleSx}>
-          Platform
+          Платформа
         </Typography>
 
         <ListItemButton
@@ -126,7 +126,7 @@ export default function AdminPanelDrawerContent({
           component="div"
           sx={{ ...navSectionTitleSx, margin: "2rem 0 0.5rem" }}
         >
-          Services
+          Сервисы
         </Typography>
 
         {services
@@ -184,7 +184,7 @@ export default function AdminPanelDrawerContent({
               arrow_back
             </Box>
           </ListItemIcon>
-          <ListItemText primary="Return to site" />
+          <ListItemText primary="Вернуться на сайт" />
         </ListItemButton>
       </Box>
     </Box>

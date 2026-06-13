@@ -30,17 +30,17 @@ const AdminPanelLayout: React.FC = () => {
 
   const pageTitle = useMemo(() => {
     if (location.pathname.includes("/marketplace")) {
-      return "Marketplace";
+      return "Маркетплейс";
     }
 
     if (location.pathname.includes("/services/")) {
       const [, servicePath = ""] = location.pathname.split("/services/");
       const [route] = servicePath.split("/");
       const service = services.find((item) => item.adminRoute === route);
-      return service?.name ?? "Service";
+      return service?.name ?? "Сервис";
     }
 
-    return "Dashboard";
+    return "Панель управления";
   }, [location.pathname, services]);
 
   const closeMenu = () => setIsMenuOpen(false);

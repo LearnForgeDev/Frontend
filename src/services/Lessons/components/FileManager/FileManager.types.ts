@@ -14,6 +14,3 @@ export interface LessonFolder {
   color?: string;
 }
 
-export interface FileManagerProps {
-  // Option props if necessary
-}

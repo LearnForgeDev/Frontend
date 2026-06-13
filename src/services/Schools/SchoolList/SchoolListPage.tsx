@@ -46,7 +46,7 @@ const SchoolListPage = () => {
         </Typography>
         <Box sx={formRowSx}>
           <TextField
-            label="School Public ID"
+            label="Публичный ID школы"
             value={schoolPublicId}
             onChange={(event) => setSchoolPublicId(event.target.value)}
             size="small"

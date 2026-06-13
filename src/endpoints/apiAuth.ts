@@ -1,8 +1,12 @@
+/* eslint-disable no-empty */
+import axios from 'axios';
 import config from '../config.ts';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
+import { createApiClient } from '@/Endpoints/factory';
 
 const BASE_PATH = `${config.endpointUrl}/api/ApiAuth`;
+const client = createApiClient(BASE_PATH);
 
 type LoginParams = {
   name: string;
@@ -43,65 +47,58 @@ export type SchoolRequestStatusDto = {
   requestedAt?: string;
 };
 
+function getErrorMessage(err: unknown, defaultMsg: string): string {
+  if (err && typeof err === 'object' && 'message' in err) {
+    return String((err as { message?: unknown }).message || defaultMsg);
+  }
+  return defaultMsg;
+}
+
+function getErrorStatus(err: unknown): number | undefined {
+  if (err && typeof err === 'object' && 'status' in err) {
+    const status = (err as { status?: unknown }).status;
+    return typeof status === 'number' ? status : undefined;
+  }
+  return undefined;
+}
+
 export async function registerStudent(
   params: RegisterStudentParams,
 ): Promise<UserIdentity> {
-  const res = await fetch(`${BASE_PATH}/reg`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!res.ok) {
-    const err = await res.text();
-    console.error(`[API Error] ${err}`);
-    throw new Error(`Ошибка регистрации: ${res.status} ${res.statusText}`);
-  }
-
-  const data = await res.json();
   try {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
-  } catch (err) {
-    console.error('Failed to persist user after registerStudent:', err);
+    const res = await client.post<UserIdentity>('/reg', params);
+    const data = res.data;
+    try {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+    return data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка регистрации'));
   }
-  return data as UserIdentity;
 }
 
 export async function registerFounder(
   params: RegisterFounderParams,
 ): Promise<UserIdentity> {
-  const res = await fetch(`${BASE_PATH}/register-founder`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!res.ok) {
-    if (res.status === 409) {
+  try {
+    const res = await client.post<UserIdentity>('/register-founder', params);
+    const data = res.data;
+    try {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+    return data;
+  } catch (err: unknown) {
+    if (getErrorStatus(err) === 409) {
       throw new Error("Пользователь с таким именем уже существует");
     }
-
-    throw new Error(`Ошибка регистрации: ${res.status} ${res.statusText}`);
+    throw new Error(getErrorMessage(err, 'Ошибка регистрации'));
   }
-
-  const data = await res.json();
-  try {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
-  } catch (err) {
-    console.error('Failed to persist user after registerFounder:', err);
-  }
-  return data as UserIdentity;
 }
 
 export async function requestSchool(
   params: RequestSchoolParams,
   jwtToken: string,
 ): Promise<SchoolRequestStatusDto> {
-  // if jwtToken not provided, try to get from storage
   if (!jwtToken) {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
@@ -109,40 +106,18 @@ export async function requestSchool(
     } catch {}
   }
 
-  const res = await fetch(`${BASE_PATH}/request-school`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwtToken}`,
-    },
-    body: JSON.stringify(params),
-  });
-
-  if (!res.ok) {
-    let errorMessage = `Ошибка сервера: ${res.status}`;
-    try {
-      const errorData = await res.json();
-      errorMessage = errorData.message || errorMessage;
-    } catch {
-      const errorText = await res.text().catch(() => "");
-      if (errorText) errorMessage = errorText;
-    }
-    console.error(`[API Error] ${errorMessage}`);
-    throw new Error(errorMessage);
-  }
-
-  const text = await res.text();
-  console.log(`[API Raw Response]`, text);
-  if (!text) {
-    return { requestPublicId: "", status: "Accepted" };
-  }
-
   try {
-    const data = JSON.parse(text);
-    console.log(`[API Data]`, data);
-    return data;
-  } catch {
-    return { requestPublicId: "", status: "Accepted" };
+    const res = await client.post<SchoolRequestStatusDto>('/request-school', params, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    if (!res.data) {
+      return { requestPublicId: "", status: "Accepted" };
+    }
+    return res.data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка сервера'));
   }
 }
 
@@ -150,10 +125,6 @@ export async function getSchoolRequestStatus(
   publicId: string,
   jwtToken: string,
 ): Promise<SchoolRequestStatusDto> {
-  console.log(
-    `[API Request] GET ${BASE_PATH}/request-school/${publicId}/status`,
-  );
-  // fallback to stored user if jwtToken not provided
   if (!jwtToken) {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
@@ -161,89 +132,57 @@ export async function getSchoolRequestStatus(
     } catch {}
   }
 
-  const res = await fetch(`${BASE_PATH}/request-school/${publicId}/status`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-      "Content-Type": "application/json",
-    },
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    console.error(`[API Error] Status: ${res.status}`);
-    throw new Error(`Ошибка при проверке статуса: ${res.status}`);
+  try {
+    const res = await client.get<SchoolRequestStatusDto>(`/request-school/${publicId}/status`, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    return res.data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка при проверке статуса'));
   }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
-  return data;
 }
 
 export async function getAllSchoolRequests(
   jwtToken: string,
 ): Promise<SchoolRequestStatusDto[]> {
-  console.log(`[API Request] GET ${BASE_PATH}/request-school/all`);
   if (!jwtToken) {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
       if (stored) jwtToken = JSON.parse(stored).jwtToken || jwtToken;
     } catch {}
   }
-  const res = await fetch(`${BASE_PATH}/request-school/all`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${jwtToken}`,
-      "Content-Type": "application/json",
-    },
-  });
 
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    console.error(`[API Error] Status: ${res.status}`);
-    throw new Error(`Ошибка при получении списка заявок: ${res.status}`);
+  try {
+    const res = await client.get<SchoolRequestStatusDto[]>('/request-school/all', {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    return res.data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка при получении списка заявок'));
   }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
-  return data;
 }
 
 export async function login(params: LoginParams): Promise<UserIdentity> {
-  console.log(`[API Request] POST ${BASE_PATH}/login`, {
-    ...params,
-    password: "***",
-  });
-  const res = await fetch(`${BASE_PATH}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    const errorText = await res.text();
-    console.error(`[API Error] ${errorText}`);
-    throw new Error(errorText || `Ошибка входа: ${res.status}`);
-  }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
   try {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
-  } catch (err) {
-    console.error('Failed to persist user after login:', err);
+    const res = await axios.post<UserIdentity>(`${BASE_PATH}/login`, params);
+    const data = res.data;
+    try {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+    return data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка входа'));
   }
-  return data as UserIdentity;
 }
 
 export async function joinSchool(
   params: JoinSchoolByInviteParams,
   jwtToken: string,
 ): Promise<UserIdentity> {
-  console.log(`[API Request] POST ${BASE_PATH}/join-school`, params);
   if (!jwtToken) {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
@@ -251,69 +190,51 @@ export async function joinSchool(
     } catch {}
   }
 
-  const res = await fetch(`${BASE_PATH}/join-school`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwtToken}`,
-    },
-    body: JSON.stringify(params),
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const msg =
-      errorData.message || `Ошибка при вступлении в школу: ${res.status}`;
-    console.error(`[API Error] ${msg}`);
-    throw new Error(msg);
-  }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
   try {
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
-  } catch (err) {
-    console.error('Failed to persist user after joinSchool:', err);
+    const res = await client.post<UserIdentity>('/join-school', params, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    const data = res.data;
+    try {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
+    } catch {}
+    return data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка при вступлении в школу'));
   }
-  return data as UserIdentity;
 }
 
 export async function refreshToken(params: RefreshTokenParams) {
-  console.log(`[API Request] POST ${BASE_PATH}/refreshToken`, params);
-  const res = await fetch(`${BASE_PATH}/refreshToken`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(params),
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    console.error(`[API Error] Refresh failed`);
-    throw new Error("Не удалось обновить токен");
-  }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
-  // If response contains new tokens, merge with stored user and persist
   try {
-    const storedRaw = localStorage.getItem(USER_STORAGE_KEY);
-    if (storedRaw) {
-      const stored = JSON.parse(storedRaw) as UserIdentity;
-      const updated = { ...stored, ...(data as Partial<UserIdentity>) } as UserIdentity;
-      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updated));
+    const res = await axios.post(`${BASE_PATH}/refreshToken`, params, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const data = res.data;
+    try {
+      const storedRaw = localStorage.getItem(USER_STORAGE_KEY);
+      if (storedRaw) {
+        const stored = JSON.parse(storedRaw) as UserIdentity;
+        const updated = { ...stored, ...(data as Partial<UserIdentity>) } as UserIdentity;
+        localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updated));
+      }
+    } catch {}
+    return data;
+  } catch (err: unknown) {
+    let message = 'Не удалось обновить токен';
+    if (axios.isAxiosError(err)) {
+      message = err.response?.data?.message || err.message;
+    } else if (err instanceof Error) {
+      message = err.message;
     }
-  } catch (err) {
-    console.error('Failed to persist updated tokens after refresh:', err);
+    throw new Error(message);
   }
-
-  return data;
 }
 
 export async function invite(params: InviteParams, jwtToken: string) {
-  console.log(`[API Request] POST ${BASE_PATH}/invite`, params);
   if (!jwtToken) {
     try {
       const stored = localStorage.getItem(USER_STORAGE_KEY);
@@ -321,22 +242,14 @@ export async function invite(params: InviteParams, jwtToken: string) {
     } catch {}
   }
 
-  const res = await fetch(`${BASE_PATH}/invite`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${jwtToken}`,
-    },
-    body: JSON.stringify(params),
-  });
-
-  console.log(`[API Response] ${res.status} ${res.statusText}`);
-  if (!res.ok) {
-    console.error(`[API Error] Invite creation failed: ${res.status}`);
-    throw new Error(`Ошибка при создании инвайта: ${res.status}`);
+  try {
+    const res = await client.post('/invite', params, {
+      headers: {
+        Authorization: `Bearer ${jwtToken}`,
+      },
+    });
+    return res.data;
+  } catch (err: unknown) {
+    throw new Error(getErrorMessage(err, 'Ошибка при создании инвайта'));
   }
-
-  const data = await res.json();
-  console.log(`[API Data]`, data);
-  return data;
 }
