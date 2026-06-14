@@ -25,9 +25,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan [IP_ADDRESS] >> ~/.ssh/known_hosts
+          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
       - name: Deploy using rsync
-        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./dist/* ${{secrets.SSH_USER}}@[IP_ADDRESS]:~/Frontend
+        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./dist/* ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }}:~/Frontend
       - name: Restart server
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@[IP_ADDRESS] "cd ~/Frontend && git fetch && git reset --hard origin/main && npm run build && pm2 reload 0"
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }} "cd ~/Frontend && git fetch && git reset --hard origin/main && npm run build && pm2 reload 0"
         
