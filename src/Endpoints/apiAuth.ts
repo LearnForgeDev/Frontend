@@ -81,7 +81,7 @@ export async function registerFounder(
   params: RegisterFounderParams,
 ): Promise<UserIdentity> {
   try {
-    const res = await client.post<UserIdentity>('/register-founder', params);
+    const res = await client.post<UserIdentity>('/reg', params);
     const data = res.data;
     try {
       localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(data));
