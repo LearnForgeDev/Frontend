@@ -6,6 +6,9 @@ import path from 'path';
 export default defineConfig({
   base: "/",
   plugins: [react()],
+  define: {
+    'import.meta.env.VITE_YENV': JSON.stringify(process.env.YENV || ""),
+  },
   resolve: {
     alias: {
       "src": path.resolve(__dirname, "./src"),
