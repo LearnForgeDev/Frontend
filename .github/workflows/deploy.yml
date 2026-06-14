@@ -29,5 +29,4 @@ jobs:
       - name: Deploy using rsync
         run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./dist/* ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }}:~/Frontend
       - name: Restart server
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }} "cd ~/Frontend && git fetch && git reset --hard origin/main && npm run build && pm2 reload 0"
-        
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }} "pm2 reload 0"
