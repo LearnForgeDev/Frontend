@@ -29,7 +29,6 @@
 | POST | `/api/ApiAuth/reg` | Регистрация нового пользователя | Anonymous |
 | POST | `/api/ApiAuth/login` | Вход в систему | Anonymous |
 | POST | `/api/ApiAuth/refreshToken` | Обновление JWT по Refresh Token | Any |
-| POST | `/api/ApiAuth/register-founder` | Регистрация основателя школы | Anonymous |
 | POST | `/api/ApiAuth/join-school` | Присоединение к школе по инвайту | [Authorize] |
 | POST | `/api/ApiAuth/invite` | Создание инвайта в школу | Teacher/Owner |
 
@@ -56,13 +55,14 @@
 
 ---
 
-### 2.2. Школы и Управление (`/api/ApiSchool`)
+### 2.2. Школы и Управление (`/api/ApiSchool` и `/api/ApiAuth`)
 
 | Метод | Путь | Описание | Роли |
 | :--- | :--- | :--- | :--- |
 | GET | `/api/ApiSchool/my-schools` | Список школ пользователя | Любой авторизованный |
-| POST | `/api/ApiSchool/request-school` | Заявка на создание школы | Любой авторизованный |
-| GET | `/api/ApiSchool/provisioning-requests` | Список заявок (админ) | Admin |
+| POST | `/api/ApiAuth/request-school` | Заявка на создание школы | Любой авторизованный |
+| GET | `/api/ApiAuth/request-school/{publicId}/status` | Статус заявки на создание школы | Любой авторизованный |
+| GET | `/api/ApiAuth/request-school/all` | Список заявок (админ) | Admin |
 
 ---
 
@@ -87,6 +87,7 @@
 | POST | `/api/ApiFiles/{schoolId}/direct-upload/presign` | Получение ссылки для загрузки напрямую в MinIO | JSON |
 | POST | `/api/ApiFiles/{schoolId}/direct-upload/complete` | Подтверждение загрузки после S3 upload | JSON |
 | GET | `/api/ApiFiles/{schoolId}/{fileId}/content` | Скачивание файла | Stream |
+| DELETE | `/api/ApiFiles/{schoolId}/{fileId}` | Удаление файла | - |
 
 #### Прямая загрузка (Direct Upload):
 1. Вызвать `.../presign`, передать `fileName`, `sizeBytes`.
@@ -104,6 +105,22 @@
 | POST | `/api/ApiMeet/screen-share/request` | Запрос на расшаривание экрана | Для учеников |
 | POST | `/api/ApiMeet/screen-share/approve` | Одобрение расшаривания | Только Teacher/Owner |
 | POST | `/api/ApiMeet/whiteboard/archive-pointer` | Сохранить ссылку на доску Excalidraw | После завершения сессии |
+
+---
+
+### 2.6. Конструктор уроков (`/lessons`)
+
+| Метод | Путь | Описание | Роли |
+| :--- | :--- | :--- | :--- |
+| GET | `/lessons` | Получить список уроков | Любой авторизованный |
+| GET | `/lessons/{id}` | Получить урок по ID | Любой авторизованный |
+| POST | `/lessons` | Создать новый урок | Teacher/Owner |
+| PATCH | `/lessons/{id}` | Обновить свойства урока | Teacher/Owner |
+| DELETE | `/lessons/{id}` | Удалить урок | Teacher/Owner |
+| GET | `/lessons/folders` | Получить папки уроков | Любой авторизованный |
+| POST | `/lessons/folders` | Создать папку для уроков | Teacher/Owner |
+| PATCH | `/lessons/folders/{id}` | Обновить папку | Teacher/Owner |
+| DELETE | `/lessons/folders/{id}` | Удалить папку | Teacher/Owner |
 
 ---
 
