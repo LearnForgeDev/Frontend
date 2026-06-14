@@ -1,0 +1,32 @@
+name: Deploy Project
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    container:
+      image: node:24
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
+      - name: Get SSH keys and set permission
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan [IP_ADDRESS] >> ~/.ssh/known_hosts
+      - name: Deploy using rsync
+        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./dist/* ${{secrets.SSH_USER}}@[IP_ADDRESS]:~/Frontend
+      - name: Restart server
+        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@[IP_ADDRESS] "cd ~/Frontend && git fetch && git reset --hard origin/main && npm run build && pm2 reload 0"
+        
