@@ -1,5 +1,4 @@
-import React from 'react';
-import { Popover, Box, Typography, Button, Divider, List, ListItem, IconButton, Icon } from '@mui/material';
+import { Popover, Box, Typography, Button, Divider } from '@mui/material';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import PendingSchoolRequestWidget from '../DashboardHome/Components/PendingSchoolRequestWidget';
 import Notification from '@/Assets/Components/Notification/Notification';

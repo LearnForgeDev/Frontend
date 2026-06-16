@@ -1,7 +1,8 @@
 import { createApiClient } from '@/Endpoints/factory';
 import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import config from '../config';
 
-const client = createApiClient(import.meta.env.VITE_API_BASE_URL || '');
+const client = createApiClient(config.endpointUrl);
 
 export const lessonsEndpoints = {
   /**

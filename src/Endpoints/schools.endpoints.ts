@@ -1,6 +1,7 @@
 import { createApiClient } from './factory';
+import config from '../config';
 
-const apiClient = createApiClient(import.meta.env.VITE_API_BASE_URL || '');
+const apiClient = createApiClient(config.endpointUrl);
 
 export type SchoolRole = "Teacher" | "Student" | "Founder" | "Admin";
 
