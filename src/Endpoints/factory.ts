@@ -2,9 +2,12 @@ import axios, { type AxiosInstance } from 'axios';
 import axiosRetry from 'axios-retry';
 
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
 
 let isRefreshing = false;
 let refreshSubscribers: Array<() => void> = [];
+let sequentialErrorCount = 0;
+const MAX_SEQUENTIAL_ERRORS = 5;
 
 function subscribeToRefresh(cb: () => void) {
   refreshSubscribers.push(cb);
@@ -42,9 +45,20 @@ export function createApiClient(baseURL: string): AxiosInstance {
     withCredentials: true
   });
 
+  instance.interceptors.request.use((config) => {
+    if (sequentialErrorCount >= MAX_SEQUENTIAL_ERRORS) {
+      return Promise.reject(new Error('Requests blocked due to multiple sequential errors.'));
+    }
+    return config;
+  });
+
   instance.interceptors.response.use(
-    (res) => res,
+    (res) => {
+      sequentialErrorCount = 0;
+      return res;
+    },
     async (error) => {
+      sequentialErrorCount++;
       const originalRequest = error.config;
       if (error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(normaliseError(error));
@@ -62,9 +76,24 @@ export function createApiClient(baseURL: string): AxiosInstance {
       isRefreshing = true;
 
       try {
-        await axios.post(`${baseURL}/api/ApiAuth/refreshToken`, undefined, {
+        const storedStr = localStorage.getItem(USER_STORAGE_KEY);
+        const storedUser = storedStr ? JSON.parse(storedStr) : null;
+        const refreshToken = storedUser?.refreshToken;
+
+        if (!refreshToken) {
+          useGlobalContext.getState().auth.logout();
+          return Promise.reject(new Error('No refresh token'));
+        }
+
+        const refreshRes = await axios.post(`${baseURL}/api/ApiAuth/refreshToken`, { refreshToken }, {
           withCredentials: true,
         });
+
+        const result = refreshRes.data;
+        if (result && result.refreshToken) {
+          localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ ...storedUser, ...result }));
+          useGlobalContext.getState().auth.setUser(result);
+        }
 
         onRefreshed();
         return instance(originalRequest);
