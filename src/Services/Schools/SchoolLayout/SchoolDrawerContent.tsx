@@ -68,6 +68,19 @@ export default function SchoolDrawerContent({
           <ListItemText primary="Домашние задания" />
         </ListItemButton>
 
+        <ListItemButton
+          component={NavLink}
+          to={`${basePath}/calls`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/calls`}
+          sx={schoolNavItemSx}
+        >
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">video_call</Box>
+          </ListItemIcon>
+          <ListItemText primary="Звонки" />
+        </ListItemButton>
+
         <ListItemButton disabled sx={schoolNavItemSx}>
           <ListItemIcon sx={schoolNavIconSx}>
             <Box component="span" className="material-symbols-outlined">calendar_today</Box>

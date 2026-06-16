@@ -13,6 +13,7 @@ import LoginPage from './Services/Auth/Pages/LoginPage/LoginPage.tsx';
 import RegisterPage from './Services/Auth/Pages/RegisterPage/RegisterPage.tsx';
 import SchoolLayout from './Services/Schools/SchoolLayout/SchoolLayout.tsx';
 import SchoolOverviewPage from './Services/Schools/SchoolOverview/SchoolOverviewPage.tsx';
+import CallsPage from './Services/Schools/CallsPage/CallsPage.tsx';
 
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -62,6 +63,10 @@ const AppRoutes = () => {
         {
           index: true,
           element: <SchoolOverviewPage />,
+        },
+        {
+          path: "calls",
+          element: <CallsPage />,
         },
       ],
     },
