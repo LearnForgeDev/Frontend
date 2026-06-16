@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { AppBar, Box, IconButton, InputAdornment, TextField, Toolbar, Typography } from '@mui/material';
 import {
   appBarSx,
@@ -10,6 +11,7 @@ import {
   topbarIconButtonSx,
   topbarRightSx,
 } from './AdminPanelLayout.styles';
+import NotificationsPopover from './NotificationsPopover';
 
 type AdminPanelTopBarProps = {
   isDesktop: boolean;
@@ -18,6 +20,16 @@ type AdminPanelTopBarProps = {
 };
 
 export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }: AdminPanelTopBarProps) {
+  const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<HTMLElement | null>(null);
+
+  const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationsAnchorEl(event.currentTarget);
+  };
+
+  const handleCloseNotifications = () => {
+    setNotificationsAnchorEl(null);
+  };
+
   return (
     <AppBar position="fixed" elevation={0} sx={appBarSx(isDesktop)}>
       <Toolbar sx={toolbarSx(isDesktop)}>
@@ -51,9 +63,11 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
               sx={searchFieldSx}
             />
           )}
-          <IconButton sx={topbarIconButtonSx} aria-label="Уведомления">
+          <IconButton sx={topbarIconButtonSx} aria-label="Уведомления" onClick={handleOpenNotifications}>
             <Box component="span" className="material-symbols-outlined">notifications</Box>
           </IconButton>
+          <NotificationsPopover anchorEl={notificationsAnchorEl} onClose={handleCloseNotifications} />
+          
           <IconButton sx={topbarIconButtonSx} aria-label="Настройки">
             <Box component="span" className="material-symbols-outlined">settings</Box>
           </IconButton>
@@ -63,4 +77,3 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
     </AppBar>
   );
 }
-

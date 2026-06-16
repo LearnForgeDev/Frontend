@@ -1,7 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 
-import PendingSchoolRequestWidget from './Components/PendingSchoolRequestWidget';
 import { useActiveSchoolRequests } from '@/Services/AdminPanel/hooks/useActiveSchoolRequests';
 
 const DashboardHome: React.FC = () => {
@@ -53,9 +52,6 @@ const DashboardHome: React.FC = () => {
           gap: "1rem",
         }}
       >
-        {/* Always try to render the widget, it handles its own empty state internally */}
-        <PendingSchoolRequestWidget />
-
         {/* Placeholder - only if no services AND no school requests (and not loading) */}
         {!hasAnyContent && !isLoadingRequests && <WidgetsPlaceholder />}
       </Box>
