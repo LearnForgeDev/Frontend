@@ -1,6 +1,6 @@
 import { createApiClient } from './factory';
 
-const apiClient = createApiClient(import.meta.env.VITE_API_BASE_URL);
+const apiClient = createApiClient(import.meta.env.VITE_API_BASE_URL || '');
 
 export interface LoginResponseDto {
   jwtToken: string;
@@ -10,24 +10,88 @@ export interface LoginResponseDto {
   userRoles: Array<{ role: number; schoolId: number; userId: number }>;
 }
 
-export interface MySchool {
-  id: number;
+export type LoginParams = {
   name: string;
-  publicId: string;
-}
+  password: string;
+};
+
+export type RegisterFounderParams = LoginParams & {
+  confirmPassword: string;
+};
+
+export type RegisterStudentParams = RegisterFounderParams & {
+  inviteToken: string;
+};
+
+export type RequestSchoolParams = {
+  schoolName: string;
+};
+
+export type RefreshTokenParams = {
+  refreshToken: string;
+};
+
+export type InviteParams = {
+  schoolPublicId: string;
+  role: "0" | "1" | "2";
+  maxUses: number | string;
+  expiresInMinutes: number | string;
+};
+
+export type JoinSchoolByInviteParams = {
+  inviteToken: string;
+};
+
+export type SchoolRequestStatusDto = {
+  requestPublicId: string;
+  status: string;
+  schoolName?: string;
+  requestedAt?: string;
+};
 
 export const authEndpoints = {
-  async login(dto: { name: string; password: string }): Promise<LoginResponseDto> {
+  async registerStudent(dto: RegisterStudentParams): Promise<LoginResponseDto> {
+    const response = await apiClient.post<LoginResponseDto>('/api/ApiAuth/reg', dto);
+    return response.data;
+  },
+
+  async registerFounder(dto: RegisterFounderParams): Promise<LoginResponseDto> {
+    const response = await apiClient.post<LoginResponseDto>('/api/ApiAuth/reg', dto);
+    return response.data;
+  },
+
+  async login(dto: LoginParams): Promise<LoginResponseDto> {
     const response = await apiClient.post<LoginResponseDto>('/api/ApiAuth/login', dto);
     return response.data;
   },
 
-  async refreshToken(): Promise<void> {
-    await apiClient.post('/api/ApiAuth/refreshToken');
+  async refreshToken(dto?: RefreshTokenParams): Promise<LoginResponseDto> {
+    const response = await apiClient.post<LoginResponseDto>('/api/ApiAuth/refreshToken', dto || {});
+    return response.data;
   },
 
-  async getMySchools(): Promise<MySchool[]> {
-    const response = await apiClient.get<MySchool[]>('/api/ApiSchool/my-schools');
+  async requestSchool(dto: RequestSchoolParams): Promise<SchoolRequestStatusDto> {
+    const response = await apiClient.post<SchoolRequestStatusDto>('/api/ApiAuth/request-school', dto);
+    return response.data || { requestPublicId: "", status: "Accepted" };
+  },
+
+  async getSchoolRequestStatus(publicId: string): Promise<SchoolRequestStatusDto> {
+    const response = await apiClient.get<SchoolRequestStatusDto>(`/api/ApiAuth/request-school/${publicId}/status`);
+    return response.data;
+  },
+
+  async getAllSchoolRequests(): Promise<SchoolRequestStatusDto[]> {
+    const response = await apiClient.get<SchoolRequestStatusDto[]>('/api/ApiAuth/request-school/all');
+    return response.data;
+  },
+
+  async joinSchool(dto: JoinSchoolByInviteParams): Promise<LoginResponseDto> {
+    const response = await apiClient.post<LoginResponseDto>('/api/ApiAuth/join-school', dto);
+    return response.data;
+  },
+
+  async invite(dto: InviteParams): Promise<unknown> {
+    const response = await apiClient.post('/api/ApiAuth/invite', dto);
     return response.data;
   }
 };

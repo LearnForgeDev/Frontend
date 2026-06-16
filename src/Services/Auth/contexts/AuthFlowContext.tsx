@@ -9,9 +9,10 @@ import {
 } from "react";
 import { useNavigate } from 'react-router-dom';
 
-import { login, registerFounder } from '@/Endpoints/apiAuth';
+import { authEndpoints } from '@/Endpoints/auth.endpoints';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { useUser } from '@/Storage/Context/UserContext';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
 type AuthFormState = {
   name: string;
@@ -94,10 +95,10 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
 
       try {
         if (mode === "login") {
-          const result = (await login({
+          const result = await authEndpoints.login({
             name: authState.name,
             password: authState.password,
-          })) as Partial<UserIdentity>;
+          });
           const userIdentity = toUserIdentity(result);
 
           if (!userIdentity) {
@@ -105,19 +106,21 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
             return;
           }
 
+          useGlobalContext.getState().auth.setUser(result);
           setUser(userIdentity);
           navigate("/admin");
           return;
         }
 
-        const result = (await registerFounder({
+        const result = await authEndpoints.registerFounder({
           name: authState.name,
           password: authState.password,
           confirmPassword: authState.confirmPassword,
-        })) as Partial<UserIdentity>;
+        });
 
         const userIdentity = toUserIdentity(result);
         if (userIdentity) {
+          useGlobalContext.getState().auth.setUser(result);
           setUser(userIdentity);
         }
 

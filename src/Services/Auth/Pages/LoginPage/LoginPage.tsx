@@ -4,7 +4,8 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
 import { useUser, USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
-import { refreshToken } from '@/Endpoints/apiAuth';
+import { authEndpoints } from '@/Endpoints/auth.endpoints';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
@@ -23,8 +24,9 @@ function LoginPageContent() {
         
         const storedUser = JSON.parse(storedStr);
         if (storedUser?.refreshToken) {
-          const result = await refreshToken({ refreshToken: storedUser.refreshToken });
+          const result = await authEndpoints.refreshToken({ refreshToken: storedUser.refreshToken });
           if (result) {
+            useGlobalContext.getState().auth.setUser(result);
             setUser({ ...storedUser, ...result });
             navigate("/admin", { replace: true });
           }

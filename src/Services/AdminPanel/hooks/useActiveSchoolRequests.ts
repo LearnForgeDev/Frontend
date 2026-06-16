@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getAllSchoolRequests, type SchoolRequestStatusDto } from '@/Endpoints/apiAuth';
+import { authEndpoints, type SchoolRequestStatusDto } from '@/Endpoints/auth.endpoints';
 import { useUser } from '@/Storage/Context/UserContext';
 
 export function useActiveSchoolRequests() {
@@ -13,7 +13,7 @@ export function useActiveSchoolRequests() {
             return;
         }
         try {
-            const data = await getAllSchoolRequests(user.jwtToken);
+            const data = await authEndpoints.getAllSchoolRequests();
             setRequests(data);
         } catch (err) {
             console.error('Failed to fetch school requests:', err);

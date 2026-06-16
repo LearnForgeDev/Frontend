@@ -3,4 +3,6 @@ export * from './files.endpoints';
 export * from './files.types';
 export * from './branches.endpoints';
 export * from './meet.endpoints';
-
+export * from './auth.endpoints';
+export * from './schools.endpoints';
+export * from './lessons.endpoints';

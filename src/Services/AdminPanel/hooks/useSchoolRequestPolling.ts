@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { getSchoolRequestStatus } from '@/Endpoints/apiAuth';
+import { authEndpoints } from '@/Endpoints/auth.endpoints';
 import { useUser } from '@/Storage/Context/UserContext';
 
 const STORAGE_KEY = 'activeSchoolRequest';
@@ -42,7 +42,7 @@ export function useSchoolRequestPolling() {
 
         pollingIntervalRef.current = setInterval(async () => {
             try {
-                const statusData = await getSchoolRequestStatus(activeRequest.publicId, user.jwtToken);
+                const statusData = await authEndpoints.getSchoolRequestStatus(activeRequest.publicId);
 
                 const updatedRequest = { ...activeRequest, status: statusData.status };
                 setActiveRequest(updatedRequest);

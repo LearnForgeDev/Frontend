@@ -12,13 +12,11 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getMySchools, type UserSchoolInfo } from '@/Endpoints/Schools';
-import {
-  requestSchool as apiRequestSchool,
-  joinSchool as apiJoinSchool,
-} from "@/Endpoints/apiAuth";
+import { schoolsEndpoints, type UserSchoolInfo } from '@/Endpoints/schools.endpoints';
+import { authEndpoints } from "@/Endpoints/auth.endpoints";
 import { useUser } from '@/Storage/Context/UserContext';
 import { useSchoolRequestPolling } from '@/Services/AdminPanel/hooks/useSchoolRequestPolling';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
 export default function SchoolsPage() {
   const { user, setUser } = useUser();
@@ -45,7 +43,7 @@ export default function SchoolsPage() {
     setIsLoadingSchools(true);
     setFetchError(null);
     try {
-      const schoolsData = await getMySchools(user.jwtToken);
+      const schoolsData = await schoolsEndpoints.getMySchools();
       setSchools(schoolsData);
     } catch (err: unknown) {
       setFetchError(
@@ -79,11 +77,14 @@ export default function SchoolsPage() {
 
     setIsJoining(true);
     try {
-      const newUserIdentity = await apiJoinSchool(
-        { inviteToken: inviteToken.trim() },
-        user.jwtToken,
-      );
-      setUser(newUserIdentity);
+      const result = await authEndpoints.joinSchool({ inviteToken: inviteToken.trim() });
+      useGlobalContext.getState().auth.setUser(result);
+      setUser({
+        jwtToken: result.jwtToken,
+        refreshToken: result.refreshToken,
+        userName: result.userName,
+        userPublicId: result.userPublicId,
+      });
       setInviteToken("");
       fetchData();
     } catch (err: unknown) {
@@ -105,10 +106,7 @@ export default function SchoolsPage() {
       if (!user?.jwtToken) {
         throw new Error("Сессия истекла. Пожалуйста, войдите снова.");
       }
-      const result = await apiRequestSchool(
-        { schoolName: newSchoolName.trim() },
-        user.jwtToken,
-      );
+      const result = await authEndpoints.requestSchool({ schoolName: newSchoolName.trim() });
 
       if (result.requestPublicId) {
         startPolling(result.requestPublicId, newSchoolName.trim());
