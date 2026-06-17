@@ -1,5 +1,5 @@
 import type {JSX} from 'react';
-import {useServiceContext} from '../../../hooks/useServiceContext.ts';
+import {useServiceContext} from '@/Services/AdminPanel/hooks/useServiceContext';
 import {serviceRegistry} from '@/Services/ServiceRegistry';
 
 export default function BillingCard (): JSX.Element {

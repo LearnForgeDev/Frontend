@@ -80,30 +80,6 @@ export default function AdminPanelDrawerContent({
           <ListItemText primary="Мои школы" />
         </ListItemButton>
 
-        <ListItemButton
-          component={NavLink}
-          to="/admin/marketplace"
-          onClick={onCloseMenu}
-          selected={pathname.includes("/marketplace")}
-          sx={navItemSx}
-        >
-          <ListItemIcon sx={navIconSx}>
-            <Box component="span" className="material-symbols-outlined">
-              storefront
-            </Box>
-          </ListItemIcon>
-          <ListItemText primary="Сервисы" />
-        </ListItemButton>
-
-
-
-        <Typography
-          component="div"
-          sx={{ ...navSectionTitleSx, margin: "2rem 0 0.5rem" }}
-        >
-          Сервисы
-        </Typography>
-
         {services
           .filter((service) => service.isBought && service.isEnabled)
           .map((service) => {

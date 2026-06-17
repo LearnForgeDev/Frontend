@@ -4,7 +4,7 @@ import LessonsMainPage from './Services/Lessons/LessonsMainPage';
 import LessonIdPage from './Services/Lessons/LessonIdPage';
 import AdminPanelLayout from './Services/AdminPanel/AdminPanelLayout/AdminPanelLayout';
 import DashboardHome from './Services/AdminPanel/DashboardHome/DashboardHome';
-import MarketplacePage from './Services/AdminPanel/MarketplacePage';
+import MarketplacePage from './Services/Schools/MarketplacePage/MarketplacePage';
 import SchoolsPage from './Services/AdminPanel/SchoolsPage/SchoolsPage';
 import AdminPlaceholder from './Services/AdminPanel/AdminPlaceholder';
 import NotFoundPage from './Services/NotFound/NotFoundPage';
@@ -48,10 +48,6 @@ const AppRoutes = () => {
           element: <SchoolsPage />,
         },
         {
-          path: "marketplace",
-          element: <MarketplacePage />,
-        },
-        {
           path: "services/*",
           element: <AdminPlaceholder />,
         },
@@ -72,6 +68,10 @@ const AppRoutes = () => {
         {
           path: "lessons",
           element: <LessonsPage />,
+        },
+        {
+          path: "marketplace",
+          element: <MarketplacePage />,
         },
         {
           path: "lessons/:lessonId",

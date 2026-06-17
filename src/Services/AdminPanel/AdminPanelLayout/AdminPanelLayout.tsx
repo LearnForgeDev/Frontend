@@ -29,10 +29,6 @@ const AdminPanelLayout: React.FC = () => {
   }, [user, navigate]);
 
   const pageTitle = useMemo(() => {
-    if (location.pathname.includes("/marketplace")) {
-      return "Маркетплейс";
-    }
-
     if (location.pathname.includes("/services/")) {
       const [, servicePath = ""] = location.pathname.split("/services/");
       const [route] = servicePath.split("/");
