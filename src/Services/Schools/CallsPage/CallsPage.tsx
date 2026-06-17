@@ -7,6 +7,7 @@ import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useCreateCall } from './hooks/useCreateCall';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import config from '../../../config';
 import { styles } from './CallsPage.styles';
 
 export default function CallsPage() {
@@ -55,7 +56,7 @@ export default function CallsPage() {
     if (!roomUrl) return null;
     try {
       const url = new URL(roomUrl);
-      const domain = url.hostname;
+      const domain = config.meetServerUrl || url.origin;
       const roomName = url.pathname.substring(1);
       const jwt = url.searchParams.get('jwt') || undefined;
       return { domain, roomName, jwt };
