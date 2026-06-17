@@ -9,7 +9,9 @@ import {
   type Spread,
 } from 'lexical';
 import type {JSX} from 'react';
-import GraphComponent from './GraphNodeComponent.tsx';
+import * as React from 'react';
+
+const GraphComponent = React.lazy(() => import('./GraphNodeComponent.tsx'));
 
 export interface GraphPayload {
   key?: NodeKey;
@@ -82,9 +84,11 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
 
   decorate(): JSX.Element {
     return (
-      <GraphComponent
-        nodeKey={this.getKey()}
-      />
+      <React.Suspense fallback={null}>
+        <GraphComponent
+          nodeKey={this.getKey()}
+        />
+      </React.Suspense>
     );
   }
 }

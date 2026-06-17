@@ -1,9 +1,11 @@
-import {useLocation, useParams, useSearchParams} from 'react-router-dom';
-import TextEditor from './components/TextEditor/TextEditor';
-import './LessonIdPage.css';
+import { lazy, Suspense } from 'react';
 import { Box, Skeleton, Typography } from '@mui/material';
-import type {viewLessonProps} from '@/Services/Lessons/lessonTypes';
-import {Suspense, useMemo} from 'react';
+import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+
+import type { viewLessonProps } from '@/Services/Lessons/lessonTypes';
+import './LessonIdPage.css';
+
+const TextEditor = lazy(() => import('./components/TextEditor/TextEditor'));
 
 export default function LessonIdPage() {
   // TODO: Добавить проверку на существование lessonId
@@ -17,7 +19,7 @@ export default function LessonIdPage() {
   const id = locationState?.id ?? paramId;
   const title = locationState?.title ?? 'Загрузка...';
 
-  const editorStatePromise = useMemo(() => Promise.resolve(undefined), [id]);
+  const editorStatePromise = Promise.resolve(undefined);
 
   return (
     <Box className='lesson-id-page'>
@@ -25,7 +27,9 @@ export default function LessonIdPage() {
         variant="h1"
         className={`lesson-name ${isEditMode ? 'editable' : ''}`}
         contentEditable={isEditMode}
-      >{title}</Typography>
+      >
+        {title}
+      </Typography>
       <Suspense fallback={<SkeletonBox />}>
         <TextEditor
           isEditMode={isEditMode}
@@ -34,7 +38,7 @@ export default function LessonIdPage() {
         />
       </Suspense>
     </Box>
-  )
+  );
 }
 
 function SkeletonBox() {

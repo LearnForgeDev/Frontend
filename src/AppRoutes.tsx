@@ -1,20 +1,23 @@
-import {useRoutes, type RouteObject, Navigate} from 'react-router-dom';
-import PublicLayout from './layouts/PublicLayout';
-import LessonsMainPage from './Services/Lessons/LessonsMainPage';
-import LessonIdPage from './Services/Lessons/LessonIdPage';
-import AdminPanelLayout from './Services/AdminPanel/AdminPanelLayout/AdminPanelLayout';
-import DashboardHome from './Services/AdminPanel/DashboardHome/DashboardHome';
-import MarketplacePage from './Services/Schools/MarketplacePage/MarketplacePage';
-import SchoolsPage from './Services/AdminPanel/SchoolsPage/SchoolsPage';
-import AdminPlaceholder from './Services/AdminPanel/AdminPlaceholder';
-import NotFoundPage from './Services/NotFound/NotFoundPage';
-import AuthLayout from './Services/Auth/Pages/AuthLayout/AuthLayout.tsx';
-import LoginPage from './Services/Auth/Pages/LoginPage/LoginPage.tsx';
-import RegisterPage from './Services/Auth/Pages/RegisterPage/RegisterPage.tsx';
-import SchoolLayout from './Services/Schools/SchoolLayout/SchoolLayout.tsx';
-import SchoolOverviewPage from './Services/Schools/SchoolOverview/SchoolOverviewPage.tsx';
-import CallsPage from './Services/Schools/CallsPage/CallsPage.tsx';
-import LessonsPage from './Services/Schools/LessonsPage/LessonsPage.tsx';
+import { lazy, Suspense } from 'react';
+import { Box, CircularProgress, Typography } from '@mui/material';
+import { Navigate, useRoutes, type RouteObject } from 'react-router-dom';
+
+const PublicLayout = lazy(() => import('./layouts/PublicLayout'));
+const LessonsMainPage = lazy(() => import('./Services/Lessons/LessonsMainPage'));
+const LessonIdPage = lazy(() => import('./Services/Lessons/LessonIdPage'));
+const AdminPanelLayout = lazy(() => import('./Services/AdminPanel/AdminPanelLayout/AdminPanelLayout'));
+const DashboardHome = lazy(() => import('./Services/AdminPanel/DashboardHome/DashboardHome'));
+const MarketplacePage = lazy(() => import('./Services/Schools/MarketplacePage/MarketplacePage'));
+const SchoolsPage = lazy(() => import('./Services/AdminPanel/SchoolsPage/SchoolsPage'));
+const AdminPlaceholder = lazy(() => import('./Services/AdminPanel/AdminPlaceholder'));
+const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
+const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout.tsx'));
+const LoginPage = lazy(() => import('./Services/Auth/Pages/LoginPage/LoginPage.tsx'));
+const RegisterPage = lazy(() => import('./Services/Auth/Pages/RegisterPage/RegisterPage.tsx'));
+const SchoolLayout = lazy(() => import('./Services/Schools/SchoolLayout/SchoolLayout.tsx'));
+const SchoolOverviewPage = lazy(() => import('./Services/Schools/SchoolOverview/SchoolOverviewPage.tsx'));
+const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage.tsx'));
+const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage.tsx'));
 
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -99,7 +102,30 @@ const AppRoutes = () => {
     },
   ];
 
-  return useRoutes(routes);
+  return (
+    <Suspense fallback={<RouteLoadingFallback />}>
+      {useRoutes(routes)}
+    </Suspense>
+  );
 };
 
 export default AppRoutes;
+
+const RouteLoadingFallback = () => (
+  <Box
+    role="status"
+    aria-live="polite"
+    sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 2,
+      px: 3,
+    }}
+  >
+    <CircularProgress />
+    <Typography color="text.secondary">Загрузка раздела…</Typography>
+  </Box>
+);
