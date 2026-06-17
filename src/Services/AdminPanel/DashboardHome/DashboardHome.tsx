@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 import { useActiveSchoolRequests } from '@/Services/AdminPanel/hooks/useActiveSchoolRequests';
-import { ServerHealthWidget } from './Components/ServerHealthWidget';
+import { ServerHealthWidget } from '../DashboardHome/Components/ServerHealthWidget.tsx';
 
 const DashboardHome: React.FC = () => {
   const { requests, isLoading: isLoadingRequests } = useActiveSchoolRequests();
