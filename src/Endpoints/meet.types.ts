@@ -1,6 +1,6 @@
 export interface MeetTokenRequestDto {
   schoolPublicId: string;
-  roomName: string;
+  Room: string;
 }
 
 export interface JitsiTokenResponse {
@@ -9,18 +9,18 @@ export interface JitsiTokenResponse {
 
 export interface ScreenShareRequestDto {
   schoolPublicId: string;
-  roomName: string;
+  Room: string;
 }
 
 export interface ScreenShareApproveDto {
   schoolPublicId: string;
-  roomName: string;
+  Room: string;
   userPublicId: string;
 }
 
 export interface WhiteboardArchiveDto {
   schoolPublicId: string;
-  roomName: string;
+  Room: string;
   whiteboardUrl: string;
 }
 

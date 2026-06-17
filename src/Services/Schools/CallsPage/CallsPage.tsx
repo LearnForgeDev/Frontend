@@ -22,7 +22,7 @@ export default function CallsPage() {
     if (!schoolPublicId || !roomNameInput.trim()) return;
 
     createCall(
-      { schoolPublicId, roomName: roomNameInput.trim() },
+      { schoolPublicId, Room: roomNameInput.trim() },
       {
         onSuccess: (url) => {
           setRoomUrl(url);

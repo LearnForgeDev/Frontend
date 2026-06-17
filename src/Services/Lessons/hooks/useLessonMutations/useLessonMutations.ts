@@ -1,6 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
-import { useSchoolId } from '@/Services/Lessons/hooks/useSchoolId/useSchoolId';
 import { apiFileToLesson } from '@/Endpoints/files.types';
 import type { AppError } from '@/Endpoints/factory';
 import type {
@@ -9,6 +8,7 @@ import type {
   DeleteLessonVars,
 } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.types';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import {useParams} from "react-router-dom";
 
 function buildLessonFileName(title: string, lessonId: string, status: Lesson['status']): string {
   return `lesson::${encodeURIComponent(title)}::${lessonId}::${status}.lesson`;
@@ -29,7 +29,11 @@ function buildInitialContent(title: string): string {
 
 export function useLessonMutations() {
   const queryClient = useQueryClient();
-  const schoolId = useSchoolId();
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+
+  if (!schoolPublicId) {
+    throw new Error('useLesson must have a valid schoolPublicId');
+  }
 
   const createLesson = useMutation<Lesson, AppError, CreateLessonVars>({
     mutationFn: async ({ title, folderId }: CreateLessonVars): Promise<Lesson> => {
@@ -39,11 +43,11 @@ export function useLessonMutations() {
       const blob = new Blob([content], { type: 'application/json' });
       const fileName = buildLessonFileName(title, lessonId, status);
 
-      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolId, {
+      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolPublicId, {
         fileName, sizeBytes: blob.size,
       });
       await filesEndpoints.uploadFileDirect(uploadUrl, content);
-      const apiFile = await filesEndpoints.completeUpload(schoolId, {
+      const apiFile = await filesEndpoints.completeUpload(schoolPublicId, {
         storageKey, fileName, sizeBytes: blob.size,
       });
 
@@ -52,18 +56,18 @@ export function useLessonMutations() {
       return { ...lesson, folderId };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
     },
   });
 
   const deleteLesson = useMutation<void, AppError, DeleteLessonVars, { previousData: Lesson[] | undefined }>({
-    mutationFn: ({ id }) => filesEndpoints.deleteFile(schoolId, id),
+    mutationFn: ({ id }) => filesEndpoints.deleteFile(schoolPublicId, id),
     onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ['lessons', schoolId] });
-      const previousData = queryClient.getQueryData<Lesson[]>(['lessons', schoolId]);
+      await queryClient.cancelQueries({ queryKey: ['lessons', schoolPublicId] });
+      const previousData = queryClient.getQueryData<Lesson[]>(['lessons', schoolPublicId]);
 
       if (previousData) {
-        queryClient.setQueryData<Lesson[]>(['lessons', schoolId], (old) => {
+        queryClient.setQueryData<Lesson[]>(['lessons', schoolPublicId], (old) => {
           if (!old) return old;
           return old.filter((lesson) => lesson.id !== id);
         });
@@ -73,34 +77,34 @@ export function useLessonMutations() {
     },
     onError: (_err, _vars, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(['lessons', schoolId], context.previousData);
+        queryClient.setQueryData(['lessons', schoolPublicId], context.previousData);
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
     },
   });
 
   // TODO: replace with PATCH /api/ApiFiles/{id}/rename when endpoint exists
   const renameLesson = useMutation<void, AppError, RenameLessonVars>({
     mutationFn: async ({ id, title }) => {
-      const content = await filesEndpoints.getFileContent(schoolId, id);
-      await filesEndpoints.deleteFile(schoolId, id);
+      const content = await filesEndpoints.getFileContent(schoolPublicId, id);
+      await filesEndpoints.deleteFile(schoolPublicId, id);
 
       const status: Lesson['status'] = 'draft';
       const blob = new Blob([content], { type: 'application/json' });
       const fileName = buildLessonFileName(title, id, status);
 
-      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolId, {
+      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolPublicId, {
         fileName, sizeBytes: blob.size,
       });
       await filesEndpoints.uploadFileDirect(uploadUrl, content);
-      await filesEndpoints.completeUpload(schoolId, {
+      await filesEndpoints.completeUpload(schoolPublicId, {
         storageKey, fileName, sizeBytes: blob.size,
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
     },
   });
 

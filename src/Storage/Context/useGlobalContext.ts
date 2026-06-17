@@ -3,9 +3,8 @@ import { create } from 'zustand';
 export interface User {
   userPublicId: string;
   userName: string;
-  roles: Array<{ role: 0 | 1 | 2; schoolId: number; schoolPublicId?: string }>;
+  roles: Array<{ role: 0 | 1 | 2; schoolId: number }>;
   activeSchoolId: number;
-  activeSchoolPublicId?: string | null;
 }
 
 export interface LoginResponseDto {
@@ -13,7 +12,7 @@ export interface LoginResponseDto {
   refreshToken: string;
   userName: string;
   userPublicId: string;
-  userRoles: Array<{ role: number; schoolId: number; userId: number; schoolPublicId?: string }>;
+  userRoles: Array<{ role: number; schoolId: number; userId: number }>;
 }
 
 interface AuthSlice {
@@ -38,22 +37,10 @@ export const useGlobalContext = create<GlobalState>((set) => ({
         if (!state.auth.user) return state;
         const newUser: User = { ...state.auth.user, activeSchoolId: schoolId };
 
-        const matchedRole = newUser.roles.find((r) => r.schoolId === schoolId && 'schoolPublicId' in r && r.schoolPublicId);
-        const publicId = matchedRole && matchedRole.schoolPublicId ? matchedRole.schoolPublicId : null;
-
-        newUser.activeSchoolPublicId = publicId;
-
         try {
-          if (newUser) {
-            localStorage.setItem('user_identity', JSON.stringify(newUser));
-          }
-          if (publicId) {
-            sessionStorage.setItem('currentSchoolPublicId', publicId);
-          } else {
-            sessionStorage.removeItem('currentSchoolPublicId');
-          }
+          localStorage.setItem('user_identity', JSON.stringify(newUser));
         } catch {
-            console.error('Unable to retrieve currentSchoolPublicId');
+          console.error('Failed to persist user to localStorage');
         }
 
         return {
@@ -66,31 +53,22 @@ export const useGlobalContext = create<GlobalState>((set) => ({
     setUser: (res: LoginResponseDto) =>
       set((state) => {
         let activeSchoolId = 0;
-        let activeSchoolPublicId: string | null = null;
         if (res.userRoles && res.userRoles.length > 0) {
           const teacherOrOwner = res.userRoles.find((r) => r.role >= 1);
           const chosen = teacherOrOwner ? teacherOrOwner : res.userRoles[0];
           activeSchoolId = chosen.schoolId;
-          // if server provided public id for the chosen role - use it
-          activeSchoolPublicId = chosen.schoolPublicId ?? null;
         }
 
         const user: User = {
           userPublicId: res.userPublicId,
           userName: res.userName,
-          roles: res.userRoles as Array<{ role: 0 | 1 | 2; schoolId: number; schoolPublicId?: string }>,
+          roles: res.userRoles as Array<{ role: 0 | 1 | 2; schoolId: number }>,
           activeSchoolId,
-          activeSchoolPublicId,
         };
 
-        // persist user to localStorage and current school publicId to sessionStorage
+        // persist user to localStorage
         try {
           localStorage.setItem('user_identity', JSON.stringify(user));
-          if (activeSchoolPublicId) {
-            sessionStorage.setItem('currentSchoolPublicId', activeSchoolPublicId);
-          } else {
-            sessionStorage.removeItem('currentSchoolPublicId');
-          }
         } catch {
           // ignore storage errors
         }
@@ -107,7 +85,6 @@ export const useGlobalContext = create<GlobalState>((set) => ({
       set((state) => {
         try {
           localStorage.removeItem('user_identity');
-          sessionStorage.removeItem('currentSchoolPublicId');
         } catch {
           // ignore storage errors
         }

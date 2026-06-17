@@ -2,11 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import { isLessonFile, apiFileToLesson } from '@/Endpoints/files.types';
-import { useSchoolId } from '@/Services/Lessons/hooks/useSchoolId/useSchoolId';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
 import type { UseLessonsReturn } from '@/Services/Lessons/hooks/useLessons/useLessons.types';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import type { AppError } from '@/Endpoints/factory';
+import {useParams} from "react-router-dom";
 
 function sortLessons(lessons: Lesson[], sort: string, sortOrder: 'asc' | 'desc') {
   if (!sort) return lessons;
@@ -20,12 +20,15 @@ function sortLessons(lessons: Lesson[], sort: string, sortOrder: 'asc' | 'desc')
 }
 
 export function useLessons(): UseLessonsReturn {
-  const schoolId = useSchoolId();
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+
+  if (!schoolPublicId) throw new Error('No active school public id');
+
   const { folderId: currentFolderId, search: searchQuery, sort, order: sortOrder, allFolders } = useLessonsContext();
 
   const { data: lessons, isLoading, isError, error, refetch } = useQuery<Lesson[], AppError>({
-    queryKey: ['lessons', schoolId],
-    queryFn: () => filesEndpoints.listFiles(schoolId).then((files) => files.filter(isLessonFile).map(apiFileToLesson)),
+    queryKey: ['lessons', schoolPublicId],
+    queryFn: () => filesEndpoints.listFiles((schoolPublicId)).then((files) => files.filter(isLessonFile).map(apiFileToLesson)),
     staleTime: 2 * 60 * 1000, // 2 minutes
     select: (data) => {
       let result = data;
