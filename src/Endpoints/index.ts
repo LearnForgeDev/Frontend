@@ -6,3 +6,4 @@ export * from './meet.endpoints';
 export * from './auth.endpoints';
 export * from './schools.endpoints';
 export * from './lessons.endpoints';
+export * from './checkHealth.endpoint';

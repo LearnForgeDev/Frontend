@@ -5,11 +5,33 @@ import path from 'path';
 
 export default defineConfig({
   base: "/",
-  plugins: [react()],
+  plugins: [
+    react({
+      babel: {
+        presets: [[
+          '@babel/preset-env',
+          {
+            targets: {
+              chrome: '58',
+              edge: '16',
+              firefox: '54',
+              safari: '11',
+              ios: '11',
+            },
+            modules: false,
+          },
+        ]],
+      },
+    }),
+  ],
   define: {
     'import.meta.env.VITE_YENV': JSON.stringify(process.env.YENV || ""),
   },
+  esbuild: {
+    target: 'es2017',
+  },
   build: {
+    target: 'es2017',
     rollupOptions: {
       output: {
         manualChunks(id) {
