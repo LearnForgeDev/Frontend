@@ -14,6 +14,7 @@ import RegisterPage from './Services/Auth/Pages/RegisterPage/RegisterPage.tsx';
 import SchoolLayout from './Services/Schools/SchoolLayout/SchoolLayout.tsx';
 import SchoolOverviewPage from './Services/Schools/SchoolOverview/SchoolOverviewPage.tsx';
 import CallsPage from './Services/Schools/CallsPage/CallsPage.tsx';
+import LessonsPage from './Services/Schools/LessonsPage/LessonsPage.tsx';
 
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -67,6 +68,14 @@ const AppRoutes = () => {
         {
           path: "calls",
           element: <CallsPage />,
+        },
+        {
+          path: "lessons",
+          element: <LessonsPage />,
+        },
+        {
+          path: "lessons/:lessonId",
+          element: <LessonIdPage />,
         },
       ],
     },

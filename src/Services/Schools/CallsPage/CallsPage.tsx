@@ -129,7 +129,8 @@ export default function CallsPage() {
               roomName={jitsiConfig.roomName}
               jwt={jitsiConfig.jwt}
               userInfo={{
-                displayName: currentUser?.userName || 'TutorPlatform User'
+                displayName: currentUser?.userName || 'TutorPlatform User',
+                email: 'example@gmail.com',
               }}
               getIFrameRef={(iframeRef) => {
                 iframeRef.style.height = '100%';

@@ -61,11 +61,17 @@ export default function SchoolDrawerContent({
           <ListItemText primary="Обзор" />
         </ListItemButton>
 
-        <ListItemButton disabled sx={schoolNavItemSx}>
+        <ListItemButton
+          component={NavLink}
+          to={`${basePath}/lessons`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/lessons`}
+          sx={schoolNavItemSx}
+        >
           <ListItemIcon sx={schoolNavIconSx}>
-            <Box component="span" className="material-symbols-outlined">assignment</Box>
+            <Box component="span" className="material-symbols-outlined">folder</Box>
           </ListItemIcon>
-          <ListItemText primary="Домашние задания" />
+          <ListItemText primary="Уроки" />
         </ListItemButton>
 
         <ListItemButton
