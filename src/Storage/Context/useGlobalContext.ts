@@ -45,7 +45,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
 
         try {
           if (newUser) {
-            localStorage.setItem('authUser', JSON.stringify(newUser));
+            localStorage.setItem('user_identity', JSON.stringify(newUser));
           }
           if (publicId) {
             sessionStorage.setItem('currentSchoolPublicId', publicId);
@@ -85,7 +85,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
 
         // persist user to localStorage and current school publicId to sessionStorage
         try {
-          localStorage.setItem('authUser', JSON.stringify(user));
+          localStorage.setItem('user_identity', JSON.stringify(user));
           if (activeSchoolPublicId) {
             sessionStorage.setItem('currentSchoolPublicId', activeSchoolPublicId);
           } else {
@@ -106,7 +106,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
     logout: () =>
       set((state) => {
         try {
-          localStorage.removeItem('authUser');
+          localStorage.removeItem('user_identity');
           sessionStorage.removeItem('currentSchoolPublicId');
         } catch {
           // ignore storage errors
