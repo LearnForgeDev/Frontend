@@ -2,6 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 import { useActiveSchoolRequests } from '@/Services/AdminPanel/hooks/useActiveSchoolRequests';
+import { ServerHealthWidget } from './Components/ServerHealthWidget';
 
 const DashboardHome: React.FC = () => {
   const { requests, isLoading: isLoadingRequests } = useActiveSchoolRequests();
@@ -52,6 +53,7 @@ const DashboardHome: React.FC = () => {
           gap: "1rem",
         }}
       >
+        <ServerHealthWidget />
         {/* Placeholder - only if no services AND no school requests (and not loading) */}
         {!hasAnyContent && !isLoadingRequests && <WidgetsPlaceholder />}
       </Box>
