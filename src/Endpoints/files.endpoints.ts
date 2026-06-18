@@ -46,10 +46,11 @@ export const filesEndpoints = {
    * GET /api/ApiFiles/{schoolId}/{fileId}/content as Blob
    */
   async getFileBlob(schoolId: number | string, fileId: string): Promise<Blob> {
-    const response = await apiClient.get<Blob>(`/api/ApiFiles/${schoolId}/${fileId}/content`, {
-      responseType: 'blob',
+    const response = await apiClient.get<ArrayBuffer>(`/api/ApiFiles/${schoolId}/${fileId}/content`, {
+      responseType: 'arraybuffer',
     });
-    return response.data;
+    const contentType = response.headers['content-type'] || 'application/octet-stream';
+    return new Blob([response.data], { type: contentType });
   },
 
   /**
