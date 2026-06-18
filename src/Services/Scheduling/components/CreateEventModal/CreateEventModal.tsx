@@ -2,9 +2,11 @@ import { useState } from 'react';
 import {
   Box,
   Button,
+  Checkbox,
   Chip,
   FormControl,
   InputLabel,
+  ListItemText,
   MenuItem,
   OutlinedInput,
   Select,
@@ -51,10 +53,23 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
   );
   const [error, setError] = useState<string | null>(null);
 
+  const allIds = members.map((m) => m.userPublicId);
+  const allSelected = allIds.length > 0 && allIds.every((id) => attendeeIds.includes(id));
+
   const memberName = (id: string) =>
     members.find((m) => m.userPublicId === id)?.displayName
     ?? event?.attendees.find((a) => a.userPublicId === id)?.displayName
     ?? id;
+
+  const handleAttendeesChange = (value: string | string[]) => {
+    const next = typeof value === 'string' ? value.split(',') : value;
+    // The "Все" sentinel toggles selecting every member.
+    if (next.includes('__all__')) {
+      setAttendeeIds(allSelected ? [] : allIds);
+      return;
+    }
+    setAttendeeIds(next);
+  };
 
   const handleSubmit = () => {
     if (!title.trim()) return setError('Укажите название.');
@@ -121,24 +136,37 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
             labelId="attendees-label"
             multiple
             value={attendeeIds}
-            onChange={(e) => setAttendeeIds(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value)}
+            onChange={(e) => handleAttendeesChange(e.target.value)}
             input={<OutlinedInput label="Участники" />}
-            renderValue={(selected) => (
-              <Box sx={styles.chips}>
-                {selected.map((id) => (
-                  <Chip key={id} label={memberName(id)} size="small" />
-                ))}
-              </Box>
-            )}
+            renderValue={(selected) =>
+              allSelected ? (
+                <Box sx={styles.chips}>
+                  <Chip label="Все участники школы" size="small" color="primary" />
+                </Box>
+              ) : (
+                <Box sx={styles.chips}>
+                  {selected.map((id) => (
+                    <Chip key={id} label={memberName(id)} size="small" />
+                  ))}
+                </Box>
+              )
+            }
           >
             {members.length === 0 && (
               <MenuItem disabled value="">
                 {membersLoading ? 'Загрузка участников…' : 'Участники не найдены'}
               </MenuItem>
             )}
+            {members.length > 0 && (
+              <MenuItem value="__all__">
+                <Checkbox checked={allSelected} />
+                <ListItemText primary="Все участники школы" />
+              </MenuItem>
+            )}
             {members.map((m) => (
               <MenuItem key={m.userPublicId} value={m.userPublicId}>
-                {m.displayName}
+                <Checkbox checked={attendeeIds.includes(m.userPublicId)} />
+                <ListItemText primary={m.displayName} />
               </MenuItem>
             ))}
           </Select>

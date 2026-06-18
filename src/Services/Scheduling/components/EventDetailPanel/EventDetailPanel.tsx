@@ -57,12 +57,12 @@ export function EventDetailPanel({ event, canManage, onDelete, onEdit, isDeletin
       </Box>
 
       <Box sx={styles.actions}>
-        <JoinButton event={event} size="medium" />
+        <JoinButton event={event} size="small" />
         {canManage && onEdit && (
           <Button
             color="primary"
             variant="outlined"
-            size="medium"
+            size="small"
             startIcon={<EditIcon />}
             onClick={() => onEdit(event)}
           >
@@ -73,7 +73,7 @@ export function EventDetailPanel({ event, canManage, onDelete, onEdit, isDeletin
           <Button
             color="error"
             variant="outlined"
-            size="medium"
+            size="small"
             startIcon={<DeleteIcon />}
             disabled={isDeleting}
             onClick={() => onDelete(event.id)}

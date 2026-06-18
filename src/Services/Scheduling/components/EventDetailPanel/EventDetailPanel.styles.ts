@@ -23,6 +23,7 @@ export const styles = {
   actions: {
     mt: 'auto',
     display: 'flex',
+    flexWrap: 'wrap',
     gap: 1,
   },
 } as const;
