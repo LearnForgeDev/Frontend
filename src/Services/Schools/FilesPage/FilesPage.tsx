@@ -7,7 +7,6 @@ import {
   Button,
   IconButton,
   Card,
-  CardContent,
   CardActions,
   CircularProgress,
   Alert,
@@ -31,7 +30,6 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-// Icon imports
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import ImageIcon from '@mui/icons-material/Image';
@@ -59,7 +57,6 @@ export default function FilesPage() {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Load custom files state hook
   const {
     files,
     isLoading,
@@ -69,19 +66,16 @@ export default function FilesPage() {
     deleteFile,
   } = useFiles(schoolPublicId);
 
-  // Local component states
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   
-  // Modals / dialogues
   const [deleteConfirmFile, setDeleteConfirmFile] = useState<ApiFile | null>(null);
   const [previewFile, setPreviewFile] = useState<ApiFile | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
-  // File type categorisation
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || '';
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
@@ -116,7 +110,6 @@ export default function FilesPage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Filtered and searched files
   const filteredFiles = useMemo(() => {
     return files.filter((file) => {
       const matchesSearch = file.name.toLowerCase().includes(search.toLowerCase());
@@ -135,7 +128,6 @@ export default function FilesPage() {
     });
   }, [files, search, filterType]);
 
-  // Handle uploading files
   const handleUploadFiles = async (selectedFiles: FileList | null) => {
     if (!selectedFiles || selectedFiles.length === 0) return;
 
@@ -148,7 +140,7 @@ export default function FilesPage() {
         await uploadFile(file);
         successCount++;
       } catch (err) {
-        console.error(`Upload error for ${file.name}:`, err);
+        console.error(err);
         failCount++;
       }
     }
@@ -172,7 +164,6 @@ export default function FilesPage() {
     }
   };
 
-  // Delete file action
   const handleDeleteConfirm = async () => {
     if (!deleteConfirmFile) return;
 
@@ -186,7 +177,7 @@ export default function FilesPage() {
         time: 3000,
       });
     } catch (err) {
-      console.error('Delete file error:', err);
+      console.error(err);
       showNotification({
         id: `delete-failed-${Date.now()}`,
         title: 'Ошибка удаления',
@@ -199,7 +190,6 @@ export default function FilesPage() {
     }
   };
 
-  // Preview file action
   const handleOpenPreview = async (file: ApiFile) => {
     setPreviewFile(file);
     const category = getFileCategory(file.name);
@@ -211,7 +201,7 @@ export default function FilesPage() {
         const content = await filesEndpoints.getFileContent(schoolPublicId, file.id);
         setPreviewContent(content);
       } catch (err) {
-        console.error('Failed to get file content:', err);
+        console.error(err);
         setPreviewContent('Не удалось прочитать содержимое файла. Возможно, это бинарный или пустой файл.');
       } finally {
         setIsPreviewLoading(false);
@@ -223,7 +213,6 @@ export default function FilesPage() {
     return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${file.id}/content`;
   };
 
-  // Drag and drop handlers
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -246,7 +235,6 @@ export default function FilesPage() {
 
   return (
     <Box sx={styles.container}>
-      {/* Header */}
       <Box sx={styles.header}>
         <Typography variant="h4" component="h1" sx={styles.title}>
           Файлы школы
@@ -271,7 +259,6 @@ export default function FilesPage() {
         </Box>
       </Box>
 
-      {/* Toolbar (Search & Filter) */}
       <Box sx={styles.toolbar}>
         <Box sx={styles.searchAndFilter}>
           <TextField
@@ -325,7 +312,6 @@ export default function FilesPage() {
         </ToggleButtonGroup>
       </Box>
 
-      {/* Drag & Drop Overlay Zone */}
       <Box
         sx={{
           ...styles.dropZone,
@@ -346,7 +332,6 @@ export default function FilesPage() {
         </Typography>
       </Box>
 
-      {/* Content area */}
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
           <CircularProgress />
@@ -373,7 +358,6 @@ export default function FilesPage() {
 
       {!isLoading && !isError && filteredFiles.length > 0 && (
         viewMode === 'grid' ? (
-          /* Grid View */
           <Box sx={styles.fileGrid}>
             {filteredFiles.map((file) => (
               <Card key={file.id} sx={styles.fileCard} variant="outlined">
@@ -423,7 +407,6 @@ export default function FilesPage() {
             ))}
           </Box>
         ) : (
-          /* List View (Table) */
           <TableContainer component={Paper} variant="outlined">
             <Table aria-label="Таблица файлов">
               <TableHead>
@@ -481,7 +464,6 @@ export default function FilesPage() {
         )
       )}
 
-      {/* Delete Confirmation Dialog */}
       <Dialog
         open={!!deleteConfirmFile}
         onClose={() => setDeleteConfirmFile(null)}
@@ -501,7 +483,6 @@ export default function FilesPage() {
         </DialogActions>
       </Dialog>
 
-      {/* File Preview Dialog */}
       <Dialog
         open={!!previewFile}
         onClose={() => {

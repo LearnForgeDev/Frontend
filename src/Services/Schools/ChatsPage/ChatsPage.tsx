@@ -22,35 +22,34 @@ import {
   Chip,
   useMediaQuery,
   useTheme,
-  Divider,
 } from '@mui/material';
 
-// Icons
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
 import SendIcon from '@mui/icons-material/Send';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ForumIcon from '@mui/icons-material/Forum';
-import TagIcon from '@mui/icons-material/Tag';
 
 import { useChats } from './hooks/useChats';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
-  const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+  if (!schoolPublicId) {
+    throw new Error('schoolPublicId is missing in URL');
+  }
+
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
-  
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Get active school ID from context
-  const schoolId = 1; // Default or fallback, but let's obtain from localStorage/context if available
+  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId) || 0;
 
-  // Load chats data and methods
   const {
     branchThreads,
     directThreads,
@@ -60,11 +59,9 @@ export default function ChatsPage() {
     addDirectChat,
   } = useChats(schoolId, schoolPublicId);
 
-  // States
   const [activeTab, setActiveTab] = useState<'branch' | 'direct'>('branch');
   const [activeThread, setActiveThread] = useState<ChatThread | null>(null);
   
-  // Create dialog states
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
   const [groupDesc, setGroupDesc] = useState('');
@@ -73,15 +70,12 @@ export default function ChatsPage() {
   const [contactName, setContactName] = useState('');
   const [contactId, setContactId] = useState('');
 
-  // Switch tabs
   const handleTabChange = (_: React.SyntheticEvent, newValue: 'branch' | 'direct') => {
     setActiveTab(newValue);
   };
 
-  // Compile list of threads
   const currentThreads = activeTab === 'branch' ? branchThreads : directThreads;
 
-  // Group chat creation submit
   const handleCreateGroupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!groupName.trim()) return;
@@ -100,12 +94,10 @@ export default function ChatsPage() {
         time: 3000,
       });
 
-      // Clear & Close
       setGroupName('');
       setGroupDesc('');
       setIsGroupDialogOpen(false);
 
-      // Select newly created chat
       setActiveThread({
         id: newBranch.id.toString(),
         type: 'branch',
@@ -113,7 +105,7 @@ export default function ChatsPage() {
         schoolPublicId,
       });
     } catch (err) {
-      console.error('Create branch error:', err);
+      console.error(err);
       showNotification({
         id: `branch-create-failed-${Date.now()}`,
         title: 'Ошибка создания ветки',
@@ -124,12 +116,10 @@ export default function ChatsPage() {
     }
   };
 
-  // Direct chat creation submit
   const handleCreateDirectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!contactName.trim() || !contactId.trim()) return;
 
-    // Validate if it is a GUID
     const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!guidRegex.test(contactId.trim())) {
       showNotification({
@@ -161,7 +151,6 @@ export default function ChatsPage() {
   return (
     <Box sx={styles.container}>
       <Box sx={styles.chatLayout}>
-        {/* Left Side: Sidebar */}
         <Box
           sx={{
             ...styles.sidebar,
@@ -252,7 +241,6 @@ export default function ChatsPage() {
           </List>
         </Box>
 
-        {/* Right Side: Chat Window */}
         <Box
           sx={{
             ...styles.chatArea,
@@ -280,7 +268,6 @@ export default function ChatsPage() {
         </Box>
       </Box>
 
-      {/* Create Group Chat Dialog */}
       <Dialog
         open={isGroupDialogOpen}
         onClose={() => setIsGroupDialogOpen(false)}
@@ -317,7 +304,6 @@ export default function ChatsPage() {
         </Box>
       </Dialog>
 
-      {/* Create Direct Chat Dialog */}
       <Dialog
         open={isDirectDialogOpen}
         onClose={() => setIsDirectDialogOpen(false)}
@@ -357,7 +343,6 @@ export default function ChatsPage() {
   );
 }
 
-// Inner helper component for handling active SignalR connection and rendering messages
 interface ActiveChatViewProps {
   activeThread: ChatThread;
   isMobile: boolean;
@@ -368,14 +353,12 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Connection parameters
   const { messages, sendMessage, status } = useChatMessages({
     type: activeThread.type,
     threadId: activeThread.id,
     schoolPublicId: activeThread.schoolPublicId,
   });
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -408,7 +391,6 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Chat header */}
       <Box sx={styles.chatHeader}>
         {isMobile && (
           <IconButton onClick={onBack} size="small" sx={{ mr: 1 }}>
@@ -434,7 +416,6 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         />
       </Box>
 
-      {/* Messages area */}
       <Box sx={styles.messagesArea}>
         {messages.length === 0 && (
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
@@ -464,7 +445,6 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         <div ref={messagesEndRef} />
       </Box>
 
-      {/* Input area */}
       <Box sx={styles.inputArea}>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
           <TextField
