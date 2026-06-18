@@ -1,35 +1,48 @@
 // @vitest-environment jsdom
-import { renderHook } from '@testing-library/react';
-import { describe, it, expect, afterEach } from 'vitest';
+import { renderHook, waitFor } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React from 'react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useIsTeacherOrOwner } from '@/Services/Scheduling/hooks/useIsTeacherOrOwner/useIsTeacherOrOwner';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { schoolsEndpoints } from '@/Endpoints/schools.endpoints';
 
-const baseUser = (role: 0 | 1 | 2) => ({
-  userPublicId: 'u1',
-  userName: 'Ada',
-  roles: [{ role, schoolId: 7 }] as Array<{ role: 0 | 1 | 2; schoolId: number }>,
-  activeSchoolId: 7,
-});
+vi.mock('@/Services/Scheduling/hooks/useSchoolId/useSchoolId', () => ({
+  useSchoolId: () => 'school-guid-1',
+}));
 
-afterEach(() => {
-  useGlobalContext.setState((s) => ({ auth: { ...s.auth, user: null, isAuthenticated: false } }));
-});
+const createWrapper = () => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
+
+beforeEach(() => vi.restoreAllMocks());
 
 describe('useIsTeacherOrOwner', () => {
-  it('false when not authenticated', () => {
-    const { result } = renderHook(() => useIsTeacherOrOwner());
+  it('true when the viewed school lists an Owner role', async () => {
+    vi.spyOn(schoolsEndpoints, 'getMySchools').mockResolvedValue([
+      { schoolPublicId: 'school-guid-1', schoolName: 'A', roles: ['Owner'] },
+      { schoolPublicId: 'other', schoolName: 'B', roles: ['Student'] },
+    ]);
+    const { result } = renderHook(() => useIsTeacherOrOwner(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current).toBe(true));
+  });
+
+  it('false when the viewed school only lists Student', async () => {
+    vi.spyOn(schoolsEndpoints, 'getMySchools').mockResolvedValue([
+      { schoolPublicId: 'school-guid-1', schoolName: 'A', roles: ['Student'] },
+    ]);
+    const { result } = renderHook(() => useIsTeacherOrOwner(), { wrapper: createWrapper() });
+    // stays false after the query settles
+    await waitFor(() => expect(schoolsEndpoints.getMySchools).toHaveBeenCalled());
     expect(result.current).toBe(false);
   });
 
-  it('false for a student', () => {
-    useGlobalContext.setState((s) => ({ auth: { ...s.auth, user: baseUser(0), isAuthenticated: true } }));
-    const { result } = renderHook(() => useIsTeacherOrOwner());
-    expect(result.current).toBe(false);
-  });
-
-  it('true for a teacher in the active school', () => {
-    useGlobalContext.setState((s) => ({ auth: { ...s.auth, user: baseUser(1), isAuthenticated: true } }));
-    const { result } = renderHook(() => useIsTeacherOrOwner());
-    expect(result.current).toBe(true);
+  it('true for a Teacher role', async () => {
+    vi.spyOn(schoolsEndpoints, 'getMySchools').mockResolvedValue([
+      { schoolPublicId: 'school-guid-1', schoolName: 'A', roles: ['Teacher'] },
+    ]);
+    const { result } = renderHook(() => useIsTeacherOrOwner(), { wrapper: createWrapper() });
+    await waitFor(() => expect(result.current).toBe(true));
   });
 });
