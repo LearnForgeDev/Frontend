@@ -49,7 +49,7 @@ export const filesEndpoints = {
     const response = await apiClient.get<ArrayBuffer>(`/api/ApiFiles/${schoolId}/${fileId}/content`, {
       responseType: 'arraybuffer',
     });
-    const contentType = response.headers['content-type'] || 'application/octet-stream';
+    const contentType = (response.headers['content-type'] as string) || 'application/octet-stream';
     return new Blob([response.data], { type: contentType });
   },
 
@@ -81,5 +81,17 @@ export const filesEndpoints = {
    */
   async deleteFile(schoolId: number | string, fileId: string): Promise<void> {
     await apiClient.delete(`/api/ApiFiles/${schoolId}/${fileId}`);
+  },
+
+  /**
+   * POST /api/ApiFiles/{schoolId}
+   */
+  async uploadFileMultipart(schoolId: number | string, file: File): Promise<ApiFile> {
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('FileName', file.name);
+    formData.append('schoolPublicId', String(schoolId));
+    const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData);
+    return response.data;
   }
 };
