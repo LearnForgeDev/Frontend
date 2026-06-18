@@ -3,9 +3,7 @@ import { SLOT_HEIGHT_PX } from '@/Services/Scheduling/Scheduling.const';
 export const styles = {
   weekRoot: {
     display: 'flex',
-    border: '1px solid',
-    borderColor: 'divider',
-    borderRadius: 1,
+    backgroundColor: 'background.paper',
     overflow: 'auto',
   },
   hourRail: {

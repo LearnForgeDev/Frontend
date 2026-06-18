@@ -1,5 +1,6 @@
 import { Box, Button, Divider, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { AttendeeAvatars } from '@/Services/Scheduling/components/AttendeeAvatars/AttendeeAvatars';
 import { JoinButton } from '@/Services/Scheduling/components/JoinButton/JoinButton';
 import { formatEventTimeRange } from '@/Services/Scheduling/utils/time.utils';
@@ -10,15 +11,16 @@ export interface EventDetailPanelProps {
   event: ScheduleEvent | null;
   canManage: boolean;
   onDelete: (id: string) => void;
+  onEdit?: (event: ScheduleEvent) => void;
   isDeleting?: boolean;
 }
 
-export function EventDetailPanel({ event, canManage, onDelete, isDeleting = false }: EventDetailPanelProps) {
+export function EventDetailPanel({ event, canManage, onDelete, onEdit, isDeleting = false }: EventDetailPanelProps) {
   if (!event) {
     return (
       <Box sx={styles.root}>
         <Typography variant="body2" color="text.secondary">
-          Select a session to see its details.
+          Выберите занятие, чтобы увидеть детали.
         </Typography>
       </Box>
     );
@@ -42,20 +44,31 @@ export function EventDetailPanel({ event, canManage, onDelete, isDeleting = fals
       <Divider sx={styles.divider} />
 
       <Typography variant="caption" color="text.secondary">
-        Attendees
+        Участники
       </Typography>
       <Box sx={styles.attendees}>
         {event.attendees.length > 0 ? (
           <AttendeeAvatars attendees={event.attendees} />
         ) : (
           <Typography variant="body2" color="text.secondary">
-            No attendees yet.
+            Пока нет участников.
           </Typography>
         )}
       </Box>
 
       <Box sx={styles.actions}>
         <JoinButton event={event} size="medium" />
+        {canManage && onEdit && (
+          <Button
+            color="primary"
+            variant="outlined"
+            size="medium"
+            startIcon={<EditIcon />}
+            onClick={() => onEdit(event)}
+          >
+            Изменить
+          </Button>
+        )}
         {canManage && (
           <Button
             color="error"
@@ -65,7 +78,7 @@ export function EventDetailPanel({ event, canManage, onDelete, isDeleting = fals
             disabled={isDeleting}
             onClick={() => onDelete(event.id)}
           >
-            Delete
+            Удалить
           </Button>
         )}
       </Box>

@@ -23,9 +23,9 @@ describe('WeekGrid', () => {
     );
 
     // Monday..Sunday headers → 15..21
-    expect(screen.getByText(/Thu 18/)).toBeTruthy();
-    expect(screen.getByText(/Mon 15/)).toBeTruthy();
-    expect(screen.getByText(/Sun 21/)).toBeTruthy();
+    expect(screen.getByText(/Чт 18/)).toBeTruthy();
+    expect(screen.getByText(/Пн 15/)).toBeTruthy();
+    expect(screen.getByText(/Вс 21/)).toBeTruthy();
     // The event appears once in the grid
     expect(screen.getByText('Algebra')).toBeTruthy();
   });
