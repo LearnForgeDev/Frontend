@@ -80,6 +80,5 @@ export const filesEndpoints = {
    */
   async deleteFile(schoolId: number | string, fileId: string): Promise<void> {
     await apiClient.delete(`/api/ApiFiles/${schoolId}/${fileId}`);
-  },
   }
 };
