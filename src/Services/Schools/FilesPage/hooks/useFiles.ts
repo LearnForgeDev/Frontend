@@ -13,7 +13,18 @@ export function useFiles(schoolPublicId: string) {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (file: File) => filesEndpoints.uploadFileMultipart(schoolPublicId, file),
+    mutationFn: async (file: File) => {
+      const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(schoolPublicId, {
+        fileName: file.name,
+        sizeBytes: file.size,
+      });
+      await filesEndpoints.uploadFileDirect(uploadUrl, file);
+      return await filesEndpoints.completeUpload(schoolPublicId, {
+        storageKey,
+        fileName: file.name,
+        sizeBytes: file.size,
+      });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files', schoolPublicId] });
     },
