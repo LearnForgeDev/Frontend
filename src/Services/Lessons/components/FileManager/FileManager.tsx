@@ -13,6 +13,7 @@ import FolderOffIcon from '@mui/icons-material/FolderOff';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
 import { useLessons } from '@/Services/Lessons/hooks/useLessons/useLessons';
 import { useLessonMutations } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations';
+import { useCreateLessonFlow } from '@/Services/Lessons/hooks/useCreateLessonFlow/useCreateLessonFlow';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import FileManagerToolbar from '../FileManagerToolbar/FileManagerToolbar';
 import FolderItem from '../FolderItem/FolderItem';
@@ -36,8 +37,6 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setSelectedItemType,
     setSearch,
     setFolderId,
-    createFolder,
-    deleteFolder,
   } = useLessonsContext();
 
   // Load backend data via hook
@@ -45,6 +44,9 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
 
   // Load mutations hook
   const mutations = useLessonMutations();
+  const { handleCreateLesson } = useCreateLessonFlow({
+    onSuccess: (id, title) => handleOpenLesson(id, title)
+  });
 
   // Modal open states
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
@@ -77,12 +79,11 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     }
   };
 
-  // Dialog & Mutation handlers
   const handleCreateFolderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    createFolder({
+    mutations.createFolder.mutate({
       name: newFolderName,
       parentId: folderId,
     });
@@ -94,7 +95,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     if (!selectedItemId || !selectedItemType) return;
 
     if (selectedItemType === 'folder') {
-      deleteFolder(selectedItemId);
+      mutations.deleteFolder.mutate({ id: selectedItemId });
     } else {
       mutations.deleteLesson.mutate({ id: selectedItemId });
     }
@@ -104,22 +105,17 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setIsDeleteConfirmOpen(false);
   };
 
-  const handleCreateLesson = async () => {
-    try {
-      const newLesson = await mutations.createLesson.mutateAsync({ title: 'Новый урок', folderId });
-      handleOpenLesson(newLesson.id, newLesson.title);
-    } catch (err) {
-      console.error('Failed to create lesson', err);
-    }
+  const onCreateLessonClick = () => {
+    handleCreateLesson(folderId);
   };
 
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     if (!schoolPublicId) return;
-    
+
     const files = Array.from(e.dataTransfer.files);
     const validExtensions = ['.doc', '.docx', '.xls', '.xlsx', '.pdf', '.png', '.jpeg', '.jpg'];
-    
+
     const validFiles = files.filter(file => {
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
       return validExtensions.includes(ext);
@@ -228,7 +224,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   if (isLoading) {
     return (
       <Box sx={styles.root}>
-        <FileManagerToolbar folders={[]} onNewFolder={() => {}} onNewLesson={() => {}} />
+        <FileManagerToolbar folders={[]} onNewFolder={() => { }} onNewLesson={() => { }} />
         <Box sx={styles.contentGrid}>
           {Array.from({ length: 12 }).map((_, idx) => (
             <Skeleton
@@ -270,7 +266,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
       <FileManagerToolbar
         folders={folders || []}
         onNewFolder={() => setIsNewFolderOpen(true)}
-        onNewLesson={handleCreateLesson}
+        onNewLesson={onCreateLessonClick}
       />
       {isUploading && (
         <Alert severity="info" sx={{ mb: 2 }}>
@@ -333,8 +329,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
                   selected={isSelected}
                   onClick={itemClick}
                   onOpen={openAction}
-                  onRename={() => {}} // Placeholder / extend as needed
-                  onMove={() => {}}
+                  onRename={() => { }} // Placeholder / extend as needed
+                  onMove={() => { }}
                   onDelete={() => setIsDeleteConfirmOpen(true)}
                 />
               );
@@ -346,8 +342,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
                 selected={isSelected}
                 onClick={itemClick}
                 onOpen={openAction}
-                onRename={() => {}}
-                onMove={() => {}}
+                onRename={() => { }}
+                onMove={() => { }}
                 onDelete={() => setIsDeleteConfirmOpen(true)}
               />
             );

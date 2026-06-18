@@ -12,6 +12,9 @@ import {
   $wrapNodeInElement,
   mergeRegister,
 } from '@lexical/utils';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import config from '../../../../../config';
 import {
   $createParagraphNode,
   $createRangeSelection, $getNodeByKey,
@@ -53,6 +56,7 @@ export default function ImagesPlugin({
   captionsEnabled?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId);
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
@@ -96,25 +100,35 @@ export default function ImagesPlugin({
             if (file.type.startsWith('image/')) {
               event.preventDefault();
 
-              const reader = new FileReader();
-              reader.onload = () => {
-                const src = reader.result as string;
-                const range = getDragSelection(event);
+              if (!schoolId) {
+                console.error('No active schoolId found for upload.');
+                return false;
+              }
 
-                editor.update(() => {
-                  const rangeSelection = $createRangeSelection();
-                  if (range !== null && range !== undefined) {
-                    rangeSelection.applyDOMRange(range);
-                  }
-                  $setSelection(rangeSelection);
-                });
+              // Save the selection before async upload
+              const range = getDragSelection(event);
 
-                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                  altText: file.name,
-                  src,
-                });
-              };
-              reader.readAsDataURL(file);
+              filesEndpoints.uploadFileMultipart(schoolId, file)
+                .then((apiFile) => {
+                  editor.update(() => {
+                    const rangeSelection = $createRangeSelection();
+                    if (range !== null && range !== undefined) {
+                      rangeSelection.applyDOMRange(range);
+                    }
+                    $setSelection(rangeSelection);
+
+                    const imageNode = $createImageNode({
+                      altText: file.name,
+                      src: `${config.endpointUrl}/api/ApiFiles/${schoolId}/${apiFile.publicId}/content`,
+                    });
+                    $insertNodes([imageNode]);
+                    if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
+                      $wrapNodeInElement(imageNode, $createParagraphNode).selectEnd();
+                    }
+                  });
+                })
+                .catch(console.error);
+
               return true;
             }
           }
@@ -139,7 +153,7 @@ export default function ImagesPlugin({
         COMMAND_PRIORITY_LOW
       ),
     );
-  }, [captionsEnabled, editor]);
+  }, [captionsEnabled, editor, schoolId]);
 
   return null;
 }

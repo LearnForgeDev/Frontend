@@ -1,0 +1,25 @@
+export const styles = {
+  form: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    mt: 1,
+    minWidth: { xs: 280, sm: 420 },
+  },
+  row: {
+    display: 'flex',
+    gap: 2,
+    flexDirection: { xs: 'column', sm: 'row' },
+  },
+  chips: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 0.5,
+  },
+  actions: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    gap: 1,
+    mt: 1,
+  },
+} as const;

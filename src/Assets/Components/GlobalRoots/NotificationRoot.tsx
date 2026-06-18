@@ -13,7 +13,7 @@ export function NotificationRoot() {
     <Box
       sx={{
         position: 'fixed',
-        bottom: 16,
+        top: 16,
         right: 16,
         zIndex: 2000,
         display: 'flex',

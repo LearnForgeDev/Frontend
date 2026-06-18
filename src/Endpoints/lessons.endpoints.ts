@@ -10,101 +10,117 @@ export const lessonsEndpoints = {
    * GET /lessons
    * Fetches lessons optionally filtered by folderId, search string, sort property, and order.
    */
-  getLessons: (params?: {
-    folderId?: string | null;
-    search?: string;
-    sort?: string;
-    order?: 'asc' | 'desc';
-  }): Promise<Lesson[]> =>
-    client.get<Lesson[]>('/lessons', { params }).then((res) => res.data),
+  getLessons: (
+    schoolPublicId: string,
+    params?: {
+      folderId?: string | null;
+      search?: string;
+      sort?: string;
+      order?: 'asc' | 'desc';
+    }
+  ): Promise<Lesson[]> =>
+    client.get<Lesson[]>('/api/lessons', { params, headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * GET /lessons/:id
+   * GET /api/lessons/:id
    * Fetches a specific lesson by its ID.
    */
-  getLessonById: (id: string): Promise<Lesson> =>
-    client.get<Lesson>(`/lessons/${id}`).then((res) => res.data),
+  getLessonById: (schoolPublicId: string, id: string): Promise<Lesson> =>
+    client.get<Lesson>(`/api/lessons/${id}`, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * POST /lessons
+   * POST /api/lessons
    * Creates a new lesson with title and folder configuration.
    */
-  createLesson: (body: {
-    title: string;
-    folderId: string | null;
-  }): Promise<Lesson> =>
-    client.post<Lesson>('/lessons', body).then((res) => res.data),
+  createLesson: (
+    schoolPublicId: string,
+    body: {
+      title: string;
+      folderId: string | null;
+    }
+  ): Promise<Lesson> =>
+    client.post<Lesson>('/api/lessons', body, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * PATCH /lessons/:id
+   * PATCH /api/lessons/:id
    * Updates properties of an existing lesson.
    */
   updateLesson: (
+    schoolPublicId: string,
     id: string,
     body: Partial<{ title: string; folderId: string | null; status: string }>
   ): Promise<Lesson> =>
-    client.patch<Lesson>(`/lessons/${id}`, body).then((res) => res.data),
+    client.patch<Lesson>(`/api/lessons/${id}`, body, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * DELETE /lessons/:id
+   * DELETE /api/lessons/:id
    * Deletes a specific lesson by ID.
    */
-  deleteLesson: (id: string): Promise<void> =>
-    client.delete<void>(`/lessons/${id}`).then((res) => res.data),
+  deleteLesson: (schoolPublicId: string, id: string): Promise<void> =>
+    client.delete<void>(`/api/lessons/${id}`, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * GET /lessons/folders
+   * GET /api/lessons/folders
    * Fetches folders optionally filtered by parentId.
    */
-  getFolders: (params?: {
-    parentId?: string | null;
-  }): Promise<LessonFolder[]> =>
-    client.get<LessonFolder[]>('/lessons/folders', { params }).then((res) => res.data),
+  getFolders: (
+    schoolPublicId: string,
+    params?: {
+      parentId?: string | null;
+    }
+  ): Promise<LessonFolder[]> =>
+    client.get<LessonFolder[]>('/api/lessons/folders', { params, headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * POST /lessons/folders
+   * POST /api/lessons/folders
    * Creates a new lesson folder.
    */
-  createFolder: (body: {
-    name: string;
-    parentId: string | null;
-    color?: string;
-  }): Promise<LessonFolder> =>
-    client.post<LessonFolder>('/lessons/folders', body).then((res) => res.data),
+  createFolder: (
+    schoolPublicId: string,
+    body: {
+      name: string;
+      parentId: string | null;
+      color?: string;
+    }
+  ): Promise<LessonFolder> =>
+    client.post<LessonFolder>('/api/lessons/folders', body, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * PATCH /lessons/folders/:id
+   * PATCH /api/lessons/folders/:id
    * Updates properties of a folder.
    */
   updateFolder: (
+    schoolPublicId: string,
     id: string,
     body: Partial<{ name: string; parentId: string | null; color: string }>
   ): Promise<LessonFolder> =>
-    client.patch<LessonFolder>(`/lessons/folders/${id}`, body).then((res) => res.data),
+    client.patch<LessonFolder>(`/api/lessons/folders/${id}`, body, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * DELETE /lessons/folders/:id
+   * DELETE /api/lessons/folders/:id
    * Deletes a folder by ID.
    */
-  deleteFolder: (id: string): Promise<void> =>
-    client.delete<void>(`/lessons/folders/${id}`).then((res) => res.data),
+  deleteFolder: (schoolPublicId: string, id: string): Promise<void> =>
+    client.delete<void>(`/api/lessons/folders/${id}`, { headers: { schoolPublicId } }).then((res) => res.data),
 
   /**
-   * POST /lessons/:id/editor-state
+   * POST /api/lessons/:id/editor-state
    * Saves the editor state as JSON.
    */
   sendEditorStateAsJson: (
+    schoolPublicId: string,
     id: string | number,
     serializedEditor: unknown
   ): Promise<void> =>
-    client.post(`/lessons/${id}/editor-state`, serializedEditor),
+    client.post(`/api/lessons/${id}/editor-state`, serializedEditor, { headers: { schoolPublicId } }),
 
   /**
-   * GET /lessons/:id
+   * GET /api/lessons/:id
    * Fetches the lesson object with serializedEditorState.
    */
   getEditorStateAsJson: (
+    schoolPublicId: string,
     id: string | number
   ): Promise<lessonObject> =>
-    client.get<lessonObject>(`/lessons/${id}`).then((res) => res.data),
+    client.get<lessonObject>(`/api/lessons/${id}`, { headers: { schoolPublicId } }).then((res) => res.data),
 };

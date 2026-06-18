@@ -2,6 +2,7 @@ import { Box, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { cardGridSx, headerRowSx, helperTextSx, infoCardSx, pageSx } from './SchoolOverviewPage.styles';
 import { InviteTokenWidget } from './Components/InviteTokenWidget';
+import { ScheduleDashboardWidget } from '@/Services/Scheduling/ScheduleDashboardWidget';
 
 const SchoolOverviewPage = () => {
   const { schoolPublicId } = useParams();
@@ -29,6 +30,7 @@ const SchoolOverviewPage = () => {
         {schoolPublicId && (
           <InviteTokenWidget schoolPublicId={schoolPublicId} />
         )}
+        {schoolPublicId && <ScheduleDashboardWidget />}
       </Box>
     </Box>
   );

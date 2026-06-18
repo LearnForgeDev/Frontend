@@ -11,6 +11,7 @@ const MarketplacePage = lazy(() => import('./Services/Schools/MarketplacePage/Ma
 const SchoolsPage = lazy(() => import('./Services/AdminPanel/SchoolsPage/SchoolsPage'));
 const AdminPlaceholder = lazy(() => import('./Services/AdminPanel/AdminPlaceholder'));
 const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
+const ForbiddenPage = lazy(() => import('./Services/Forbidden/ForbiddenPage'));
 const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout.tsx'));
 const LoginPage = lazy(() => import('./Services/Auth/Pages/LoginPage/LoginPage.tsx'));
 const RegisterPage = lazy(() => import('./Services/Auth/Pages/RegisterPage/RegisterPage.tsx'));
@@ -20,6 +21,7 @@ const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage.tsx'
 const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage.tsx'));
 const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'));
 const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
+const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -83,6 +85,10 @@ const AppRoutes = () => {
           element: <ChatsPage />,
         },
         {
+          path: "schedule",
+          element: <SchedulePage />,
+        },
+        {
           path: "marketplace",
           element: <MarketplacePage />,
         },
@@ -109,6 +115,10 @@ const AppRoutes = () => {
           element: <RegisterPage />,
         },
       ],
+    },
+    {
+      path: "/403",
+      element: <ForbiddenPage />,
     },
     {
       path: "*",
