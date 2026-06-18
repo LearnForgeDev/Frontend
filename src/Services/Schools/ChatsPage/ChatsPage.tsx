@@ -35,7 +35,6 @@ import { useChats } from './hooks/useChats';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
@@ -48,8 +47,6 @@ export default function ChatsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId) || 0;
-
   const {
     branchThreads,
     directThreads,
@@ -57,7 +54,7 @@ export default function ChatsPage() {
     isError,
     createBranch,
     addDirectChat,
-  } = useChats(schoolId, schoolPublicId);
+  } = useChats(schoolPublicId);
 
   const [activeTab, setActiveTab] = useState<'branch' | 'direct'>('branch');
   const [activeThread, setActiveThread] = useState<ChatThread | null>(null);

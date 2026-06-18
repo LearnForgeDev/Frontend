@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchesEndpoints } from '@/Endpoints/branches.endpoints';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 
-export function useChats(schoolId: number, schoolPublicId: string) {
+export function useChats(schoolPublicId: string) {
   if (!schoolPublicId) {
     throw new Error('schoolPublicId is missing');
   }
@@ -26,9 +26,9 @@ export function useChats(schoolId: number, schoolPublicId: string) {
   }, [schoolPublicId]);
 
   const { data: branches = [], isLoading, isError, refetch } = useQuery({
-    queryKey: ['chats-branches', schoolId],
-    queryFn: () => branchesEndpoints.getAllBranches(schoolId),
-    enabled: !!schoolId,
+    queryKey: ['chats-branches', schoolPublicId],
+    queryFn: () => branchesEndpoints.getAllBranches(schoolPublicId),
+    enabled: !!schoolPublicId,
     staleTime: 30 * 1000,
   });
 
@@ -41,9 +41,9 @@ export function useChats(schoolId: number, schoolPublicId: string) {
 
   const createBranchMutation = useMutation({
     mutationFn: (dto: { name: string; description: string }) =>
-      branchesEndpoints.createBranch(schoolId, schoolPublicId, dto),
+      branchesEndpoints.createBranch(schoolPublicId, schoolPublicId, dto),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolId] });
+      queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolPublicId] });
     },
   });
 
