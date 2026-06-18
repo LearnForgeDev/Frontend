@@ -3,10 +3,8 @@ import { Box, Typography, TextField, Button, IconButton, Tooltip } from '@mui/ma
 import { useParams } from 'react-router-dom';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { JitsiMeeting } from '@jitsi/react-sdk';
 import { useCreateCall } from './hooks/useCreateCall';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import config from '../../../config';
 import { styles } from './CallsPage.styles';
 
@@ -17,8 +15,6 @@ export default function CallsPage() {
 
   const { mutate: createCall, isPending } = useCreateCall();
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
-  const currentUser = useGlobalContext((s) => s.auth.user);
-
   const handleCreateCall = () => {
     if (!schoolPublicId || !roomNameInput.trim()) return;
 
@@ -122,22 +118,6 @@ export default function CallsPage() {
                 <OpenInNewIcon />
               </IconButton>
             </Tooltip>
-          </Box>
-
-          <Box sx={styles.jitsiContainer}>
-            <JitsiMeeting
-              domain={jitsiConfig.domain}
-              roomName={jitsiConfig.roomName}
-              jwt={jitsiConfig.jwt}
-              userInfo={{
-                displayName: currentUser?.userName || 'TutorPlatform User',
-                email: 'example@gmail.com',
-              }}
-              getIFrameRef={(iframeRef) => {
-                iframeRef.style.height = '100%';
-                iframeRef.style.width = '100%';
-              }}
-            />
           </Box>
         </>
       )}

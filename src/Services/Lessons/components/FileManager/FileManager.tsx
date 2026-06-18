@@ -225,11 +225,10 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setSelectedItemType(null);
   };
 
-  // Loading indicator grid (3 rows x 4 columns)
   if (isLoading) {
     return (
       <Box sx={styles.root}>
-        <FileManagerToolbar folders={[]} onNewFolder={() => {}} />
+        <FileManagerToolbar folders={[]} onNewFolder={() => {}} onNewLesson={() => {}} />
         <Box sx={styles.contentGrid}>
           {Array.from({ length: 12 }).map((_, idx) => (
             <Skeleton
@@ -273,6 +272,11 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
         onNewFolder={() => setIsNewFolderOpen(true)}
         onNewLesson={handleCreateLesson}
       />
+      {isUploading && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          Загрузка файлов...
+        </Alert>
+      )}
 
       {/* Main Files list layout zone */}
       {isEmpty ? (
