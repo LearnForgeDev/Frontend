@@ -34,9 +34,9 @@ export type RefreshTokenParams = {
 
 export type InviteParams = {
   schoolPublicId: string;
-  role: "0" | "1" | "2";
-  maxUses?: number | string;
-  expiresInMinutes?: number | string;
+  role: number;
+  maxUses?: number;
+  expiresInMinutes?: number;
 };
 
 export type JoinSchoolByInviteParams = {

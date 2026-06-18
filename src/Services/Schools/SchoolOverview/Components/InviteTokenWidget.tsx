@@ -20,20 +20,20 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = ({ schoolPubl
       setError(null);
       const res = await authEndpoints.invite({
         schoolPublicId,
-        role: "0",
+        role: 0,
       });
 
       if (typeof res === 'string') {
         setToken(res);
       } else if (res && typeof res === 'object' && 'inviteToken' in res) {
-        setToken((res as any).inviteToken);
+        setToken((res as Record<string, unknown>).inviteToken as string);
       } else if (res && typeof res === 'object' && 'token' in res) {
-        setToken((res as any).token);
+        setToken((res as Record<string, unknown>).token as string);
       } else {
         setToken(JSON.stringify(res));
       }
-    } catch (err: any) {
-      setError(err.message || "Не удалось создать токен");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Не удалось создать токен");
     } finally {
       setLoading(false);
     }
