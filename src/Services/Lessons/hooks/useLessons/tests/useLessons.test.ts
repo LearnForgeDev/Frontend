@@ -53,8 +53,8 @@ const createWrapper = () => {
 describe('useLessons hook', () => {
   test('returns combined lessons and folders on success', async () => {
     const mockLessons = [
-      { id: '1', name: 'lesson::Lesson 1::1::draft.lesson' },
-      { id: '2', name: 'lesson::Lesson 2::2::draft.lesson' },
+      { publicId: '1', fileName: 'lesson::Lesson 1::1::draft.lesson' },
+      { publicId: '2', fileName: 'lesson::Lesson 2::2::draft.lesson' },
     ];
 
     server.use(

@@ -112,7 +112,7 @@ export default function FilesPage() {
 
   const filteredFiles = useMemo(() => {
     return files.filter((file) => {
-      const fileName = file.name || '';
+      const fileName = file.fileName || '';
       const matchesSearch = fileName.toLowerCase().includes(search.toLowerCase());
       const category = getFileCategory(fileName);
       
@@ -169,11 +169,11 @@ export default function FilesPage() {
     if (!deleteConfirmFile) return;
 
     try {
-      await deleteFile(deleteConfirmFile.id);
+      await deleteFile(deleteConfirmFile.publicId);
       showNotification({
         id: `delete-success-${Date.now()}`,
         title: 'Файл удален',
-        subtitle: `Файл ${deleteConfirmFile.name || ''} успешно удален.`,
+        subtitle: `Файл ${deleteConfirmFile.fileName || ''} успешно удален.`,
         priority: 'low',
         time: 3000,
       });
@@ -193,13 +193,13 @@ export default function FilesPage() {
 
   const handleOpenPreview = async (file: ApiFile) => {
     setPreviewFile(file);
-    const category = getFileCategory(file.name || '');
+    const category = getFileCategory(file.fileName || '');
     
     if (category === 'text') {
       setIsPreviewLoading(true);
       setPreviewContent(null);
       try {
-        const content = await filesEndpoints.getFileContent(schoolPublicId, file.id);
+        const content = await filesEndpoints.getFileContent(schoolPublicId, file.publicId);
         setPreviewContent(content);
       } catch (err) {
         console.error(err);
@@ -211,7 +211,7 @@ export default function FilesPage() {
   };
 
   const getDownloadUrl = (file: ApiFile) => {
-    return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${file.id}/content`;
+    return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${file.publicId}/content`;
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -360,52 +360,55 @@ export default function FilesPage() {
       {!isLoading && !isError && filteredFiles.length > 0 && (
         viewMode === 'grid' ? (
           <Box sx={styles.fileGrid}>
-            {filteredFiles.map((file) => (
-              <Card key={file.id} sx={styles.fileCard} variant="outlined">
-                <Box sx={styles.fileCardHeader}>
-                  <Box sx={styles.iconWrapper}>
-                    {getFileIcon(file.name || '')}
+            {filteredFiles.map((file: ApiFile) => {
+              const fileKey = file.publicId;
+              return (
+                <Card key={fileKey} sx={styles.fileCard} variant="outlined">
+                  <Box sx={styles.fileCardHeader}>
+                    <Box sx={styles.iconWrapper}>
+                      {getFileIcon(file.fileName || '')}
+                    </Box>
+                    <Box sx={styles.fileInfo}>
+                      <Typography variant="body2" sx={styles.fileName} noWrap title={file.fileName || ''}>
+                        {file.fileName || 'Без названия'}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                        Размер: {formatFileSize(file.sizeBytes)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                        Загружен: {new Date(file.uploadedAt).toLocaleDateString()}
+                      </Typography>
+                    </Box>
                   </Box>
-                  <Box sx={styles.fileInfo}>
-                    <Typography variant="body2" sx={styles.fileName} noWrap title={file.name || ''}>
-                      {file.name || 'Без названия'}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      Размер: {formatFileSize(file.sizeBytes)}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      Загружен: {new Date(file.uploadedAt).toLocaleDateString()}
-                    </Typography>
-                  </Box>
-                </Box>
-                <CardActions sx={styles.cardActions}>
-                  <IconButton
-                    size="small"
-                    onClick={() => handleOpenPreview(file)}
-                    title="Просмотреть"
-                  >
-                    <VisibilityIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    component="a"
-                    href={getDownloadUrl(file)}
-                    download={file.name || 'file'}
-                    title="Скачать"
-                  >
-                    <DownloadIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton
-                    size="small"
-                    color="error"
-                    onClick={() => setDeleteConfirmFile(file)}
-                    title="Удалить"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </CardActions>
-              </Card>
-            ))}
+                  <CardActions sx={styles.cardActions}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleOpenPreview(file)}
+                      title="Просмотреть"
+                    >
+                      <VisibilityIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      component="a"
+                      href={getDownloadUrl(file)}
+                      download={file.fileName || 'file'}
+                      title="Скачать"
+                    >
+                      <DownloadIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setDeleteConfirmFile(file)}
+                      title="Удалить"
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              );
+            })}
           </Box>
         ) : (
           <TableContainer component={Paper} variant="outlined">
@@ -420,45 +423,48 @@ export default function FilesPage() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredFiles.map((file) => (
-                  <TableRow key={file.id} hover>
-                    <TableCell sx={{ fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        {getFileIcon(file.name || '')}
-                        <span title={file.name || ''}>{file.name || 'Без названия'}</span>
-                      </Box>
-                    </TableCell>
-                    <TableCell>{(file.name || '').split('.').pop()?.toUpperCase() || 'Неизвестно'}</TableCell>
-                    <TableCell align="right">{formatFileSize(file.sizeBytes)}</TableCell>
-                    <TableCell>{new Date(file.uploadedAt).toLocaleDateString()}</TableCell>
-                    <TableCell align="right">
-                      <IconButton
-                        size="small"
-                        onClick={() => handleOpenPreview(file)}
-                        title="Просмотреть"
-                      >
-                        <VisibilityIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        component="a"
-                        href={getDownloadUrl(file)}
-                        download={file.name || 'file'}
-                        title="Скачать"
-                      >
-                        <DownloadIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        size="small"
-                        color="error"
-                        onClick={() => setDeleteConfirmFile(file)}
-                        title="Удалить"
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filteredFiles.map((file: ApiFile) => {
+                  const fileKey = file.publicId;
+                  return (
+                    <TableRow key={fileKey} hover>
+                      <TableCell sx={{ fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                          {getFileIcon(file.fileName || '')}
+                          <span title={file.fileName || ''}>{file.fileName || 'Без названия'}</span>
+                        </Box>
+                      </TableCell>
+                      <TableCell>{(file.fileName || '').split('.').pop()?.toUpperCase() || 'Неизвестно'}</TableCell>
+                      <TableCell align="right">{formatFileSize(file.sizeBytes)}</TableCell>
+                      <TableCell>{new Date(file.uploadedAt).toLocaleDateString()}</TableCell>
+                      <TableCell align="right">
+                        <IconButton
+                          size="small"
+                          onClick={() => handleOpenPreview(file)}
+                          title="Просмотреть"
+                        >
+                          <VisibilityIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          component="a"
+                          href={getDownloadUrl(file)}
+                          download={file.fileName || 'file'}
+                          title="Скачать"
+                        >
+                          <DownloadIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          size="small"
+                          color="error"
+                          onClick={() => setDeleteConfirmFile(file)}
+                          title="Удалить"
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
@@ -472,7 +478,7 @@ export default function FilesPage() {
         <DialogTitle>Удаление файла</DialogTitle>
         <DialogContent>
           <Typography>
-            Вы действительно хотите удалить файл <strong>{deleteConfirmFile?.name || ''}</strong>?
+            Вы действительно хотите удалить файл <strong>{deleteConfirmFile?.fileName || ''}</strong>?
             Это действие нельзя будет отменить.
           </Typography>
         </DialogContent>
@@ -494,21 +500,21 @@ export default function FilesPage() {
         fullWidth
       >
         <DialogTitle sx={{ pr: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          Просмотр: {previewFile?.name || ''}
+          Просмотр: {previewFile?.fileName || ''}
         </DialogTitle>
         <DialogContent dividers sx={styles.previewDialogContent}>
-          {previewFile && getFileCategory(previewFile.name || '') === 'image' && (
+          {previewFile && getFileCategory(previewFile.fileName || '') === 'image' && (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box
                 component="img"
                 src={getDownloadUrl(previewFile)}
-                alt={previewFile.name || ''}
+                alt={previewFile.fileName || ''}
                 sx={styles.previewImage}
               />
             </Box>
           )}
 
-          {previewFile && getFileCategory(previewFile.name || '') === 'text' && (
+          {previewFile && getFileCategory(previewFile.fileName || '') === 'text' && (
             <Box>
               {isPreviewLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -522,7 +528,7 @@ export default function FilesPage() {
             </Box>
           )}
 
-          {previewFile && getFileCategory(previewFile.name || '') === 'pdf' && (
+          {previewFile && getFileCategory(previewFile.fileName || '') === 'pdf' && (
             <Box sx={{ height: '500px', width: '100%' }}>
               <Box
                 component="iframe"
@@ -534,7 +540,7 @@ export default function FilesPage() {
             </Box>
           )}
 
-          {previewFile && !['image', 'text', 'pdf'].includes(getFileCategory(previewFile.name || '')) && (
+          {previewFile && !['image', 'text', 'pdf'].includes(getFileCategory(previewFile.fileName || '')) && (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <InsertDriveFileIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
               <Typography variant="body1" gutterBottom>
@@ -550,7 +556,7 @@ export default function FilesPage() {
           <Button
             component="a"
             href={previewFile ? getDownloadUrl(previewFile) : undefined}
-            download={previewFile?.name || 'file'}
+            download={previewFile?.fileName || 'file'}
             variant="contained"
             color="primary"
             startIcon={<DownloadIcon />}

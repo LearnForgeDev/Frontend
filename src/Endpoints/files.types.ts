@@ -1,11 +1,11 @@
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 
 export interface ApiFile {
-  id: string;
-  name: string;
+  publicId: string;
+  fileName: string;
   sizeBytes: number;
   uploadedAt: string;
-  uploadedByUserId: string;
+  uploadedByUserId?: string;
   storageKey: string;
 }
 
@@ -26,17 +26,17 @@ export interface CompleteUploadDto {
 }
 
 export function isLessonFile(file: ApiFile): boolean {
-  return file.name.startsWith('lesson::');
+  return (file.fileName || '').startsWith('lesson::');
 }
 
 export function apiFileToLesson(file: ApiFile): Lesson {
-  const parts = file.name.split('::');
+  const parts = (file.fileName || '').split('::');
   
   // lesson::{url-encoded-title}::{lessonId}.lesson
   // status: derive from name (add '::draft' or '::published' as 4th segment)
-  const title = parts.length > 1 ? decodeURIComponent(parts[1]) : file.name;
+  const title = parts.length > 1 ? decodeURIComponent(parts[1]) : (file.fileName || '');
   
-  let lessonId = file.id;
+  let lessonId = file.publicId;
   if (parts.length > 2) {
     lessonId = parts[2].replace('.lesson', '');
   }
