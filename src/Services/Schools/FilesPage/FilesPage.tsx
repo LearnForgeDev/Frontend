@@ -49,7 +49,6 @@ import { useFiles } from './hooks/useFiles';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import type { ApiFile } from '@/Endpoints/files.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import config from '../../../config';
 import { styles } from './FilesPage.styles';
 
 export default function FilesPage() {
@@ -73,6 +72,7 @@ export default function FilesPage() {
   const [deleteConfirmFile, setDeleteConfirmFile] = useState<ApiFile | null>(null);
   const [previewFile, setPreviewFile] = useState<ApiFile | null>(null);
   const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
 
@@ -195,23 +195,56 @@ export default function FilesPage() {
     setPreviewFile(file);
     const category = getFileCategory(file.fileName || '');
     
-    if (category === 'text') {
-      setIsPreviewLoading(true);
-      setPreviewContent(null);
-      try {
-        const content = await filesEndpoints.getFileContent(schoolPublicId, file.publicId);
-        setPreviewContent(content);
-      } catch (err) {
-        console.error(err);
-        setPreviewContent('Не удалось прочитать содержимое файла. Возможно, это бинарный или пустой файл.');
-      } finally {
-        setIsPreviewLoading(false);
+    setIsPreviewLoading(true);
+    setPreviewContent(null);
+    setPreviewUrl(null);
+    try {
+      const blob = await filesEndpoints.getFileBlob(schoolPublicId, file.publicId);
+      const url = window.URL.createObjectURL(blob);
+      setPreviewUrl(url);
+      
+      if (category === 'text') {
+        const text = await blob.text();
+        setPreviewContent(text);
       }
+    } catch (err) {
+      console.error(err);
+      setPreviewContent('Не удалось прочитать содержимое файла. Возможно, это бинарный или пустой файл.');
+    } finally {
+      setIsPreviewLoading(false);
     }
   };
 
-  const getDownloadUrl = (file: ApiFile) => {
-    return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${file.publicId}/content`;
+  const handleClosePreview = () => {
+    if (previewUrl) {
+      window.URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewFile(null);
+    setPreviewContent(null);
+    setPreviewUrl(null);
+  };
+
+  const handleDownloadFile = async (file: ApiFile) => {
+    try {
+      const blob = await filesEndpoints.getFileBlob(schoolPublicId, file.publicId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.fileName || 'file';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error(err);
+      showNotification({
+        id: `download-failed-${Date.now()}`,
+        title: 'Ошибка скачивания',
+        subtitle: 'Не удалось скачать файл с сервера.',
+        priority: 'high',
+        time: 4000,
+      });
+    }
   };
 
   const handleDrag = (e: React.DragEvent) => {
@@ -390,9 +423,7 @@ export default function FilesPage() {
                     </IconButton>
                     <IconButton
                       size="small"
-                      component="a"
-                      href={getDownloadUrl(file)}
-                      download={file.fileName || 'file'}
+                      onClick={() => handleDownloadFile(file)}
                       title="Скачать"
                     >
                       <DownloadIcon fontSize="small" />
@@ -446,9 +477,7 @@ export default function FilesPage() {
                         </IconButton>
                         <IconButton
                           size="small"
-                          component="a"
-                          href={getDownloadUrl(file)}
-                          download={file.fileName || 'file'}
+                          onClick={() => handleDownloadFile(file)}
                           title="Скачать"
                         >
                           <DownloadIcon fontSize="small" />
@@ -492,10 +521,7 @@ export default function FilesPage() {
 
       <Dialog
         open={!!previewFile}
-        onClose={() => {
-          setPreviewFile(null);
-          setPreviewContent(null);
-        }}
+        onClose={handleClosePreview}
         maxWidth="md"
         fullWidth
       >
@@ -503,11 +529,11 @@ export default function FilesPage() {
           Просмотр: {previewFile?.fileName || ''}
         </DialogTitle>
         <DialogContent dividers sx={styles.previewDialogContent}>
-          {previewFile && getFileCategory(previewFile.fileName || '') === 'image' && (
+          {previewFile && getFileCategory(previewFile.fileName || '') === 'image' && previewUrl && (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box
                 component="img"
-                src={getDownloadUrl(previewFile)}
+                src={previewUrl}
                 alt={previewFile.fileName || ''}
                 sx={styles.previewImage}
               />
@@ -528,11 +554,11 @@ export default function FilesPage() {
             </Box>
           )}
 
-          {previewFile && getFileCategory(previewFile.fileName || '') === 'pdf' && (
+          {previewFile && getFileCategory(previewFile.fileName || '') === 'pdf' && previewUrl && (
             <Box sx={{ height: '500px', width: '100%' }}>
               <Box
                 component="iframe"
-                src={getDownloadUrl(previewFile)}
+                src={previewUrl}
                 width="100%"
                 height="100%"
                 sx={{ border: 'none', borderRadius: 1 }}
@@ -554,19 +580,14 @@ export default function FilesPage() {
         </DialogContent>
         <DialogActions>
           <Button
-            component="a"
-            href={previewFile ? getDownloadUrl(previewFile) : undefined}
-            download={previewFile?.fileName || 'file'}
+            onClick={() => previewFile && handleDownloadFile(previewFile)}
             variant="contained"
             color="primary"
             startIcon={<DownloadIcon />}
           >
             Скачать
           </Button>
-          <Button onClick={() => {
-            setPreviewFile(null);
-            setPreviewContent(null);
-          }}>
+          <Button onClick={handleClosePreview}>
             Закрыть
           </Button>
         </DialogActions>

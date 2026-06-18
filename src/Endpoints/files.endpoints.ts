@@ -43,6 +43,16 @@ export const filesEndpoints = {
   },
 
   /**
+   * GET /api/ApiFiles/{schoolId}/{fileId}/content as Blob
+   */
+  async getFileBlob(schoolId: number | string, fileId: string): Promise<Blob> {
+    const response = await apiClient.get<Blob>(`/api/ApiFiles/${schoolId}/${fileId}/content`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+
+  /**
    * PUT {uploadUrl}
    */
   async uploadFileDirect(uploadUrl: string, content: string): Promise<void> {
