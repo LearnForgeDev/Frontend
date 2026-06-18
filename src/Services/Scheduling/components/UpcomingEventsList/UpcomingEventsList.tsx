@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Box, List, ListItemButton, Typography } from '@mui/material';
 import { formatEventTimeRange } from '@/Services/Scheduling/utils/time.utils';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
@@ -10,7 +11,7 @@ export interface UpcomingEventsListProps {
 }
 
 export function UpcomingEventsList({ events, onSelect, selectedEventId }: UpcomingEventsListProps) {
-  const now = Date.now();
+  const [now] = useState(() => Date.now());
   const upcoming = events
     .filter((e) => new Date(e.end).getTime() > now)
     .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
