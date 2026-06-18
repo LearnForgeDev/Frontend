@@ -55,12 +55,19 @@ export const filesEndpoints = {
   /**
    * PUT {uploadUrl}
    */
-  async uploadFileDirect(uploadUrl: string, content: string): Promise<void> {
+  async uploadFileDirect(uploadUrl: string, content: string | Blob, contentType?: string): Promise<void> {
+    const headers: Record<string, string> = {};
+    if (contentType) {
+      headers['Content-Type'] = contentType;
+    } else if (typeof content === 'string') {
+      headers['Content-Type'] = 'application/json';
+    } else if (content instanceof Blob && content.type) {
+      headers['Content-Type'] = content.type;
+    }
+
     const response = await fetch(uploadUrl, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: content,
     });
     if (!response.ok) {
@@ -74,16 +81,5 @@ export const filesEndpoints = {
   async deleteFile(schoolId: number | string, fileId: string): Promise<void> {
     await apiClient.delete(`/api/ApiFiles/${schoolId}/${fileId}`);
   },
-
-  /**
-   * POST /api/ApiFiles/{schoolId}
-   */
-  async uploadFileMultipart(schoolId: number | string, file: File): Promise<ApiFile> {
-    const formData = new FormData();
-    formData.append('File', file);
-    formData.append('FileName', file.name);
-    formData.append('schoolPublicId', String(schoolId));
-    const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData);
-    return response.data;
   }
 };
