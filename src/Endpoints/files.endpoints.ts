@@ -70,12 +70,10 @@ export const filesEndpoints = {
    */
   async uploadFileMultipart(schoolId: number | string, file: File): Promise<ApiFile> {
     const formData = new FormData();
-    formData.append('file', file);
-    const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    formData.append('File', file);
+    formData.append('FileName', file.name);
+    formData.append('schoolPublicId', String(schoolId));
+    const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData);
     return response.data;
   }
 };
