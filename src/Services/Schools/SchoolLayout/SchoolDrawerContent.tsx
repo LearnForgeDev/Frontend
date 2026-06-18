@@ -89,6 +89,32 @@ export default function SchoolDrawerContent({
 
         <ListItemButton
           component={NavLink}
+          to={`${basePath}/files`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/files`}
+          sx={schoolNavItemSx}
+        >
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">description</Box>
+          </ListItemIcon>
+          <ListItemText primary="Файлы" />
+        </ListItemButton>
+
+        <ListItemButton
+          component={NavLink}
+          to={`${basePath}/chats`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/chats`}
+          sx={schoolNavItemSx}
+        >
+          <ListItemIcon sx={schoolNavIconSx}>
+            <Box component="span" className="material-symbols-outlined">forum</Box>
+          </ListItemIcon>
+          <ListItemText primary="Чаты" />
+        </ListItemButton>
+
+        <ListItemButton
+          component={NavLink}
           to={`${basePath}/marketplace`}
           onClick={onCloseMenu}
           selected={pathname === `${basePath}/marketplace`}

@@ -1,0 +1,588 @@
+import { useState, useMemo, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Card,
+  CardContent,
+  CardActions,
+  CircularProgress,
+  Alert,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  InputAdornment,
+} from '@mui/material';
+
+// Icon imports
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ImageIcon from '@mui/icons-material/Image';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
+import VideoFileIcon from '@mui/icons-material/VideoFile';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
+import ArticleIcon from '@mui/icons-material/Article';
+import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import DownloadIcon from '@mui/icons-material/Download';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import SearchIcon from '@mui/icons-material/Search';
+import GridViewIcon from '@mui/icons-material/GridView';
+import ViewListIcon from '@mui/icons-material/ViewList';
+
+import { useFiles } from './hooks/useFiles';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import type { ApiFile } from '@/Endpoints/files.types';
+import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+import config from '../../../config';
+import { styles } from './FilesPage.styles';
+
+export default function FilesPage() {
+  const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
+  const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load custom files state hook
+  const {
+    files,
+    isLoading,
+    isError,
+    uploadFile,
+    isUploading,
+    deleteFile,
+  } = useFiles(schoolPublicId);
+
+  // Local component states
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('all');
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  
+  // Modals / dialogues
+  const [deleteConfirmFile, setDeleteConfirmFile] = useState<ApiFile | null>(null);
+  const [previewFile, setPreviewFile] = useState<ApiFile | null>(null);
+  const [previewContent, setPreviewContent] = useState<string | null>(null);
+  const [isPreviewLoading, setIsPreviewLoading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
+
+  // File type categorisation
+  const getFileCategory = (filename: string): string => {
+    const ext = filename.split('.').pop()?.toLowerCase() || '';
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+    if (ext === 'pdf') return 'pdf';
+    if (['txt', 'md', 'json', 'js', 'ts', 'html', 'css'].includes(ext)) return 'text';
+    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return 'document';
+    if (['zip', 'rar', 'tar', 'gz', '7z'].includes(ext)) return 'archive';
+    if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+    if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) return 'video';
+    return 'other';
+  };
+
+  const getFileIcon = (filename: string) => {
+    const category = getFileCategory(filename);
+    switch (category) {
+      case 'image': return <ImageIcon color="primary" />;
+      case 'pdf': return <PictureAsPdfIcon color="error" />;
+      case 'text':
+      case 'document': return <ArticleIcon color="info" />;
+      case 'archive': return <FolderZipIcon color="warning" />;
+      case 'audio': return <AudioFileIcon color="secondary" />;
+      case 'video': return <VideoFileIcon color="secondary" />;
+      default: return <InsertDriveFileIcon />;
+    }
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Б';
+    const k = 1024;
+    const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  // Filtered and searched files
+  const filteredFiles = useMemo(() => {
+    return files.filter((file) => {
+      const matchesSearch = file.name.toLowerCase().includes(search.toLowerCase());
+      const category = getFileCategory(file.name);
+      
+      let matchesFilter = true;
+      if (filterType !== 'all') {
+        if (filterType === 'document') {
+          matchesFilter = ['document', 'pdf', 'text'].includes(category);
+        } else {
+          matchesFilter = category === filterType;
+        }
+      }
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [files, search, filterType]);
+
+  // Handle uploading files
+  const handleUploadFiles = async (selectedFiles: FileList | null) => {
+    if (!selectedFiles || selectedFiles.length === 0) return;
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < selectedFiles.length; i++) {
+      const file = selectedFiles[i];
+      try {
+        await uploadFile(file);
+        successCount++;
+      } catch (err) {
+        console.error(`Upload error for ${file.name}:`, err);
+        failCount++;
+      }
+    }
+
+    if (successCount > 0) {
+      showNotification({
+        id: `upload-success-${Date.now()}`,
+        title: 'Загрузка успешна',
+        subtitle: `Загружено файлов: ${successCount}` + (failCount > 0 ? `, не удалось загрузить: ${failCount}` : ''),
+        priority: 'low',
+        time: 3000,
+      });
+    } else if (failCount > 0) {
+      showNotification({
+        id: `upload-failed-${Date.now()}`,
+        title: 'Ошибка загрузки',
+        subtitle: 'Не удалось загрузить выбранные файлы.',
+        priority: 'high',
+        time: 4000,
+      });
+    }
+  };
+
+  // Delete file action
+  const handleDeleteConfirm = async () => {
+    if (!deleteConfirmFile) return;
+
+    try {
+      await deleteFile(deleteConfirmFile.id);
+      showNotification({
+        id: `delete-success-${Date.now()}`,
+        title: 'Файл удален',
+        subtitle: `Файл ${deleteConfirmFile.name} успешно удален.`,
+        priority: 'low',
+        time: 3000,
+      });
+    } catch (err) {
+      console.error('Delete file error:', err);
+      showNotification({
+        id: `delete-failed-${Date.now()}`,
+        title: 'Ошибка удаления',
+        subtitle: 'Не удалось удалить файл со службы хранения.',
+        priority: 'high',
+        time: 4000,
+      });
+    } finally {
+      setDeleteConfirmFile(null);
+    }
+  };
+
+  // Preview file action
+  const handleOpenPreview = async (file: ApiFile) => {
+    setPreviewFile(file);
+    const category = getFileCategory(file.name);
+    
+    if (category === 'text') {
+      setIsPreviewLoading(true);
+      setPreviewContent(null);
+      try {
+        const content = await filesEndpoints.getFileContent(schoolPublicId, file.id);
+        setPreviewContent(content);
+      } catch (err) {
+        console.error('Failed to get file content:', err);
+        setPreviewContent('Не удалось прочитать содержимое файла. Возможно, это бинарный или пустой файл.');
+      } finally {
+        setIsPreviewLoading(false);
+      }
+    }
+  };
+
+  const getDownloadUrl = (file: ApiFile) => {
+    return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${file.id}/content`;
+  };
+
+  // Drag and drop handlers
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      handleUploadFiles(e.dataTransfer.files);
+    }
+  };
+
+  return (
+    <Box sx={styles.container}>
+      {/* Header */}
+      <Box sx={styles.header}>
+        <Typography variant="h4" component="h1" sx={styles.title}>
+          Файлы школы
+        </Typography>
+        <Box>
+          <input
+            type="file"
+            multiple
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+            onChange={(e) => handleUploadFiles(e.target.files)}
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            startIcon={isUploading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isUploading}
+          >
+            {isUploading ? 'Загрузка...' : 'Загрузить файл'}
+          </Button>
+        </Box>
+      </Box>
+
+      {/* Toolbar (Search & Filter) */}
+      <Box sx={styles.toolbar}>
+        <Box sx={styles.searchAndFilter}>
+          <TextField
+            size="small"
+            placeholder="Поиск файлов..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={styles.searchInput}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon size="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel id="filter-type-label">Тип файла</InputLabel>
+            <Select
+              labelId="filter-type-label"
+              value={filterType}
+              label="Тип файла"
+              onChange={(e) => setFilterType(e.target.value)}
+            >
+              <MenuItem value="all">Все форматы</MenuItem>
+              <MenuItem value="document">Документы</MenuItem>
+              <MenuItem value="image">Изображения</MenuItem>
+              <MenuItem value="archive">Архивы</MenuItem>
+              <MenuItem value="audio">Аудио</MenuItem>
+              <MenuItem value="video">Видео</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        <ToggleButtonGroup
+          value={viewMode}
+          exclusive
+          onChange={(_, nextView) => nextView && setViewMode(nextView)}
+          size="small"
+          aria-label="Режим отображения"
+        >
+          <ToggleButton value="grid" aria-label="Сетка">
+            <GridViewIcon />
+          </ToggleButton>
+          <ToggleButton value="list" aria-label="Список">
+            <ViewListIcon />
+          </ToggleButton>
+        </ToggleButtonGroup>
+      </Box>
+
+      {/* Drag & Drop Overlay Zone */}
+      <Box
+        sx={{
+          ...styles.dropZone,
+          borderColor: dragActive ? 'primary.dark' : 'primary.main',
+          backgroundColor: dragActive ? 'action.hover' : 'primary.main' + '08',
+        }}
+        onDragEnter={handleDrag}
+        onDragOver={handleDrag}
+        onDragLeave={handleDrag}
+        onDrop={handleDrop}
+      >
+        <CloudUploadIcon sx={{ fontSize: 48, mb: 1, color: 'primary.main' }} />
+        <Typography variant="body1" sx={{ fontWeight: 500 }}>
+          Перетащите файлы сюда для быстрой загрузки
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          Поддерживается загрузка любых файлов на сервер MinIO
+        </Typography>
+      </Box>
+
+      {/* Content area */}
+      {isLoading && (
+        <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
+          <CircularProgress />
+        </Box>
+      )}
+
+      {isError && (
+        <Alert severity="error">
+          Не удалось получить список файлов школы. Проверьте соединение.
+        </Alert>
+      )}
+
+      {!isLoading && !isError && filteredFiles.length === 0 && (
+        <Paper sx={{ p: 6, textAlign: 'center', backgroundColor: 'background.paper' }}>
+          <InsertDriveFileIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary" gutterBottom>
+            Файлы не найдены
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {search ? 'Попробуйте изменить поисковый запрос' : 'Загрузите файлы для этой школы с помощью панели выше'}
+          </Typography>
+        </Paper>
+      )}
+
+      {!isLoading && !isError && filteredFiles.length > 0 && (
+        viewMode === 'grid' ? (
+          /* Grid View */
+          <Box sx={styles.fileGrid}>
+            {filteredFiles.map((file) => (
+              <Card key={file.id} sx={styles.fileCard} variant="outlined">
+                <Box sx={styles.fileCardHeader}>
+                  <Box sx={styles.iconWrapper}>
+                    {getFileIcon(file.name)}
+                  </Box>
+                  <Box sx={styles.fileInfo}>
+                    <Typography variant="body2" sx={styles.fileName} noWrap title={file.name}>
+                      {file.name}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Размер: {formatFileSize(file.sizeBytes)}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" display="block">
+                      Загружен: {new Date(file.uploadedAt).toLocaleDateString()}
+                    </Typography>
+                  </Box>
+                </Box>
+                <CardActions sx={styles.cardActions}>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleOpenPreview(file)}
+                    title="Просмотреть"
+                  >
+                    <VisibilityIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    component="a"
+                    href={getDownloadUrl(file)}
+                    download={file.name}
+                    title="Скачать"
+                  >
+                    <DownloadIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    color="error"
+                    onClick={() => setDeleteConfirmFile(file)}
+                    title="Удалить"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
+        ) : (
+          /* List View (Table) */
+          <TableContainer component={Paper} variant="outlined">
+            <Table aria-label="Таблица файлов">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Название</TableCell>
+                  <TableCell>Формат</TableCell>
+                  <TableCell align="right">Размер</TableCell>
+                  <TableCell>Дата загрузки</TableCell>
+                  <TableCell align="right">Действия</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {filteredFiles.map((file) => (
+                  <TableRow key={file.id} hover>
+                    <TableCell sx={{ fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        {getFileIcon(file.name)}
+                        <span title={file.name}>{file.name}</span>
+                      </Box>
+                    </TableCell>
+                    <TableCell>{file.name.split('.').pop()?.toUpperCase() || 'Неизвестно'}</TableCell>
+                    <TableCell align="right">{formatFileSize(file.sizeBytes)}</TableCell>
+                    <TableCell>{new Date(file.uploadedAt).toLocaleDateString()}</TableCell>
+                    <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenPreview(file)}
+                        title="Просмотреть"
+                      >
+                        <VisibilityIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        component="a"
+                        href={getDownloadUrl(file)}
+                        download={file.name}
+                        title="Скачать"
+                      >
+                        <DownloadIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => setDeleteConfirmFile(file)}
+                        title="Удалить"
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog
+        open={!!deleteConfirmFile}
+        onClose={() => setDeleteConfirmFile(null)}
+      >
+        <DialogTitle>Удаление файла</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Вы действительно хотите удалить файл <strong>{deleteConfirmFile?.name}</strong>?
+            Это действие нельзя будет отменить.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteConfirmFile(null)}>Отмена</Button>
+          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* File Preview Dialog */}
+      <Dialog
+        open={!!previewFile}
+        onClose={() => {
+          setPreviewFile(null);
+          setPreviewContent(null);
+        }}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ pr: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          Просмотр: {previewFile?.name}
+        </DialogTitle>
+        <DialogContent dividers sx={styles.previewDialogContent}>
+          {previewFile && getFileCategory(previewFile.name) === 'image' && (
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Box
+                component="img"
+                src={getDownloadUrl(previewFile)}
+                alt={previewFile.name}
+                sx={styles.previewImage}
+              />
+            </Box>
+          )}
+
+          {previewFile && getFileCategory(previewFile.name) === 'text' && (
+            <Box>
+              {isPreviewLoading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                  <CircularProgress size={32} />
+                </Box>
+              ) : (
+                <Box component="pre" sx={styles.previewText}>
+                  {previewContent}
+                </Box>
+              )}
+            </Box>
+          )}
+
+          {previewFile && getFileCategory(previewFile.name) === 'pdf' && (
+            <Box sx={{ height: '500px', width: '100%' }}>
+              <Box
+                component="iframe"
+                src={getDownloadUrl(previewFile)}
+                width="100%"
+                height="100%"
+                sx={{ border: 'none', borderRadius: 1 }}
+              />
+            </Box>
+          )}
+
+          {previewFile && !['image', 'text', 'pdf'].includes(getFileCategory(previewFile.name)) && (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <InsertDriveFileIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
+              <Typography variant="body1" gutterBottom>
+                Предварительный просмотр недоступен для этого формата файлов.
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Вы можете скачать файл на свое устройство для просмотра.
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button
+            component="a"
+            href={previewFile ? getDownloadUrl(previewFile) : undefined}
+            download={previewFile?.name}
+            variant="contained"
+            color="primary"
+            startIcon={<DownloadIcon />}
+          >
+            Скачать
+          </Button>
+          <Button onClick={() => {
+            setPreviewFile(null);
+            setPreviewContent(null);
+          }}>
+            Закрыть
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}
