@@ -20,6 +20,7 @@ const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage.tsx'
 const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage.tsx'));
 const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'));
 const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
+const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -81,6 +82,10 @@ const AppRoutes = () => {
         {
           path: "chats",
           element: <ChatsPage />,
+        },
+        {
+          path: "schedule",
+          element: <SchedulePage />,
         },
         {
           path: "marketplace",
