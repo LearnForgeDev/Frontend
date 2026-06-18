@@ -2,20 +2,9 @@ import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { meetEndpoints } from '@/Endpoints/meet.endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
+import { appErrorMessage } from '@/Services/Scheduling/utils/appErrorMessage';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 import type { AppError } from '@/Endpoints/factory';
-
-/** Maps an AppError code to user-facing copy (extends the useCreateCall precedent). */
-function joinErrorMessage(error: AppError): string {
-  switch (error.code) {
-    case 'FORBIDDEN':
-      return 'You do not have permission to join this session.';
-    case 'NOT_FOUND':
-      return 'This session no longer exists.';
-    default:
-      return error.message || 'Could not join the meeting. Please try again.';
-  }
-}
 
 /**
  * Requests a real Jitsi join link for an event's room via the existing
@@ -39,7 +28,7 @@ export function useJoinMeeting(): UseMutationResult<string, AppError, ScheduleEv
       showNotification({
         id: `join-meeting-error-${Date.now()}`,
         title: 'Error Joining Session',
-        subtitle: joinErrorMessage(error),
+        subtitle: appErrorMessage(error, 'Could not join the meeting. Please try again.'),
         priority: 'high',
         time: 5000,
       });
