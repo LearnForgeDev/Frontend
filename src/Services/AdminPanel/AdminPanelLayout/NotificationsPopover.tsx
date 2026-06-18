@@ -15,7 +15,6 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
   const notifications = useGlobalNotificationStore((state) => state.notifications);
   const clearNotifications = useGlobalNotificationStore((state) => state.clearNotifications);
   const removeNotification = useGlobalNotificationStore((state) => state.removeNotification);
-  const isNotificationsEmpty = useGlobalNotificationStore((state) => state.isNotificationsEmpty);
 
   const barNotifications = notifications.filter(n => !n.shouldDisplayGlobally);
 
