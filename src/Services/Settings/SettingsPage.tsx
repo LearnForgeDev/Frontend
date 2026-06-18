@@ -7,7 +7,7 @@ const SettingsPage = () => {
   const handleBlackjackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       setBlackjackOn(false);
-      window.location.href = 'https://youtu.be/ubPWaDWcOLU?si=Mx-ACQDo9Iyv1ezm';
+      window.open('https://youtu.be/ubPWaDWcOLU?si=Mx-ACQDo9Iyv1ezm', '_blank');
     } else {
       setBlackjackOn(false);
     }
@@ -31,7 +31,7 @@ const SettingsPage = () => {
               color="primary"
             />
           }
-          label="Blackjact"
+          label="Blackjack"
         />
       </Paper>
 

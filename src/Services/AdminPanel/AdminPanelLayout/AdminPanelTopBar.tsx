@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AppBar, Box, IconButton, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, IconButton, Toolbar, Typography, Badge } from '@mui/material';
 import {
   appBarSx,
   avatarSx,
@@ -12,6 +12,7 @@ import {
 } from './AdminPanelLayout.styles';
 import NotificationsPopover from './NotificationsPopover';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 
 type AdminPanelTopBarProps = {
   isDesktop: boolean;
@@ -21,6 +22,7 @@ type AdminPanelTopBarProps = {
 
 export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }: AdminPanelTopBarProps) {
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<HTMLElement | null>(null);
+  const notifications = useGlobalNotificationStore((state) => state.notifications);
 
   const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
     setNotificationsAnchorEl(event.currentTarget);
@@ -50,7 +52,9 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
         </Box>
         <Box sx={topbarRightSx}>
           <IconButton sx={topbarIconButtonSx} aria-label="Уведомления" onClick={handleOpenNotifications}>
-            <Box component="span" className="material-symbols-outlined">notifications</Box>
+            <Badge badgeContent={notifications.length} color="error">
+              <Box component="span" className="material-symbols-outlined">notifications</Box>
+            </Badge>
           </IconButton>
           <NotificationsPopover anchorEl={notificationsAnchorEl} onClose={handleCloseNotifications} />
 
