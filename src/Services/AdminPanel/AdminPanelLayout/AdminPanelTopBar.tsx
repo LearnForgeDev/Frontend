@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { AppBar, Box, IconButton, InputAdornment, TextField, Toolbar, Typography } from '@mui/material';
+import { AppBar, Box, IconButton, Toolbar, Typography } from '@mui/material';
 import {
   appBarSx,
   avatarSx,
   crumbsSx,
   crumbsTitleSx,
   menuButtonSx,
-  searchFieldSx,
   toolbarSx,
   topbarIconButtonSx,
   topbarRightSx,
 } from './AdminPanelLayout.styles';
 import NotificationsPopover from './NotificationsPopover';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
 type AdminPanelTopBarProps = {
   isDesktop: boolean;
@@ -30,6 +30,9 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
     setNotificationsAnchorEl(null);
   };
 
+  const user = useGlobalContext();
+  const name = user?.auth?.user?.userName || 'default user';
+
   return (
     <AppBar position="fixed" elevation={0} sx={appBarSx(isDesktop)}>
       <Toolbar sx={toolbarSx(isDesktop)}>
@@ -46,32 +49,15 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
           </Typography>
         </Box>
         <Box sx={topbarRightSx}>
-          {isDesktop && (
-            <TextField
-              size="small"
-              placeholder="Поиск модулей..."
-              variant="outlined"
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <Box component="span" className="material-symbols-outlined">search</Box>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-              sx={searchFieldSx}
-            />
-          )}
           <IconButton sx={topbarIconButtonSx} aria-label="Уведомления" onClick={handleOpenNotifications}>
             <Box component="span" className="material-symbols-outlined">notifications</Box>
           </IconButton>
           <NotificationsPopover anchorEl={notificationsAnchorEl} onClose={handleCloseNotifications} />
-          
+
           <IconButton sx={topbarIconButtonSx} aria-label="Настройки">
             <Box component="span" className="material-symbols-outlined">settings</Box>
           </IconButton>
-          <Box sx={avatarSx}>AT</Box>
+          <Box sx={avatarSx}>{name.slice(0, 2)}</Box>
         </Box>
       </Toolbar>
     </AppBar>

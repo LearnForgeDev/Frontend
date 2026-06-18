@@ -26,9 +26,6 @@ const SchoolOverviewPage = () => {
           </Typography>
           <Typography sx={helperTextSx}>{schoolPublicId ?? 'Не задано'}</Typography>
         </Box>
-        <Box className="admin-card" sx={infoCardSx}>
-          <Typography sx={helperTextSx}>Перейдите в разделы “Файлы” и “Чаты” для работы.</Typography>
-        </Box>
         {schoolPublicId && (
           <InviteTokenWidget schoolPublicId={schoolPublicId} />
         )}
