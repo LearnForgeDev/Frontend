@@ -80,5 +80,19 @@ export const filesEndpoints = {
    */
   async deleteFile(schoolId: number | string, fileId: string): Promise<void> {
     await apiClient.delete(`/api/ApiFiles/${schoolId}/${fileId}`);
+  },
+
+  /**
+   * POST /api/ApiFiles/{schoolId}
+   */
+  async uploadFileMultipart(schoolId: number | string, file: File): Promise<ApiFile> {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   }
 };

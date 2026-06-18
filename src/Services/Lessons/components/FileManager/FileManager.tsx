@@ -79,7 +79,6 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     }
   };
 
-  // Dialog & Mutation handlers
   const handleCreateFolderSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
@@ -113,10 +112,10 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     if (!schoolPublicId) return;
-    
+
     const files = Array.from(e.dataTransfer.files);
     const validExtensions = ['.doc', '.docx', '.xls', '.xlsx', '.pdf', '.png', '.jpeg', '.jpg'];
-    
+
     const validFiles = files.filter(file => {
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
       return validExtensions.includes(ext);
@@ -225,7 +224,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   if (isLoading) {
     return (
       <Box sx={styles.root}>
-        <FileManagerToolbar folders={[]} onNewFolder={() => {}} onNewLesson={() => {}} />
+        <FileManagerToolbar folders={[]} onNewFolder={() => { }} onNewLesson={() => { }} />
         <Box sx={styles.contentGrid}>
           {Array.from({ length: 12 }).map((_, idx) => (
             <Skeleton
@@ -330,8 +329,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
                   selected={isSelected}
                   onClick={itemClick}
                   onOpen={openAction}
-                  onRename={() => {}} // Placeholder / extend as needed
-                  onMove={() => {}}
+                  onRename={() => { }} // Placeholder / extend as needed
+                  onMove={() => { }}
                   onDelete={() => setIsDeleteConfirmOpen(true)}
                 />
               );
@@ -343,8 +342,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
                 selected={isSelected}
                 onClick={itemClick}
                 onOpen={openAction}
-                onRename={() => {}}
-                onMove={() => {}}
+                onRename={() => { }}
+                onMove={() => { }}
                 onDelete={() => setIsDeleteConfirmOpen(true)}
               />
             );

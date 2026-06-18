@@ -2,10 +2,14 @@ import type { Theme } from '@mui/material/styles';
 
 export const styles = {
   container: {
-    padding: (theme: Theme) => theme.spacing(3),
-    height: 'calc(100vh - 100px)',
-    maxWidth: '1400px',
-    margin: '0 auto',
+    margin: {
+      xs: '0 -1rem -1rem',
+      md: '0 -2.25rem -2rem',
+    },
+    height: {
+      xs: 'calc(100vh - 5rem)',
+      md: 'calc(100vh - 88px)',
+    },
     display: 'flex',
     flexDirection: 'column',
     boxSizing: 'border-box',
@@ -14,8 +18,6 @@ export const styles = {
     display: 'flex',
     flexGrow: 1,
     backgroundColor: (theme: Theme) => theme.palette.background.paper,
-    borderRadius: (theme: Theme) => theme.shape.borderRadius,
-    border: (theme: Theme) => `1px solid ${theme.palette.divider}`,
     overflow: 'hidden',
     height: '100%',
   },
