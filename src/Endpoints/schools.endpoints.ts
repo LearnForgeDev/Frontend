@@ -3,7 +3,9 @@ import config from '../config';
 
 const apiClient = createApiClient(config.endpointUrl);
 
-export type SchoolRole = "Teacher" | "Student" | "Founder" | "Admin";
+// Mirrors the backend Role enum (Student/Teacher/Owner); Founder/Admin kept for
+// any legacy/platform values that may still appear.
+export type SchoolRole = "Teacher" | "Student" | "Owner" | "Founder" | "Admin";
 
 export interface UserSchoolInfo {
   schoolPublicId: string;
