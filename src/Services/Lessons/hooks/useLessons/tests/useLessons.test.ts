@@ -14,8 +14,8 @@ beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
-vi.mock('@/Services/Lessons/hooks/useSchoolId/useSchoolId', () => ({
-  useSchoolId: () => 1,
+vi.mock('react-router-dom', () => ({
+  useParams: () => ({ schoolPublicId: '1' }),
 }));
 
 vi.mock('@/Storage/Context/LessonsContext', () => ({
