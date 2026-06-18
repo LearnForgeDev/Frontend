@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
 import type { UseLessonsReturn } from '@/Services/Lessons/hooks/useLessons/useLessons.types';
-import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import type { AppError } from '@/Endpoints/factory';
 import { useParams } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ export function useLessons(): UseLessonsReturn {
 
   if (!schoolPublicId) throw new Error('No active school public id');
 
-  const { folderId: currentFolderId, search: searchQuery, sort, order: sortOrder } = useLessonsContext();
+  const { search: searchQuery, sort, order: sortOrder } = useLessonsContext();
 
   const {
     data: lessons,
@@ -20,38 +20,33 @@ export function useLessons(): UseLessonsReturn {
     error: errorLessons,
     refetch: refetchLessons,
   } = useQuery<Lesson[], AppError>({
-    queryKey: ['lessons', schoolPublicId, currentFolderId, searchQuery, sort, sortOrder],
-    queryFn: () =>
-      lessonsEndpoints.getLessons(schoolPublicId, {
-        folderId: currentFolderId,
-        search: searchQuery,
-        sort,
-        order: sortOrder,
-      }),
+    queryKey: ['lessons', schoolPublicId],
+    queryFn: () => lessonsEndpoints.getLessons(schoolPublicId),
     staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  const {
-    data: folders,
-    isLoading: isLoadingFolders,
-    isError: isErrorFolders,
-    error: errorFolders,
-    refetch: refetchFolders,
-  } = useQuery<LessonFolder[], AppError>({
-    queryKey: ['lessonFolders', schoolPublicId, currentFolderId],
-    queryFn: () => lessonsEndpoints.getFolders(schoolPublicId, { parentId: currentFolderId }),
-    staleTime: 2 * 60 * 1000,
-  });
+  let processedLessons = lessons;
+  if (processedLessons) {
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      processedLessons = processedLessons.filter(l => l.title.toLowerCase().includes(lowerQuery));
+    }
+    processedLessons = [...processedLessons].sort((a, b) => {
+      const aVal = a[sort as keyof Lesson] || '';
+      const bVal = b[sort as keyof Lesson] || '';
+      if (typeof aVal === 'string' && typeof bVal === 'string') {
+         const res = aVal.localeCompare(bVal);
+         return sortOrder === 'asc' ? res : -res;
+      }
+      return 0;
+    });
+  }
 
   return {
-    lessons,
-    folders,
-    isLoading: isLoadingLessons || isLoadingFolders,
-    isError: isErrorLessons || isErrorFolders,
-    error: errorLessons || errorFolders,
-    refetch: () => {
-      refetchLessons();
-      refetchFolders();
-    },
+    lessons: processedLessons,
+    isLoading: isLoadingLessons,
+    isError: isErrorLessons,
+    error: errorLessons,
+    refetch: refetchLessons,
   };
 }

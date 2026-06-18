@@ -10,7 +10,7 @@ import { LessonsProvider } from '@/Storage/Context/LessonsContext';
 import './LessonsMainPage.css';
 
 interface LessonsMainPageProps {
-  onOpenLesson?: (id: string, title: string) => void;
+  onOpenLesson?: (id: number, title: string) => void;
 }
 
 function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
@@ -18,7 +18,7 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
   const { lessons, isLoading, isError, refetch } = useLessons();
   const mutations = useLessonMutations();
 
-  const handleOpenLesson = (id: string, title: string) => {
+  const handleOpenLesson = (id: number, title: string) => {
     if (onOpenLesson) {
       onOpenLesson(id, title);
     } else {
@@ -39,7 +39,7 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
         <Button
           variant="contained"
           startIcon={<AddIcon />}
-          onClick={() => handleCreateLesson(null)}
+          onClick={() => handleCreateLesson()}
           disabled={isCreating}
         >
           Создать урок

@@ -3,13 +3,9 @@ import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
 import type { AppError } from '@/Endpoints/factory';
 import type {
   CreateLessonVars,
-  RenameLessonVars,
   DeleteLessonVars,
-  CreateFolderVars,
-  RenameFolderVars,
-  DeleteFolderVars,
 } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.types';
-import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import { useParams } from 'react-router-dom';
 
 export function useLessonMutations() {
@@ -21,8 +17,8 @@ export function useLessonMutations() {
   }
 
   const createLesson = useMutation<Lesson, AppError, CreateLessonVars>({
-    mutationFn: async ({ title, folderId }: CreateLessonVars): Promise<Lesson> => {
-      return lessonsEndpoints.createLesson(schoolPublicId, { title, folderId });
+    mutationFn: async (vars: CreateLessonVars): Promise<Lesson> => {
+      return lessonsEndpoints.createLesson(schoolPublicId, vars);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
@@ -54,64 +50,8 @@ export function useLessonMutations() {
     },
   });
 
-  const renameLesson = useMutation<Lesson, AppError, RenameLessonVars>({
-    mutationFn: async ({ id, title }) => {
-      return lessonsEndpoints.updateLesson(schoolPublicId, id, { title });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
-    },
-  });
-
-  const createFolder = useMutation<LessonFolder, AppError, CreateFolderVars>({
-    mutationFn: async ({ name, parentId, color }) => {
-      return lessonsEndpoints.createFolder(schoolPublicId, { name, parentId, color });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessonFolders', schoolPublicId] });
-    },
-  });
-
-  const deleteFolder = useMutation<void, AppError, DeleteFolderVars, { previousData: LessonFolder[] | undefined }>({
-    mutationFn: ({ id }) => lessonsEndpoints.deleteFolder(schoolPublicId, id),
-    onMutate: async ({ id }) => {
-      await queryClient.cancelQueries({ queryKey: ['lessonFolders', schoolPublicId] });
-      const previousData = queryClient.getQueryData<LessonFolder[]>(['lessonFolders', schoolPublicId]);
-
-      if (previousData) {
-        queryClient.setQueryData<LessonFolder[]>(['lessonFolders', schoolPublicId], (old) => {
-          if (!old) return old;
-          return old.filter((folder) => folder.id !== id);
-        });
-      }
-
-      return { previousData };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previousData) {
-        queryClient.setQueryData(['lessonFolders', schoolPublicId], context.previousData);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessonFolders', schoolPublicId] });
-    },
-  });
-
-  const renameFolder = useMutation<LessonFolder, AppError, RenameFolderVars>({
-    mutationFn: async ({ id, name }) => {
-      return lessonsEndpoints.updateFolder(schoolPublicId, id, { name });
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessonFolders', schoolPublicId] });
-    },
-  });
-
   return {
     createLesson,
     deleteLesson,
-    renameLesson,
-    createFolder,
-    deleteFolder,
-    renameFolder,
   };
 }

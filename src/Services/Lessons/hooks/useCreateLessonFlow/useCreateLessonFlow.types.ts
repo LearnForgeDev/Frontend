@@ -1,4 +1,4 @@
 export interface UseCreateLessonFlowReturn {
-  handleCreateLesson: (folderId?: string | null, title?: string) => Promise<void>;
+  handleCreateLesson: (title?: string, description?: string) => Promise<void>;
   isCreating: boolean;
 }

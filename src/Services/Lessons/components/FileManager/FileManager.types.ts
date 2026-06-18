@@ -1,16 +1,13 @@
 export interface Lesson {
-  id: string;
+  id: number;
+  publicId: string;
   title: string;
-  folderId: string | null;
-  status?: string;
-  content?: unknown;
+  description?: string;
+  lessonJsonFile?: {
+    publicId: string;
+    fileName: string;
+    storageKey: string;
+  };
+  authorId?: number;
   updatedAt?: string;
 }
-
-export interface LessonFolder {
-  id: string;
-  name: string;
-  parentId: string | null;
-  color?: string;
-}
-

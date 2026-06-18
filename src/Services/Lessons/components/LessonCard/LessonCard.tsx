@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Card, CardContent, Typography, Box, Chip, IconButton, type SxProps, type Theme } from '@mui/material';
+import { Card, CardContent, Typography, Box, IconButton, type SxProps, type Theme } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArticleIcon from '@mui/icons-material/Article';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import ContextMenu from '@/Services/Lessons/components/ContextMenu/ContextMenu';
-import { formatRelativeTime } from './utils';
 import { styles } from './LessonCard.styles';
 
 export interface LessonCardProps {
@@ -48,9 +47,6 @@ export default function LessonCard({
     }
   };
 
-  const isPublished = lesson.status === 'published';
-  const lastEdited = lesson.updatedAt ? formatRelativeTime(lesson.updatedAt) : 'только что';
-
   const cardStyle = selected
     ? ({ ...styles.card, ...styles.cardSelected } as SxProps<Theme>)
     : styles.card;
@@ -60,7 +56,7 @@ export default function LessonCard({
       <Card
         role="button"
         tabIndex={0}
-        aria-label={`Урок: ${lesson.title}, статус: ${lesson.status || 'черновик'}`}
+        aria-label={`Урок: ${lesson.title}`}
         sx={cardStyle}
         onClick={onClick}
         onDoubleClick={onOpen}
@@ -82,17 +78,6 @@ export default function LessonCard({
           <Typography variant="subtitle2" component="h3" sx={styles.title}>
             {lesson.title}
           </Typography>
-          <Box sx={styles.meta}>
-            <Chip
-              label={isPublished ? 'Опубликован' : 'Черновик'}
-              size="small"
-              color={isPublished ? 'success' : 'default'}
-              variant="outlined"
-            />
-            <Typography variant="caption" sx={styles.time}>
-              {lastEdited}
-            </Typography>
-          </Box>
         </CardContent>
       </Card>
 

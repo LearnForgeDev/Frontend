@@ -49,8 +49,9 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
   }, [schoolPublicId]);
 
   useEffect(() => {
+    if (userRole === 0) return;
     fetchToken();
-  }, [fetchToken]);
+  }, [fetchToken, userRole]);
 
   const handleCopy = () => {
     if (token) {
@@ -60,15 +61,14 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
     }
   };
 
+  if (userRole === 0) return null;
+
   return (
     <Paper className="admin-card" sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        {
-          userRole !== 0 &&
-          (<Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1.1rem' }}>
-            Токен-приглашение (Ученик)
-          </Typography>)
-        }
+        <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1.1rem' }}>
+          Токен-приглашение (Ученик)
+        </Typography>
         <Tooltip title="Сгенерировать заново">
           <IconButton onClick={fetchToken} disabled={loading} size="small" color="primary">
             <RefreshIcon />

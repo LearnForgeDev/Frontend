@@ -1,24 +1,42 @@
+import { useState } from 'react';
 import { useLessonMutations } from '../useLessonMutations/useLessonMutations';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNotification } from '@/Assets/Hooks/useNotification/useNotification';
 import type { UseCreateLessonFlowReturn } from './useCreateLessonFlow.types';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { useParams } from 'react-router-dom';
 
 export function useCreateLessonFlow({
   onSuccess
 }: {
-  onSuccess?: (lessonId: string, title: string) => void
+  onSuccess?: (lessonId: number, title: string) => void
 } = {}): UseCreateLessonFlowReturn {
   const { createLesson } = useLessonMutations();
   const queryClient = useQueryClient();
   const { createNotification } = useNotification();
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+  const [isFileUploading, setIsFileUploading] = useState(false);
 
-  const handleCreateLesson = async (folderId: string | null = null, title: string = 'Новый урок') => {
+  const handleCreateLesson = async (title: string = 'Новый урок', description: string = '') => {
+    if (!schoolPublicId) {
+      createNotification('Школа не найдена', undefined, 'error');
+      return;
+    }
+
     try {
-      // 1. Create a draft lesson
-      const newLesson = await createLesson.mutateAsync({ title, folderId });
+      setIsFileUploading(true);
+      const emptyLexicalJson = '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
+      const file = new File([emptyLexicalJson], `lesson::${encodeURIComponent(title)}.lesson`, { type: 'application/json' });
+      const uploadedFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+      setIsFileUploading(false);
+
+      const newLesson = await createLesson.mutateAsync({
+        title,
+        description,
+        lessonJsonFilePublicId: uploadedFile.publicId
+      });
       
-      // 2. Refresh the lessons list to show the new draft
-      await queryClient.invalidateQueries({ queryKey: ['lessons'] });
+      await queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
       
       if (onSuccess) {
         onSuccess(newLesson.id, newLesson.title);
@@ -27,12 +45,13 @@ export function useCreateLessonFlow({
       createNotification('Урок успешно создан', undefined, 'success');
     } catch (error) {
       console.error('Failed to create lesson flow', error);
+      setIsFileUploading(false);
       createNotification('Ошибка при создании урока', undefined, 'error');
     }
   };
 
   return {
     handleCreateLesson,
-    isCreating: createLesson.isPending,
+    isCreating: createLesson.isPending || isFileUploading,
   };
 }
