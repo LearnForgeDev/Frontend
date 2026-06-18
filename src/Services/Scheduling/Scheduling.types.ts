@@ -30,3 +30,19 @@ export interface ScheduleEvent {
   hostUserPublicId: string;
   attendees: Attendee[];
 }
+
+/** A school member, used to populate the attendee picker in the create form. */
+export interface Member {
+  userPublicId: string;
+  displayName: string;
+}
+
+/** Payload for creating a scheduled event (mirrors backend CreateScheduleEventModel). */
+export interface CreateScheduleEventInput {
+  title: string;
+  description: string | null;
+  startUtc: string;
+  endUtc: string;
+  room?: string;
+  attendeeUserPublicIds: string[];
+}
