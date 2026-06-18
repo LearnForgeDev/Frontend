@@ -18,6 +18,8 @@ const SchoolLayout = lazy(() => import('./Services/Schools/SchoolLayout/SchoolLa
 const SchoolOverviewPage = lazy(() => import('./Services/Schools/SchoolOverview/SchoolOverviewPage.tsx'));
 const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage.tsx'));
 const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage.tsx'));
+const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'));
+const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
 const AppRoutes = () => {
   const routes: RouteObject[] = [
@@ -71,6 +73,14 @@ const AppRoutes = () => {
         {
           path: "lessons",
           element: <LessonsPage />,
+        },
+        {
+          path: "files",
+          element: <FilesPage />,
+        },
+        {
+          path: "chats",
+          element: <ChatsPage />,
         },
         {
           path: "marketplace",

@@ -1,0 +1,122 @@
+import type { Theme } from '@mui/material/styles';
+
+export const styles = {
+  container: {
+    padding: (theme: Theme) => theme.spacing(4),
+    maxWidth: '1200px',
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    gap: (theme: Theme) => theme.spacing(3),
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: (theme: Theme) => theme.spacing(2),
+  },
+  title: {
+    fontWeight: 700,
+  },
+  toolbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    gap: (theme: Theme) => theme.spacing(2),
+    backgroundColor: (theme: Theme) => theme.palette.background.paper,
+    padding: (theme: Theme) => theme.spacing(2),
+    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+    boxShadow: (theme: Theme) => theme.shadows[1],
+  },
+  searchAndFilter: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: (theme: Theme) => theme.spacing(2),
+    flexWrap: 'wrap',
+    flexGrow: 1,
+  },
+  searchInput: {
+    maxWidth: '300px',
+    minWidth: '200px',
+  },
+  dropZone: {
+    border: (theme: Theme) => `2px dashed ${theme.palette.primary.main}`,
+    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+    padding: (theme: Theme) => theme.spacing(4),
+    textAlign: 'center',
+    backgroundColor: (theme: Theme) => `${theme.palette.primary.main}08`,
+    cursor: 'pointer',
+    transition: 'background-color 0.2s, border-color 0.2s',
+    '&:hover': {
+      backgroundColor: (theme: Theme) => `${theme.palette.primary.main}12`,
+    },
+  },
+  fileGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+    gap: (theme: Theme) => theme.spacing(3),
+  },
+  fileCard: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+    transition: 'transform 0.2s, box-shadow 0.2s',
+    '&:hover': {
+      transform: 'translateY(-4px)',
+      boxShadow: (theme: Theme) => theme.shadows[4],
+    },
+  },
+  fileCardHeader: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: (theme: Theme) => theme.spacing(2),
+    padding: (theme: Theme) => theme.spacing(2),
+  },
+  iconWrapper: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 48,
+    height: 48,
+    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+    backgroundColor: (theme: Theme) => theme.palette.action.hover,
+    color: (theme: Theme) => theme.palette.text.secondary,
+  },
+  fileInfo: {
+    flexGrow: 1,
+    minWidth: 0,
+  },
+  fileName: {
+    fontWeight: 600,
+  },
+  cardActions: {
+    marginTop: 'auto',
+    justifyContent: 'flex-end',
+    borderTop: (theme: Theme) => `1px solid ${theme.palette.divider}`,
+    padding: (theme: Theme) => theme.spacing(1),
+  },
+  previewDialogContent: {
+    minHeight: '200px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: (theme: Theme) => theme.spacing(2),
+  },
+  previewText: {
+    fontFamily: 'monospace',
+    whiteSpace: 'pre-wrap',
+    backgroundColor: (theme: Theme) => theme.palette.action.hover,
+    padding: (theme: Theme) => theme.spacing(2),
+    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+    maxHeight: '400px',
+    overflowY: 'auto',
+  },
+  previewImage: {
+    maxWidth: '100%',
+    maxHeight: '450px',
+    objectFit: 'contain',
+    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+  },
+};
