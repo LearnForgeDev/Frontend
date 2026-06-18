@@ -11,6 +11,7 @@ import GraphPlugin from '../TextEditorComponents/plugins/GraphPlugin.tsx';
 import YouTubePlugin from '../TextEditorComponents/plugins/YoutubePlugin.tsx';
 import RutubePlugin from '../TextEditorComponents/plugins/RutubePlugin.tsx';
 import EquationsPlugin from '../TextEditorComponents/plugins/EquationsPlugin.tsx';
+import FilesPlugin from '../TextEditorComponents/plugins/FilesPlugin.tsx';
 import ToggleIsEditable from '../TextEditorComponents/plugins/ToggleIsEditable.tsx';
 import ControlsPlugin from '../TextEditorComponents/plugins/ControlsPlugin.tsx';
 import LoadPreviousStatePlugin from '../TextEditorComponents/plugins/LoadPreviousStatePlugin.tsx';
@@ -44,6 +45,7 @@ export default function TextEditor({
       <YouTubePlugin />
       <RutubePlugin />
       <EquationsPlugin />
+      <FilesPlugin />
       <ToggleIsEditable isEditable={isEditMode} />
       <LoadPreviousStatePlugin
         editorStatePromise={editorStatePromise}

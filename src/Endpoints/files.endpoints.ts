@@ -93,5 +93,12 @@ export const filesEndpoints = {
     formData.append('schoolPublicId', String(schoolId));
     const response = await apiClient.post<ApiFile>(`/api/ApiFiles/${schoolId}`, formData);
     return response.data;
+  },
+
+  /**
+   * Helper function to get the download/display URL for a file
+   */
+  getFileUrl(schoolId: number | string, fileId: string): string {
+    return `${config.endpointUrl}/api/ApiFiles/${schoolId}/${fileId}/content`;
   }
 };

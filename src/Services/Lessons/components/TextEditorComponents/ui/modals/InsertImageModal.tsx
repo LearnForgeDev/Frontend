@@ -3,13 +3,17 @@ import React, {useState} from 'react';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
 import {$createImageNode} from '../../nodes/ImageNode.tsx';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import './InsertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();
+  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId);
   const [imageUrl, setImageUrl] = useState("");
   const [imageUrlError, setImageUrlError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleInsert = async (src?: string, altText: string = "Image") => {
     const imageSource = src;
@@ -49,18 +53,28 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
     handleAddImg(e);
   };
 
-  const handleAddImg = (e: React.DragEvent<HTMLDivElement> | React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddImg = async (e: React.DragEvent<HTMLDivElement> | React.ChangeEvent<HTMLInputElement>) => {
     const file = 'dataTransfer' in e
       ? e.dataTransfer?.files[0]
       : e.target?.files?.[0];
 
     if (file && file.type.startsWith('image/')) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const src = event.target?.result as string;
-        handleInsert(src, file.name);
-      };
-      reader.readAsDataURL(file);
+      if (!schoolId) {
+        setImageUrlError('Не удалось определить ID школы для загрузки');
+        return;
+      }
+      setIsUploading(true);
+      setImageUrlError('');
+      try {
+        const apiFile = await filesEndpoints.uploadFileMultipart(schoolId, file);
+        const url = filesEndpoints.getFileUrl(schoolId, apiFile.publicId);
+        handleInsert(url, file.name);
+      } catch (error) {
+        console.error('Failed to upload image', error);
+        setImageUrlError('Ошибка при загрузке изображения');
+      } finally {
+        setIsUploading(false);
+      }
     }
   }
 
@@ -111,8 +125,9 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
             id='fileInput'
             onChange={handleAddImg}
             onClick={(e) => e.stopPropagation()}
+            disabled={isUploading}
           />
-          <span>Перетащите или нажмите</span >
+          <span>{isUploading ? 'Загрузка...' : 'Перетащите или нажмите'}</span >
         </div>
       </div>
     </Modal>

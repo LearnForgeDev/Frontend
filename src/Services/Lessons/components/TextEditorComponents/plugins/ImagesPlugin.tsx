@@ -14,7 +14,6 @@ import {
 } from '@lexical/utils';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
-import config from '../../../../../config';
 import {
   $createParagraphNode,
   $createRangeSelection, $getNodeByKey,
@@ -119,7 +118,7 @@ export default function ImagesPlugin({
 
                     const imageNode = $createImageNode({
                       altText: file.name,
-                      src: `${config.endpointUrl}/api/ApiFiles/${schoolId}/${apiFile.publicId}/content`,
+                      src: filesEndpoints.getFileUrl(schoolId, apiFile.publicId),
                     });
                     $insertNodes([imageNode]);
                     if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {

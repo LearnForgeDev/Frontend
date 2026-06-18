@@ -1,4 +1,5 @@
 import FormatText from '@/Assets/Art/images/toolbarIcons/file-earmark-text.svg';
+import FileIcon from '@/Assets/Art/images/toolbarIcons/file-earmark-text.svg';
 import FormatHeader1 from '@/Assets/Art/images/toolbarIcons/type-h1.svg';
 import FormatHeader2 from '@/Assets/Art/images/toolbarIcons/type-h2.svg';
 import FormatListNumberedIcon from '@/Assets/Art/images/toolbarIcons/list-ol.svg';
@@ -46,6 +47,7 @@ export const eventTypes = {
   insertGraphic: 'insertGraphic',
   insertVideo: 'insertVideo',
   insertEquation: 'insertEquation',
+  insertFile: 'insertFile',
 };
 
 const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
@@ -158,6 +160,11 @@ const pluginsList: Record<keyof typeof eventTypes, PluginItem> = {
     icon: EquationIcon,
     event: eventTypes.insertEquation,
     label: 'Вставить уравнение',
+  },
+  insertFile: {
+    icon: FileIcon,
+    event: eventTypes.insertFile,
+    label: 'Вставить файл',
   }
 };
 

@@ -39,23 +39,19 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setFolderId,
   } = useLessonsContext();
 
-  // Load backend data via hook
   const { lessons, folders, isLoading, isError, refetch } = useLessons();
 
-  // Load mutations hook
   const mutations = useLessonMutations();
   const { handleCreateLesson } = useCreateLessonFlow({
     onSuccess: (id, title) => handleOpenLesson(id, title)
   });
 
-  // Modal open states
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
 
-  // Compile combined navigatable list (folders first, then lessons)
   const combinedItems = [
     ...(folders || []).map((f) => ({ ...f, type: 'folder' as const })),
     ...(lessons || []).map((l) => ({ ...l, type: 'lesson' as const })),

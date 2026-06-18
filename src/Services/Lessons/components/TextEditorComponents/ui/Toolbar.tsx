@@ -22,6 +22,7 @@ import InsertImageModal from './modals/InsertImageModal.tsx';
 import FloatingLinkEditor from './modals/FloatingLinkEditor.tsx';
 import InsertVideoModal from './modals/InsertVideoModal.tsx';
 import KatexEquationModal from './modals/KatexEquationModal.tsx';
+import InsertFileModal from './modals/InsertFileModal.tsx';
 import {INSERT_EQUATION_COMMAND} from '../plugins/EquationsPlugin.tsx';
 import getSelectedNode from '../utils/getSelectedNode.ts';
 
@@ -46,6 +47,7 @@ export default function Toolbar() {
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
   const [isEquationModalOpen, setIsEquationModalOpen] = useState(false);
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
 
   const [isFloating, setIsFloating] = useState(false);
 
@@ -57,6 +59,7 @@ export default function Toolbar() {
       () => setIsImageModalOpen(true),
       () => setIsVideoModalOpen(true),
       () => setIsEquationModalOpen(true),
+      () => setIsFileModalOpen(true),
     );
   }
 
@@ -188,6 +191,7 @@ export default function Toolbar() {
         <DefaultButton button={plugins.insertVideo} action={handlePluginClick} />
         <DefaultButton button={plugins.insertGraphic} action={handlePluginClick} />
         <DefaultButton button={plugins.insertEquation} action={handlePluginClick} />
+        <DefaultButton button={plugins.insertFile} action={handlePluginClick} />
       </div>
 
       {/*MODALS*/}
@@ -217,6 +221,10 @@ export default function Toolbar() {
         />,
         document.body
       ) }
+      {isFileModalOpen && createPortal(
+        <InsertFileModal onClose={() => setIsFileModalOpen(false)} />,
+        document.body
+      )}
     </>
   )
 }
