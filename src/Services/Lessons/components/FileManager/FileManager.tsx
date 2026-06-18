@@ -13,6 +13,7 @@ import FolderOffIcon from '@mui/icons-material/FolderOff';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
 import { useLessons } from '@/Services/Lessons/hooks/useLessons/useLessons';
 import { useLessonMutations } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations';
+import { useCreateLessonFlow } from '@/Services/Lessons/hooks/useCreateLessonFlow/useCreateLessonFlow';
 import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import FileManagerToolbar from '../FileManagerToolbar/FileManagerToolbar';
 import FolderItem from '../FolderItem/FolderItem';
@@ -45,6 +46,9 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
 
   // Load mutations hook
   const mutations = useLessonMutations();
+  const { handleCreateLesson } = useCreateLessonFlow({
+    onSuccess: (id, title) => handleOpenLesson(id, title)
+  });
 
   // Modal open states
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
@@ -104,13 +108,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setIsDeleteConfirmOpen(false);
   };
 
-  const handleCreateLesson = async () => {
-    try {
-      const newLesson = await mutations.createLesson.mutateAsync({ title: 'Новый урок', folderId });
-      handleOpenLesson(newLesson.id, newLesson.title);
-    } catch (err) {
-      console.error('Failed to create lesson', err);
-    }
+  const onCreateLessonClick = () => {
+    handleCreateLesson(folderId);
   };
 
   const handleDrop = async (e: React.DragEvent) => {
@@ -270,7 +269,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
       <FileManagerToolbar
         folders={folders || []}
         onNewFolder={() => setIsNewFolderOpen(true)}
-        onNewLesson={handleCreateLesson}
+        onNewLesson={onCreateLessonClick}
       />
       {isUploading && (
         <Alert severity="info" sx={{ mb: 2 }}>
