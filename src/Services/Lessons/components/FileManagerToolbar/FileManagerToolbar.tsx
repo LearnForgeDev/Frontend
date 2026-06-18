@@ -16,6 +16,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
+import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
@@ -27,9 +28,10 @@ import { styles } from './FileManagerToolbar.styles';
 export interface FileManagerToolbarProps {
   folders: LessonFolder[];
   onNewFolder: () => void;
+  onNewLesson: () => void;
 }
 
-export default function FileManagerToolbar({ folders, onNewFolder }: FileManagerToolbarProps) {
+export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }: FileManagerToolbarProps) {
   const {
     folderId,
     setFolderId,
@@ -191,6 +193,15 @@ export default function FileManagerToolbar({ folders, onNewFolder }: FileManager
             <ViewListIcon fontSize="small" />
           </ToggleButton>
         </ToggleButtonGroup>
+
+        {/* New Lesson Action Button */}
+        <IconButton
+          aria-label="Создать новый урок"
+          color="primary"
+          onClick={onNewLesson}
+        >
+          <NoteAddIcon />
+        </IconButton>
 
         {/* New Folder Action Button */}
         <IconButton

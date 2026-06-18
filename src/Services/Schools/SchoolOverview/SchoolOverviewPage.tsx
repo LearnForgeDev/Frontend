@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { useParams } from 'react-router-dom';
 import { cardGridSx, headerRowSx, helperTextSx, infoCardSx, pageSx } from './SchoolOverviewPage.styles';
+import { InviteTokenWidget } from './Components/InviteTokenWidget';
 
 const SchoolOverviewPage = () => {
   const { schoolPublicId } = useParams();
@@ -28,6 +29,9 @@ const SchoolOverviewPage = () => {
         <Box className="admin-card" sx={infoCardSx}>
           <Typography sx={helperTextSx}>Перейдите в разделы “Файлы” и “Чаты” для работы.</Typography>
         </Box>
+        {schoolPublicId && (
+          <InviteTokenWidget schoolPublicId={schoolPublicId} />
+        )}
       </Box>
     </Box>
   );

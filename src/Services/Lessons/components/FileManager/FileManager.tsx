@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import {
   Box,
   Skeleton,
@@ -13,6 +13,7 @@ import FolderOffIcon from '@mui/icons-material/FolderOff';
 import { useLessonsContext } from '@/Storage/Context/LessonsContext';
 import { useLessons } from '@/Services/Lessons/hooks/useLessons/useLessons';
 import { useLessonMutations } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations';
+import { filesEndpoints } from '@/Endpoints/files.endpoints';
 import FileManagerToolbar from '../FileManagerToolbar/FileManagerToolbar';
 import FolderItem from '../FolderItem/FolderItem';
 import LessonCard from '../LessonCard/LessonCard';
@@ -49,6 +50,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   const [isNewFolderOpen, setIsNewFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
 
   // Compile combined navigatable list (folders first, then lessons)
   const combinedItems = [
@@ -99,6 +102,46 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setSelectedItemId(null);
     setSelectedItemType(null);
     setIsDeleteConfirmOpen(false);
+  };
+
+  const handleCreateLesson = async () => {
+    try {
+      const newLesson = await mutations.createLesson.mutateAsync({ title: 'Новый урок', folderId });
+      handleOpenLesson(newLesson.id, newLesson.title);
+    } catch (err) {
+      console.error('Failed to create lesson', err);
+    }
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    if (!schoolPublicId) return;
+    
+    const files = Array.from(e.dataTransfer.files);
+    const validExtensions = ['.doc', '.docx', '.xls', '.xlsx', '.pdf', '.png', '.jpeg', '.jpg'];
+    
+    const validFiles = files.filter(file => {
+      const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+      return validExtensions.includes(ext);
+    });
+
+    if (validFiles.length === 0) return;
+
+    setIsUploading(true);
+    try {
+      for (const file of validFiles) {
+        await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+      }
+      refetch();
+    } catch (err) {
+      console.error('Upload failed', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
   };
 
   // Keyboard navigation & accessibility handlers
@@ -223,11 +266,12 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   const isEmpty = combinedItems.length === 0;
 
   return (
-    <Box sx={styles.root} onClick={handlePageClick} onKeyDown={handleKeyDown}>
+    <Box sx={styles.root} onClick={handlePageClick} onKeyDown={handleKeyDown} onDrop={handleDrop} onDragOver={handleDragOver}>
       {/* Search and control actions bar */}
       <FileManagerToolbar
         folders={folders || []}
         onNewFolder={() => setIsNewFolderOpen(true)}
+        onNewLesson={handleCreateLesson}
       />
 
       {/* Main Files list layout zone */}

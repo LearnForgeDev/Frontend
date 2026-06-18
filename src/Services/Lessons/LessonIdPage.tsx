@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Box, Skeleton, Typography } from '@mui/material';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
+import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
 
 import type { viewLessonProps } from '@/Services/Lessons/lessonTypes';
 import './LessonIdPage.css';
@@ -19,7 +20,7 @@ export default function LessonIdPage() {
   const id = locationState?.id ?? paramId;
   const title = locationState?.title ?? 'Загрузка...';
 
-  const editorStatePromise = Promise.resolve(undefined);
+  const editorStatePromise = id ? lessonsEndpoints.getEditorStateAsJson(id) : Promise.resolve(undefined);
 
   return (
     <Box className='lesson-id-page'>

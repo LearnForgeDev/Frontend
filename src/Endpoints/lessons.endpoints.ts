@@ -1,5 +1,6 @@
 import { createApiClient } from '@/Endpoints/factory';
 import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { lessonObject } from '@/Services/Lessons/lessonTypes';
 import config from '../config';
 
 const client = createApiClient(config.endpointUrl);
@@ -87,4 +88,23 @@ export const lessonsEndpoints = {
    */
   deleteFolder: (id: string): Promise<void> =>
     client.delete<void>(`/lessons/folders/${id}`).then((res) => res.data),
+
+  /**
+   * POST /lessons/:id/editor-state
+   * Saves the editor state as JSON.
+   */
+  sendEditorStateAsJson: (
+    id: string | number,
+    serializedEditor: unknown
+  ): Promise<void> =>
+    client.post(`/lessons/${id}/editor-state`, serializedEditor),
+
+  /**
+   * GET /lessons/:id
+   * Fetches the lesson object with serializedEditorState.
+   */
+  getEditorStateAsJson: (
+    id: string | number
+  ): Promise<lessonObject> =>
+    client.get<lessonObject>(`/lessons/${id}`).then((res) => res.data),
 };
