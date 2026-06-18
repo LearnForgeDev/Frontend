@@ -22,7 +22,7 @@ export function JoinButton({ event, size = 'small' }: JoinButtonProps) {
       startIcon={joinMeeting.isPending ? <CircularProgress size={16} color="inherit" /> : <VideocamIcon />}
       onClick={() => joinMeeting.mutate(event)}
     >
-      {isOpen ? 'Join' : 'Not yet'}
+      {isOpen ? 'Войти' : 'Скоро'}
     </Button>
   );
 }

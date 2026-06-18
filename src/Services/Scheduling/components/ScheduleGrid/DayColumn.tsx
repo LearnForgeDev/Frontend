@@ -10,7 +10,7 @@ import {
 import type { DayColumnProps } from './ScheduleGrid.types';
 import { styles } from './ScheduleGrid.styles';
 
-const WEEKDAY = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const WEEKDAY = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
 
 /** One day's stacked timeline of positioned event blocks. */
 export function DayColumn({ date, events, onSelectEvent, selectedEventId, showHeader = true }: DayColumnProps & { showHeader?: boolean }) {

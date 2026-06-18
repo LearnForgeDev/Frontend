@@ -4,10 +4,10 @@
 export const JOIN_WINDOW_MINUTES = 5;
 
 /** First hour rendered in the day/widget grid (24h clock). */
-export const WIDGET_VISIBLE_START_HOUR = 8;
+export const WIDGET_VISIBLE_START_HOUR = 0;
 
-/** Last hour rendered in the day/widget grid (24h clock, inclusive). */
-export const WIDGET_VISIBLE_END_HOUR = 20;
+/** Last hour rendered in the day/widget grid (24h clock, inclusive — shows 24:00). */
+export const WIDGET_VISIBLE_END_HOUR = 24;
 
 /** Pixel height of a single one-hour slot in the calendar grid. */
 export const SLOT_HEIGHT_PX = 64;

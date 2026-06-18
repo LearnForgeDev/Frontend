@@ -60,6 +60,15 @@ export const scheduleEndpoints = {
   },
 
   /**
+   * PATCH /api/ApiSchedule/{schoolPublicId}/events/{eventId}
+   * Update a scheduled session (Teacher/Owner). Preserves id and room.
+   */
+  async updateEvent(schoolId: number | string, eventId: string, dto: CreateScheduleEventDto): Promise<ScheduleEventDto> {
+    const response = await apiClient.patch<ScheduleEventDto>(`/api/ApiSchedule/${schoolId}/events/${eventId}`, dto);
+    return response.data;
+  },
+
+  /**
    * DELETE /api/ApiSchedule/{schoolPublicId}/events/{eventId}
    * Delete a scheduled session. Teacher/Owner only.
    */

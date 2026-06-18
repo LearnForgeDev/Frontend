@@ -14,6 +14,7 @@ import { AgendaList } from '@/Services/Scheduling/components/ScheduleGrid/Agenda
 import { UpcomingEventsList } from '@/Services/Scheduling/components/UpcomingEventsList/UpcomingEventsList';
 import { EventDetailPanel } from '@/Services/Scheduling/components/EventDetailPanel/EventDetailPanel';
 import { CreateEventModal } from '@/Services/Scheduling/components/CreateEventModal/CreateEventModal';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 import { styles } from './SchedulePage.styles';
 
 function SchedulePageInner() {
@@ -22,11 +23,17 @@ function SchedulePageInner() {
   const canManage = useIsTeacherOrOwner();
   const { deleteEvent } = useScheduleMutations();
   const [createOpen, setCreateOpen] = useState(false);
+  const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
 
   const selectedEvent = useMemo(
     () => events.find((e) => e.id === selectedEventId) ?? null,
     [events, selectedEventId],
   );
+
+  const closeModal = () => {
+    setCreateOpen(false);
+    setEditingEvent(null);
+  };
 
   const shiftDate = (direction: 1 | -1) => {
     const step = view === 'week' ? 7 : 1;
@@ -45,7 +52,7 @@ function SchedulePageInner() {
     <Box sx={styles.root}>
       <Box sx={styles.header}>
         <Typography variant="h5" sx={styles.heading}>
-          Schedule
+          Расписание
         </Typography>
         <Box sx={styles.headerControls}>
           {view !== 'agenda' && (
@@ -61,7 +68,7 @@ function SchedulePageInner() {
           <ViewToggle />
           {canManage && (
             <Button variant="contained" startIcon={<AddIcon />} onClick={() => setCreateOpen(true)}>
-              New session
+              Новое занятие
             </Button>
           )}
         </Box>
@@ -70,9 +77,9 @@ function SchedulePageInner() {
       {isError ? (
         <Alert
           severity="error"
-          action={<Button color="inherit" size="small" onClick={() => refetch()}>Retry</Button>}
+          action={<Button color="inherit" size="small" onClick={() => refetch()}>Повторить</Button>}
         >
-          Could not load the schedule.
+          Не удалось загрузить расписание.
         </Alert>
       ) : isLoading ? (
         <Box sx={styles.body}>
@@ -84,17 +91,13 @@ function SchedulePageInner() {
         <Box sx={styles.body}>
           <Box sx={styles.left}>
             <Typography variant="subtitle2" sx={styles.railTitle}>
-              Planned
+              Запланированные
             </Typography>
             <UpcomingEventsList events={events} onSelect={setSelectedEventId} selectedEventId={selectedEventId} />
           </Box>
 
           <Box sx={styles.center}>
-            {events.length === 0 ? (
-              <Typography color="text.secondary" sx={styles.empty}>
-                No sessions scheduled.
-              </Typography>
-            ) : view === 'week' ? (
+            {view === 'week' ? (
               <WeekGrid {...gridProps} />
             ) : view === 'day' ? (
               <DayGrid {...gridProps} />
@@ -108,6 +111,7 @@ function SchedulePageInner() {
               event={selectedEvent}
               canManage={canManage}
               isDeleting={deleteEvent.isPending}
+              onEdit={(ev) => setEditingEvent(ev)}
               onDelete={(id) =>
                 deleteEvent.mutate(id, {
                   onSuccess: () => setSelectedEventId(null),
@@ -118,7 +122,9 @@ function SchedulePageInner() {
         </Box>
       )}
 
-      {createOpen && <CreateEventModal onClose={() => setCreateOpen(false)} />}
+      {(createOpen || editingEvent) && (
+        <CreateEventModal event={editingEvent} onClose={closeModal} />
+      )}
     </Box>
   );
 }

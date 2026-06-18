@@ -26,7 +26,7 @@ beforeEach(() => mutate.mockClear());
 describe('JoinButton', () => {
   it('is enabled when the window is open and joins on click', () => {
     render(<JoinButton event={event} />);
-    const btn = screen.getByRole('button', { name: /join/i });
+    const btn = screen.getByRole('button', { name: /войти/i });
     expect((btn as HTMLButtonElement).disabled).toBe(false);
     fireEvent.click(btn);
     expect(mutate).toHaveBeenCalledWith(event);
