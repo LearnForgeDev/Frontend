@@ -10,7 +10,7 @@ export default function LessonIdPage() {
   // TODO: Добавить проверку на существование lessonId
   // TODO: Добавить проверку на возможность редактирования урока
   // TODO: Добавить подгрузку данных урока по lessonId
-  const { id: paramId, schoolPublicId } = useParams<{id: string, schoolPublicId: string}>();
+  const { id: paramId } = useParams<{id: string}>();
   const locationState = useLocation()?.state as viewLessonProps | null;
   const [searchParams] = useSearchParams();
   const isEditMode = searchParams.get('edit') === 'true';

@@ -60,6 +60,11 @@ export function createApiClient(baseURL: string): AxiosInstance {
     async (error) => {
       sequentialErrorCount++;
       const originalRequest = error.config;
+      if (error.response?.status === 403) {
+        window.location.href = '/403';
+        return Promise.reject(normaliseError(error));
+      }
+
       if (error.response?.status !== 401 || originalRequest._retry) {
         return Promise.reject(normaliseError(error));
       }

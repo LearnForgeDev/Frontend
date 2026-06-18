@@ -119,7 +119,7 @@ export default function ImagesPlugin({
 
                     const imageNode = $createImageNode({
                       altText: file.name,
-                      src: `${config.endpointUrl}/api/ApiFiles/${schoolId}/${apiFile.id}/content`,
+                      src: `${config.endpointUrl}/api/ApiFiles/${schoolId}/${apiFile.publicId}/content`,
                     });
                     $insertNodes([imageNode]);
                     if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
