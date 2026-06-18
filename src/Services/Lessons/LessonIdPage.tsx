@@ -1,12 +1,10 @@
-import { lazy, Suspense } from 'react';
-import { Box, Skeleton, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { useLocation, useParams, useSearchParams } from 'react-router-dom';
-import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
 
 import type { viewLessonProps } from '@/Services/Lessons/lessonTypes';
 import './LessonIdPage.css';
 
-const TextEditor = lazy(() => import('./components/TextEditor/TextEditor'));
+import LessonEditorContainer from './components/LessonEditorContainer/LessonEditorContainer';
 
 export default function LessonIdPage() {
   // TODO: Добавить проверку на существование lessonId
@@ -20,8 +18,6 @@ export default function LessonIdPage() {
   const id = locationState?.id ?? paramId;
   const title = locationState?.title ?? 'Загрузка...';
 
-  const editorStatePromise = id ? lessonsEndpoints.getEditorStateAsJson(id) : Promise.resolve(undefined);
-
   return (
     <Box className='lesson-id-page'>
       <Typography
@@ -31,35 +27,12 @@ export default function LessonIdPage() {
       >
         {title}
       </Typography>
-      <Suspense fallback={<SkeletonBox />}>
-        <TextEditor
+      {id && (
+        <LessonEditorContainer
           isEditMode={isEditMode}
-          id={id!}
-          editorStatePromise={editorStatePromise}
+          id={id}
         />
-      </Suspense>
-    </Box>
-  );
-}
-
-function SkeletonBox() {
-  return (
-    <Box className="editor-input" sx={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <Skeleton variant="rectangular" sx={{ width: '50%', margin: '1rem auto', height: '1.5rem', borderRadius: '10px' }} />
-      <Skeleton variant="rectangular" sx={{ width: '70%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '95%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '85%', borderRadius: '10px', height: '1rem' }} />
-
-      <Skeleton variant="rectangular" sx={{ width: '40%', margin: '2rem auto 1rem auto', height: '1.2rem', borderRadius: '10px' }} />
-      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '92%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '88%', borderRadius: '10px', height: '1rem' }} />
-
-      <Skeleton variant="rectangular" sx={{ width: '100%', borderRadius: '10px', height: '1rem' }} />
-      <Skeleton variant="rectangular" sx={{ width: '97%', borderRadius: '10px', height: '1rem' }} />
+      )}
     </Box>
   );
 }
