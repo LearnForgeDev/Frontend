@@ -30,9 +30,18 @@ export const branchesEndpoints = {
    */
   async createBranch(
     schoolId: number | string,
+    schoolPublicId: string,
     dto: { name: string; description: string }
   ): Promise<Branch> {
-    const response = await apiClient.post<Branch>(`/api/ApiBreanches/${schoolId}/createBreanch`, dto);
+    const response = await apiClient.post<Branch>(
+      `/api/ApiBreanches/${schoolId}/createBreanch?schoolPublicId=${schoolPublicId}`,
+      { ...dto, schoolPublicId },
+      {
+        headers: {
+          schoolPublicId,
+        },
+      }
+    );
     return response.data;
   },
 

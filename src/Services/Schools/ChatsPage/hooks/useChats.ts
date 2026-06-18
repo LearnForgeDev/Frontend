@@ -41,7 +41,7 @@ export function useChats(schoolId: number, schoolPublicId: string) {
 
   const createBranchMutation = useMutation({
     mutationFn: (dto: { name: string; description: string }) =>
-      branchesEndpoints.createBranch(schoolId, dto),
+      branchesEndpoints.createBranch(schoolId, schoolPublicId, dto),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolId] });
     },

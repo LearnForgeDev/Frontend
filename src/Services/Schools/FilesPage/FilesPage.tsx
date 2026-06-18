@@ -112,8 +112,9 @@ export default function FilesPage() {
 
   const filteredFiles = useMemo(() => {
     return files.filter((file) => {
-      const matchesSearch = file.name.toLowerCase().includes(search.toLowerCase());
-      const category = getFileCategory(file.name);
+      const fileName = file.name || '';
+      const matchesSearch = fileName.toLowerCase().includes(search.toLowerCase());
+      const category = getFileCategory(fileName);
       
       let matchesFilter = true;
       if (filterType !== 'all') {
@@ -172,7 +173,7 @@ export default function FilesPage() {
       showNotification({
         id: `delete-success-${Date.now()}`,
         title: 'Файл удален',
-        subtitle: `Файл ${deleteConfirmFile.name} успешно удален.`,
+        subtitle: `Файл ${deleteConfirmFile.name || ''} успешно удален.`,
         priority: 'low',
         time: 3000,
       });
@@ -192,7 +193,7 @@ export default function FilesPage() {
 
   const handleOpenPreview = async (file: ApiFile) => {
     setPreviewFile(file);
-    const category = getFileCategory(file.name);
+    const category = getFileCategory(file.name || '');
     
     if (category === 'text') {
       setIsPreviewLoading(true);
@@ -363,11 +364,11 @@ export default function FilesPage() {
               <Card key={file.id} sx={styles.fileCard} variant="outlined">
                 <Box sx={styles.fileCardHeader}>
                   <Box sx={styles.iconWrapper}>
-                    {getFileIcon(file.name)}
+                    {getFileIcon(file.name || '')}
                   </Box>
                   <Box sx={styles.fileInfo}>
-                    <Typography variant="body2" sx={styles.fileName} noWrap title={file.name}>
-                      {file.name}
+                    <Typography variant="body2" sx={styles.fileName} noWrap title={file.name || ''}>
+                      {file.name || 'Без названия'}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                       Размер: {formatFileSize(file.sizeBytes)}
@@ -389,7 +390,7 @@ export default function FilesPage() {
                     size="small"
                     component="a"
                     href={getDownloadUrl(file)}
-                    download={file.name}
+                    download={file.name || 'file'}
                     title="Скачать"
                   >
                     <DownloadIcon fontSize="small" />
@@ -423,11 +424,11 @@ export default function FilesPage() {
                   <TableRow key={file.id} hover>
                     <TableCell sx={{ fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        {getFileIcon(file.name)}
-                        <span title={file.name}>{file.name}</span>
+                        {getFileIcon(file.name || '')}
+                        <span title={file.name || ''}>{file.name || 'Без названия'}</span>
                       </Box>
                     </TableCell>
-                    <TableCell>{file.name.split('.').pop()?.toUpperCase() || 'Неизвестно'}</TableCell>
+                    <TableCell>{(file.name || '').split('.').pop()?.toUpperCase() || 'Неизвестно'}</TableCell>
                     <TableCell align="right">{formatFileSize(file.sizeBytes)}</TableCell>
                     <TableCell>{new Date(file.uploadedAt).toLocaleDateString()}</TableCell>
                     <TableCell align="right">
@@ -442,7 +443,7 @@ export default function FilesPage() {
                         size="small"
                         component="a"
                         href={getDownloadUrl(file)}
-                        download={file.name}
+                        download={file.name || 'file'}
                         title="Скачать"
                       >
                         <DownloadIcon fontSize="small" />
@@ -471,7 +472,7 @@ export default function FilesPage() {
         <DialogTitle>Удаление файла</DialogTitle>
         <DialogContent>
           <Typography>
-            Вы действительно хотите удалить файл <strong>{deleteConfirmFile?.name}</strong>?
+            Вы действительно хотите удалить файл <strong>{deleteConfirmFile?.name || ''}</strong>?
             Это действие нельзя будет отменить.
           </Typography>
         </DialogContent>
@@ -493,21 +494,21 @@ export default function FilesPage() {
         fullWidth
       >
         <DialogTitle sx={{ pr: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          Просмотр: {previewFile?.name}
+          Просмотр: {previewFile?.name || ''}
         </DialogTitle>
         <DialogContent dividers sx={styles.previewDialogContent}>
-          {previewFile && getFileCategory(previewFile.name) === 'image' && (
+          {previewFile && getFileCategory(previewFile.name || '') === 'image' && (
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box
                 component="img"
                 src={getDownloadUrl(previewFile)}
-                alt={previewFile.name}
+                alt={previewFile.name || ''}
                 sx={styles.previewImage}
               />
             </Box>
           )}
 
-          {previewFile && getFileCategory(previewFile.name) === 'text' && (
+          {previewFile && getFileCategory(previewFile.name || '') === 'text' && (
             <Box>
               {isPreviewLoading ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
@@ -521,7 +522,7 @@ export default function FilesPage() {
             </Box>
           )}
 
-          {previewFile && getFileCategory(previewFile.name) === 'pdf' && (
+          {previewFile && getFileCategory(previewFile.name || '') === 'pdf' && (
             <Box sx={{ height: '500px', width: '100%' }}>
               <Box
                 component="iframe"
@@ -533,7 +534,7 @@ export default function FilesPage() {
             </Box>
           )}
 
-          {previewFile && !['image', 'text', 'pdf'].includes(getFileCategory(previewFile.name)) && (
+          {previewFile && !['image', 'text', 'pdf'].includes(getFileCategory(previewFile.name || '')) && (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <InsertDriveFileIcon sx={{ fontSize: 80, color: 'text.secondary', mb: 2 }} />
               <Typography variant="body1" gutterBottom>
@@ -549,7 +550,7 @@ export default function FilesPage() {
           <Button
             component="a"
             href={previewFile ? getDownloadUrl(previewFile) : undefined}
-            download={previewFile?.name}
+            download={previewFile?.name || 'file'}
             variant="contained"
             color="primary"
             startIcon={<DownloadIcon />}
