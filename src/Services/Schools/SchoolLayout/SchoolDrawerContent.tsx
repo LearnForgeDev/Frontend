@@ -126,7 +126,13 @@ export default function SchoolDrawerContent({
           <ListItemText primary="Сервисы" />
         </ListItemButton>
 
-        <ListItemButton disabled sx={schoolNavItemSx}>
+        <ListItemButton
+          component={NavLink}
+          to={`${basePath}/schedule`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/schedule`}
+          sx={schoolNavItemSx}
+        >
           <ListItemIcon sx={schoolNavIconSx}>
             <Box component="span" className="material-symbols-outlined">calendar_today</Box>
           </ListItemIcon>
