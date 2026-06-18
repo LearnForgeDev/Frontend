@@ -23,6 +23,7 @@ const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'
 const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
 const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
+const ProfilePage = lazy(() => import('./Services/Profile/ProfilePage.tsx'));
 const AppRoutes = () => {
   const routes: RouteObject[] = [
     {
@@ -57,6 +58,16 @@ const AppRoutes = () => {
         {
           path: "services/*",
           element: <AdminPlaceholder />,
+        },
+      ],
+    },
+    {
+      path: "/profile",
+      element: <AdminPanelLayout />,
+      children: [
+        {
+          index: true,
+          element: <ProfilePage />,
         },
       ],
     },

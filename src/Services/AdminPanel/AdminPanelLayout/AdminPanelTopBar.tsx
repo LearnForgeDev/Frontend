@@ -71,7 +71,12 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
           <IconButton sx={topbarIconButtonSx} aria-label="Настройки" onClick={handleSettingsClick}>
             <Box component="span" className="material-symbols-outlined">settings</Box>
           </IconButton>
-          <Box sx={avatarSx}>{name.slice(0, 2)}</Box>
+          <Box
+            sx={{ ...avatarSx, cursor: 'pointer', transition: 'opacity 0.2s', '&:hover': { opacity: 0.8 } }}
+            onClick={() => navigate('/profile')}
+          >
+            {name.slice(0, 2)}
+          </Box>
         </Box>
       </Toolbar>
     </AppBar>
