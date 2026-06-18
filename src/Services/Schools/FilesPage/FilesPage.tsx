@@ -271,7 +271,7 @@ export default function FilesPage() {
               input: {
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon size="small" />
+                    <SearchIcon fontSize="small" />
                   </InputAdornment>
                 ),
               },
@@ -369,10 +369,10 @@ export default function FilesPage() {
                     <Typography variant="body2" sx={styles.fileName} noWrap title={file.name}>
                       {file.name}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block">
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                       Размер: {formatFileSize(file.sizeBytes)}
                     </Typography>
-                    <Typography variant="caption" color="text.secondary" display="block">
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                       Загружен: {new Date(file.uploadedAt).toLocaleDateString()}
                     </Typography>
                   </Box>

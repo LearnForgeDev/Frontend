@@ -404,7 +404,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
           <Typography variant="subtitle1" sx={styles.chatHeaderTitle} noWrap>
             {activeThread.name}
           </Typography>
-          <Typography variant="caption" color="text.secondary" display="block">
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
             {activeThread.type === 'branch' ? 'Групповая ветка' : 'Личный чат'}
           </Typography>
         </Box>
