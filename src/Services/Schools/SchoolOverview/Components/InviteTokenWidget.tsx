@@ -78,7 +78,7 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = ({ schoolPubl
 
       {!loading && !error && token && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'background.default', p: 1.5, borderRadius: 2 }}>
-          <Typography sx={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: 2, fontWeight: 600, color: 'primary.main', flexGrow: 1 }}>
+          <Typography sx={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: 2, fontWeight: 600, color: 'primary.main', flexGrow: 1, overflowX: 'scroll' }}>
             {token}
           </Typography>
           <Tooltip title={copied ? "Скопировано!" : "Скопировать токен"} placement="top">
