@@ -38,10 +38,6 @@ const AppRoutes = () => {
           path: "/Lessons/:lessonId",
           element: <LessonIdPage />,
         },
-        {
-          path: "/settings",
-          element: <SettingsPage />,
-        },
       ],
     },
     {
@@ -93,6 +89,10 @@ const AppRoutes = () => {
         {
           path: "lessons/:lessonId",
           element: <LessonIdPage />,
+        },
+        {
+          path: "settings",
+          element: <SettingsPage />,
         },
       ],
     },

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppBar, Box, IconButton, Toolbar, Typography, Badge } from '@mui/material';
 import {
   appBarSx,
@@ -32,6 +33,15 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
     setNotificationsAnchorEl(null);
   };
 
+  const navigate = useNavigate();
+  const { schoolPublicId } = useParams();
+
+  const handleSettingsClick = () => {
+    if (schoolPublicId) {
+      navigate(`/admin/schools/${schoolPublicId}/settings`);
+    }
+  };
+
   const user = useGlobalContext();
   const name = user?.auth?.user?.userName || 'default user';
 
@@ -58,7 +68,7 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
           </IconButton>
           <NotificationsPopover anchorEl={notificationsAnchorEl} onClose={handleCloseNotifications} />
 
-          <IconButton sx={topbarIconButtonSx} aria-label="Настройки">
+          <IconButton sx={topbarIconButtonSx} aria-label="Настройки" onClick={handleSettingsClick}>
             <Box component="span" className="material-symbols-outlined">settings</Box>
           </IconButton>
           <Box sx={avatarSx}>{name.slice(0, 2)}</Box>
