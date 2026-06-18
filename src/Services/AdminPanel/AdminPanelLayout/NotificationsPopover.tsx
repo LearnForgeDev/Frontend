@@ -17,6 +17,8 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
   const removeNotification = useGlobalNotificationStore((state) => state.removeNotification);
   const isNotificationsEmpty = useGlobalNotificationStore((state) => state.isNotificationsEmpty);
 
+  const barNotifications = notifications.filter(n => !n.shouldDisplayGlobally);
+
   return (
     <Popover
       id={id}
@@ -49,7 +51,7 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
         <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1.1rem' }}>
           Уведомления
         </Typography>
-        {!isNotificationsEmpty() && (
+        {barNotifications.length > 0 && (
           <Button size="small" onClick={clearNotifications} sx={{ textTransform: 'none' }}>
             Очистить все
           </Button>
@@ -59,9 +61,9 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
       <Box sx={{ overflowY: 'auto', p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
         
         {/* Render standard notifications */}
-        {notifications.length > 0 ? (
+        {barNotifications.length > 0 ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            {notifications.map((n) => (
+            {barNotifications.map((n) => (
               <Notification
                 key={n.id}
                 title={n.title}
@@ -75,11 +77,11 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
         ) : null}
 
         {/* The widget moved from Dashboard */}
-        <Box sx={{ mt: notifications.length > 0 ? 1 : 0 }}>
+        <Box sx={{ mt: barNotifications.length > 0 ? 1 : 0 }}>
           <PendingSchoolRequestWidget />
         </Box>
 
-        {isNotificationsEmpty() && (
+        {barNotifications.length === 0 && (
           <Typography sx={{ textAlign: 'center', color: 'text.secondary', mt: 2, mb: 2 }}>
             Нет новых уведомлений
           </Typography>

@@ -17,7 +17,8 @@ export function useNotification() {
     icon?: string, 
     time: number = 3000, 
     saveNotification: boolean = false, 
-    priority?: 'low' | 'medium' | 'high'
+    priority?: 'low' | 'medium' | 'high',
+    shouldDisplayGlobally?: boolean
   ) => {
     const newNotification: NotificationConfig = {
       id: generateId(),
@@ -27,6 +28,7 @@ export function useNotification() {
       time,
       saveNotification,
       priority,
+      shouldDisplayGlobally,
     };
     pushNotification(newNotification);
   }, [pushNotification]);

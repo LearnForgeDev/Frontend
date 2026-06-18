@@ -7,13 +7,15 @@ export function NotificationRoot() {
   const notifications = useGlobalNotificationStore((state) => state.notifications);
   const removeNotification = useGlobalNotificationStore((state) => state.removeNotification);
 
-  if (notifications.length === 0) return null;
+  const globalNotifications = notifications.filter(n => n.shouldDisplayGlobally);
+
+  if (globalNotifications.length === 0) return null;
 
   return createPortal(
     <Box
       sx={{
         position: 'fixed',
-        top: 16,
+        bottom: 16,
         right: 16,
         zIndex: 2000,
         display: 'flex',
@@ -25,7 +27,7 @@ export function NotificationRoot() {
         }
       }}
     >
-      {notifications.map((notif) => (
+      {globalNotifications.map((notif) => (
         <Notification
           key={notif.id}
           title={notif.title}

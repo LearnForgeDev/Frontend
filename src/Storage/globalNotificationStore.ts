@@ -8,6 +8,7 @@ export interface NotificationConfig {
   time?: number;
   priority?: 'low' | 'medium' | 'high';
   saveNotification?: boolean;
+  shouldDisplayGlobally?: boolean;
 }
 
 interface GlobalNotificationState {

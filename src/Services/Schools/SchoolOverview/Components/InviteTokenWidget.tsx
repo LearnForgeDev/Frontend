@@ -3,16 +3,25 @@ import { Box, Typography, CircularProgress, Alert, Paper, IconButton, Tooltip } 
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { authEndpoints } from '../../../../Endpoints/auth.endpoints';
+import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useParams } from 'react-router-dom';
 
 interface InviteTokenWidgetProps {
   schoolPublicId: string;
 }
 
-export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = ({ schoolPublicId }) => {
+export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const { schoolPublicId } = useParams();
+  const userRole = useGlobalContext().auth.user?.roles.find((r) => String(r?.schoolId) === schoolPublicId)?.role;
+
+  if (!schoolPublicId) {
+    throw new Error('No active school public id');
+  }
 
   const fetchToken = useCallback(async () => {
     try {
@@ -54,9 +63,12 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = ({ schoolPubl
   return (
     <Paper className="admin-card" sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1.1rem' }}>
-          Токен-приглашение (Ученик)
-        </Typography>
+        {
+          userRole !== 0 &&
+          (<Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1.1rem' }}>
+            Токен-приглашение (Ученик)
+          </Typography>)
+        }
         <Tooltip title="Сгенерировать заново">
           <IconButton onClick={fetchToken} disabled={loading} size="small" color="primary">
             <RefreshIcon />
