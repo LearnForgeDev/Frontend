@@ -21,17 +21,17 @@ describe('EventDetailPanel', () => {
   it('shows Delete only when canManage', () => {
     const onDelete = vi.fn();
     const { rerender } = render(<EventDetailPanel event={event} canManage={false} onDelete={onDelete} />);
-    expect(screen.queryByRole('button', { name: /delete/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /удалить/i })).toBeNull();
 
     rerender(<EventDetailPanel event={event} canManage onDelete={onDelete} />);
-    const del = screen.getByRole('button', { name: /delete/i });
+    const del = screen.getByRole('button', { name: /удалить/i });
     fireEvent.click(del);
     expect(onDelete).toHaveBeenCalledWith('e1');
   });
 
   it('prompts to select when no event', () => {
     render(<EventDetailPanel event={null} canManage onDelete={() => {}} />);
-    expect(screen.getByText(/select a session/i)).toBeTruthy();
+    expect(screen.getByText(/выберите занятие/i)).toBeTruthy();
   });
 });
 

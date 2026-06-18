@@ -14,56 +14,76 @@ import {
 import { Modal } from '@/Assets/Components/Modal/Modal';
 import { useSchoolMembers } from '@/Services/Scheduling/hooks/useSchoolMembers/useSchoolMembers';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 import { styles } from './CreateEventModal.styles';
 
 export interface CreateEventModalProps {
   onClose: () => void;
+  /** When provided, the modal edits this event instead of creating a new one. */
+  event?: ScheduleEvent | null;
 }
 
-/** ISO string from a `datetime-local` value (treated as local time). */
+/** ISO (UTC) → `datetime-local` value (local time). */
+function toLocalInput(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** `datetime-local` value → ISO string (treated as local time). */
 function toIso(local: string): string {
   return new Date(local).toISOString();
 }
 
-export function CreateEventModal({ onClose }: CreateEventModalProps) {
-  const { members } = useSchoolMembers();
-  const { createEvent } = useScheduleMutations();
+export function CreateEventModal({ onClose, event = null }: CreateEventModalProps) {
+  const isEdit = !!event;
+  const { members, isLoading: membersLoading } = useSchoolMembers();
+  const { createEvent, updateEvent } = useScheduleMutations();
+  const mutation = isEdit ? updateEvent : createEvent;
 
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [start, setStart] = useState('');
-  const [end, setEnd] = useState('');
-  const [room, setRoom] = useState('');
-  const [attendeeIds, setAttendeeIds] = useState<string[]>([]);
+  const [title, setTitle] = useState(event?.title ?? '');
+  const [description, setDescription] = useState(event?.description ?? '');
+  const [start, setStart] = useState(event ? toLocalInput(event.start) : '');
+  const [end, setEnd] = useState(event ? toLocalInput(event.end) : '');
+  const [room, setRoom] = useState(event?.room ?? '');
+  const [attendeeIds, setAttendeeIds] = useState<string[]>(
+    event ? event.attendees.map((a) => a.userPublicId) : [],
+  );
   const [error, setError] = useState<string | null>(null);
 
-  const memberName = (id: string) => members.find((m) => m.userPublicId === id)?.displayName ?? id;
+  const memberName = (id: string) =>
+    members.find((m) => m.userPublicId === id)?.displayName
+    ?? event?.attendees.find((a) => a.userPublicId === id)?.displayName
+    ?? id;
 
   const handleSubmit = () => {
-    if (!title.trim()) return setError('Title is required.');
-    if (!start || !end) return setError('Start and end are required.');
-    if (new Date(start) >= new Date(end)) return setError('Start must be before end.');
+    if (!title.trim()) return setError('Укажите название.');
+    if (!start || !end) return setError('Укажите начало и конец.');
+    if (new Date(start) >= new Date(end)) return setError('Начало должно быть раньше конца.');
     setError(null);
 
-    createEvent.mutate(
-      {
-        title: title.trim(),
-        description: description.trim() ? description.trim() : null,
-        startUtc: toIso(start),
-        endUtc: toIso(end),
-        room: room.trim() ? room.trim() : undefined,
-        attendeeUserPublicIds: attendeeIds,
-      },
-      { onSuccess: onClose },
-    );
+    const input = {
+      title: title.trim(),
+      description: description.trim() ? description.trim() : null,
+      startUtc: toIso(start),
+      endUtc: toIso(end),
+      room: room.trim() ? room.trim() : undefined,
+      attendeeUserPublicIds: attendeeIds,
+    };
+
+    if (isEdit && event) {
+      updateEvent.mutate({ eventId: event.id, input }, { onSuccess: onClose });
+    } else {
+      createEvent.mutate(input, { onSuccess: onClose });
+    }
   };
 
   return (
-    <Modal title="New session" onClose={onClose}>
+    <Modal title={isEdit ? 'Редактировать занятие' : 'Новое занятие'} onClose={onClose}>
       <Box sx={styles.form}>
-        <TextField label="Title" value={title} onChange={(e) => setTitle(e.target.value)} required fullWidth />
+        <TextField label="Название" value={title} onChange={(e) => setTitle(e.target.value)} required fullWidth />
         <TextField
-          label="Description"
+          label="Описание"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           multiline
@@ -72,7 +92,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
         />
         <Box sx={styles.row}>
           <TextField
-            label="Start"
+            label="Начало"
             type="datetime-local"
             value={start}
             onChange={(e) => setStart(e.target.value)}
@@ -80,7 +100,7 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
             fullWidth
           />
           <TextField
-            label="End"
+            label="Конец"
             type="datetime-local"
             value={end}
             onChange={(e) => setEnd(e.target.value)}
@@ -89,20 +109,20 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
           />
         </Box>
         <TextField
-          label="Room (optional)"
+          label="Кабинет (необязательно)"
           value={room}
           onChange={(e) => setRoom(e.target.value)}
-          helperText="Leave blank to auto-allocate a Jitsi room."
+          helperText="Оставьте пустым — комната Jitsi будет создана автоматически."
           fullWidth
         />
         <FormControl fullWidth>
-          <InputLabel id="attendees-label">Attendees</InputLabel>
+          <InputLabel id="attendees-label">Участники</InputLabel>
           <Select
             labelId="attendees-label"
             multiple
             value={attendeeIds}
             onChange={(e) => setAttendeeIds(typeof e.target.value === 'string' ? e.target.value.split(',') : e.target.value)}
-            input={<OutlinedInput label="Attendees" />}
+            input={<OutlinedInput label="Участники" />}
             renderValue={(selected) => (
               <Box sx={styles.chips}>
                 {selected.map((id) => (
@@ -111,6 +131,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
               </Box>
             )}
           >
+            {members.length === 0 && (
+              <MenuItem disabled value="">
+                {membersLoading ? 'Загрузка участников…' : 'Участники не найдены'}
+              </MenuItem>
+            )}
             {members.map((m) => (
               <MenuItem key={m.userPublicId} value={m.userPublicId}>
                 {m.displayName}
@@ -126,11 +151,11 @@ export function CreateEventModal({ onClose }: CreateEventModalProps) {
         )}
 
         <Box sx={styles.actions}>
-          <Button onClick={onClose} disabled={createEvent.isPending}>
-            Cancel
+          <Button onClick={onClose} disabled={mutation.isPending}>
+            Отмена
           </Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={createEvent.isPending}>
-            Create
+          <Button variant="contained" onClick={handleSubmit} disabled={mutation.isPending}>
+            {isEdit ? 'Сохранить' : 'Создать'}
           </Button>
         </Box>
       </Box>

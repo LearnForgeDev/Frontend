@@ -42,6 +42,13 @@ export const styles = {
   },
   center: {
     minWidth: 0,
+    backgroundColor: 'background.paper',
+    border: '1px solid',
+    borderColor: 'divider',
+    borderRadius: 1,
+    p: 1,
+    maxHeight: '70vh',
+    overflow: 'auto',
   },
   right: {
     border: '1px solid',

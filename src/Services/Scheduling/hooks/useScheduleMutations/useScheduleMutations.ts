@@ -7,8 +7,14 @@ import { appErrorMessage } from '@/Services/Scheduling/utils/appErrorMessage';
 import type { ScheduleEvent, CreateScheduleEventInput } from '@/Services/Scheduling/Scheduling.types';
 import type { AppError } from '@/Endpoints/factory';
 
+export interface UpdateScheduleEventVars {
+  eventId: string;
+  input: CreateScheduleEventInput;
+}
+
 export interface UseScheduleMutationsReturn {
   createEvent: UseMutationResult<ScheduleEvent, AppError, CreateScheduleEventInput>;
+  updateEvent: UseMutationResult<ScheduleEvent, AppError, UpdateScheduleEventVars>;
   deleteEvent: UseMutationResult<void, AppError, string>;
 }
 
@@ -34,7 +40,16 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
   const createEvent = useMutation<ScheduleEvent, AppError, CreateScheduleEventInput>({
     mutationFn: (input) =>
       scheduleEndpoints.createEvent(schoolId, input).then(scheduleEventDtoToEvent),
-    onError: (error) => notifyError(error, 'Error Creating Session', 'Could not create the session.'),
+    onError: (error) => notifyError(error, 'Ошибка создания занятия', 'Не удалось создать занятие.'),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
+    },
+  });
+
+  const updateEvent = useMutation<ScheduleEvent, AppError, UpdateScheduleEventVars>({
+    mutationFn: ({ eventId, input }) =>
+      scheduleEndpoints.updateEvent(schoolId, eventId, input).then(scheduleEventDtoToEvent),
+    onError: (error) => notifyError(error, 'Ошибка изменения занятия', 'Не удалось изменить занятие.'),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
     },
@@ -42,11 +57,11 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
 
   const deleteEvent = useMutation<void, AppError, string>({
     mutationFn: (eventId) => scheduleEndpoints.deleteEvent(schoolId, eventId),
-    onError: (error) => notifyError(error, 'Error Deleting Session', 'Could not delete the session.'),
+    onError: (error) => notifyError(error, 'Ошибка удаления занятия', 'Не удалось удалить занятие.'),
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
     },
   });
 
-  return { createEvent, deleteEvent };
+  return { createEvent, updateEvent, deleteEvent };
 }

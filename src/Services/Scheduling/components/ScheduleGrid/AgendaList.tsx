@@ -4,7 +4,7 @@ import type { GridProps } from './ScheduleGrid.types';
 import { styles } from './ScheduleGrid.styles';
 
 function dayKey(iso: string): string {
-  return new Date(iso).toLocaleDateString([], {
+  return new Date(iso).toLocaleDateString('ru-RU', {
     weekday: 'short',
     day: '2-digit',
     month: 'short',

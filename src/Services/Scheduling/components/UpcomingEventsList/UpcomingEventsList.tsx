@@ -19,7 +19,7 @@ export function UpcomingEventsList({ events, onSelect, selectedEventId }: Upcomi
   if (upcoming.length === 0) {
     return (
       <Typography variant="body2" color="text.secondary" sx={styles.empty}>
-        No upcoming sessions.
+        Нет предстоящих занятий.
       </Typography>
     );
   }
