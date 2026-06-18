@@ -5,16 +5,16 @@ import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import { USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
 
 let isRefreshing = false;
-let refreshSubscribers: Array<() => void> = [];
+let refreshSubscribers: Array<(error: Error | null) => void> = [];
 let sequentialErrorCount = 0;
 const MAX_SEQUENTIAL_ERRORS = 5;
 
-function subscribeToRefresh(cb: () => void) {
+function subscribeToRefresh(cb: (error: Error | null) => void) {
   refreshSubscribers.push(cb);
 }
 
-function onRefreshed() {
-  refreshSubscribers.forEach((cb) => cb());
+function onRefreshed(error: Error | null = null) {
+  refreshSubscribers.forEach((cb) => cb(error));
   refreshSubscribers = [];
 }
 
@@ -70,9 +70,13 @@ export function createApiClient(baseURL: string): AxiosInstance {
       }
 
       if (isRefreshing) {
-        return new Promise((resolve) => {
-          subscribeToRefresh(() => {
-            resolve(instance(originalRequest));
+        return new Promise((resolve, reject) => {
+          subscribeToRefresh((error) => {
+            if (error) {
+              reject(error);
+            } else {
+              resolve(instance(originalRequest));
+            }
           });
         });
       }
@@ -100,10 +104,12 @@ export function createApiClient(baseURL: string): AxiosInstance {
           useGlobalContext.getState().auth.setUser(result);
         }
 
-        onRefreshed();
+        onRefreshed(null);
         return instance(originalRequest);
       } catch (refreshErr) {
         useGlobalContext.getState().auth.logout();
+        const errorToBroadcast = refreshErr instanceof Error ? refreshErr : new Error('Token refresh failed');
+        onRefreshed(errorToBroadcast);
         return Promise.reject(normaliseError(refreshErr));
       } finally {
         isRefreshing = false;

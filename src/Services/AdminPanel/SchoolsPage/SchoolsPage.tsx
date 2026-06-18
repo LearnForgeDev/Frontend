@@ -65,8 +65,8 @@ export default function SchoolsPage() {
 
   const handleJoinSchool = async () => {
     setJoinError(null);
-    if (inviteToken.trim().length !== 6) {
-      setJoinError("Введите корректный инвайт-токен (6 символов)");
+    if (inviteToken.trim().length === 0) {
+      setJoinError("Введите корректный инвайт-токен");
       return;
     }
 
