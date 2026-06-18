@@ -37,8 +37,6 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setSelectedItemType,
     setSearch,
     setFolderId,
-    createFolder,
-    deleteFolder,
   } = useLessonsContext();
 
   // Load backend data via hook
@@ -86,7 +84,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    createFolder({
+    mutations.createFolder.mutate({
       name: newFolderName,
       parentId: folderId,
     });
@@ -98,7 +96,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     if (!selectedItemId || !selectedItemType) return;
 
     if (selectedItemType === 'folder') {
-      deleteFolder(selectedItemId);
+      mutations.deleteFolder.mutate({ id: selectedItemId });
     } else {
       mutations.deleteLesson.mutate({ id: selectedItemId });
     }

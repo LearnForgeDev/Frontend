@@ -1,5 +1,4 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
-import type { LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
 
 export interface LessonsContextValue {
   folderId: string | null;
@@ -16,9 +15,6 @@ export interface LessonsContextValue {
   setSelectedItemId: (id: string | null) => void;
   selectedItemType: 'lesson' | 'folder' | null;
   setSelectedItemType: (type: 'lesson' | 'folder' | null) => void;
-  allFolders: LessonFolder[];
-  createFolder: (vars: { name: string; parentId: string | null; color?: string }) => LessonFolder;
-  deleteFolder: (id: string) => void;
 }
 
 const LessonsContext = createContext<LessonsContextValue | undefined>(undefined);
@@ -31,36 +27,6 @@ export function LessonsProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemType, setSelectedItemType] = useState<'lesson' | 'folder' | null>(null);
-
-  // TODO: replace local folder state with POST/DELETE /api/ApiBreanches
-  // once the backend implements folder-specific branch endpoints.
-  const [allFolders, setAllFolders] = useState<LessonFolder[]>(() => {
-    const saved = localStorage.getItem('localFolders');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  const createFolder = (vars: { name: string; parentId: string | null; color?: string }) => {
-    const newFolder: LessonFolder = {
-      id: crypto.randomUUID(),
-      name: vars.name,
-      parentId: vars.parentId,
-      color: vars.color,
-    } as LessonFolder;
-    setAllFolders((prev) => {
-      const updated = [...prev, newFolder];
-      localStorage.setItem('localFolders', JSON.stringify(updated));
-      return updated;
-    });
-    return newFolder;
-  };
-
-  const deleteFolder = (id: string) => {
-    setAllFolders((prev) => {
-      const updated = prev.filter((f) => f.id !== id);
-      localStorage.setItem('localFolders', JSON.stringify(updated));
-      return updated;
-    });
-  };
 
   const value = useMemo<LessonsContextValue>(
     () => ({
@@ -78,11 +44,8 @@ export function LessonsProvider({ children }: { children: ReactNode }) {
       setSelectedItemId,
       selectedItemType,
       setSelectedItemType,
-      allFolders,
-      createFolder,
-      deleteFolder,
     }),
-    [folderId, search, sort, order, view, selectedItemId, selectedItemType, allFolders]
+    [folderId, search, sort, order, view, selectedItemId, selectedItemType]
   );
 
   return <LessonsContext.Provider value={value}>{children}</LessonsContext.Provider>;
