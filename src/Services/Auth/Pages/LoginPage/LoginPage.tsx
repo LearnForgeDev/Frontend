@@ -20,8 +20,11 @@ function LoginPageContent() {
     const checkAndRefresh = async () => {
       try {
         const storedStr = localStorage.getItem(USER_STORAGE_KEY);
-        if (!storedStr) return;
-        
+        const cookies = document.cookie.split('; ');
+        const isAuthInCookies = cookies.includes('devushkavishnya');
+
+        if (!storedStr || !isAuthInCookies) return;
+
         const storedUser = JSON.parse(storedStr);
         if (storedUser?.refreshToken) {
           const result = await authEndpoints.refreshToken({ refreshToken: storedUser.refreshToken });
