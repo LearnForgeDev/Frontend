@@ -14,10 +14,11 @@ export interface ChatThread {
 
 export interface ChatMessage {
   id: string; // crypto.randomUUID() assigned on receipt
+  senderPublicId?: string;
   senderName: string;
   text: string;
   receivedAt: string; // ISO 8601, constructed from Date.now()
-  isOwn: boolean; // true when senderName === current user's userName
+  isOwn: boolean; // true when senderName === current user's userName or senderPublicId matches
 }
 
 export interface ChatFileDto {

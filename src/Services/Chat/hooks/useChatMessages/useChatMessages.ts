@@ -17,16 +17,19 @@ export function useChatMessages(params: ChatHubParams) {
 
     if (!params.threadId || !params.schoolPublicId) return;
 
+    const currentUserPublicId = useGlobalContext.getState().auth.user?.userPublicId;
+
     if (params.type === 'branch') {
       chatEndpoints.getBranchHistory(params.schoolPublicId, parseInt(params.threadId, 10))
         .then((history: BranchMessageDto[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
             id: h.publicId,
+            senderPublicId: h.senderPublicId,
             senderName: h.senderName,
             text: h.text,
             receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
-            isOwn: h.senderName === currentUserName,
+            isOwn: h.senderPublicId === currentUserPublicId || h.senderName === currentUserName,
           })));
         })
         .catch(console.error);
@@ -36,10 +39,11 @@ export function useChatMessages(params: ChatHubParams) {
           if (!isMounted) return;
           setMessages(history.map(h => ({
             id: h.publicId,
+            senderPublicId: h.senderPublicId,
             senderName: h.senderName,
             text: h.text,
             receivedAt: new Date().toISOString(),
-            isOwn: h.senderName === currentUserName,
+            isOwn: h.senderPublicId === currentUserPublicId || h.senderName === currentUserName,
           })));
         })
         .catch(console.error);

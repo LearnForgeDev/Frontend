@@ -7,7 +7,7 @@ export default function LessonsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
 
   const handleOpenLesson = (id: string, title: string) => {
-    navigate(`/admin/schools/${schoolPublicId}/lessons/${id}`, { state: { id, title } });
+    navigate(`/admin/schools/${schoolPublicId}/lessons/${id}?edit=true`, { state: { id, title } });
   };
 
   return (

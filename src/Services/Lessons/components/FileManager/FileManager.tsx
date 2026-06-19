@@ -70,7 +70,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     if (onOpenLesson) {
       onOpenLesson(id, title);
     } else {
-      navigate(`/Lessons/${id}`, { state: { id, title } });
+      navigate(`/Lessons/${id}?edit=true`, { state: { id, title } });
     }
   };
 

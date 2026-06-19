@@ -22,7 +22,7 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
     if (onOpenLesson) {
       onOpenLesson(id, title);
     } else {
-      navigate(`/Lessons/${id}`, { state: { id, title } });
+      navigate(`/Lessons/${id}?edit=true`, { state: { id, title } });
     }
   };
 
