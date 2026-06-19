@@ -9,7 +9,7 @@ import { useParams } from 'react-router-dom';
 export function useCreateLessonFlow({
   onSuccess
 }: {
-  onSuccess?: (lessonId: number, title: string) => void
+  onSuccess?: (lessonId: string, title: string) => void
 } = {}): UseCreateLessonFlowReturn {
   const { createLesson } = useLessonMutations();
   const queryClient = useQueryClient();

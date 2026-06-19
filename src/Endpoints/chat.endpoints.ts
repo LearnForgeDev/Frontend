@@ -32,5 +32,21 @@ export const chatEndpoints = {
   async listBranches(schoolId: number): Promise<ApiBranch[]> {
     const response = await apiClient.get<ApiBranch[]>(`/api/ApiBreanches/${schoolId}/all`);
     return response.data;
+  },
+
+  /**
+   * GET /api/ApiChat/{schoolPublicId}/{branchId}/history
+   */
+  async getBranchHistory(schoolPublicId: string, branchId: number) {
+    const response = await apiClient.get(`/api/ApiChat/${schoolPublicId}/${branchId}/history`);
+    return response.data;
+  },
+
+  /**
+   * GET /api/ApiChat/{schoolPublicId}/history/{otherUserPublicId}
+   */
+  async getDirectHistory(schoolPublicId: string, otherUserPublicId: string) {
+    const response = await apiClient.get(`/api/ApiChat/${schoolPublicId}/history/${otherUserPublicId}`);
+    return response.data;
   }
 };

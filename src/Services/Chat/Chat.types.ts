@@ -19,3 +19,27 @@ export interface ChatMessage {
   receivedAt: string; // ISO 8601, constructed from Date.now()
   isOwn: boolean; // true when senderName === current user's userName
 }
+
+export interface ChatFileDto {
+  publicId?: string;
+  fileName?: string;
+  fileUrl?: string;
+}
+
+export interface BranchMessageDto {
+  publicId: string;
+  senderPublicId: string;
+  senderName: string;
+  text: string;
+  files: ChatFileDto[];
+}
+
+export interface DirectMessageDto {
+  publicId: string;
+  senderPublicId: string;
+  senderName: string;
+  receiverPublicId: string;
+  receiverName: string;
+  text: string;
+  files: ChatFileDto[];
+}

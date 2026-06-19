@@ -44,6 +44,7 @@ export function useLessons(): UseLessonsReturn {
 
   return {
     lessons: processedLessons,
+    folders: undefined,
     isLoading: isLoadingLessons,
     isError: isErrorLessons,
     error: errorLessons,

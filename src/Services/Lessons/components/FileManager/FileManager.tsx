@@ -29,7 +29,6 @@ export interface FileManagerProps {
 export default function FileManager({ onOpenLesson }: FileManagerProps) {
   const navigate = useNavigate();
   const {
-    folderId,
     view,
     selectedItemId,
     setSelectedItemId,
@@ -79,10 +78,11 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     e.preventDefault();
     if (!newFolderName.trim()) return;
 
-    mutations.createFolder.mutate({
-      name: newFolderName,
-      parentId: folderId,
-    });
+    // mutations.createFolder.mutate({
+    //   name: newFolderName,
+    //   parentId: folderId,
+    // });
+    console.warn('Folder creation is disabled');
     setNewFolderName('');
     setIsNewFolderOpen(false);
   };
@@ -91,7 +91,8 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     if (!selectedItemId || !selectedItemType) return;
 
     if (selectedItemType === 'folder') {
-      mutations.deleteFolder.mutate({ id: selectedItemId });
+      // mutations.deleteFolder.mutate({ id: selectedItemId });
+      console.warn('Folder deletion is disabled');
     } else {
       mutations.deleteLesson.mutate({ id: selectedItemId });
     }
@@ -102,7 +103,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
   };
 
   const onCreateLessonClick = () => {
-    handleCreateLesson(folderId);
+    handleCreateLesson();
   };
 
   const handleDrop = async (e: React.DragEvent) => {

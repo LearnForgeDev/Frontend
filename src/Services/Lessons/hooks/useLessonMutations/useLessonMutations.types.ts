@@ -8,5 +8,5 @@ export interface CreateLessonVars {
 }
 
 export interface DeleteLessonVars {
-  id: number;
+  id: string;
 }

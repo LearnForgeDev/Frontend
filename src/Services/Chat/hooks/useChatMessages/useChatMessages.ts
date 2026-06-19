@@ -3,17 +3,52 @@ import { useChatHubConnection, type ChatHubParams } from '@/Assets/Hooks/useSign
 import type { ChatMessage } from '@/Services/Chat/Chat.types';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
+import { chatEndpoints } from '@/Endpoints/chat.endpoints';
+import type { BranchMessageDto, DirectMessageDto } from '@/Services/Chat/Chat.types';
+
 export function useChatMessages(params: ChatHubParams) {
   const { connection, status } = useChatHubConnection(params);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const currentUserName = useGlobalContext((s) => s.auth.user?.userName);
 
-  // Clear messages when thread changes. 
-  // No message persistence in this layer — messages are in-memory only per connection session.
-  // Page refresh starts fresh.
   useEffect(() => {
+    let isMounted = true;
     setMessages([]);
-  }, [params.threadId, params.type]);
+
+    if (!params.threadId || !params.schoolPublicId) return;
+
+    if (params.type === 'branch') {
+      chatEndpoints.getBranchHistory(params.schoolPublicId, parseInt(params.threadId, 10))
+        .then((history: BranchMessageDto[]) => {
+          if (!isMounted) return;
+          setMessages(history.map(h => ({
+            id: h.publicId,
+            senderName: h.senderName,
+            text: h.text,
+            receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
+            isOwn: h.senderName === currentUserName,
+          })));
+        })
+        .catch(console.error);
+    } else if (params.type === 'direct') {
+      chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
+        .then((history: DirectMessageDto[]) => {
+          if (!isMounted) return;
+          setMessages(history.map(h => ({
+            id: h.publicId,
+            senderName: h.senderName,
+            text: h.text,
+            receivedAt: new Date().toISOString(),
+            isOwn: h.senderName === currentUserName,
+          })));
+        })
+        .catch(console.error);
+    }
+
+    return () => {
+      isMounted = false;
+    };
+  }, [params.threadId, params.type, params.schoolPublicId, currentUserName]);
 
   useEffect(() => {
     if (!connection) return;

@@ -16,7 +16,7 @@ export const lessonsEndpoints = {
    * GET /api/ApiLessons/{schoolPublicId}/{id}
    * Fetches a specific lesson by its ID.
    */
-  getLessonById: (schoolPublicId: string, id: number): Promise<Lesson> =>
+  getLessonById: (schoolPublicId: string, id: string): Promise<Lesson> =>
     client.get<Lesson>(`/api/ApiLessons/${schoolPublicId}/${id}`).then((res) => res.data),
 
   /**
@@ -40,7 +40,7 @@ export const lessonsEndpoints = {
    * DELETE /api/ApiLessons/{schoolPublicId}/{id}
    * Deletes a specific lesson by ID.
    */
-  deleteLesson: (schoolPublicId: string, id: number): Promise<void> =>
+  deleteLesson: (schoolPublicId: string, id: string): Promise<void> =>
     client.delete<void>(`/api/ApiLessons/${schoolPublicId}/${id}`).then((res) => res.data),
 
   /**

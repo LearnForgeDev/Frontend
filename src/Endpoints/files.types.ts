@@ -48,11 +48,11 @@ export function apiFileToLesson(file: ApiFile): Lesson {
 
   return {
     id: lessonId,
+    publicId: lessonId,
     title,
     folderId: null,
     status,
     updatedAt: file.uploadedAt,
-    wordCount: 0,
-    thumbnailUrl: null,
-  } as Lesson & { wordCount: number; thumbnailUrl: null };
+    content: null,
+  } as Lesson;
 }

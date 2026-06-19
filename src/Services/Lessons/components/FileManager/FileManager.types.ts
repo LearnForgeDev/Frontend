@@ -1,5 +1,13 @@
+export interface LessonFolder {
+  id: string;
+  name: string;
+  parentId: string | null;
+  createdAt?: string;
+  color?: string;
+}
+
 export interface Lesson {
-  id: number;
+  id: string;
   publicId: string;
   title: string;
   description?: string;
@@ -10,4 +18,7 @@ export interface Lesson {
   };
   authorId?: number;
   updatedAt?: string;
+  status?: string;
+  content?: any;
+  folderId?: string | null;
 }
