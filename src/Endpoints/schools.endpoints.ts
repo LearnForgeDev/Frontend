@@ -19,12 +19,31 @@ export interface MemberDto {
   displayName: string;
 }
 
+/**
+ * Response for GET /api/ApiSchool/{schoolId}. Intentionally minimal today
+ * (id + name); the backend DTO is designed to grow (logo, description, plan…),
+ * so new optional fields can be added here without touching call sites.
+ */
+export interface SchoolInfo {
+  publicId: string;
+  name: string;
+}
+
 export const schoolsEndpoints = {
   /**
    * GET /api/ApiSchool/my-schools
    */
   async getMySchools(): Promise<UserSchoolInfo[]> {
     const response = await apiClient.get<UserSchoolInfo[]>('/api/ApiSchool/my-schools');
+    return response.data;
+  },
+
+  /**
+   * GET /api/ApiSchool/{schoolId}
+   * Returns public info for a single school (id + name). SchoolMember-gated.
+   */
+  async getSchoolInfo(schoolId: number | string): Promise<SchoolInfo> {
+    const response = await apiClient.get<SchoolInfo>(`/api/ApiSchool/${schoolId}`);
     return response.data;
   },
 

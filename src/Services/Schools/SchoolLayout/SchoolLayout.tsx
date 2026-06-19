@@ -10,6 +10,7 @@ import {
 } from '../../AdminPanel/AdminPanelLayout/AdminPanelLayout.styles';
 import { adminPanelCommonStyles } from '../../AdminPanel/AdminPanelLayout/AdminPanelCommon.styles';
 import SchoolDrawerContent from './SchoolDrawerContent';
+import { useSchoolInfo } from '@/Services/Schools/hooks/useSchoolInfo';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 import { ChatProvider } from '@/Storage/Context/useChatContext';
 import ChatWidget from '@/Services/Chat/components/ChatWidget/ChatWidget';
@@ -20,10 +21,13 @@ const SchoolLayout = () => {
   const isDesktop = useMediaQuery('(min-width:980px)');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId) || 0;
+  const { school } = useSchoolInfo(schoolPublicId);
 
-  const schoolName =
-    (location.state as { schoolName?: string } | null)?.schoolName ??
-    (schoolPublicId ? `Школа ${schoolPublicId}` : 'Школа');
+  // Resolve the real name from the endpoint (source of truth, survives reloads),
+  // falling back to the name passed via router state for instant render when
+  // navigating from the list, then a neutral placeholder — never the raw UUID.
+  const stateSchoolName = (location.state as { schoolName?: string } | null)?.schoolName;
+  const schoolName = school?.name ?? stateSchoolName ?? 'Школа';
 
   const pageTitle = useMemo(() => {
     return 'Обзор';
