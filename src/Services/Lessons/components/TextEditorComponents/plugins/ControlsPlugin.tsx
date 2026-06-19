@@ -1,11 +1,10 @@
 import './Controls.css';
-import {serializedDocumentFromEditorState} from '@lexical/file';
-import type {LexicalEditor} from 'lexical';
+import { serializedDocumentFromEditorState } from '@lexical/file';
+import type { LexicalEditor } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import {BeatLoader} from 'react-spinners';
-import { useState } from 'react';
+import { BeatLoader } from 'react-spinners';
 
-export default function ControlsPlugin({lessonId} : {lessonId: string | number}) {
+export default function ControlsPlugin({ lessonId }: { lessonId: string | number }) {
   const [editor] = useLexicalComposerContext();
 
   return (
@@ -20,34 +19,33 @@ export default function ControlsPlugin({lessonId} : {lessonId: string | number})
   );
 }
 
-function SaveButton({lessonId, editor}: {lessonId: string | number, editor: LexicalEditor}) {
-  const [isLoading, setIsLoading] = useState(false);
+import { useLessonEditor } from '@/Services/Lessons/hooks/useLessonEditor/useLessonEditor';
+
+function SaveButton({ lessonId, editor }: { lessonId: string | number, editor: LexicalEditor }) {
+  const { saveEditorState, isSaving } = useLessonEditor({ lessonId: String(lessonId) });
 
   const serializeEditor = async (editor: LexicalEditor) => {
-    return serializedDocumentFromEditorState(editor.getEditorState(),);
+    return serializedDocumentFromEditorState(editor.getEditorState());
   }
 
   const handleSave = (id: number | string) => {
-    setIsLoading(true);
     serializeEditor(editor)
-      // .then((serializedEditor) => sendEditorStateAsJson(id, serializedEditor))
+      .then((serializedEditor) => saveEditorState(serializedEditor))
       .then(() => {
         alert(`Урок успешно сохранён! (id: ${id})`);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Save failed:', error);
         alert('Не удалось сохранить урок');
-      })
-      .finally(() => {
-        setIsLoading(false);
       });
   };
 
   return (
     <button
       onClick={() => handleSave(lessonId)}
-      disabled={isLoading}
+      disabled={isSaving}
     >
-      {isLoading ? <BeatLoader size={8} color="#ffffff" /> : 'Сохранить'}
+      {isSaving ? <BeatLoader size={8} color="#ffffff" /> : 'Сохранить'}
     </button>
   );
 }

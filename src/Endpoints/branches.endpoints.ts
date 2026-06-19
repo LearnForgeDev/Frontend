@@ -27,13 +27,14 @@ export const branchesEndpoints = {
 
   /**
    * POST /api/ApiBreanches/{schoolId}/createBreanch
+   * Requires Teacher or Owner role.
    */
   async createBranch(
     schoolId: number | string,
     schoolPublicId: string,
     dto: { name: string; description: string }
-  ): Promise<Branch> {
-    const response = await apiClient.post<Branch>(
+  ): Promise<number> {
+    const response = await apiClient.post<number>(
       `/api/ApiBreanches/${schoolId}/createBreanch?schoolPublicId=${schoolPublicId}`,
       { ...dto, schoolPublicId },
       {

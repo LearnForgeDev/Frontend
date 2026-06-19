@@ -29,8 +29,8 @@ export const chatEndpoints = {
    * GET /api/ApiBreanches/{schoolId}/all
    * Fetches all branches (group chats) for a school.
    */
-  async listBranches(schoolId: number): Promise<ApiBranch[]> {
-    const response = await apiClient.get<ApiBranch[]>(`/api/ApiBreanches/${schoolId}/all`);
+  async listBranches(schoolPublicId: string): Promise<ApiBranch[]> {
+    const response = await apiClient.get<ApiBranch[]>(`/api/ApiBreanches/${schoolPublicId}/all`);
     return response.data;
   },
 

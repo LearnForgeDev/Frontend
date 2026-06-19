@@ -4,16 +4,16 @@ import type { ChatThread } from '@/Services/Chat/Chat.types';
 
 export function useChatList(schoolId: number, schoolPublicId: string) {
   const { data: branches, isLoading, isError } = useQuery({
-    queryKey: ['chat-branches', schoolId],
-    queryFn: () => chatEndpoints.listBranches(schoolId),
+    queryKey: ['chat-branches', schoolPublicId],
+    queryFn: () => chatEndpoints.listBranches(schoolPublicId),
     staleTime: 2 * 60 * 1000,
     enabled: !!schoolId && !!schoolPublicId,
   });
 
-  const branchThreads: ChatThread[] = branches?.map((branch) => ({
-    id: branch.id.toString(),
+  const branchThreads: ChatThread[] = branches?.map((branch: any) => ({
+    id: (branch.id ?? branch.Id)?.toString(),
     type: 'branch',
-    name: branch.name,
+    name: branch.name ?? branch.Name,
     schoolPublicId,
   })) || [];
 
