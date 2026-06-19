@@ -78,7 +78,7 @@ export default function ChatsPage() {
     if (!groupName.trim()) return;
 
     try {
-      const newBranch = await createBranch({
+      const newBranchId = await createBranch({
         name: groupName.trim(),
         description: groupDesc.trim(),
       });
@@ -86,21 +86,21 @@ export default function ChatsPage() {
       showNotification({
         id: `branch-created-${Date.now()}`,
         title: 'Ветка создана',
-        subtitle: `Ветка "${newBranch.name}" успешно создана в школе.`,
+        subtitle: `Ветка "${groupName.trim()}" успешно создана в школе.`,
         priority: 'low',
         time: 3000,
+      });
+
+      setActiveThread({
+        id: newBranchId.toString(),
+        type: 'branch',
+        name: groupName.trim(),
+        schoolPublicId,
       });
 
       setGroupName('');
       setGroupDesc('');
       setIsGroupDialogOpen(false);
-
-      setActiveThread({
-        id: newBranch.id.toString(),
-        type: 'branch',
-        name: newBranch.name,
-        schoolPublicId,
-      });
     } catch (err) {
       console.error(err);
       showNotification({

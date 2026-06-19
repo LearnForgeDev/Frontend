@@ -4,12 +4,12 @@ import type { ChatMessage } from '@/Services/Chat/Chat.types';
 import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
 
 import { chatEndpoints } from '@/Endpoints/chat.endpoints';
-import type { BranchMessageDto, DirectMessageDto } from '@/Services/Chat/Chat.types';
 
 export function useChatMessages(params: ChatHubParams) {
   const { connection, status } = useChatHubConnection(params);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const currentUserName = useGlobalContext((s) => s.auth.user?.userName);
+  const currentUserPublicId = useGlobalContext((s) => s.auth.user?.userPublicId);
 
   useEffect(() => {
     let isMounted = true;
@@ -17,33 +17,31 @@ export function useChatMessages(params: ChatHubParams) {
 
     if (!params.threadId || !params.schoolPublicId) return;
 
-    const currentUserPublicId = useGlobalContext.getState().auth.user?.userPublicId;
-
     if (params.type === 'branch') {
       chatEndpoints.getBranchHistory(params.schoolPublicId, parseInt(params.threadId, 10))
-        .then((history: BranchMessageDto[]) => {
+        .then((history: any[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
-            id: h.publicId,
-            senderPublicId: h.senderPublicId,
-            senderName: h.senderName,
-            text: h.text,
+            id: h.publicId ?? h.PublicId,
+            senderPublicId: h.senderPublicId ?? h.SenderPublicId,
+            senderName: h.senderName ?? h.SenderName,
+            text: h.text ?? h.Text,
             receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
-            isOwn: h.senderPublicId === currentUserPublicId || h.senderName === currentUserName,
+            isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
           })));
         })
         .catch(console.error);
     } else if (params.type === 'direct') {
       chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
-        .then((history: DirectMessageDto[]) => {
+        .then((history: any[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
-            id: h.publicId,
-            senderPublicId: h.senderPublicId,
-            senderName: h.senderName,
-            text: h.text,
+            id: h.publicId ?? h.PublicId,
+            senderPublicId: h.senderPublicId ?? h.SenderPublicId,
+            senderName: h.senderName ?? h.SenderName,
+            text: h.text ?? h.Text,
             receivedAt: new Date().toISOString(),
-            isOwn: h.senderPublicId === currentUserPublicId || h.senderName === currentUserName,
+            isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
           })));
         })
         .catch(console.error);
@@ -57,10 +55,11 @@ export function useChatMessages(params: ChatHubParams) {
   useEffect(() => {
     if (!connection) return;
 
-    const handler = (senderName: string, text: string) => {
-      const isOwn = senderName === currentUserName;
+    const handler = (senderPublicId: string, senderName: string, text: string) => {
+      const isOwn = senderPublicId === currentUserPublicId || senderName === currentUserName;
       const newMessage: ChatMessage = {
         id: crypto.randomUUID(),
+        senderPublicId,
         senderName,
         text,
         receivedAt: new Date().toISOString(),
