@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
-import type { ApiFile } from '@/Endpoints/files.types';
+import { filesEndpoints } from '@/Endpoints';
+import type { ApiFile } from '@/Endpoints';
 
 export function useFiles(schoolPublicId: string) {
   const queryClient = useQueryClient();

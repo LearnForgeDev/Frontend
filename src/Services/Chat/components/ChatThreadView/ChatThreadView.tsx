@@ -3,7 +3,7 @@ import { Box, Typography, IconButton, Avatar, Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
-import { useChatContext } from '@/Storage/Context/useChatContext';
+import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import ChatInput from './ChatInput';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
@@ -12,18 +12,17 @@ export default function ChatThreadView() {
   const { activeThread, setActiveThread } = useChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // activeThread should not be null here, but TypeScript needs this check
-  if (!activeThread) return null;
-
   const { messages, sendMessage, status } = useChatMessages({
-    type: activeThread.type,
-    threadId: activeThread.id,
-    schoolPublicId: activeThread.schoolPublicId,
+    type: activeThread?.type || 'branch',
+    threadId: activeThread?.id || '',
+    schoolPublicId: activeThread?.schoolPublicId || '',
   });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  if (!activeThread) return null;
 
   const getStatusColor = () => {
     switch (status) {

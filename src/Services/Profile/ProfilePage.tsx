@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Typography, Avatar, Card, CircularProgress, Alert, Paper } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
-import { schoolsEndpoints } from '@/Endpoints/schools.endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { schoolsEndpoints } from '@/Endpoints';
 
 const ProfilePage: React.FC = () => {
   const user = useGlobalContext((s) => s.auth.user);

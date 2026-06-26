@@ -1,10 +1,10 @@
 import { useMutation } from '@tanstack/react-query';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { authEndpoints } from '@/Endpoints/auth.endpoints';
-import { schoolsEndpoints } from '@/Endpoints/schools.endpoints';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
-import { useUser } from '@/Storage/Context/UserContext';
-import type { AppError } from '@/Endpoints/factory';
+import { authEndpoints } from '@/Endpoints';
+import { schoolsEndpoints } from '@/Endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import type { AppError } from '@/Endpoints';
 
 export function useLogin() {
   const navigate = useNavigate();

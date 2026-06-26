@@ -31,11 +31,10 @@ export function useChatHubConnection(params: ChatHubParams) {
       .withAutomaticReconnect(RECONNECT_DELAYS_MS)
       .build();
 
-    setConnection(newConnection);
-    setStatus('connecting');
-
     const startConnection = async () => {
       try {
+        setConnection(newConnection);
+        setStatus('connecting');
         await newConnection.start();
         setStatus('connected');
       } catch (err) {

@@ -3,7 +3,7 @@ import { useLessonMutations } from '../useLessonMutations/useLessonMutations';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNotification } from '@/Assets/Hooks/useNotification/useNotification';
 import type { UseCreateLessonFlowReturn } from './useCreateLessonFlow.types';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 
 export function useCreateLessonFlow({

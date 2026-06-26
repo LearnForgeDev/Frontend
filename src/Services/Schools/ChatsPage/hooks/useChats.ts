@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { branchesEndpoints } from '@/Endpoints/branches.endpoints';
+import { branchesEndpoints } from '@/Endpoints';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 
 export function useChats(schoolPublicId: string) {
@@ -9,21 +9,16 @@ export function useChats(schoolPublicId: string) {
   }
 
   const queryClient = useQueryClient();
-  const [directThreads, setDirectThreads] = useState<ChatThread[]>([]);
-
-  useEffect(() => {
+  const [directThreads, setDirectThreads] = useState<ChatThread[]>(() => {
     try {
       const key = `direct_threads_${schoolPublicId}`;
       const saved = localStorage.getItem(key);
-      if (saved) {
-        setDirectThreads(JSON.parse(saved));
-      } else {
-        setDirectThreads([]);
-      }
+      return saved ? JSON.parse(saved) : [];
     } catch (e) {
       console.error('Failed to load direct threads', e);
+      return [];
     }
-  }, [schoolPublicId]);
+  });
 
   const { data: branches = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['chats-branches', schoolPublicId],

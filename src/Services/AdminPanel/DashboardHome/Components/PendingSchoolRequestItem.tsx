@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material';
 import ClockIcon from '@/Assets/Art/images/ClockIcon.tsx';
 import StatusIcon from '@/Assets/Components/StatusIcon/StatusIcon';
 import * as S from './PendingSchoolRequestWidget.styles';
-import type { SchoolRequestStatusDto } from '@/Endpoints/auth.endpoints';
+import type { SchoolRequestStatusDto } from '@/Endpoints';
 
 type Props = {
   req: SchoolRequestStatusDto;

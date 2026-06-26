@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
-import { authEndpoints } from '@/Endpoints/auth.endpoints';
-import { useUser } from '@/Storage/Context/UserContext';
+import { authEndpoints } from '@/Endpoints';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
 
 const STORAGE_KEY = 'activeSchoolRequest';
 

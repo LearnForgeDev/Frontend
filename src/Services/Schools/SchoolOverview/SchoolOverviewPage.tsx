@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { cardGridSx, headerRowSx, helperTextSx, infoCardSx, pageSx } from './SchoolOverviewPage.styles';
 import { InviteTokenWidget } from './Components/InviteTokenWidget';
 import { ScheduleDashboardWidget } from '@/Services/Scheduling/ScheduleDashboardWidget';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 
 const SchoolOverviewPage = () => {
   const { schoolPublicId } = useParams();

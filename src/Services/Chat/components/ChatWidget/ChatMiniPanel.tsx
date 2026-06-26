@@ -1,5 +1,5 @@
 import { Paper } from '@mui/material';
-import { useChatContext } from '@/Storage/Context/useChatContext';
+import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import ChatList from '../ChatList/ChatList';
 import ChatThreadView from '../ChatThreadView/ChatThreadView';
 import { widgetStyles } from './ChatWidget.styles';

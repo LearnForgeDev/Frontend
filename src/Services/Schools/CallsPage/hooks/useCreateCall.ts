@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query';
-import { meetEndpoints } from '@/Endpoints/meet.endpoints';
+import { meetEndpoints } from '@/Endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import type { AppError } from '@/Endpoints/factory';
-import type { MeetTokenRequestDto } from '@/Endpoints/meet.types';
+import type { AppError } from '@/Endpoints';
+import type { MeetTokenRequestDto } from '@/Endpoints';
 
 export function useCreateCall() {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);

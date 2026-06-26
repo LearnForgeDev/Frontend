@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
-import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
-import { useLessonsContext } from '@/Storage/Context/LessonsContext';
+import { lessonsEndpoints } from '@/Endpoints';
+import { useLessonsContext } from '@/Storage/LessonsContext/LessonsContext.tsx';
 import type { UseLessonsReturn } from '@/Services/Lessons/hooks/useLessons/useLessons.types';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 
 export function useLessons(): UseLessonsReturn {
@@ -35,8 +35,8 @@ export function useLessons(): UseLessonsReturn {
       const aVal = a[sort as keyof Lesson] || '';
       const bVal = b[sort as keyof Lesson] || '';
       if (typeof aVal === 'string' && typeof bVal === 'string') {
-         const res = aVal.localeCompare(bVal);
-         return sortOrder === 'asc' ? res : -res;
+        const res = aVal.localeCompare(bVal);
+        return sortOrder === 'asc' ? res : -res;
       }
       return 0;
     });

@@ -10,11 +10,11 @@ import {
 } from '@mui/material';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import FolderOffIcon from '@mui/icons-material/FolderOff';
-import { useLessonsContext } from '@/Storage/Context/LessonsContext';
+import { useLessonsContext } from '@/Storage/LessonsContext/LessonsContext.tsx';
 import { useLessons } from '@/Services/Lessons/hooks/useLessons/useLessons';
 import { useLessonMutations } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations';
 import { useCreateLessonFlow } from '@/Services/Lessons/hooks/useCreateLessonFlow/useCreateLessonFlow';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { filesEndpoints } from '@/Endpoints';
 import FileManagerToolbar from '../FileManagerToolbar/FileManagerToolbar';
 import FolderItem from '../FolderItem/FolderItem';
 import LessonCard from '../LessonCard/LessonCard';

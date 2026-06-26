@@ -12,7 +12,7 @@ import {
   mainContentSx,
 } from "./AdminPanelLayout.styles";
 import { adminPanelCommonStyles } from './AdminPanelCommon.styles';
-import { useUser } from '@/Storage/Context/UserContext';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
 
 const AdminPanelLayout: React.FC = () => {
   const { user } = useUser();

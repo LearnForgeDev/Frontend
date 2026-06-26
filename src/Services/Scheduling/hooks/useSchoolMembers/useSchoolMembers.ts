@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { schoolsEndpoints } from '@/Endpoints/schools.endpoints';
+import { schoolsEndpoints } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
 import type { Member } from '@/Services/Scheduling/Scheduling.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 import type { UseSchoolMembersReturn } from './useSchoolMembers.types';
 
 /**

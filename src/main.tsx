@@ -5,7 +5,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import AppGlobalStyles from '@/Assets/globalStyles';
 import { theme } from '@/Assets/theme';
 import AppRoutes from './AppRoutes';
-import { UserProvider } from '@/Storage/Context/UserContext';
+import { UserProvider } from '@/Storage/UserContext/UserContext.tsx';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 const queryClient = new QueryClient();

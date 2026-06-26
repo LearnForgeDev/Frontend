@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { lessonsEndpoints } from '@/Endpoints';
+import { filesEndpoints } from '@/Endpoints';
 import type { UseLessonEditorProps, UseLessonEditorReturn } from './useLessonEditor.types';
 
 export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEditorReturn => {

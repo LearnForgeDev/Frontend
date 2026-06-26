@@ -3,7 +3,7 @@ import { Alert, Box, Button, IconButton, Skeleton, Typography } from '@mui/mater
 import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { SchedulingProvider, useSchedulingContext } from '@/Storage/Context/SchedulingContext';
+import { SchedulingProvider, useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
 import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
 import { useIsTeacherOrOwner } from '@/Services/Scheduling/hooks/useIsTeacherOrOwner/useIsTeacherOrOwner';

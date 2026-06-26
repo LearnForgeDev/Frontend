@@ -1,11 +1,11 @@
 import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
-import { scheduleEndpoints } from '@/Endpoints/schedule.endpoints';
-import { scheduleEventDtoToEvent } from '@/Endpoints/schedule.types';
+import { scheduleEndpoints } from '@/Endpoints';
+import { scheduleEventDtoToEvent } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { appErrorMessage } from '@/Services/Scheduling/utils/appErrorMessage';
 import type { ScheduleEvent, CreateScheduleEventInput } from '@/Services/Scheduling/Scheduling.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 
 export interface UpdateScheduleEventVars {
   eventId: string;

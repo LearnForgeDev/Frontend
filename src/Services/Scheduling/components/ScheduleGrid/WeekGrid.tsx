@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import { useSchedulingContext } from '@/Storage/Context/SchedulingContext';
+import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
 import { getWeekDays } from '@/Services/Scheduling/utils/layout.utils';
 import { HourRail } from './HourRail';
 import { DayColumn } from './DayColumn';

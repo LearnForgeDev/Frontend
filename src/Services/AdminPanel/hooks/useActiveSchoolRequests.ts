@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { authEndpoints, type SchoolRequestStatusDto } from '@/Endpoints/auth.endpoints';
-import { useUser } from '@/Storage/Context/UserContext';
+import { useState, useEffect, useCallback } from 'react';
+import { authEndpoints, type SchoolRequestStatusDto } from '@/Endpoints';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
 
 export function useActiveSchoolRequests() {
     const { user } = useUser();
     const [requests, setRequests] = useState<SchoolRequestStatusDto[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchRequests = async () => {
+    const fetchRequests = useCallback(async () => {
         if (!user?.jwtToken) {
             setIsLoading(false);
             return;
@@ -20,13 +20,13 @@ export function useActiveSchoolRequests() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [user?.jwtToken]);
 
     useEffect(() => {
         fetchRequests();
         const interval = setInterval(fetchRequests, 15000);
         return () => clearInterval(interval);
-    }, [user?.jwtToken]);
+    }, [fetchRequests]);
 
     return { requests, isLoading, refresh: fetchRequests };
 }

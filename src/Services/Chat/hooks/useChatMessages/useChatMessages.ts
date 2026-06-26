@@ -1,9 +1,20 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useChatHubConnection, type ChatHubParams } from '@/Assets/Hooks/useSignalR/chatHub';
 import type { ChatMessage } from '@/Services/Chat/Chat.types';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 
-import { chatEndpoints } from '@/Endpoints/chat.endpoints';
+import { chatEndpoints } from '@/Endpoints';
+
+interface ApiHistoryItem {
+  publicId?: string;
+  PublicId?: string;
+  senderPublicId?: string;
+  SenderPublicId?: string;
+  senderName?: string;
+  SenderName?: string;
+  text?: string;
+  Text?: string;
+}
 
 export function useChatMessages(params: ChatHubParams) {
   const { connection, status } = useChatHubConnection(params);
@@ -13,13 +24,15 @@ export function useChatMessages(params: ChatHubParams) {
 
   useEffect(() => {
     let isMounted = true;
-    setMessages([]);
+    setTimeout(() => {
+      if (isMounted) setMessages([]);
+    }, 0);
 
     if (!params.threadId || !params.schoolPublicId) return;
 
     if (params.type === 'branch') {
       chatEndpoints.getBranchHistory(params.schoolPublicId, parseInt(params.threadId, 10))
-        .then((history: any[]) => {
+        .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
             id: h.publicId ?? h.PublicId,
@@ -33,7 +46,7 @@ export function useChatMessages(params: ChatHubParams) {
         .catch(console.error);
     } else if (params.type === 'direct') {
       chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
-        .then((history: any[]) => {
+        .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
             id: h.publicId ?? h.PublicId,
@@ -50,7 +63,7 @@ export function useChatMessages(params: ChatHubParams) {
     return () => {
       isMounted = false;
     };
-  }, [params.threadId, params.type, params.schoolPublicId, currentUserName]);
+  }, [params.threadId, params.type, params.schoolPublicId, currentUserName, currentUserPublicId]);
 
   useEffect(() => {
     if (!connection) return;
@@ -73,7 +86,7 @@ export function useChatMessages(params: ChatHubParams) {
     return () => {
       connection.off('ReceiveMessage', handler);
     };
-  }, [connection, currentUserName]);
+  }, [connection, currentUserName, currentUserPublicId]);
 
   const sendMessage = useCallback((text: string) => {
     if (!connection || status !== 'connected') return;

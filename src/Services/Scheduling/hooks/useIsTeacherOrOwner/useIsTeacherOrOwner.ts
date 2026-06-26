@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { schoolsEndpoints } from '@/Endpoints/schools.endpoints';
+import { schoolsEndpoints } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
 
 /** Role names (from GET /api/ApiSchool/my-schools) that may manage a school. */

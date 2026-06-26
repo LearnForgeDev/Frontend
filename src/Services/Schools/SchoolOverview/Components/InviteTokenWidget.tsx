@@ -2,8 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Box, Typography, CircularProgress, Alert, Paper, IconButton, Tooltip } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { authEndpoints } from '../../../../Endpoints/auth.endpoints';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { authEndpoints } from '@/Endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { useParams } from 'react-router-dom';
 
 interface InviteTokenWidgetProps {

@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { Box } from '@mui/material';
 import PillButtonGroup from '@/Assets/Components/PillButtonGroup/PillButtonGroup';
-import { useSchedulingContext, type ScheduleView } from '@/Storage/Context/SchedulingContext';
+import { useSchedulingContext, type ScheduleView } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
 
 // Fixed equal-width labels so PillButtonGroup's slider thumb — which assumes
 // equal thirds — stays aligned despite the differing label lengths

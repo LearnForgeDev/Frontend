@@ -11,8 +11,8 @@ import {
 import { adminPanelCommonStyles } from '../../AdminPanel/AdminPanelLayout/AdminPanelCommon.styles';
 import SchoolDrawerContent from './SchoolDrawerContent';
 import { useSchoolInfo } from '@/Services/Schools/hooks/useSchoolInfo';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
-import { ChatProvider } from '@/Storage/Context/useChatContext';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { ChatProvider } from '@/Storage/useChatContext/useChatContext.tsx';
 import ChatWidget from '@/Services/Chat/components/ChatWidget/ChatWidget';
 
 const SchoolLayout = () => {
@@ -31,7 +31,7 @@ const SchoolLayout = () => {
 
   const pageTitle = useMemo(() => {
     return 'Обзор';
-  }, [location.pathname]);
+  }, []);
 
   const closeMenu = () => setIsMenuOpen(false);
 

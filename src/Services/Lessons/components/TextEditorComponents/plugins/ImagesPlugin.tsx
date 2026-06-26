@@ -12,8 +12,8 @@ import {
   $wrapNodeInElement,
   mergeRegister,
 } from '@lexical/utils';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { filesEndpoints } from '@/Endpoints';
 import {
   $createParagraphNode,
   $createRangeSelection, $getNodeByKey,

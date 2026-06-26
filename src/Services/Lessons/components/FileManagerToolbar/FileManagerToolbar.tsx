@@ -19,7 +19,7 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import NoteAddIcon from '@mui/icons-material/NoteAdd';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import { useLessonsContext } from '@/Storage/Context/LessonsContext';
+import { useLessonsContext } from '@/Storage/LessonsContext/LessonsContext.tsx';
 import FolderBreadcrumb from '../FolderBreadcrumb/FolderBreadcrumb';
 import type { LessonFolder } from '../FileManager/FileManager.types';
 import { FILE_MANAGER_CONSTANTS, SORT_OPTIONS } from '../FileManager/FileManager.const';

@@ -3,9 +3,9 @@ import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
-import { useUser, USER_STORAGE_KEY } from '@/Storage/Context/UserContext';
-import { authEndpoints } from '@/Endpoints/auth.endpoints';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useUser, USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.tsx';
+import { authEndpoints } from '@/Endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';

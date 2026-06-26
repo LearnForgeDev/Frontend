@@ -6,7 +6,7 @@ import { useCreateLessonFlow } from '@/Services/Lessons/hooks/useCreateLessonFlo
 import { useLessonMutations } from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations';
 import LessonCard from '@/Services/Lessons/components/LessonCard/LessonCard';
 import ErrorBoundary from '@/Assets/Components/ErrorBoundary/ErrorBoundary';
-import { LessonsProvider } from '@/Storage/Context/LessonsContext';
+import { LessonsProvider } from '@/Storage/LessonsContext/LessonsContext.tsx';
 import './LessonsMainPage.css';
 
 interface LessonsMainPageProps {

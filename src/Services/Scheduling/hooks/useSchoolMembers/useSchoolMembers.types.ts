@@ -1,5 +1,5 @@
 import type { Member } from '@/Services/Scheduling/Scheduling.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 
 export interface UseSchoolMembersReturn {
   members: Member[];

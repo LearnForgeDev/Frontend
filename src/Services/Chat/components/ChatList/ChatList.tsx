@@ -6,7 +6,7 @@ import {
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
 import { useChatList } from '@/Services/Chat/hooks/useChatList/useChatList';
-import { useChatContext } from '@/Storage/Context/useChatContext';
+import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
 export default function ChatList({ schoolId, schoolPublicId }: { schoolId: number; schoolPublicId: string }) {

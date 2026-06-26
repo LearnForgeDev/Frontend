@@ -1,5 +1,5 @@
 import type { Lesson, LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 
 export interface UseLessonsOptions {
   search: string;

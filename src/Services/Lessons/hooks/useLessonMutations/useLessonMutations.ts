@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { lessonsEndpoints } from '@/Endpoints/lessons.endpoints';
-import type { AppError } from '@/Endpoints/factory';
+import { lessonsEndpoints } from '@/Endpoints';
+import type { AppError } from '@/Endpoints';
 import type {
   CreateLessonVars,
   DeleteLessonVars,

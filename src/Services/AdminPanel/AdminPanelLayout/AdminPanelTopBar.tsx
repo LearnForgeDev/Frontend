@@ -12,7 +12,7 @@ import {
   topbarRightSx,
 } from './AdminPanelLayout.styles';
 import NotificationsPopover from './NotificationsPopover';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 
 type AdminPanelTopBarProps = {

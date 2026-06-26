@@ -10,13 +10,13 @@ import {
   Alert,
   CardActions,
 } from "@mui/material";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { schoolsEndpoints, type UserSchoolInfo } from '@/Endpoints/schools.endpoints';
-import { authEndpoints } from "@/Endpoints/auth.endpoints";
-import { useUser } from '@/Storage/Context/UserContext';
+import { schoolsEndpoints, type UserSchoolInfo } from '@/Endpoints';
+import { authEndpoints } from '@/Endpoints';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
 import { useSchoolRequestPolling } from '@/Services/AdminPanel/hooks/useSchoolRequestPolling';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 
 export default function SchoolsPage() {
   const { user, setUser } = useUser();
@@ -34,7 +34,7 @@ export default function SchoolsPage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isJoining, setIsJoining] = useState(false);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     if (!user?.jwtToken) {
       setIsLoadingSchools(false);
       return;
@@ -52,7 +52,7 @@ export default function SchoolsPage() {
     } finally {
       setIsLoadingSchools(false);
     }
-  };
+  }, [user?.jwtToken]);
 
   useEffect(() => {
     fetchData();
@@ -61,7 +61,7 @@ export default function SchoolsPage() {
     const handleCreated = () => fetchData();
     window.addEventListener("school-created", handleCreated);
     return () => window.removeEventListener("school-created", handleCreated);
-  }, [user?.jwtToken]);
+  }, [fetchData]);
 
   const handleJoinSchool = async () => {
     setJoinError(null);

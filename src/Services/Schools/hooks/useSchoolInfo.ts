@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { schoolsEndpoints, type SchoolInfo } from '@/Endpoints/schools.endpoints';
-import type { AppError } from '@/Endpoints/factory';
+import { schoolsEndpoints, type SchoolInfo } from '@/Endpoints';
+import type { AppError } from '@/Endpoints';
 
 export interface UseSchoolInfoReturn {
   school: SchoolInfo | null;

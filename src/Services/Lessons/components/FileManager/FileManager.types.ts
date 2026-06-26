@@ -19,6 +19,6 @@ export interface Lesson {
   authorId?: number;
   updatedAt?: string;
   status?: string;
-  content?: any;
+  content?: unknown;
   folderId?: string | null;
 }

@@ -3,8 +3,8 @@ import React, {useState} from 'react';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
 import {$createImageNode} from '../../nodes/ImageNode.tsx';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
-import { filesEndpoints } from '@/Endpoints/files.endpoints';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { filesEndpoints } from '@/Endpoints';
 import './InsertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {

@@ -1,4 +1,4 @@
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 
 /**
  * Maps a normalized AppError code to user-facing copy. Centralizes the

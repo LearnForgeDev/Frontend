@@ -9,10 +9,10 @@ import {
 } from "react";
 import { useNavigate } from 'react-router-dom';
 
-import { authEndpoints } from '@/Endpoints/auth.endpoints';
+import { authEndpoints } from '@/Endpoints';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
-import { useUser } from '@/Storage/Context/UserContext';
-import { useGlobalContext } from '@/Storage/Context/useGlobalContext';
+import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 
 type AuthFormState = {
   name: string;

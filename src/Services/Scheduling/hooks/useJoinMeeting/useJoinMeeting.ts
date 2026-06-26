@@ -1,10 +1,10 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
-import { meetEndpoints } from '@/Endpoints/meet.endpoints';
+import { meetEndpoints } from '@/Endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
 import { appErrorMessage } from '@/Services/Scheduling/utils/appErrorMessage';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import type { AppError } from '@/Endpoints/factory';
+import type { AppError } from '@/Endpoints';
 
 /**
  * Requests a real Jitsi join link for an event's room via the existing
