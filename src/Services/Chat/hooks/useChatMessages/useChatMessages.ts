@@ -19,14 +19,17 @@ interface ApiHistoryItem {
 export function useChatMessages(params: ChatHubParams) {
   const { connection, status } = useChatHubConnection(params);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [prevThreadId, setPrevThreadId] = useState(params.threadId);
   const currentUserName = useGlobalContext((s) => s.auth.user?.userName);
   const currentUserPublicId = useGlobalContext((s) => s.auth.user?.userPublicId);
 
+  if (params.threadId !== prevThreadId) {
+    setPrevThreadId(params.threadId);
+    setMessages([]);
+  }
+
   useEffect(() => {
     let isMounted = true;
-    setTimeout(() => {
-      if (isMounted) setMessages([]);
-    }, 0);
 
     if (!params.threadId || !params.schoolPublicId) return;
 
