@@ -1,7 +1,7 @@
 export type ChatType = 'branch' | 'direct';
 
 export interface ChatThread {
-  id: string; // branchId (int as string) for branches, otherUserId (publicId GUID) for direct
+  id: string; // branchId (publicId GUID) for branches, otherUserId (publicId GUID) for direct
   type: ChatType;
   name: string; // branch name or person's display name
   schoolPublicId: string; // GUID, needed for hub connections

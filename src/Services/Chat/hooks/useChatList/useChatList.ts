@@ -12,7 +12,7 @@ export function useChatList(schoolId: number, schoolPublicId: string) {
   });
 
   const branchThreads: ChatThread[] = branches?.map((branch: Branch) => ({
-    id: branch.id.toString(),
+    id: branch.publicId,
     type: 'branch',
     name: branch.name,
     schoolPublicId,
