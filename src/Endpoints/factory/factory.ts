@@ -31,6 +31,7 @@ export function createApiClient({retryCount = 3, staleTime = 3 * 60 * 1000}) {
 export function createQueryFnWithRefresh() {
     const instance = axios.create({
         baseURL: config.endpointUrl,
+        withCredentials: true,
     });
 
     instance.interceptors.request.use(
@@ -59,5 +60,6 @@ export function createQueryFnWithRefresh() {
 export function createQueryFn() {
     return axios.create({
         baseURL: config.endpointUrl,
+        withCredentials: true,
     })
 }
