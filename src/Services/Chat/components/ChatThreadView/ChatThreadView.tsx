@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { Box, Typography, IconButton, Avatar, Chip } from '@mui/material';
+import { useEffect, useRef, useState } from 'react';
+import { Box, Typography, IconButton, Avatar, Chip, Dialog } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
@@ -19,9 +19,17 @@ export default function ChatThreadView() {
     schoolPublicId: activeThread?.schoolPublicId || '',
   });
 
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const isImageFile = (fileName?: string): boolean => {
+    if (!fileName) return false;
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '');
+  };
 
   if (!activeThread) return null;
 
@@ -82,21 +90,44 @@ export default function ChatThreadView() {
             {msg.files && msg.files.length > 0 && (
               <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
                 {msg.files.map((file) => (
-                  <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                    <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
-                    <a
-                      href={file.fileUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        color: 'inherit',
-                        fontSize: '0.75rem',
-                        textDecoration: 'underline',
-                        wordBreak: 'break-all',
-                      }}
-                    >
-                      {file.fileName || 'Вложенный файл'}
-                    </a>
+                  <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
+                    {isImageFile(file.fileName) ? (
+                      <Box
+                        component="img"
+                        src={file.fileUrl}
+                        alt={file.fileName}
+                        onClick={() => setPreviewImageUrl(file.fileUrl || null)}
+                        sx={{
+                          width: '100%',
+                          maxWidth: '180px',
+                          maxHeight: '130px',
+                          borderRadius: '6px',
+                          objectFit: 'cover',
+                          cursor: 'pointer',
+                          transition: 'opacity 0.2s',
+                          '&:hover': {
+                            opacity: 0.9,
+                          },
+                        }}
+                      />
+                    ) : (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <AttachFileIcon sx={{ fontSize: '0.8rem', transform: 'rotate(45deg)' }} />
+                        <a
+                          href={file.fileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            color: 'inherit',
+                            fontSize: '0.7rem',
+                            textDecoration: 'underline',
+                            wordBreak: 'break-all',
+                          }}
+                        >
+                          {file.fileName || 'Вложенный файл'}
+                        </a>
+                      </Box>
+                    )}
                   </Box>
                 ))}
               </Box>
@@ -114,6 +145,46 @@ export default function ChatThreadView() {
         disabled={status !== 'connected'}
         schoolPublicId={activeThread?.schoolPublicId || ''}
       />
+
+      <Dialog
+        open={Boolean(previewImageUrl)}
+        onClose={() => setPreviewImageUrl(null)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          backdrop: {
+            sx: { backgroundColor: 'rgba(0, 0, 0, 0.85)' }
+          },
+          paper: {
+            sx: {
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }
+          }
+        }}
+      >
+        <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', maxHeight: '90vh' }}>
+          {previewImageUrl && (
+            <Box
+              component="img"
+              src={previewImageUrl}
+              alt="Preview"
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                objectFit: 'contain',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}
+              onClick={() => setPreviewImageUrl(null)}
+            />
+          )}
+        </Box>
+      </Dialog>
     </>
   );
 }

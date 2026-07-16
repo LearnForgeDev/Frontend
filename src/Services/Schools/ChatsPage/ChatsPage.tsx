@@ -352,6 +352,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
+  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
 
   const { messages, sendMessage, status } = useChatMessages({
     type: activeThread.type,
@@ -362,6 +363,12 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  const isImageFile = (fileName?: string): boolean => {
+    if (!fileName) return false;
+    const ext = fileName.split('.').pop()?.toLowerCase();
+    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '');
+  };
 
   const handleSelectFiles = (selected: Array<{ publicId: string; fileName: string }>) => {
     setAttachedFiles(prev => {
@@ -449,21 +456,44 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
               {msg.files && msg.files.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
                   {msg.files.map((file) => (
-                    <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                      <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
-                      <a
-                        href={file.fileUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          color: 'inherit',
-                          fontSize: '0.75rem',
-                          textDecoration: 'underline',
-                          wordBreak: 'break-all',
-                        }}
-                      >
-                        {file.fileName || 'Вложенный файл'}
-                      </a>
+                    <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
+                      {isImageFile(file.fileName) ? (
+                        <Box
+                          component="img"
+                          src={file.fileUrl}
+                          alt={file.fileName}
+                          onClick={() => setPreviewImageUrl(file.fileUrl || null)}
+                          sx={{
+                            width: '100%',
+                            maxWidth: '240px',
+                            maxHeight: '180px',
+                            borderRadius: '8px',
+                            objectFit: 'cover',
+                            cursor: 'pointer',
+                            transition: 'opacity 0.2s',
+                            '&:hover': {
+                              opacity: 0.9,
+                            },
+                          }}
+                        />
+                      ) : (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                          <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
+                          <a
+                            href={file.fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{
+                              color: 'inherit',
+                              fontSize: '0.75rem',
+                              textDecoration: 'underline',
+                              wordBreak: 'break-all',
+                            }}
+                          >
+                            {file.fileName || 'Вложенный файл'}
+                          </a>
+                        </Box>
+                      )}
                     </Box>
                   ))}
                 </Box>
@@ -532,6 +562,46 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         schoolPublicId={activeThread.schoolPublicId}
         onSelectFiles={handleSelectFiles}
       />
+
+      <Dialog
+        open={Boolean(previewImageUrl)}
+        onClose={() => setPreviewImageUrl(null)}
+        maxWidth="md"
+        fullWidth
+        slotProps={{
+          backdrop: {
+            sx: { backgroundColor: 'rgba(0, 0, 0, 0.85)' }
+          },
+          paper: {
+            sx: {
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              overflow: 'hidden',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }
+          }
+        }}
+      >
+        <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', maxHeight: '90vh' }}>
+          {previewImageUrl && (
+            <Box
+              component="img"
+              src={previewImageUrl}
+              alt="Preview"
+              sx={{
+                maxWidth: '100%',
+                maxHeight: '85vh',
+                objectFit: 'contain',
+                borderRadius: '8px',
+                cursor: 'pointer',
+              }}
+              onClick={() => setPreviewImageUrl(null)}
+            />
+          )}
+        </Box>
+      </Dialog>
     </Box>
   );
 }
