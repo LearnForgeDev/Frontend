@@ -1,4 +1,4 @@
-import { useState, useRef, type React } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -44,7 +44,7 @@ export default function FileSelectorModal({
     );
   };
 
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
     if (!fileList || fileList.length === 0) return;
     setIsLocalUploading(true);
@@ -129,11 +129,8 @@ export default function FileSelectorModal({
                   <ListItemButton onClick={() => handleToggle(file.publicId)} dense>
                     <ListItemIcon>
                       <Checkbox
-                        edge="start"
                         checked={isChecked}
                         tabIndex={-1}
-                        disableRipple
-                        inputProps={{ 'aria-labelledby': labelId }}
                       />
                     </ListItemIcon>
                     <ListItemIcon sx={styles.fileIcon}>
