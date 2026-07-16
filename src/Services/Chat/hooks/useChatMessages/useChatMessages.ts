@@ -1,9 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useChatHubConnection, type ChatHubParams } from '@/Assets/Hooks/useSignalR/chatHub';
-import type { ChatMessage } from '@/Services/Chat/Chat.types';
+import type { ChatMessage, ChatFileDto } from '@/Services/Chat/Chat.types';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { chatEndpoints, filesEndpoints } from '@/Endpoints';
 
-import { chatEndpoints } from '@/Endpoints';
+interface ApiFileItem {
+  publicId?: string;
+  PublicId?: string;
+  fileName?: string;
+  FileName?: string;
+  fileUrl?: string;
+  FileUrl?: string;
+}
 
 interface ApiHistoryItem {
   publicId?: string;
@@ -14,8 +22,18 @@ interface ApiHistoryItem {
   SenderName?: string;
   text?: string;
   Text?: string;
-  files?: import('@/Services/Chat/Chat.types').ChatFileDto[];
-  Files?: import('@/Services/Chat/Chat.types').ChatFileDto[];
+  files?: ApiFileItem[];
+  Files?: ApiFileItem[];
+}
+
+function mapFiles(raw: ApiFileItem[] | undefined, schoolPublicId: string): ChatFileDto[] {
+  if (!raw || raw.length === 0) return [];
+  return raw.map(f => {
+    const id = f.publicId ?? f.PublicId ?? '';
+    const name = f.fileName ?? f.FileName ?? '';
+    const url = id ? filesEndpoints.getFileUrl(schoolPublicId, id) : (f.fileUrl ?? f.FileUrl ?? '');
+    return { publicId: id, fileName: name, fileUrl: url };
+  });
 }
 
 export function useChatMessages(params: ChatHubParams) {
@@ -44,9 +62,9 @@ export function useChatMessages(params: ChatHubParams) {
             senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
             senderName: h.senderName ?? h.SenderName ?? '',
             text: h.text ?? h.Text ?? '',
-            receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
+            receivedAt: new Date().toISOString(),
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-            files: h.files ?? h.Files ?? [],
+            files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
           })));
         })
         .catch(console.error);
@@ -61,7 +79,7 @@ export function useChatMessages(params: ChatHubParams) {
             text: h.text ?? h.Text ?? '',
             receivedAt: new Date().toISOString(),
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-            files: h.files ?? h.Files ?? [],
+            files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
           })));
         })
         .catch(console.error);
@@ -75,7 +93,7 @@ export function useChatMessages(params: ChatHubParams) {
   useEffect(() => {
     if (!connection) return;
 
-    const handler = (senderPublicId: string, senderName: string, text: string, files?: import('@/Services/Chat/Chat.types').ChatFileDto[]) => {
+    const handler = (senderPublicId: string, senderName: string, text: string, files?: ApiFileItem[]) => {
       const isOwn = senderPublicId === currentUserPublicId || senderName === currentUserName;
       const newMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -84,7 +102,7 @@ export function useChatMessages(params: ChatHubParams) {
         text,
         receivedAt: new Date().toISOString(),
         isOwn,
-        files: files ?? [],
+        files: mapFiles(files, params.schoolPublicId),
       };
       setMessages((prev) => [...prev, newMessage]);
     };
