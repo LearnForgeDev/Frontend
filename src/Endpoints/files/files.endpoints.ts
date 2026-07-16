@@ -88,25 +88,27 @@ export const filesEndpoints = {
   },
 
   async uploadFileMultipart(schoolPublicId: string, file: File, allowedUserPublicIds?: string[], allowedGroupIds?: number[], bucketType?: string): Promise<ApiFile> {
-    const queryKey = [`/api/ApiFiles/${schoolPublicId}`];
     const formData = new FormData();
     formData.append('File', file);
     formData.append('FileName', file.name);
     if (bucketType) {
       formData.append('BucketType', bucketType);
     }
-    
     if (allowedUserPublicIds) {
       allowedUserPublicIds.forEach((id) => formData.append('AllowedUserPublicIds', id));
     }
     if (allowedGroupIds) {
       allowedGroupIds.forEach((id) => formData.append('AllowedGroupIds', id.toString()));
     }
-    
-    const response = await apiClient.fetchQuery({
-      queryKey: [...queryKey, file.name],
-      queryFn: () => queryFn.post<ApiFile>(queryKey[0], formData),
-    });
+    const response = await queryFn.post<ApiFile>(`/api/ApiFiles/${schoolPublicId}`, formData);
+    return response.data;
+  },
+
+  async uploadChatFile(schoolPublicId: string, file: File): Promise<ApiFile> {
+    const formData = new FormData();
+    formData.append('File', file);
+    formData.append('FileName', file.name);
+    const response = await queryFn.post<ApiFile>(`/api/ApiFiles/${schoolPublicId}/chat-upload`, formData);
     return response.data;
   },
 

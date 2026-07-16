@@ -18,6 +18,7 @@ import {
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
+import { filesEndpoints } from '@/Endpoints';
 import { styles } from './FileSelectorModal.styles';
 
 interface FileSelectorModalProps {
@@ -33,7 +34,7 @@ export default function FileSelectorModal({
   schoolPublicId,
   onSelectFiles,
 }: FileSelectorModalProps) {
-  const { files, uploadFile, isUploading, isLoading } = useFiles(schoolPublicId, 'files');
+  const { files, isLoading } = useFiles(schoolPublicId, 'files');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLocalUploading, setIsLocalUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +52,7 @@ export default function FileSelectorModal({
     try {
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const completed = await uploadFile(file, 'chats');
+        const completed = await filesEndpoints.uploadChatFile(schoolPublicId, file);
         if (completed && completed.publicId) {
           setSelectedIds((prev) => [...prev, completed.publicId]);
         }
@@ -78,7 +79,7 @@ export default function FileSelectorModal({
     onClose();
   };
 
-  const showLoading = isLoading || isUploading || isLocalUploading;
+  const showLoading = isLoading || isLocalUploading;
 
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
