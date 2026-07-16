@@ -1,6 +1,5 @@
 import { QueryClient } from '@tanstack/react-query'
 import axios, { AxiosError, isAxiosError } from "axios";
-import { authEndpoints } from "@/Endpoints/auth";
 import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
 import { USER_STORAGE_KEY } from "@/Storage/UserContext/UserContext.tsx";
 import config from "src/config.ts";
@@ -45,6 +44,7 @@ export function createQueryFnWithRefresh() {
             const currentTime = new Date().getTime();
 
             if (currentTime >= parsedUserData.exp) {
+                const { authEndpoints } = await import('../auth/auth.endpoints');
                 await authEndpoints.refreshToken({ refreshToken: parsedUserData.refreshToken });
             }
 
