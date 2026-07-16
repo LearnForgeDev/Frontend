@@ -22,7 +22,7 @@ export function useChats(schoolPublicId: string) {
 
   const { data: branches = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['chats-branches', schoolPublicId],
-    queryFn: () => branchesEndpoints.getAllBranches(schoolPublicId),
+    queryFn: () => branchesEndpoints.getBranches(schoolPublicId),
     enabled: !!schoolPublicId,
     staleTime: 30 * 1000,
   });
@@ -36,7 +36,11 @@ export function useChats(schoolPublicId: string) {
 
   const createBranchMutation = useMutation({
     mutationFn: (dto: { name: string; description: string }) =>
-      branchesEndpoints.createBranch(schoolPublicId, schoolPublicId, dto),
+      branchesEndpoints.createBranch(schoolPublicId, {
+        name: dto.name,
+        description: dto.description,
+        schoolPublicId,
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolPublicId] });
     },

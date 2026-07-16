@@ -2,12 +2,12 @@ import { useMutation } from '@tanstack/react-query';
 import { meetEndpoints } from '@/Endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import type { AppError } from '@/Endpoints';
-import type { MeetTokenRequestDto } from '@/Endpoints';
+import type { CreateJitsiTokenRequest } from '@/Endpoints';
 
 export function useCreateCall() {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
 
-  return useMutation<string, AppError, MeetTokenRequestDto>({
+  return useMutation<string, AppError, CreateJitsiTokenRequest>({
     mutationFn: async (dto) => {
       const response = await meetEndpoints.getMeetToken(dto);
       return response.roomUrl;

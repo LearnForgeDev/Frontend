@@ -18,7 +18,7 @@ export function useJoinMeeting(): UseMutationResult<string, AppError, ScheduleEv
 
   return useMutation<string, AppError, ScheduleEvent>({
     mutationFn: async (event) => {
-      const response = await meetEndpoints.getMeetToken({ schoolPublicId, Room: event.room });
+      const response = await meetEndpoints.getMeetToken({ schoolPublicId, room: event.room });
       return response.roomUrl;
     },
     onSuccess: (roomUrl) => {

@@ -35,10 +35,10 @@ export function useChatMessages(params: ChatHubParams) {
         .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
-            id: h.publicId ?? h.PublicId,
-            senderPublicId: h.senderPublicId ?? h.SenderPublicId,
-            senderName: h.senderName ?? h.SenderName,
-            text: h.text ?? h.Text,
+            id: h.publicId ?? h.PublicId ?? '',
+            senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
+            senderName: h.senderName ?? h.SenderName ?? '',
+            text: h.text ?? h.Text ?? '',
             receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
           })));
@@ -49,10 +49,10 @@ export function useChatMessages(params: ChatHubParams) {
         .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({
-            id: h.publicId ?? h.PublicId,
-            senderPublicId: h.senderPublicId ?? h.SenderPublicId,
-            senderName: h.senderName ?? h.SenderName,
-            text: h.text ?? h.Text,
+            id: h.publicId ?? h.PublicId ?? '',
+            senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
+            senderName: h.senderName ?? h.SenderName ?? '',
+            text: h.text ?? h.Text ?? '',
             receivedAt: new Date().toISOString(),
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
           })));

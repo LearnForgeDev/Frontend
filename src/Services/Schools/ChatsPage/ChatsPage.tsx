@@ -78,7 +78,7 @@ export default function ChatsPage() {
     if (!groupName.trim()) return;
 
     try {
-      const newBranchId = await createBranch({
+      const newBranch = await createBranch({
         name: groupName.trim(),
         description: groupDesc.trim(),
       });
@@ -92,7 +92,7 @@ export default function ChatsPage() {
       });
 
       setActiveThread({
-        id: newBranchId.toString(),
+        id: newBranch.id.toString(),
         type: 'branch',
         name: groupName.trim(),
         schoolPublicId,

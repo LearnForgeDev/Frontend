@@ -3,13 +3,13 @@ import React, {useState} from 'react';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
 import {$createFileNode} from '../../nodes/FileNode.tsx';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { filesEndpoints } from '@/Endpoints';
+import { useParams } from 'react-router-dom';
 import './InsertImageModal.css';
 
 export default function InsertFileModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();
-  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId);
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
   const [fileUrlError, setFileUrlError] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -46,15 +46,15 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
       : e.target?.files?.[0];
 
     if (file) {
-      if (!schoolId) {
+      if (!schoolPublicId) {
         setFileUrlError('Не удалось определить ID школы для загрузки');
         return;
       }
       setIsUploading(true);
       setFileUrlError('');
       try {
-        const apiFile = await filesEndpoints.uploadFileMultipart(schoolId, file);
-        const url = filesEndpoints.getFileUrl(schoolId, apiFile.publicId);
+        const apiFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+        const url = filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId);
         handleInsert(url, file.name, file.size);
       } catch (error) {
         console.error('Failed to upload file', error);

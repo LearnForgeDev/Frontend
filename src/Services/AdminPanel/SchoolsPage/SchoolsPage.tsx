@@ -79,12 +79,7 @@ export default function SchoolsPage() {
     try {
       const result = await authEndpoints.joinSchool({ inviteToken: inviteToken.trim() });
       useGlobalContext.getState().auth.setUser(result);
-      setUser({
-        jwtToken: result.jwtToken,
-        refreshToken: result.refreshToken,
-        userName: result.userName,
-        userPublicId: result.userPublicId,
-      });
+      setUser(result);
       setInviteToken("");
       fetchData();
     } catch (err: unknown) {

@@ -25,10 +25,7 @@
     "noUncheckedSideEffectImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/Endpoints/*": ["src/Endpoints/*"],
-      "@/Services/*": ["src/Services/*"],
-      "@/Storage/*": ["src/Storage/*"],
-      "@/Assets/*": ["src/Assets/*"]
+      "@/*": ["src/*"]
     }
   },
   "include": ["src"]

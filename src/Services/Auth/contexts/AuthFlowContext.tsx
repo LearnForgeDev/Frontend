@@ -59,6 +59,8 @@ function toUserIdentity(result: Partial<UserIdentity>): UserIdentity | null {
     refreshToken: result.refreshToken,
     userName: result.userName,
     userPublicId: result.userPublicId,
+    userRoles: result.userRoles || [],
+    exp: result.exp || 0,
   };
 }
 
@@ -112,7 +114,7 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const result = await authEndpoints.registerFounder({
+        const result = await authEndpoints.register({
           name: authState.name,
           password: authState.password,
           confirmPassword: authState.confirmPassword,

@@ -2,14 +2,16 @@ import type {JSX} from 'react';
 import {useServiceContext} from '@/Services/AdminPanel/hooks/useServiceContext';
 import {serviceRegistry} from '@/Services/ServiceRegistry';
 
+import type { ServiceManifest } from '@/Assets/Types/serviceTypes';
+
 export default function BillingCard (): JSX.Element {
     const services = serviceRegistry.getAll();
     const {selectedServices} = useServiceContext();
     const boughtServices = services.filter(service => service.isBought);
 
     const totalPrice =
-        selectedServices.reduce((sum, service) => sum + service.price, 0)
-            + boughtServices.reduce((sum, service) => sum + service.price, 0);
+        selectedServices.reduce((sum: number, service: ServiceManifest) => sum + service.price, 0)
+            + boughtServices.reduce((sum: number, service: ServiceManifest) => sum + service.price, 0);
 
 
     return (

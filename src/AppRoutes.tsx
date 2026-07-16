@@ -24,7 +24,6 @@ const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'
 const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
 const ProfilePage = lazy(() => import('./Services/Profile/ProfilePage.tsx'));
-const CertPage = lazy(() => import('./pages/CertPage/CertPage.tsx'));
 const AppRoutes = () => {
   const routes: RouteObject[] = [
     {
@@ -128,10 +127,7 @@ const AppRoutes = () => {
         },
       ],
     },
-    {
-      path: "/cert",
-      element: <CertPage />,
-    },
+
     {
       path: "/403",
       element: <ForbiddenPage />,

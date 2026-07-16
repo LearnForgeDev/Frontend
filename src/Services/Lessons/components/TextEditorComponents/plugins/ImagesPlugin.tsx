@@ -12,8 +12,8 @@ import {
   $wrapNodeInElement,
   mergeRegister,
 } from '@lexical/utils';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
-import { filesEndpoints } from '@/Endpoints';
+import { filesEndpoints, type ApiFile } from '@/Endpoints';
+import { useParams } from 'react-router-dom';
 import {
   $createParagraphNode,
   $createRangeSelection, $getNodeByKey,
@@ -55,7 +55,7 @@ export default function ImagesPlugin({
   captionsEnabled?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId);
+  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
@@ -99,16 +99,16 @@ export default function ImagesPlugin({
             if (file.type.startsWith('image/')) {
               event.preventDefault();
 
-              if (!schoolId) {
-                console.error('No active schoolId found for upload.');
+              if (!schoolPublicId) {
+                console.error('No active schoolPublicId found for upload.');
                 return false;
               }
 
               // Save the selection before async upload
               const range = getDragSelection(event);
 
-              filesEndpoints.uploadFileMultipart(schoolId, file)
-                .then((apiFile) => {
+              filesEndpoints.uploadFileMultipart(schoolPublicId, file)
+                .then((apiFile: ApiFile) => {
                   editor.update(() => {
                     const rangeSelection = $createRangeSelection();
                     if (range !== null && range !== undefined) {
@@ -118,7 +118,7 @@ export default function ImagesPlugin({
 
                     const imageNode = $createImageNode({
                       altText: file.name,
-                      src: filesEndpoints.getFileUrl(schoolId, apiFile.publicId),
+                      src: filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId),
                     });
                     $insertNodes([imageNode]);
                     if ($isRootOrShadowRoot(imageNode.getParentOrThrow())) {
@@ -152,7 +152,7 @@ export default function ImagesPlugin({
         COMMAND_PRIORITY_LOW
       ),
     );
-  }, [captionsEnabled, editor, schoolId]);
+  }, [captionsEnabled, editor, schoolPublicId]);
 
   return null;
 }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, CircularProgress } from '@mui/material';
 
-import { checkHealthEndpoint } from '@/Endpoints';
+import { checkHealthEndpoints } from '@/Endpoints';
 
 export const ServerHealthWidget: React.FC = () => {
   const [status, setStatus] = useState<'loading' | 'online' | 'offline'>('loading');
@@ -11,7 +11,7 @@ export const ServerHealthWidget: React.FC = () => {
 
     const checkHealth = async () => {
       try {
-        const isOnline = await checkHealthEndpoint();
+        const isOnline = await checkHealthEndpoints.checkHealth();
         if (isMounted) {
           setStatus(isOnline ? 'online' : 'offline');
         }
