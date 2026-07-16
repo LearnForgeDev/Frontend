@@ -30,11 +30,13 @@ import SendIcon from '@mui/icons-material/Send';
 import AddIcon from '@mui/icons-material/Add';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ForumIcon from '@mui/icons-material/Forum';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 import { useChats } from './hooks/useChats';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+import { filesEndpoints } from '@/Endpoints';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
@@ -345,10 +347,12 @@ interface ActiveChatViewProps {
   isMobile: boolean;
   onBack: () => void;
 }
-
 function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps) {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
+  const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { messages, sendMessage, status } = useChatMessages({
     type: activeThread.type,
@@ -360,10 +364,41 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    setIsUploadingFile(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(activeThread.schoolPublicId, {
+          fileName: file.name,
+          sizeBytes: file.size,
+        });
+        await filesEndpoints.uploadFileDirect(uploadUrl, file);
+        const completed = await filesEndpoints.completeUpload(activeThread.schoolPublicId, {
+          storageKey,
+          fileName: file.name,
+          sizeBytes: file.size,
+        });
+        if (completed && completed.publicId) {
+          setAttachedFiles(prev => [...prev, { publicId: completed.publicId, fileName: file.name }]);
+        }
+      }
+    } catch (err) {
+      console.error('File upload failed in chat', err);
+    } finally {
+      setIsUploadingFile(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const handleSend = () => {
-    if (!inputText.trim()) return;
-    sendMessage(inputText.trim());
+    const trimmed = inputText.trim();
+    if (!trimmed && attachedFiles.length === 0) return;
+    sendMessage(trimmed, attachedFiles.map(f => f.publicId));
     setInputText('');
+    setAttachedFiles([]);
   };
 
   const getStatusLabel = () => {
@@ -433,6 +468,28 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
               <Typography variant="body2" sx={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
                 {msg.text}
               </Typography>
+              {msg.files && msg.files.length > 0 && (
+                <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
+                  {msg.files.map((file) => (
+                    <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
+                      <a
+                        href={file.fileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{
+                          color: 'inherit',
+                          fontSize: '0.75rem',
+                          textDecoration: 'underline',
+                          wordBreak: 'break-all',
+                        }}
+                      >
+                        {file.fileName || 'Вложенный файл'}
+                      </a>
+                    </Box>
+                  ))}
+                </Box>
+              )}
               <Typography variant="caption" sx={styles.messageTime}>
                 {new Date(msg.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </Typography>
@@ -441,9 +498,39 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         ))}
         <div ref={messagesEndRef} />
       </Box>
+      {/* Attached files preview */}
+      {attachedFiles.length > 0 && (
+        <Box sx={{ p: 1, display: 'flex', flexWrap: 'wrap', gap: 1, borderTop: (theme) => `1px solid ${theme.palette.divider}`, bgcolor: 'background.default' }}>
+          {attachedFiles.map((file) => (
+            <Chip
+              key={file.publicId}
+              label={file.fileName}
+              onDelete={() => setAttachedFiles(prev => prev.filter(f => f.publicId !== file.publicId))}
+              size="small"
+              sx={{ maxWidth: 200 }}
+            />
+          ))}
+        </Box>
+      )}
 
+      {/* Input area */}
       <Box sx={styles.inputArea}>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+          <input
+            type="file"
+            multiple
+            style={{ display: 'none' }}
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            disabled={status !== 'connected' || isUploadingFile}
+          />
+          <IconButton
+            color="primary"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={status !== 'connected' || isUploadingFile}
+          >
+            {isUploadingFile ? <CircularProgress size={24} /> : <AttachFileIcon sx={{ transform: 'rotate(45deg)' }} />}
+          </IconButton>
           <TextField
             fullWidth
             size="small"
@@ -461,7 +548,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
           <IconButton
             color="primary"
             onClick={handleSend}
-            disabled={!inputText.trim() || status !== 'connected'}
+            disabled={(!inputText.trim() && attachedFiles.length === 0) || status !== 'connected'}
           >
             <SendIcon />
           </IconButton>

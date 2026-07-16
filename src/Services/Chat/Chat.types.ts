@@ -19,6 +19,7 @@ export interface ChatMessage {
   text: string;
   receivedAt: string; // ISO 8601, constructed from Date.now()
   isOwn: boolean; // true when senderName === current user's userName or senderPublicId matches
+  files?: ChatFileDto[];
 }
 
 export interface ChatFileDto {

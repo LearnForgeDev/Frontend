@@ -14,6 +14,8 @@ interface ApiHistoryItem {
   SenderName?: string;
   text?: string;
   Text?: string;
+  files?: import('@/Services/Chat/Chat.types').ChatFileDto[];
+  Files?: import('@/Services/Chat/Chat.types').ChatFileDto[];
 }
 
 export function useChatMessages(params: ChatHubParams) {
@@ -44,6 +46,7 @@ export function useChatMessages(params: ChatHubParams) {
             text: h.text ?? h.Text ?? '',
             receivedAt: new Date().toISOString(), // DTO missing timestamp, fallback
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
+            files: h.files ?? h.Files ?? [],
           })));
         })
         .catch(console.error);
@@ -58,6 +61,7 @@ export function useChatMessages(params: ChatHubParams) {
             text: h.text ?? h.Text ?? '',
             receivedAt: new Date().toISOString(),
             isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
+            files: h.files ?? h.Files ?? [],
           })));
         })
         .catch(console.error);
@@ -71,7 +75,7 @@ export function useChatMessages(params: ChatHubParams) {
   useEffect(() => {
     if (!connection) return;
 
-    const handler = (senderPublicId: string, senderName: string, text: string) => {
+    const handler = (senderPublicId: string, senderName: string, text: string, files?: import('@/Services/Chat/Chat.types').ChatFileDto[]) => {
       const isOwn = senderPublicId === currentUserPublicId || senderName === currentUserName;
       const newMessage: ChatMessage = {
         id: crypto.randomUUID(),
@@ -80,6 +84,7 @@ export function useChatMessages(params: ChatHubParams) {
         text,
         receivedAt: new Date().toISOString(),
         isOwn,
+        files: files ?? [],
       };
       setMessages((prev) => [...prev, newMessage]);
     };
@@ -91,13 +96,13 @@ export function useChatMessages(params: ChatHubParams) {
     };
   }, [connection, currentUserName, currentUserPublicId]);
 
-  const sendMessage = useCallback((text: string) => {
+  const sendMessage = useCallback((text: string, filePublicIds: string[] = []) => {
     if (!connection || status !== 'connected') return;
 
     if (params.type === 'branch') {
-      connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, []).catch(console.error);
+      connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, filePublicIds).catch(console.error);
     } else {
-      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, []).catch(console.error);
+      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, filePublicIds).catch(console.error);
     }
   }, [connection, status, params]);
 

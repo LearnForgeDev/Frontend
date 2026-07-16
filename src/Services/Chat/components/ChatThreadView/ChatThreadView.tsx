@@ -3,6 +3,7 @@ import { Box, Typography, IconButton, Avatar, Chip } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import ChatInput from './ChatInput';
@@ -78,6 +79,28 @@ export default function ChatThreadView() {
             <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
               {msg.text}
             </Typography>
+            {msg.files && msg.files.length > 0 && (
+              <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
+                {msg.files.map((file) => (
+                  <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                    <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
+                    <a
+                      href={file.fileUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        color: 'inherit',
+                        fontSize: '0.75rem',
+                        textDecoration: 'underline',
+                        wordBreak: 'break-all',
+                      }}
+                    >
+                      {file.fileName || 'Вложенный файл'}
+                    </a>
+                  </Box>
+                ))}
+              </Box>
+            )}
             <Typography variant="caption" sx={{ display: 'block', textAlign: 'right', mt: 0.5, opacity: 0.7, fontSize: '0.65rem' }}>
               {new Date(msg.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </Typography>
