@@ -4,8 +4,8 @@ const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();
 
 export const chatEndpoints = {
-  async getBranchHistory(schoolPublicId: string, branchId: number) {
-    const queryKey = [`/api/ApiBreanches/${schoolPublicId}/${branchId}/history`];
+  async getBranchHistory(schoolPublicId: string, branchPublicId: string) {
+    const queryKey = [`/api/ApiBreanches/${schoolPublicId}/${branchPublicId}/history`];
     const response = await apiClient.fetchQuery({
       queryKey,
       queryFn: () => queryFn.get(queryKey[0]),

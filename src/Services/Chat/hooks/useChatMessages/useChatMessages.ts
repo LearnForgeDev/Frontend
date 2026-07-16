@@ -31,7 +31,7 @@ export function useChatMessages(params: ChatHubParams) {
     if (!params.threadId || !params.schoolPublicId) return;
 
     if (params.type === 'branch') {
-      chatEndpoints.getBranchHistory(params.schoolPublicId, parseInt(params.threadId, 10))
+      chatEndpoints.getBranchHistory(params.schoolPublicId, params.threadId)
         .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
           setMessages(history.map(h => ({

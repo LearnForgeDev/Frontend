@@ -92,7 +92,7 @@ export default function ChatsPage() {
       });
 
       setActiveThread({
-        id: newBranch.id.toString(),
+        id: newBranch.publicId,
         type: 'branch',
         name: groupName.trim(),
         schoolPublicId,

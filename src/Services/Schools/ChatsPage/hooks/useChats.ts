@@ -28,7 +28,7 @@ export function useChats(schoolPublicId: string) {
   });
 
   const branchThreads: ChatThread[] = branches.map((b) => ({
-    id: b.id.toString(),
+    id: b.publicId,
     type: 'branch',
     name: b.name,
     schoolPublicId,

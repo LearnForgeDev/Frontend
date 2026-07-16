@@ -1,5 +1,6 @@
 export interface Branch {
   id: number;
+  publicId: string;
   name: string;
   description: string;
 }
