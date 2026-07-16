@@ -21,10 +21,40 @@ export interface GlobalState {
     auth: AuthSlice;
 }
 
+const getInitialUser = (): User | null => {
+    try {
+        const stored = localStorage.getItem('user_identity');
+        if (!stored) return null;
+        const data = JSON.parse(stored);
+        const userPublicId = data.userPublicId;
+        const userName = data.userName;
+        if (!userPublicId || !userName) return null;
+
+        const roles = (data.roles || data.userRoles || []) as Array<{ role: number; schoolId: number }>;
+        let activeSchoolId = data.activeSchoolId || 0;
+        if (!activeSchoolId && roles.length > 0) {
+            const teacherOrOwner = roles.find((r) => r.role >= 1);
+            const chosen = teacherOrOwner ? teacherOrOwner : roles[0];
+            activeSchoolId = chosen.schoolId;
+        }
+
+        return {
+            userPublicId,
+            userName,
+            roles: roles.map((r) => ({ role: r.role as 0 | 1 | 2, schoolId: r.schoolId })),
+            activeSchoolId,
+        };
+    } catch {
+        return null;
+    }
+};
+
+const initialUser = getInitialUser();
+
 export const useGlobalContext = create<GlobalState>((set) => ({
     auth: {
-        user: null,
-        isAuthenticated: false,
+        user: initialUser,
+        isAuthenticated: !!initialUser,
         // TODO: add school switcher UI when needed
         setActiveSchool: (schoolId: number) =>
             set((state) => {

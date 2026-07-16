@@ -94,7 +94,7 @@ export function useChatMessages(params: ChatHubParams) {
     if (params.type === 'branch') {
       connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, []).catch(console.error);
     } else {
-      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text).catch(console.error);
+      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, []).catch(console.error);
     }
   }, [connection, status, params]);
 
