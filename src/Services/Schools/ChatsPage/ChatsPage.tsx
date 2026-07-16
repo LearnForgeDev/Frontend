@@ -36,7 +36,7 @@ import { useChats } from './hooks/useChats';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import { filesEndpoints } from '@/Endpoints';
+import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/FileSelectorModal';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
@@ -351,8 +351,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
-  const [isUploadingFile, setIsUploadingFile] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
 
   const { messages, sendMessage, status } = useChatMessages({
     type: activeThread.type,
@@ -364,33 +363,12 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    setIsUploadingFile(true);
-    try {
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const { uploadUrl, storageKey } = await filesEndpoints.getPresignedUpload(activeThread.schoolPublicId, {
-          fileName: file.name,
-          sizeBytes: file.size,
-        });
-        await filesEndpoints.uploadFileDirect(uploadUrl, file);
-        const completed = await filesEndpoints.completeUpload(activeThread.schoolPublicId, {
-          storageKey,
-          fileName: file.name,
-          sizeBytes: file.size,
-        });
-        if (completed && completed.publicId) {
-          setAttachedFiles(prev => [...prev, { publicId: completed.publicId, fileName: file.name }]);
-        }
-      }
-    } catch (err) {
-      console.error('File upload failed in chat', err);
-    } finally {
-      setIsUploadingFile(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
-    }
+  const handleSelectFiles = (selected: Array<{ publicId: string; fileName: string }>) => {
+    setAttachedFiles(prev => {
+      const prevIds = prev.map(f => f.publicId);
+      const filtered = selected.filter(f => !prevIds.includes(f.publicId));
+      return [...prev, ...filtered];
+    });
   };
 
   const handleSend = () => {
@@ -516,20 +494,13 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
       {/* Input area */}
       <Box sx={styles.inputArea}>
         <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
-          <input
-            type="file"
-            multiple
-            style={{ display: 'none' }}
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            disabled={status !== 'connected' || isUploadingFile}
-          />
           <IconButton
             color="primary"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={status !== 'connected' || isUploadingFile}
+            onClick={() => setIsFileModalOpen(true)}
+            disabled={status !== 'connected'}
+            aria-label="Прикрепить файл"
           >
-            {isUploadingFile ? <CircularProgress size={24} /> : <AttachFileIcon sx={{ transform: 'rotate(45deg)' }} />}
+            <AttachFileIcon sx={{ transform: 'rotate(45deg)' }} />
           </IconButton>
           <TextField
             fullWidth
@@ -554,6 +525,13 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
           </IconButton>
         </Box>
       </Box>
+
+      <FileSelectorModal
+        open={isFileModalOpen}
+        onClose={() => setIsFileModalOpen(false)}
+        schoolPublicId={activeThread.schoolPublicId}
+        onSelectFiles={handleSelectFiles}
+      />
     </Box>
   );
 }

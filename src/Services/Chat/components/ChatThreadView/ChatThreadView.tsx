@@ -109,7 +109,11 @@ export default function ChatThreadView() {
         <div ref={messagesEndRef} />
       </Box>
 
-      <ChatInput onSendMessage={sendMessage} disabled={status !== 'connected'} />
+      <ChatInput
+        onSendMessage={sendMessage}
+        disabled={status !== 'connected'}
+        schoolPublicId={activeThread?.schoolPublicId || ''}
+      />
     </>
   );
 }
