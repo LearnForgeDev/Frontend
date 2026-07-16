@@ -103,4 +103,15 @@ export const schoolsEndpoints = {
     });
     return response.data;
   },
+
+  async uploadAvatar(schoolPublicId: string, file: File): Promise<string> {
+    const queryKey = [`/api/ApiStudents/${schoolPublicId}/avatar`];
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.fetchQuery({
+      queryKey: [...queryKey, file.name],
+      queryFn: () => queryFn.post<string>(queryKey[0], formData),
+    });
+    return response.data;
+  },
 };

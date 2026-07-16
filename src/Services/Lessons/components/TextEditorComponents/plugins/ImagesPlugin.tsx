@@ -107,7 +107,7 @@ export default function ImagesPlugin({
               // Save the selection before async upload
               const range = getDragSelection(event);
 
-              filesEndpoints.uploadFileMultipart(schoolPublicId, file)
+              filesEndpoints.uploadFileMultipart(schoolPublicId, file, undefined, undefined, 'lessons')
                 .then((apiFile: ApiFile) => {
                   editor.update(() => {
                     const rangeSelection = $createRangeSelection();

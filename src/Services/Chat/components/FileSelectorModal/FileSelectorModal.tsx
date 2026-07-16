@@ -33,7 +33,7 @@ export default function FileSelectorModal({
   schoolPublicId,
   onSelectFiles,
 }: FileSelectorModalProps) {
-  const { files, uploadFile, isUploading, isLoading } = useFiles(schoolPublicId);
+  const { files, uploadFile, isUploading, isLoading } = useFiles(schoolPublicId, 'files');
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLocalUploading, setIsLocalUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -51,7 +51,7 @@ export default function FileSelectorModal({
     try {
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const completed = await uploadFile(file);
+        const completed = await uploadFile(file, 'chats');
         if (completed && completed.publicId) {
           setSelectedIds((prev) => [...prev, completed.publicId]);
         }

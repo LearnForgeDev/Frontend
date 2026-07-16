@@ -45,7 +45,8 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEd
       const fileBlob = new Blob([fileContent], { type: 'application/json' });
       const presignDto = {
          fileName: lesson?.lessonJsonFile?.fileName || 'lesson.json',
-         sizeBytes: fileBlob.size
+         sizeBytes: fileBlob.size,
+         bucketType: 'lessons'
       };
       
       const presignResponse = await filesEndpoints.getPresignedUpload(schoolPublicId, presignDto);

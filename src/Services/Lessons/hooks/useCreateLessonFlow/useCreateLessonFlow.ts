@@ -27,7 +27,7 @@ export function useCreateLessonFlow({
       setIsFileUploading(true);
       const emptyLexicalJson = '{"root":{"children":[{"children":[],"direction":null,"format":"","indent":0,"type":"paragraph","version":1}],"direction":null,"format":"","indent":0,"type":"root","version":1}}';
       const file = new File([emptyLexicalJson], `lesson::${encodeURIComponent(title)}.lesson`, { type: 'application/json' });
-      const uploadedFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+      const uploadedFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file, undefined, undefined, 'lessons');
       setIsFileUploading(false);
 
       const newLesson = await createLesson.mutateAsync({

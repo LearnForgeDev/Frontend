@@ -87,11 +87,14 @@ export const filesEndpoints = {
     return response.data;
   },
 
-  async uploadFileMultipart(schoolPublicId: string, file: File, allowedUserPublicIds?: string[], allowedGroupIds?: number[]): Promise<ApiFile> {
+  async uploadFileMultipart(schoolPublicId: string, file: File, allowedUserPublicIds?: string[], allowedGroupIds?: number[], bucketType?: string): Promise<ApiFile> {
     const queryKey = [`/api/ApiFiles/${schoolPublicId}`];
     const formData = new FormData();
     formData.append('File', file);
     formData.append('FileName', file.name);
+    if (bucketType) {
+      formData.append('BucketType', bucketType);
+    }
     
     if (allowedUserPublicIds) {
       allowedUserPublicIds.forEach((id) => formData.append('AllowedUserPublicIds', id));

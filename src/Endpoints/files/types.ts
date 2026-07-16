@@ -12,6 +12,7 @@ export interface RequestDirectUploadUrlRequest {
   sizeBytes?: number;
   mimeType?: string;
   contentMd5?: string;
+  bucketType?: string;
 }
 
 export interface PresignResponseDto {

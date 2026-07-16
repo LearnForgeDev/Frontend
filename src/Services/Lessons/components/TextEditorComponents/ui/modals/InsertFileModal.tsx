@@ -53,7 +53,7 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
       setIsUploading(true);
       setFileUrlError('');
       try {
-        const apiFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+        const apiFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file, undefined, undefined, 'lessons');
         const url = filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId);
         handleInsert(url, file.name, file.size);
       } catch (error) {

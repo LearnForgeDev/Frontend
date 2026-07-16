@@ -123,7 +123,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     setIsUploading(true);
     try {
       for (const file of validFiles) {
-        await filesEndpoints.uploadFileMultipart(schoolPublicId, file);
+        await filesEndpoints.uploadFileMultipart(schoolPublicId, file, undefined, undefined, 'lessons');
       }
       refetch();
     } catch (err) {
