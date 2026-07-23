@@ -73,8 +73,7 @@ export default function ChatsPage() {
   const [groupDesc, setGroupDesc] = useState('');
   
   const [isDirectDialogOpen, setIsDirectDialogOpen] = useState(false);
-  const [contactName, setContactName] = useState('');
-  const [contactId, setContactId] = useState('');
+  const [selectedMember, setSelectedMember] = useState<{ displayName: string; userPublicId: string } | null>(null);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: 'branch' | 'direct') => {
     setActiveTab(newValue);
@@ -126,32 +125,19 @@ export default function ChatsPage() {
 
   const handleCreateDirectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!contactName.trim() || !contactId.trim()) return;
+    if (!selectedMember) return;
 
-    const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!guidRegex.test(contactId.trim())) {
-      showNotification({
-        id: `invalid-guid-${Date.now()}`,
-        title: 'Некорректный ID',
-        subtitle: 'Пожалуйста, введите корректный Public ID пользователя (GUID).',
-        priority: 'medium',
-        time: 3000,
-      });
-      return;
-    }
-
-    const newThread = addDirectChat(contactName.trim(), contactId.trim());
+    const newThread = addDirectChat(selectedMember.displayName, selectedMember.userPublicId);
 
     showNotification({
       id: `direct-created-${Date.now()}`,
       title: 'Контакт добавлен',
-      subtitle: `Чат с пользователем "${contactName}" инициализирован.`,
+      subtitle: `Чат с пользователем "${selectedMember.displayName}" инициализирован.`,
       priority: 'low',
       time: 3000,
     });
 
-    setContactName('');
-    setContactId('');
+    setSelectedMember(null);
     setIsDirectDialogOpen(false);
     setActiveThread(newThread);
   };
@@ -182,7 +168,7 @@ export default function ChatsPage() {
                 }
               }}
             >
-              Создать
+              {activeTab === 'branch' ? 'Создать' : 'Написать'}
             </Button>
           </Box>
 
@@ -269,7 +255,9 @@ export default function ChatsPage() {
                 Выберите диалог из списка
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Или создайте новую группу/прямой контакт с помощью кнопки «Создать»
+                {activeTab === 'branch'
+                  ? 'Или создайте новую группу с помощью кнопки «Создать»'
+                  : 'Или выберите собеседника с помощью кнопки «Написать»'}
               </Typography>
             </Box>
           )}
@@ -318,57 +306,32 @@ export default function ChatsPage() {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>Новая личная беседа</DialogTitle>
+        <DialogTitle>Написать сообщение</DialogTitle>
         <Box component="form" onSubmit={handleCreateDirectSubmit}>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Typography variant="body2" color="text.secondary">
-              Выберите участника школы для начала диалога:
+              Выберите собеседника для начала диалога:
             </Typography>
 
             <Autocomplete
               options={members.filter((m) => m.userPublicId !== currentUserPublicId)}
               getOptionLabel={(option) => option.displayName}
               loading={isMembersLoading}
-              onChange={(_, selected) => {
-                if (selected) {
-                  setContactName(selected.displayName);
-                  setContactId(selected.userPublicId);
-                } else {
-                  setContactName('');
-                  setContactId('');
-                }
-              }}
+              value={selectedMember}
+              onChange={(_, selected) => setSelectedMember(selected)}
               renderInput={(params) => (
                 <TextField
                   {...params}
-                  label="Участник школы"
+                  label="Собеседник"
                   placeholder="Поиск по имени участника..."
                 />
               )}
             />
-
-            <TextField
-              label="Отображаемое имя собеседника"
-              fullWidth
-              required
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              placeholder="Например: Иван Иванов"
-            />
-            <TextField
-              label="Public ID собеседника (GUID)"
-              fullWidth
-              required
-              value={contactId}
-              onChange={(e) => setContactId(e.target.value)}
-              placeholder="b2c0f203-b092-4d29-a1fc..."
-              helperText="GUID подставляется автоматически при выборе участника из списка выше"
-            />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setIsDirectDialogOpen(false)}>Отмена</Button>
-            <Button type="submit" variant="contained" disabled={!contactName.trim() || !contactId.trim()}>
-              Начать диалог
+            <Button type="submit" variant="contained" disabled={!selectedMember}>
+              Написать
             </Button>
           </DialogActions>
         </Box>
@@ -519,7 +482,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                             width: '100%',
                             maxWidth: '240px',
                             maxHeight: '180px',
-                            borderRadius: '8px',
+                            borderRadius: 0,
                             objectFit: 'cover',
                             cursor: 'pointer',
                             transition: 'opacity 0.2s',
@@ -646,7 +609,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                 maxWidth: '100%',
                 maxHeight: '85vh',
                 objectFit: 'contain',
-                borderRadius: '8px',
+                borderRadius: 0,
                 cursor: 'pointer',
               }}
               onClick={() => setPreviewImageUrl(null)}

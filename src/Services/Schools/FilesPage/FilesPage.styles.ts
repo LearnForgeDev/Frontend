@@ -117,6 +117,6 @@ export const styles = {
     maxWidth: '100%',
     maxHeight: '450px',
     objectFit: 'contain',
-    borderRadius: (theme: Theme) => theme.shape.borderRadius,
+    borderRadius: 0,
   },
 };

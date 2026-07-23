@@ -118,7 +118,7 @@ export default function ChatThreadView() {
                           width: '100%',
                           maxWidth: '180px',
                           maxHeight: '130px',
-                          borderRadius: '6px',
+                          borderRadius: 0,
                           objectFit: 'cover',
                           cursor: 'pointer',
                           transition: 'opacity 0.2s',
@@ -194,7 +194,7 @@ export default function ChatThreadView() {
                 maxWidth: '100%',
                 maxHeight: '85vh',
                 objectFit: 'contain',
-                borderRadius: '8px',
+                borderRadius: 0,
                 cursor: 'pointer',
               }}
               onClick={() => setPreviewImageUrl(null)}
