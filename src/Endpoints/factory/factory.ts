@@ -4,7 +4,7 @@ import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
 import { USER_STORAGE_KEY } from "@/Storage/UserContext/UserContext.tsx";
 import config from "src/config.ts";
 
-export function createApiClient({retryCount = 3, staleTime = 3 * 60 * 1000}) {
+export function createApiClient({retryCount = 3, staleTime = 0}) {
     return new QueryClient({
         defaultOptions: {
             queries: {
