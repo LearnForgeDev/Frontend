@@ -61,6 +61,7 @@ export default function FilesPage() {
     files,
     isLoading,
     isError,
+    refetch,
     uploadFile,
     isUploading,
     deleteFile,
@@ -187,6 +188,7 @@ export default function FilesPage() {
     }
 
     if (successCount > 0) {
+      await refetch();
       showNotification({
         id: `upload-success-${Date.now()}`,
         title: 'Загрузка успешна',
@@ -210,6 +212,7 @@ export default function FilesPage() {
 
     try {
       await deleteFile(deleteConfirmFile.publicId);
+      await refetch();
       showNotification({
         id: `delete-success-${Date.now()}`,
         title: 'Файл удален',

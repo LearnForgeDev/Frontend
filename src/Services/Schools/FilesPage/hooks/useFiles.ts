@@ -12,6 +12,11 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
     staleTime: 60 * 1000,
   });
 
+  const invalidateAndRefetchFiles = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['files'] });
+    await queryClient.refetchQueries({ queryKey: ['files'] });
+  };
+
   const uploadMutation = useMutation({
     mutationFn: (variables: { file: File; bucket?: string; onProgress?: (percent: number) => void }) =>
       filesEndpoints.uploadFileDirectPipeline(
@@ -23,16 +28,12 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
         undefined,
         variables.onProgress
       ),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['files', schoolPublicId] });
-    },
+    onSettled: invalidateAndRefetchFiles,
   });
 
   const deleteMutation = useMutation({
     mutationFn: (fileId: string) => filesEndpoints.deleteFile(schoolPublicId, fileId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['files', schoolPublicId] });
-    },
+    onSettled: invalidateAndRefetchFiles,
   });
 
   return {
