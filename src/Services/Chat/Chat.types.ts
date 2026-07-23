@@ -13,12 +13,13 @@ export interface ChatThread {
 }
 
 export interface ChatMessage {
-  id: string; // crypto.randomUUID() assigned on receipt
+  id: string;
   senderPublicId?: string;
   senderName: string;
   text: string;
-  receivedAt: string; // ISO 8601, constructed from Date.now()
-  isOwn: boolean; // true when senderName === current user's userName or senderPublicId matches
+  receivedAt: string; // ISO timestamp (sentAt from server or fallback)
+  sentAt?: string;
+  isOwn: boolean;
   files?: ChatFileDto[];
 }
 
@@ -34,6 +35,7 @@ export interface BranchMessageDto {
   senderName: string;
   text: string;
   files: ChatFileDto[];
+  sentAt?: string;
 }
 
 export interface DirectMessageDto {
@@ -44,4 +46,5 @@ export interface DirectMessageDto {
   receiverName: string;
   text: string;
   files: ChatFileDto[];
+  sentAt?: string;
 }

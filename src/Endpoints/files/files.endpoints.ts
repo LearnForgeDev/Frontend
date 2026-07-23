@@ -7,6 +7,7 @@ import type {
   UpdateFileAccessRequest
 } from './types';
 import config from '../../config';
+import { calculateContentMd5Base64 } from './md5.utils';
 
 const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();
@@ -58,24 +59,94 @@ export const filesEndpoints = {
     return new Blob([response.data], { type: contentType });
   },
 
-  async uploadFileDirect(uploadUrl: string, content: string | Blob, contentType?: string): Promise<void> {
-    const headers: Record<string, string> = {};
-    if (contentType) {
-      headers['Content-Type'] = contentType;
-    } else if (typeof content === 'string') {
-      headers['Content-Type'] = 'application/json';
-    } else if (content instanceof Blob && content.type) {
-      headers['Content-Type'] = content.type;
-    }
+  async uploadFileDirect(
+    uploadUrl: string,
+    content: string | Blob,
+    contentType?: string,
+    contentMd5?: string,
+    onProgress?: (progress: number) => void
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('PUT', uploadUrl, true);
 
-    const response = await fetch(uploadUrl, {
-      method: 'PUT',
-      headers,
-      body: content,
+      let effectiveContentType = contentType;
+      if (!effectiveContentType) {
+        if (typeof content === 'string') {
+          effectiveContentType = 'application/json';
+        } else if (content instanceof Blob && content.type) {
+          effectiveContentType = content.type;
+        }
+      }
+
+      if (effectiveContentType) {
+        xhr.setRequestHeader('Content-Type', effectiveContentType);
+      }
+      if (contentMd5) {
+        xhr.setRequestHeader('Content-MD5', contentMd5);
+      }
+
+      if (onProgress && xhr.upload) {
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.round((event.loaded / event.total) * 100);
+            onProgress(percent);
+          }
+        };
+      }
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else {
+          reject(new Error(`Direct upload failed with status ${xhr.status}: ${xhr.statusText}`));
+        }
+      };
+
+      xhr.onerror = () => reject(new Error('Direct upload network error'));
+      xhr.onabort = () => reject(new Error('Direct upload aborted'));
+
+      xhr.send(content);
     });
-    if (!response.ok) {
-      throw new Error(`Direct upload failed: ${response.statusText}`);
-    }
+  },
+
+  async uploadFileDirectPipeline(
+    schoolPublicId: string,
+    file: File | Blob,
+    fileName?: string,
+    bucketType: string = 'files',
+    allowedUserPublicIds?: string[],
+    allowedGroupIds?: number[],
+    onProgress?: (progress: number) => void
+  ): Promise<ApiFile> {
+    const effectiveFileName = fileName || (file instanceof File ? file.name : 'file');
+    const mimeType = file.type || 'application/octet-stream';
+    const contentMd5 = await calculateContentMd5Base64(file);
+
+    const presignResponse = await this.getPresignedUpload(schoolPublicId, {
+      fileName: effectiveFileName,
+      sizeBytes: file.size,
+      mimeType,
+      contentMd5,
+      bucketType,
+    });
+
+    await this.uploadFileDirect(
+      presignResponse.uploadUrl,
+      file,
+      mimeType,
+      contentMd5,
+      onProgress
+    );
+
+    return await this.completeUpload(schoolPublicId, {
+      storageKey: presignResponse.storageKey,
+      fileName: effectiveFileName,
+      sizeBytes: file.size,
+      mimeType,
+      allowedUserPublicIds,
+      allowedGroupIds,
+    });
   },
 
   async deleteFile(schoolPublicId: string, filePublicId: string): Promise<void> {

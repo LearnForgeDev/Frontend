@@ -43,19 +43,14 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEd
       
       const fileContent = JSON.stringify(serializedState);
       const fileBlob = new Blob([fileContent], { type: 'application/json' });
-      const presignDto = {
-         fileName: lesson?.lessonJsonFile?.fileName || 'lesson.json',
-         sizeBytes: fileBlob.size,
-         bucketType: 'lessons'
-      };
+      const fileName = lesson?.lessonJsonFile?.fileName || 'lesson.json';
       
-      const presignResponse = await filesEndpoints.getPresignedUpload(schoolPublicId, presignDto);
-      await filesEndpoints.uploadFileDirect(presignResponse.uploadUrl, fileBlob, 'application/json');
-      await filesEndpoints.completeUpload(schoolPublicId, {
-        storageKey: presignResponse.storageKey,
-        fileName: presignDto.fileName,
-        sizeBytes: presignDto.sizeBytes
-      });
+      await filesEndpoints.uploadFileDirectPipeline(
+        schoolPublicId,
+        fileBlob,
+        fileName,
+        'lessons'
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey });

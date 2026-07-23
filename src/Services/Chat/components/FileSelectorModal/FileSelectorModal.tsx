@@ -19,6 +19,7 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
 import { filesEndpoints } from '@/Endpoints';
+import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
 import { styles } from './FileSelectorModal.styles';
 
 interface FileSelectorModalProps {
@@ -39,6 +40,8 @@ export default function FileSelectorModal({
   const [isLocalUploading, setIsLocalUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
+
   const handleToggle = (id: string) => {
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
@@ -52,9 +55,61 @@ export default function FileSelectorModal({
     try {
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
-        const completed = await filesEndpoints.uploadChatFile(schoolPublicId, file);
-        if (completed && completed.publicId) {
-          setSelectedIds((prev) => [...prev, completed.publicId]);
+        const uploadId = `chat-upload-${Date.now()}-${i}`;
+
+        setUploadItems((prev) => [
+          ...prev,
+          {
+            id: uploadId,
+            fileName: file.name,
+            sizeBytes: file.size,
+            progress: 0,
+            status: 'uploading',
+          },
+        ]);
+
+        try {
+          const completed = await filesEndpoints.uploadFileDirectPipeline(
+            schoolPublicId,
+            file,
+            file.name,
+            'chats',
+            undefined,
+            undefined,
+            (percent) => {
+              setUploadItems((prev) =>
+                prev.map((item) =>
+                  item.id === uploadId ? { ...item, progress: percent } : item
+                )
+              );
+            }
+          );
+
+          setUploadItems((prev) =>
+            prev.map((item) =>
+              item.id === uploadId ? { ...item, progress: 100, status: 'completed' } : item
+            )
+          );
+
+          if (completed && completed.publicId) {
+            setSelectedIds((prev) => [...prev, completed.publicId]);
+          }
+
+          setTimeout(() => {
+            setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+          }, 3000);
+        } catch (fileErr) {
+          console.error('Individual file upload error', fileErr);
+          setUploadItems((prev) =>
+            prev.map((item) =>
+              item.id === uploadId
+                ? { ...item, status: 'error', errorMessage: 'Ошибка загрузки файла' }
+                : item
+            )
+          );
+          setTimeout(() => {
+            setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+          }, 4000);
         }
       }
     } catch (err) {
@@ -159,6 +214,7 @@ export default function FileSelectorModal({
           Прикрепить ({selectedIds.length})
         </Button>
       </DialogActions>
+      <FileUploadProgress items={uploadItems} />
     </Dialog>
   );
 }

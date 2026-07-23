@@ -13,8 +13,16 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
   });
 
   const uploadMutation = useMutation({
-    mutationFn: (variables: { file: File; bucket?: string }) =>
-      filesEndpoints.uploadFileMultipart(schoolPublicId, variables.file, undefined, undefined, variables.bucket ?? bucketType),
+    mutationFn: (variables: { file: File; bucket?: string; onProgress?: (percent: number) => void }) =>
+      filesEndpoints.uploadFileDirectPipeline(
+        schoolPublicId,
+        variables.file,
+        variables.file.name,
+        variables.bucket ?? bucketType,
+        undefined,
+        undefined,
+        variables.onProgress
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files', schoolPublicId] });
     },
@@ -32,7 +40,8 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
     isLoading,
     isError,
     refetch,
-    uploadFile: (file: File, bucket?: string) => uploadMutation.mutateAsync({ file, bucket }),
+    uploadFile: (file: File, bucket?: string, onProgress?: (percent: number) => void) =>
+      uploadMutation.mutateAsync({ file, bucket, onProgress }),
     isUploading: uploadMutation.isPending,
     deleteFile: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,

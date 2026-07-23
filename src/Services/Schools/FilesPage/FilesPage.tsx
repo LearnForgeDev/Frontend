@@ -48,6 +48,7 @@ import ViewListIcon from '@mui/icons-material/ViewList';
 import { useFiles } from './hooks/useFiles';
 import { filesEndpoints } from '@/Endpoints';
 import type { ApiFile } from '@/Endpoints';
+import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { styles } from './FilesPage.styles';
 
@@ -75,6 +76,7 @@ export default function FilesPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isPreviewLoading, setIsPreviewLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
 
   const getFileCategory = (filename: string): string => {
     const ext = filename.split('.').pop()?.toLowerCase() || '';
@@ -137,12 +139,50 @@ export default function FilesPage() {
 
     for (let i = 0; i < selectedFiles.length; i++) {
       const file = selectedFiles[i];
+      const uploadId = `upload-${Date.now()}-${i}`;
+
+      const newItem: UploadItemProgress = {
+        id: uploadId,
+        fileName: file.name,
+        sizeBytes: file.size,
+        progress: 0,
+        status: 'uploading',
+      };
+
+      setUploadItems((prev) => [...prev, newItem]);
+
       try {
-        await uploadFile(file);
+        await uploadFile(file, undefined, (percent) => {
+          setUploadItems((prev) =>
+            prev.map((item) =>
+              item.id === uploadId ? { ...item, progress: percent } : item
+            )
+          );
+        });
+
+        setUploadItems((prev) =>
+          prev.map((item) =>
+            item.id === uploadId ? { ...item, progress: 100, status: 'completed' } : item
+          )
+        );
         successCount++;
+
+        setTimeout(() => {
+          setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+        }, 3000);
       } catch (err) {
         console.error(err);
         failCount++;
+        setUploadItems((prev) =>
+          prev.map((item) =>
+            item.id === uploadId
+              ? { ...item, status: 'error', errorMessage: 'Ошибка загрузки в S3 облако' }
+              : item
+          )
+        );
+        setTimeout(() => {
+          setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+        }, 5000);
       }
     }
 
@@ -592,6 +632,8 @@ export default function FilesPage() {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <FileUploadProgress items={uploadItems} />
     </Box>
   );
 }

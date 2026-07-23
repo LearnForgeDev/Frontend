@@ -11,7 +11,7 @@ export interface RequestDirectUploadUrlRequest {
   fileName: string;
   sizeBytes?: number;
   mimeType?: string;
-  contentMd5?: string;
+  contentMd5: string;
   bucketType?: string;
 }
 

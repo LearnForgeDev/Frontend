@@ -24,6 +24,8 @@ interface ApiHistoryItem {
   Text?: string;
   files?: ApiFileItem[];
   Files?: ApiFileItem[];
+  sentAt?: string;
+  SentAt?: string;
 }
 
 function mapFiles(raw: ApiFileItem[] | undefined, schoolPublicId: string): ChatFileDto[] {
@@ -57,30 +59,38 @@ export function useChatMessages(params: ChatHubParams) {
       chatEndpoints.getBranchHistory(params.schoolPublicId, params.threadId)
         .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
-          setMessages(history.map(h => ({
-            id: h.publicId ?? h.PublicId ?? '',
-            senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-            senderName: h.senderName ?? h.SenderName ?? '',
-            text: h.text ?? h.Text ?? '',
-            receivedAt: new Date().toISOString(),
-            isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-            files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
-          })));
+          setMessages(history.map(h => {
+            const timeStr = h.sentAt ?? h.SentAt;
+            return {
+              id: h.publicId ?? h.PublicId ?? '',
+              senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
+              senderName: h.senderName ?? h.SenderName ?? '',
+              text: h.text ?? h.Text ?? '',
+              receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
+              sentAt: timeStr,
+              isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
+              files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
+            };
+          }));
         })
         .catch(console.error);
     } else if (params.type === 'direct') {
       chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
         .then((history: ApiHistoryItem[]) => {
           if (!isMounted) return;
-          setMessages(history.map(h => ({
-            id: h.publicId ?? h.PublicId ?? '',
-            senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-            senderName: h.senderName ?? h.SenderName ?? '',
-            text: h.text ?? h.Text ?? '',
-            receivedAt: new Date().toISOString(),
-            isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-            files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
-          })));
+          setMessages(history.map(h => {
+            const timeStr = h.sentAt ?? h.SentAt;
+            return {
+              id: h.publicId ?? h.PublicId ?? '',
+              senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
+              senderName: h.senderName ?? h.SenderName ?? '',
+              text: h.text ?? h.Text ?? '',
+              receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
+              sentAt: timeStr,
+              isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
+              files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
+            };
+          }));
         })
         .catch(console.error);
     }
@@ -93,14 +103,16 @@ export function useChatMessages(params: ChatHubParams) {
   useEffect(() => {
     if (!connection) return;
 
-    const handler = (senderPublicId: string, senderName: string, text: string, files?: ApiFileItem[]) => {
+    const handler = (senderPublicId: string, senderName: string, text: string, files?: ApiFileItem[], sentAt?: string) => {
       const isOwn = senderPublicId === currentUserPublicId || senderName === currentUserName;
+      const timeStr = sentAt || new Date().toISOString();
       const newMessage: ChatMessage = {
         id: crypto.randomUUID(),
         senderPublicId,
         senderName,
         text,
-        receivedAt: new Date().toISOString(),
+        receivedAt: timeStr,
+        sentAt: timeStr,
         isOwn,
         files: mapFiles(files, params.schoolPublicId),
       };

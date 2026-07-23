@@ -9,6 +9,23 @@ import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMe
 import ChatInput from './ChatInput';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
+function formatMessageTime(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const now = new Date();
+  const isToday =
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear();
+
+  if (isToday) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  return `${d.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 export default function ChatThreadView() {
   const { activeThread, setActiveThread } = useChatContext();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -88,7 +105,7 @@ export default function ChatThreadView() {
               {msg.text}
             </Typography>
             {msg.files && msg.files.length > 0 && (
-              <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
+              <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: 0.9 }}>
                 {msg.files.map((file) => (
                   <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
                     {isImageFile(file.fileName) ? (
@@ -133,7 +150,7 @@ export default function ChatThreadView() {
               </Box>
             )}
             <Typography variant="caption" sx={{ display: 'block', textAlign: 'right', mt: 0.5, opacity: 0.7, fontSize: '0.65rem' }}>
-              {new Date(msg.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {formatMessageTime(msg.receivedAt)}
             </Typography>
           </Box>
         ))}

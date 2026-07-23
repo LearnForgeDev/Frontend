@@ -347,6 +347,23 @@ interface ActiveChatViewProps {
   isMobile: boolean;
   onBack: () => void;
 }
+function formatMessageTime(dateStr: string): string {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '';
+  const now = new Date();
+  const isToday =
+    d.getDate() === now.getDate() &&
+    d.getMonth() === now.getMonth() &&
+    d.getFullYear() === now.getFullYear();
+
+  if (isToday) {
+    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  return `${d.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+
 function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps) {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -454,7 +471,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                 {msg.text}
               </Typography>
               {msg.files && msg.files.length > 0 && (
-                <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, borderTop: '1px solid currentColor', pt: 0.5, opacity: 0.9 }}>
+                <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: 0.9 }}>
                   {msg.files.map((file) => (
                     <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
                       {isImageFile(file.fileName) ? (
@@ -499,7 +516,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                 </Box>
               )}
               <Typography variant="caption" sx={styles.messageTime}>
-                {new Date(msg.receivedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                {formatMessageTime(msg.receivedAt)}
               </Typography>
             </Box>
           </Box>
