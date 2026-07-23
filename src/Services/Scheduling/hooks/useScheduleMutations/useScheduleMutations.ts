@@ -37,30 +37,29 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
     });
   };
 
+  const invalidateAndRefetchEvents = async () => {
+    await queryClient.invalidateQueries({ queryKey: ['schedule-events'] });
+    await queryClient.refetchQueries({ queryKey: ['schedule-events'] });
+  };
+
   const createEvent = useMutation<ScheduleEvent, AppError, CreateScheduleEventInput>({
     mutationFn: (input) =>
       scheduleEndpoints.createEvent(schoolId, input).then(scheduleEventDtoToEvent),
     onError: (error) => notifyError(error, 'Ошибка создания занятия', 'Не удалось создать занятие.'),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
-    },
+    onSettled: invalidateAndRefetchEvents,
   });
 
   const updateEvent = useMutation<ScheduleEvent, AppError, UpdateScheduleEventVars>({
     mutationFn: ({ eventId, input }) =>
       scheduleEndpoints.updateEvent(schoolId, eventId, input).then(scheduleEventDtoToEvent),
     onError: (error) => notifyError(error, 'Ошибка изменения занятия', 'Не удалось изменить занятие.'),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
-    },
+    onSettled: invalidateAndRefetchEvents,
   });
 
   const deleteEvent = useMutation<void, AppError, string>({
     mutationFn: (eventId) => scheduleEndpoints.deleteEvent(schoolId, eventId),
     onError: (error) => notifyError(error, 'Ошибка удаления занятия', 'Не удалось удалить занятие.'),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
-    },
+    onSettled: invalidateAndRefetchEvents,
   });
 
   return { createEvent, updateEvent, deleteEvent };

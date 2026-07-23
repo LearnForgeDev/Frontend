@@ -20,6 +20,7 @@ import {
   DialogContent,
   DialogActions,
   Chip,
+  Autocomplete,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -36,6 +37,7 @@ import { useChats } from './hooks/useChats';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/FileSelectorModal';
 import { styles } from './ChatsPage.styles';
 
@@ -49,11 +51,16 @@ export default function ChatsPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
+  const currentUserPublicId = useGlobalContext((s) => s.auth.user?.userPublicId);
+
   const {
     branchThreads,
     directThreads,
+    members,
+    isMembersLoading,
     isLoading,
     isError,
+    refetch,
     createBranch,
     addDirectChat,
   } = useChats(schoolPublicId);
@@ -92,6 +99,8 @@ export default function ChatsPage() {
         priority: 'low',
         time: 3000,
       });
+
+      await refetch();
 
       setActiveThread({
         id: newBranch.publicId,
@@ -306,12 +315,38 @@ export default function ChatsPage() {
       <Dialog
         open={isDirectDialogOpen}
         onClose={() => setIsDirectDialogOpen(false)}
-        maxWidth="xs"
+        maxWidth="sm"
         fullWidth
       >
         <DialogTitle>Новая личная беседа</DialogTitle>
         <Box component="form" onSubmit={handleCreateDirectSubmit}>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body2" color="text.secondary">
+              Выберите участника школы для начала диалога:
+            </Typography>
+
+            <Autocomplete
+              options={members.filter((m) => m.userPublicId !== currentUserPublicId)}
+              getOptionLabel={(option) => option.displayName}
+              loading={isMembersLoading}
+              onChange={(_, selected) => {
+                if (selected) {
+                  setContactName(selected.displayName);
+                  setContactId(selected.userPublicId);
+                } else {
+                  setContactName('');
+                  setContactId('');
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Участник школы"
+                  placeholder="Поиск по имени участника..."
+                />
+              )}
+            />
+
             <TextField
               label="Отображаемое имя собеседника"
               fullWidth
@@ -327,13 +362,13 @@ export default function ChatsPage() {
               value={contactId}
               onChange={(e) => setContactId(e.target.value)}
               placeholder="b2c0f203-b092-4d29-a1fc..."
-              helperText="GUID идентификатор пользователя для SignalR связи"
+              helperText="GUID подставляется автоматически при выборе участника из списка выше"
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={() => setIsDirectDialogOpen(false)}>Отмена</Button>
             <Button type="submit" variant="contained" disabled={!contactName.trim() || !contactId.trim()}>
-              Добавить
+              Начать диалог
             </Button>
           </DialogActions>
         </Box>

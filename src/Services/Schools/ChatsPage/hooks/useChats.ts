@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { branchesEndpoints } from '@/Endpoints';
+import { branchesEndpoints, schoolsEndpoints } from '@/Endpoints';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 
 export function useChats(schoolPublicId: string) {
@@ -34,6 +34,13 @@ export function useChats(schoolPublicId: string) {
     schoolPublicId,
   }));
 
+  const { data: members = [], isLoading: isMembersLoading } = useQuery({
+    queryKey: ['school-members', schoolPublicId],
+    queryFn: () => schoolsEndpoints.listMembers(schoolPublicId),
+    enabled: !!schoolPublicId,
+    staleTime: 60 * 1000,
+  });
+
   const createBranchMutation = useMutation({
     mutationFn: (dto: { name: string; description: string }) =>
       branchesEndpoints.createBranch(schoolPublicId, {
@@ -41,8 +48,9 @@ export function useChats(schoolPublicId: string) {
         description: dto.description,
         schoolPublicId,
       }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolPublicId] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['chats-branches', schoolPublicId] });
+      await queryClient.refetchQueries({ queryKey: ['chats-branches', schoolPublicId] });
     },
   });
 
@@ -66,6 +74,8 @@ export function useChats(schoolPublicId: string) {
   return {
     branchThreads,
     directThreads,
+    members,
+    isMembersLoading,
     isLoading,
     isError,
     refetch,
