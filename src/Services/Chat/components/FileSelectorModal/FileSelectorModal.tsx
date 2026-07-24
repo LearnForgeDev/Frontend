@@ -14,9 +14,24 @@ import {
   CircularProgress,
   Typography,
   Box,
+  TextField,
+  InputAdornment,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  type SelectChangeEvent,
 } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import SearchIcon from '@mui/icons-material/Search';
+import ImageIcon from '@mui/icons-material/Image';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import ArticleIcon from '@mui/icons-material/Article';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
+import AudioFileIcon from '@mui/icons-material/AudioFile';
+import VideoFileIcon from '@mui/icons-material/VideoFile';
+
 import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
 import { filesEndpoints, type ApiFile } from '@/Endpoints';
 import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
@@ -29,6 +44,40 @@ interface FileSelectorModalProps {
   onSelectFiles: (selectedFiles: Array<{ publicId: string; fileName: string }>) => void;
 }
 
+const getFileCategory = (filename: string): string => {
+  const ext = filename.split('.').pop()?.toLowerCase() || '';
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
+  if (ext === 'pdf') return 'pdf';
+  if (['txt', 'md', 'json', 'js', 'ts', 'html', 'css'].includes(ext)) return 'text';
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return 'document';
+  if (['zip', 'rar', 'tar', 'gz', '7z'].includes(ext)) return 'archive';
+  if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
+  if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) return 'video';
+  return 'other';
+};
+
+const getFileIcon = (filename: string) => {
+  const category = getFileCategory(filename);
+  switch (category) {
+    case 'image': return <ImageIcon color="primary" />;
+    case 'pdf': return <PictureAsPdfIcon color="error" />;
+    case 'text':
+    case 'document': return <ArticleIcon color="info" />;
+    case 'archive': return <FolderZipIcon color="warning" />;
+    case 'audio': return <AudioFileIcon color="secondary" />;
+    case 'video': return <VideoFileIcon color="secondary" />;
+    default: return <InsertDriveFileIcon color="action" />;
+  }
+};
+
+const formatFileSize = (bytes: number) => {
+  if (!bytes || bytes === 0) return '0 Б';
+  const k = 1024;
+  const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+};
+
 export default function FileSelectorModal({
   open,
   onClose,
@@ -39,6 +88,8 @@ export default function FileSelectorModal({
   const [localUploadedFiles, setLocalUploadedFiles] = useState<ApiFile[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLocalUploading, setIsLocalUploading] = useState(false);
+  const [search, setSearch] = useState('');
+  const [filterType, setFilterType] = useState('all');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
@@ -49,6 +100,25 @@ export default function FileSelectorModal({
     localUploadedFiles.forEach((f: ApiFile) => map.set(f.publicId, f));
     return Array.from(map.values());
   }, [files, localUploadedFiles]);
+
+  const filteredFiles = useMemo<ApiFile[]>(() => {
+    return allAvailableFiles.filter((file) => {
+      const fileName = file.fileName || '';
+      const matchesSearch = fileName.toLowerCase().includes(search.toLowerCase());
+      const category = getFileCategory(fileName);
+
+      let matchesFilter = true;
+      if (filterType !== 'all') {
+        if (filterType === 'document') {
+          matchesFilter = ['document', 'pdf', 'text'].includes(category);
+        } else {
+          matchesFilter = category === filterType;
+        }
+      }
+
+      return matchesSearch && matchesFilter;
+    });
+  }, [allAvailableFiles, search, filterType]);
 
   const handleToggle = (id: string) => {
     setSelectedIds((prev) =>
@@ -136,12 +206,16 @@ export default function FileSelectorModal({
     onSelectFiles(matched);
     setSelectedIds([]);
     setLocalUploadedFiles([]);
+    setSearch('');
+    setFilterType('all');
     onClose();
   };
 
   const handleClose = () => {
     setSelectedIds([]);
     setLocalUploadedFiles([]);
+    setSearch('');
+    setFilterType('all');
     onClose();
   };
 
@@ -175,6 +249,42 @@ export default function FileSelectorModal({
           </Button>
         </Box>
 
+        <Box sx={styles.toolbar}>
+          <TextField
+            size="small"
+            placeholder="Поиск файлов..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            sx={styles.searchInput}
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" />
+                  </InputAdornment>
+                ),
+              },
+            }}
+          />
+
+          <FormControl size="small" sx={{ minWidth: 140 }}>
+            <InputLabel id="file-selector-filter-label">Тип файла</InputLabel>
+            <Select
+              labelId="file-selector-filter-label"
+              value={filterType}
+              label="Тип файла"
+              onChange={(e: SelectChangeEvent) => setFilterType(e.target.value)}
+            >
+              <MenuItem value="all">Все форматы</MenuItem>
+              <MenuItem value="document">Документы</MenuItem>
+              <MenuItem value="image">Изображения</MenuItem>
+              <MenuItem value="archive">Архивы</MenuItem>
+              <MenuItem value="audio">Аудио</MenuItem>
+              <MenuItem value="video">Видео</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
@@ -185,9 +295,15 @@ export default function FileSelectorModal({
               Файлы еще не загружены.
             </Typography>
           </Box>
+        ) : filteredFiles.length === 0 ? (
+          <Box sx={{ py: 4, textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Файлы по вашему запросу не найдены.
+            </Typography>
+          </Box>
         ) : (
           <List sx={styles.listContainer}>
-            {allAvailableFiles.map((file: ApiFile) => {
+            {filteredFiles.map((file: ApiFile) => {
               const labelId = `checkbox-list-label-${file.publicId}`;
               const isChecked = selectedIds.includes(file.publicId);
 
@@ -201,12 +317,12 @@ export default function FileSelectorModal({
                       />
                     </ListItemIcon>
                     <ListItemIcon sx={styles.fileIcon}>
-                      <InsertDriveFileIcon color="action" />
+                      {getFileIcon(file.fileName)}
                     </ListItemIcon>
                     <ListItemText
                       id={labelId}
                       primary={file.fileName}
-                      secondary={`${(file.sizeBytes / 1024).toFixed(1)} KB`}
+                      secondary={formatFileSize(file.sizeBytes)}
                     />
                   </ListItemButton>
                 </ListItem>

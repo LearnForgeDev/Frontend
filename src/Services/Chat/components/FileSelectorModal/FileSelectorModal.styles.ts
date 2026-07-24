@@ -25,4 +25,14 @@ export const styles = {
   fileIcon: {
     minWidth: '40px',
   },
+  toolbar: {
+    display: 'flex',
+    gap: 1.5,
+    alignItems: 'center',
+    flexWrap: 'wrap' as const,
+  },
+  searchInput: {
+    flex: 1,
+    minWidth: '180px',
+  },
 };
