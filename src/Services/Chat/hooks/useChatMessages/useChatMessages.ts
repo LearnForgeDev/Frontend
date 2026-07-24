@@ -124,7 +124,7 @@ export function useChatMessages(params: ChatHubParams) {
     return () => {
       connection.off('ReceiveMessage', handler);
     };
-  }, [connection, currentUserName, currentUserPublicId]);
+  }, [connection, currentUserName, currentUserPublicId, params.schoolPublicId]);
 
   const sendMessage = useCallback((text: string, filePublicIds: string[] = []) => {
     if (!connection || status !== 'connected') return;

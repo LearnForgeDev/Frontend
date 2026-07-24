@@ -20,21 +20,16 @@ export default function AuthenticatedImage({
   onClick,
 }: AuthenticatedImageProps) {
   const [imgSrc, setImgSrc] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(Boolean(schoolPublicId && filePublicId));
+  const [error, setError] = useState<boolean>(!schoolPublicId || !filePublicId);
 
   useEffect(() => {
-    let isMounted = true;
-    let objectUrl: string | null = null;
-
     if (!schoolPublicId || !filePublicId) {
-      setLoading(false);
-      setError(true);
       return;
     }
 
-    setLoading(true);
-    setError(false);
+    let isMounted = true;
+    let objectUrl: string | null = null;
 
     filesEndpoints
       .getFileBlob(schoolPublicId, filePublicId)
