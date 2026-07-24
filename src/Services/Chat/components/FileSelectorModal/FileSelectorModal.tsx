@@ -35,12 +35,20 @@ export default function FileSelectorModal({
   schoolPublicId,
   onSelectFiles,
 }: FileSelectorModalProps) {
-  const { files, isLoading } = useFiles(schoolPublicId, 'files');
+  const { files, isLoading } = useFiles(schoolPublicId, 'files,chats');
+  const [localUploadedFiles, setLocalUploadedFiles] = useState<ApiFile[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isLocalUploading, setIsLocalUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
+
+  const allAvailableFiles = useMemo(() => {
+    const map = new Map<string, ApiFile>();
+    files.forEach((f) => map.set(f.publicId, f));
+    localUploadedFiles.forEach((f) => map.set(f.publicId, f));
+    return Array.from(map.values());
+  }, [files, localUploadedFiles]);
 
   const handleToggle = (id: string) => {
     setSelectedIds((prev) =>
@@ -92,6 +100,7 @@ export default function FileSelectorModal({
           );
 
           if (completed && completed.publicId) {
+            setLocalUploadedFiles((prev) => [...prev, completed]);
             setSelectedIds((prev) => [...prev, completed.publicId]);
           }
 
@@ -121,16 +130,18 @@ export default function FileSelectorModal({
   };
 
   const handleConfirm = () => {
-    const matched = files
+    const matched = allAvailableFiles
       .filter((f) => selectedIds.includes(f.publicId))
       .map((f) => ({ publicId: f.publicId, fileName: f.fileName }));
     onSelectFiles(matched);
     setSelectedIds([]);
+    setLocalUploadedFiles([]);
     onClose();
   };
 
   const handleClose = () => {
     setSelectedIds([]);
+    setLocalUploadedFiles([]);
     onClose();
   };
 
@@ -168,7 +179,7 @@ export default function FileSelectorModal({
           <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
             <CircularProgress />
           </Box>
-        ) : files.length === 0 ? (
+        ) : allAvailableFiles.length === 0 ? (
           <Box sx={{ py: 4, textAlign: 'center' }}>
             <Typography variant="body2" color="text.secondary">
               Файлы еще не загружены.
@@ -176,7 +187,7 @@ export default function FileSelectorModal({
           </Box>
         ) : (
           <List sx={styles.listContainer}>
-            {files.map((file) => {
+            {allAvailableFiles.map((file) => {
               const labelId = `checkbox-list-label-${file.publicId}`;
               const isChecked = selectedIds.includes(file.publicId);
 
