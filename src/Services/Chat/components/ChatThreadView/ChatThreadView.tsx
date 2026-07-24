@@ -7,7 +7,7 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import { filesEndpoints } from '@/Endpoints';
-import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage/AuthenticatedImage';
+import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import ChatInput from './ChatInput';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
@@ -113,9 +113,9 @@ export default function ChatThreadView() {
                     {isImageFile(file.fileName) ? (
                       <AuthenticatedImage
                         schoolPublicId={activeThread.schoolPublicId}
-                        filePublicId={file.publicId}
+                        filePublicId={file.publicId || ''}
                         alt={file.fileName}
-                        onClick={() => setPreviewImageFileId(file.publicId)}
+                        onClick={() => file.publicId && setPreviewImageFileId(file.publicId)}
                         sx={{
                           width: '100%',
                           maxWidth: '180px',
@@ -132,7 +132,7 @@ export default function ChatThreadView() {
                     ) : (
                       <Box
                         sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                        onClick={() => filesEndpoints.downloadFile(activeThread.schoolPublicId, file.publicId, file.fileName)}
+                        onClick={() => file.publicId && filesEndpoints.downloadFile(activeThread.schoolPublicId, file.publicId, file.fileName)}
                       >
                         <AttachFileIcon sx={{ fontSize: '0.8rem', transform: 'rotate(45deg)' }} />
                         <Typography

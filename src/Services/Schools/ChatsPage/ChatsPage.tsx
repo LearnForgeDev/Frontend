@@ -40,7 +40,7 @@ import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/FileSelectorModal';
 import { filesEndpoints } from '@/Endpoints';
-import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage/AuthenticatedImage';
+import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
@@ -476,10 +476,10 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                     <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
                       {isImageFile(file.fileName) ? (
                         <AuthenticatedImage
-                          schoolPublicId={schoolPublicId}
-                          filePublicId={file.publicId}
+                          schoolPublicId={activeThread.schoolPublicId}
+                          filePublicId={file.publicId || ''}
                           alt={file.fileName}
-                          onClick={() => setPreviewImageFileId(file.publicId)}
+                          onClick={() => file.publicId && setPreviewImageFileId(file.publicId)}
                           sx={{
                             width: '100%',
                             maxWidth: '240px',
@@ -496,7 +496,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                       ) : (
                         <Box
                           sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                          onClick={() => filesEndpoints.downloadFile(schoolPublicId, file.publicId, file.fileName)}
+                          onClick={() => file.publicId && filesEndpoints.downloadFile(activeThread.schoolPublicId, file.publicId, file.fileName)}
                         >
                           <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
                           <Typography
@@ -605,7 +605,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', maxHeight: '90vh' }}>
           {previewImageFileId && (
             <AuthenticatedImage
-              schoolPublicId={schoolPublicId}
+              schoolPublicId={activeThread.schoolPublicId}
               filePublicId={previewImageFileId}
               alt="Preview"
               sx={{
