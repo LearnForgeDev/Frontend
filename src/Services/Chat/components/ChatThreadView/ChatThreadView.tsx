@@ -6,6 +6,8 @@ import PersonIcon from '@mui/icons-material/Person';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
+import { filesEndpoints } from '@/Endpoints';
+import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage/AuthenticatedImage';
 import ChatInput from './ChatInput';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
@@ -36,7 +38,7 @@ export default function ChatThreadView() {
     schoolPublicId: activeThread?.schoolPublicId || '',
   });
 
-  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewImageFileId, setPreviewImageFileId] = useState<string | null>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -109,11 +111,11 @@ export default function ChatThreadView() {
                 {msg.files.map((file) => (
                   <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
                     {isImageFile(file.fileName) ? (
-                      <Box
-                        component="img"
-                        src={file.fileUrl}
+                      <AuthenticatedImage
+                        schoolPublicId={activeThread.schoolPublicId}
+                        filePublicId={file.publicId}
                         alt={file.fileName}
-                        onClick={() => setPreviewImageUrl(file.fileUrl || null)}
+                        onClick={() => setPreviewImageFileId(file.publicId)}
                         sx={{
                           width: '100%',
                           maxWidth: '180px',
@@ -128,13 +130,14 @@ export default function ChatThreadView() {
                         }}
                       />
                     ) : (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Box
+                        sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                        onClick={() => filesEndpoints.downloadFile(activeThread.schoolPublicId, file.publicId, file.fileName)}
+                      >
                         <AttachFileIcon sx={{ fontSize: '0.8rem', transform: 'rotate(45deg)' }} />
-                        <a
-                          href={file.fileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          style={{
+                        <Typography
+                          variant="caption"
+                          sx={{
                             color: 'inherit',
                             fontSize: '0.7rem',
                             textDecoration: 'underline',
@@ -142,7 +145,7 @@ export default function ChatThreadView() {
                           }}
                         >
                           {file.fileName || 'Вложенный файл'}
-                        </a>
+                        </Typography>
                       </Box>
                     )}
                   </Box>
@@ -164,8 +167,8 @@ export default function ChatThreadView() {
       />
 
       <Dialog
-        open={Boolean(previewImageUrl)}
-        onClose={() => setPreviewImageUrl(null)}
+        open={Boolean(previewImageFileId)}
+        onClose={() => setPreviewImageFileId(null)}
         maxWidth="md"
         fullWidth
         slotProps={{
@@ -185,10 +188,10 @@ export default function ChatThreadView() {
         }}
       >
         <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', maxHeight: '90vh' }}>
-          {previewImageUrl && (
-            <Box
-              component="img"
-              src={previewImageUrl}
+          {previewImageFileId && (
+            <AuthenticatedImage
+              schoolPublicId={activeThread.schoolPublicId}
+              filePublicId={previewImageFileId}
               alt="Preview"
               sx={{
                 maxWidth: '100%',
@@ -197,7 +200,7 @@ export default function ChatThreadView() {
                 borderRadius: 0,
                 cursor: 'pointer',
               }}
-              onClick={() => setPreviewImageUrl(null)}
+              onClick={() => setPreviewImageFileId(null)}
             />
           )}
         </Box>

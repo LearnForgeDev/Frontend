@@ -39,6 +39,8 @@ import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/FileSelectorModal';
+import { filesEndpoints } from '@/Endpoints';
+import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage/AuthenticatedImage';
 import { styles } from './ChatsPage.styles';
 
 export default function ChatsPage() {
@@ -367,7 +369,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
-  const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
+  const [previewImageFileId, setPreviewImageFileId] = useState<string | null>(null);
 
   const { messages, sendMessage, status } = useChatMessages({
     type: activeThread.type,
@@ -473,11 +475,11 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                   {msg.files.map((file) => (
                     <Box key={file.publicId} sx={{ display: 'flex', alignItems: 'flex-start', mt: 0.5 }}>
                       {isImageFile(file.fileName) ? (
-                        <Box
-                          component="img"
-                          src={file.fileUrl}
+                        <AuthenticatedImage
+                          schoolPublicId={schoolPublicId}
+                          filePublicId={file.publicId}
                           alt={file.fileName}
-                          onClick={() => setPreviewImageUrl(file.fileUrl || null)}
+                          onClick={() => setPreviewImageFileId(file.publicId)}
                           sx={{
                             width: '100%',
                             maxWidth: '240px',
@@ -492,13 +494,14 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                           }}
                         />
                       ) : (
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Box
+                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
+                          onClick={() => filesEndpoints.downloadFile(schoolPublicId, file.publicId, file.fileName)}
+                        >
                           <AttachFileIcon sx={{ fontSize: '0.9rem', transform: 'rotate(45deg)' }} />
-                          <a
-                            href={file.fileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
+                          <Typography
+                            variant="caption"
+                            sx={{
                               color: 'inherit',
                               fontSize: '0.75rem',
                               textDecoration: 'underline',
@@ -506,7 +509,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                             }}
                           >
                             {file.fileName || 'Вложенный файл'}
-                          </a>
+                          </Typography>
                         </Box>
                       )}
                     </Box>
@@ -579,8 +582,8 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
       />
 
       <Dialog
-        open={Boolean(previewImageUrl)}
-        onClose={() => setPreviewImageUrl(null)}
+        open={Boolean(previewImageFileId)}
+        onClose={() => setPreviewImageFileId(null)}
         maxWidth="md"
         fullWidth
         slotProps={{
@@ -600,10 +603,10 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         }}
       >
         <Box sx={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', maxWidth: '100%', maxHeight: '90vh' }}>
-          {previewImageUrl && (
-            <Box
-              component="img"
-              src={previewImageUrl}
+          {previewImageFileId && (
+            <AuthenticatedImage
+              schoolPublicId={schoolPublicId}
+              filePublicId={previewImageFileId}
               alt="Preview"
               sx={{
                 maxWidth: '100%',
@@ -612,7 +615,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                 borderRadius: 0,
                 cursor: 'pointer',
               }}
-              onClick={() => setPreviewImageUrl(null)}
+              onClick={() => setPreviewImageFileId(null)}
             />
           )}
         </Box>

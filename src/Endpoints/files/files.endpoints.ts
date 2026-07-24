@@ -197,5 +197,17 @@ export const filesEndpoints = {
 
   getFileUrl(schoolPublicId: string, filePublicId: string): string {
     return `${config.endpointUrl}/api/ApiFiles/${schoolPublicId}/${filePublicId}/content`;
+  },
+
+  async downloadFile(schoolPublicId: string, filePublicId: string, fileName?: string): Promise<void> {
+    const blob = await this.getFileBlob(schoolPublicId, filePublicId);
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName || 'file';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 };
