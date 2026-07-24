@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Box, Skeleton, type SxProps, type Theme } from '@mui/material';
-import BrokenImageIcon from '@mui/icons-material/BrokenImageIcon';
+import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 import { filesEndpoints } from '@/Endpoints';
 import { styles } from './AuthenticatedImage.styles';
 
@@ -54,14 +54,13 @@ export default function AuthenticatedImage({
     };
   }, [schoolPublicId, filePublicId]);
 
-  if (loading) {
-    return <Skeleton variant="rectangular" sx={{ ...styles.image, ...sx }} />;
-  }
+  const combinedImageSx: SxProps<Theme> = Array.isArray(sx)
+    ? [styles.image, ...sx]
+    : [styles.image, sx];
 
-  if (error || !imgSrc) {
-    return (
-      <Box
-        sx={{
+  const combinedErrorSx: SxProps<Theme> = Array.isArray(sx)
+    ? [
+        {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -69,9 +68,29 @@ export default function AuthenticatedImage({
           color: 'text.disabled',
           p: 1,
           borderRadius: 1,
-          ...sx,
-        }}
-      >
+        },
+        ...sx,
+      ]
+    : [
+        {
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          bgcolor: 'action.disabledBackground',
+          color: 'text.disabled',
+          p: 1,
+          borderRadius: 1,
+        },
+        sx,
+      ];
+
+  if (loading) {
+    return <Skeleton variant="rectangular" sx={combinedImageSx} />;
+  }
+
+  if (error || !imgSrc) {
+    return (
+      <Box sx={combinedErrorSx}>
         <BrokenImageIcon fontSize="small" />
       </Box>
     );
@@ -83,7 +102,7 @@ export default function AuthenticatedImage({
       src={imgSrc}
       alt={alt}
       onClick={onClick}
-      sx={{ ...styles.image, ...sx }}
+      sx={combinedImageSx}
     />
   );
 }
