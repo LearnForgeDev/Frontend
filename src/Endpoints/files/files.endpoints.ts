@@ -13,8 +13,11 @@ const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();
 
 export const filesEndpoints = {
-  async listFiles(schoolPublicId: string): Promise<ApiFile[]> {
-    const queryKey = [`/api/ApiFiles/${schoolPublicId}`];
+  async listFiles(schoolPublicId: string, category?: string): Promise<ApiFile[]> {
+    const queryPath = category 
+      ? `/api/ApiFiles/${schoolPublicId}?category=${encodeURIComponent(category)}`
+      : `/api/ApiFiles/${schoolPublicId}`;
+    const queryKey = [queryPath];
     const response = await apiClient.fetchQuery({
       queryKey,
       queryFn: () => queryFn.get<ApiFile[]>(queryKey[0]),

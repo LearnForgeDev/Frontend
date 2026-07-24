@@ -6,8 +6,8 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
   const queryClient = useQueryClient();
 
   const { data: files = [], isLoading, isError, refetch } = useQuery<ApiFile[]>({
-    queryKey: ['files', schoolPublicId],
-    queryFn: () => filesEndpoints.listFiles(schoolPublicId),
+    queryKey: ['files', schoolPublicId, bucketType],
+    queryFn: () => filesEndpoints.listFiles(schoolPublicId, bucketType),
     enabled: !!schoolPublicId,
     staleTime: 60 * 1000,
   });
