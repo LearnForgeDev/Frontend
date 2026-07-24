@@ -1,4 +1,4 @@
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef, useMemo, type ChangeEvent } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -18,7 +18,7 @@ import {
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
-import { filesEndpoints } from '@/Endpoints';
+import { filesEndpoints, type ApiFile } from '@/Endpoints';
 import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
 import { styles } from './FileSelectorModal.styles';
 
@@ -43,10 +43,10 @@ export default function FileSelectorModal({
 
   const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
 
-  const allAvailableFiles = useMemo(() => {
+  const allAvailableFiles = useMemo<ApiFile[]>(() => {
     const map = new Map<string, ApiFile>();
-    files.forEach((f) => map.set(f.publicId, f));
-    localUploadedFiles.forEach((f) => map.set(f.publicId, f));
+    files.forEach((f: ApiFile) => map.set(f.publicId, f));
+    localUploadedFiles.forEach((f: ApiFile) => map.set(f.publicId, f));
     return Array.from(map.values());
   }, [files, localUploadedFiles]);
 
@@ -131,8 +131,8 @@ export default function FileSelectorModal({
 
   const handleConfirm = () => {
     const matched = allAvailableFiles
-      .filter((f) => selectedIds.includes(f.publicId))
-      .map((f) => ({ publicId: f.publicId, fileName: f.fileName }));
+      .filter((f: ApiFile) => selectedIds.includes(f.publicId))
+      .map((f: ApiFile) => ({ publicId: f.publicId, fileName: f.fileName }));
     onSelectFiles(matched);
     setSelectedIds([]);
     setLocalUploadedFiles([]);
@@ -187,7 +187,7 @@ export default function FileSelectorModal({
           </Box>
         ) : (
           <List sx={styles.listContainer}>
-            {allAvailableFiles.map((file) => {
+            {allAvailableFiles.map((file: ApiFile) => {
               const labelId = `checkbox-list-label-${file.publicId}`;
               const isChecked = selectedIds.includes(file.publicId);
 
