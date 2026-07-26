@@ -62,9 +62,9 @@ export function useChatMessages(params: ChatHubParams) {
           setMessages(history.map(h => {
             const timeStr = h.sentAt ?? h.SentAt;
             return {
-              id: h.publicId ?? h.PublicId ?? '',
+              id: h.publicId ?? h.PublicId ?? crypto.randomUUID(),
               senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-              senderName: h.senderName ?? h.SenderName ?? '',
+              senderName: h.senderName ?? h.SenderName ?? 'Unknown',
               text: h.text ?? h.Text ?? '',
               receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
               sentAt: timeStr,
@@ -81,9 +81,9 @@ export function useChatMessages(params: ChatHubParams) {
           setMessages(history.map(h => {
             const timeStr = h.sentAt ?? h.SentAt;
             return {
-              id: h.publicId ?? h.PublicId ?? '',
+              id: h.publicId ?? h.PublicId ?? crypto.randomUUID(),
               senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-              senderName: h.senderName ?? h.SenderName ?? '',
+              senderName: h.senderName ?? h.SenderName ?? 'Unknown',
               text: h.text ?? h.Text ?? '',
               receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
               sentAt: timeStr,

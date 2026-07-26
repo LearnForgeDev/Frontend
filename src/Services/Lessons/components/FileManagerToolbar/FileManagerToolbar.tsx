@@ -51,6 +51,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
 
   // Sync context search changes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalSearch(search);
   }, [search]);
 

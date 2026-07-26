@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchesEndpoints, schoolsEndpoints } from '@/Endpoints';
+import type { Branch } from '@/Endpoints/branches/types';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 
 export function useChats(schoolPublicId: string) {
@@ -27,7 +28,7 @@ export function useChats(schoolPublicId: string) {
     staleTime: 30 * 1000,
   });
 
-  const branchThreads: ChatThread[] = branches.map((b) => ({
+  const branchThreads: ChatThread[] = branches.map((b: Branch) => ({
     id: b.publicId,
     type: 'branch',
     name: b.name,

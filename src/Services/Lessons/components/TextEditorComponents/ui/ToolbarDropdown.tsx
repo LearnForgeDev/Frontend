@@ -20,6 +20,7 @@ export default function Dropdown({
     if (value) {
       const button = buttons.find(b => b.event === value);
       if (button) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedElement(button);
       }
     }

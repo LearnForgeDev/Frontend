@@ -3,6 +3,7 @@ import { Box, Typography, Avatar, Card, CircularProgress, Alert, Paper } from '@
 import { useQuery } from '@tanstack/react-query';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { schoolsEndpoints } from '@/Endpoints';
+import type { UserSchoolInfo } from '@/Endpoints/schools/types';
 
 const ProfilePage: React.FC = () => {
   const user = useGlobalContext((s) => s.auth.user);
@@ -46,13 +47,13 @@ const ProfilePage: React.FC = () => {
         <Alert severity="error">Ошибка при загрузке списка школ</Alert>
       ) : schools && schools.length > 0 ? (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {schools.map((school) => (
+          {schools.map((school: UserSchoolInfo) => (
             <Card key={school.schoolPublicId} sx={{ p: 3, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.03)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <Typography variant="h6" sx={{ fontWeight: 700, fontFamily: 'Manrope, sans-serif' }}>
                 {school.schoolName}
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                {school.roles.map((role, idx) => (
+                {school.roles.map((role: string, idx: number) => (
                   <Box
                     key={idx}
                     sx={{

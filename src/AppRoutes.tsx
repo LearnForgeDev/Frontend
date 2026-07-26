@@ -7,7 +7,7 @@ const LessonsMainPage = lazy(() => import('./Services/Lessons/LessonsMainPage'))
 const LessonIdPage = lazy(() => import('./Services/Lessons/LessonIdPage'));
 const AdminPanelLayout = lazy(() => import('./Services/AdminPanel/AdminPanelLayout/AdminPanelLayout'));
 const DashboardHome = lazy(() => import('./Services/AdminPanel/DashboardHome/DashboardHome'));
-const MarketplacePage = lazy(() => import('./Services/Schools/MarketplacePage/MarketplacePage'));
+
 const SchoolsPage = lazy(() => import('./Services/AdminPanel/SchoolsPage/SchoolsPage'));
 const AdminPlaceholder = lazy(() => import('./Services/AdminPanel/AdminPlaceholder'));
 const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
@@ -22,6 +22,7 @@ const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPag
 const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'));
 const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
 const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
+const StudentsPage = lazy(() => import('./Services/Schools/StudentsPage/StudentsPage.tsx'));
 const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
 const ProfilePage = lazy(() => import('./Services/Profile/ProfilePage.tsx'));
 const AppRoutes = () => {
@@ -100,9 +101,10 @@ const AppRoutes = () => {
           element: <SchedulePage />,
         },
         {
-          path: "marketplace",
-          element: <MarketplacePage />,
+          path: "students",
+          element: <StudentsPage />,
         },
+
         {
           path: "lessons/:lessonId",
           element: <LessonIdPage />,

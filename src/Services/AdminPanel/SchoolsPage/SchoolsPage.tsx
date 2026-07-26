@@ -55,6 +55,7 @@ export default function SchoolsPage() {
   }, [user?.jwtToken]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchData();
 
     // Listen for custom event when school is created by polling

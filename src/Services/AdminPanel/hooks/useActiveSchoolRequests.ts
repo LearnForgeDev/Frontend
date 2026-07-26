@@ -23,6 +23,7 @@ export function useActiveSchoolRequests() {
     }, [user?.jwtToken]);
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         fetchRequests();
         const interval = setInterval(fetchRequests, 15000);
         return () => clearInterval(interval);

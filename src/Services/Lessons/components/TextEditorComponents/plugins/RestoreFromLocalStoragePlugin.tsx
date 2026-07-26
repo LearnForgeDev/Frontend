@@ -14,6 +14,7 @@ export default function RestoreFromLocalStoragePlugin({id}: {id?: string}): JSX.
 
   React.useEffect(() => {
     if (isFirstRender) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsFirstRender(false)
 
       if (serializedEditorState) {

@@ -113,18 +113,7 @@ export default function SchoolDrawerContent({
           <ListItemText primary="Чаты" />
         </ListItemButton>
 
-        <ListItemButton
-          component={NavLink}
-          to={`${basePath}/marketplace`}
-          onClick={onCloseMenu}
-          selected={pathname === `${basePath}/marketplace`}
-          sx={schoolNavItemSx}
-        >
-          <ListItemIcon sx={schoolNavIconSx}>
-            <Box component="span" className="material-symbols-outlined">storefront</Box>
-          </ListItemIcon>
-          <ListItemText primary="Сервисы" />
-        </ListItemButton>
+
 
         <ListItemButton
           component={NavLink}
@@ -139,7 +128,13 @@ export default function SchoolDrawerContent({
           <ListItemText primary="Календарь" />
         </ListItemButton>
 
-        <ListItemButton disabled sx={schoolNavItemSx}>
+        <ListItemButton
+          component={NavLink}
+          to={`${basePath}/students`}
+          onClick={onCloseMenu}
+          selected={pathname === `${basePath}/students`}
+          sx={schoolNavItemSx}
+        >
           <ListItemIcon sx={schoolNavIconSx}>
             <Box component="span" className="material-symbols-outlined">group</Box>
           </ListItemIcon>

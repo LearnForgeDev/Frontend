@@ -50,6 +50,7 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
 
   useEffect(() => {
     if (userRole === 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchToken();
   }, [fetchToken, userRole]);
 

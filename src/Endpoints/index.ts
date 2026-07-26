@@ -9,3 +9,4 @@ export * from './lessons';
 export * from './meet';
 export * from './schedule';
 export * from './schools';
+export * from './factory/types';

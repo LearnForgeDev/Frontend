@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "YENV=development vite --host",
+    "dev:tunnel": "sh -c '. ./.env && ssh -f -i \"$VITE_SSH_PASSKEY_PATH\" -N -L 8443:127.0.0.1:443 -o ServerAliveInterval=30 -o ServerAliveCountMax=3 \"$VITE_SSH_USER\"' && pnpm run dev",
     "build": "YENV=production tsc -b && YENV=production vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

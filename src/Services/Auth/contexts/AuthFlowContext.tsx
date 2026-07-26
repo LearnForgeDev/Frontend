@@ -59,8 +59,8 @@ function toUserIdentity(result: Partial<UserIdentity>): UserIdentity | null {
     refreshToken: result.refreshToken,
     userName: result.userName,
     userPublicId: result.userPublicId,
-    userRoles: result.userRoles || [],
-    exp: result.exp || 0,
+    userRoles: result.userRoles ?? [],
+    exp: result.exp ?? 0,
   };
 }
 
