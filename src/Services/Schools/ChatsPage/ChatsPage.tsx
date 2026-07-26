@@ -42,6 +42,9 @@ import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/File
 import { filesEndpoints } from '@/Endpoints';
 import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import { styles } from './ChatsPage.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('ChatsPage');
+
 
 export default function ChatsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
@@ -114,7 +117,7 @@ export default function ChatsPage() {
       setGroupDesc('');
       setIsGroupDialogOpen(false);
     } catch (err) {
-      console.error(err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
       showNotification({
         id: `branch-create-failed-${Date.now()}`,
         title: 'Ошибка создания ветки',

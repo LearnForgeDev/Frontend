@@ -3,6 +3,9 @@ import { Box, Typography, Button } from '@mui/material';
 import { styles } from './ErrorBoundary.styles';
 import type { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundary.types';
 import { ERROR_BOUNDARY_DEFAULTS } from './ErrorBoundary.const';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('ErrorBoundary');
+
 
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   public override state: ErrorBoundaryState = {
@@ -15,7 +18,7 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    logger.logEventForDebug(DebugSeverity.DANGER, 'ErrorBoundary caught an error:', error, errorInfo);
   }
 
   private handleRetry = () => {

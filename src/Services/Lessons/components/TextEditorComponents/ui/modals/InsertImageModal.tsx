@@ -5,6 +5,9 @@ import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
 import {$createImageNode} from '../../nodes/ImageNode.tsx';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('InsertImageModal');
+
 import './InsertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
@@ -70,7 +73,7 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
         const url = filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId);
         handleInsert(url, file.name);
       } catch (error) {
-        console.error('Failed to upload image', error);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to upload image', error);
         setImageUrlError('Ошибка при загрузке изображения');
       } finally {
         setIsUploading(false);

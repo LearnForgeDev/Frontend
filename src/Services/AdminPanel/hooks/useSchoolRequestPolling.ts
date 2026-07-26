@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { authEndpoints } from '@/Endpoints';
 import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useQueryClient } from '@tanstack/react-query';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('useSchoolRequestPolling');
+
 
 const STORAGE_KEY = 'activeSchoolRequest';
 
@@ -12,6 +16,7 @@ export type ActiveSchoolRequest = {
 
 export function useSchoolRequestPolling() {
     const { user } = useUser();
+    const queryClient = useQueryClient();
     const [activeRequest, setActiveRequest] = useState<ActiveSchoolRequest | null>(() => {
         const stored = localStorage.getItem(STORAGE_KEY);
         return stored ? JSON.parse(stored) : null;
@@ -51,19 +56,18 @@ export function useSchoolRequestPolling() {
                 if (statusData.status === 'Created' || statusData.status === 'Completed') {
                     // Success!
                     clearRequest();
-                    // We might want to trigger a global event or refresh schools here
-                    window.dispatchEvent(new CustomEvent('school-created'));
+                    queryClient.invalidateQueries({ queryKey: ['my-schools'] });
                 } else if (statusData.status === 'Failed') {
                     // We can keep it to show error or clear it
                     // Let's clear after some time or let user dismiss
                 }
             } catch (err) {
-                console.error('Polling error:', err);
+                logger.logEventForDebug(DebugSeverity.DANGER, 'Polling error:', err);
             }
         }, 5000);
 
         return () => stopPolling();
-    }, [activeRequest, user?.jwtToken, clearRequest, stopPolling]);
+    }, [activeRequest, user?.jwtToken, clearRequest, stopPolling, queryClient]);
 
     return {
         activeRequest,

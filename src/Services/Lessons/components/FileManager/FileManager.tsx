@@ -21,6 +21,9 @@ import LessonCard from '../LessonCard/LessonCard';
 import LessonListItem from '../LessonListItem/LessonListItem';
 import { Modal } from '@/Assets/Components/Modal/Modal';
 import { styles } from './FileManager.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('FileManager');
+
 
 export interface FileManagerProps {
   onOpenLesson?: (id: string, title: string) => void;
@@ -82,7 +85,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
     //   name: newFolderName,
     //   parentId: folderId,
     // });
-    console.warn('Folder creation is disabled');
+    logger.logEventForDebug(DebugSeverity.WARNING, 'Folder creation is disabled');
     setNewFolderName('');
     setIsNewFolderOpen(false);
   };
@@ -92,7 +95,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
 
     if (selectedItemType === 'folder') {
       // mutations.deleteFolder.mutate({ id: selectedItemId });
-      console.warn('Folder deletion is disabled');
+      logger.logEventForDebug(DebugSeverity.WARNING, 'Folder deletion is disabled');
     } else {
       mutations.deleteLesson.mutate({ id: selectedItemId });
     }
@@ -127,7 +130,7 @@ export default function FileManager({ onOpenLesson }: FileManagerProps) {
       }
       refetch();
     } catch (err) {
-      console.error('Upload failed', err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Upload failed', err);
     } finally {
       setIsUploading(false);
     }

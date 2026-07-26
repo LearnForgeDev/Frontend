@@ -3,6 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchesEndpoints, schoolsEndpoints } from '@/Endpoints';
 import type { Branch } from '@/Endpoints/branches/types';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('useChats');
+
 
 export function useChats(schoolPublicId: string) {
   if (!schoolPublicId) {
@@ -16,7 +19,7 @@ export function useChats(schoolPublicId: string) {
       const saved = localStorage.getItem(key);
       return saved ? JSON.parse(saved) : [];
     } catch (e) {
-      console.error('Failed to load direct threads', e);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to load direct threads', e);
       return [];
     }
   });
@@ -67,7 +70,7 @@ export function useChats(schoolPublicId: string) {
     try {
       localStorage.setItem(`direct_threads_${schoolPublicId}`, JSON.stringify(updated));
     } catch (e) {
-      console.error('Failed to save direct thread', e);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to save direct thread', e);
     }
     return newThread;
   };

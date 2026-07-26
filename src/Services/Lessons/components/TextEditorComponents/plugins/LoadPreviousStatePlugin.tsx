@@ -3,6 +3,9 @@ import {type JSX, use, useEffect} from 'react';
 import type {lessonObject} from '@/Services/Lessons/lessonTypes';
 import type {SerializedDocument} from '@lexical/file';
 import type {LexicalEditor} from 'lexical';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('LoadPreviousStatePlugin');
+
 
 // Plugin to load previous editor state from a promise or session storage
 export default function LoadPreviousStatePlugin(
@@ -31,7 +34,7 @@ export default function LoadPreviousStatePlugin(
         editor.setEditorState(parsedState);
       });
     } catch (error) {
-      console.error('Error loading editor state:', error);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Error loading editor state:', error);
     }
   }, [editorData, editor, lessonId]);
 
@@ -65,7 +68,7 @@ const setEditorStateFromLocalStorage = (
       });
       return;
     } catch (error) {
-      console.error('Error loading auto-saved editor state:', error);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Error loading auto-saved editor state:', error);
     }
   }
 }

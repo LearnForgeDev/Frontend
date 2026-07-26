@@ -51,6 +51,9 @@ import type { ApiFile } from '@/Endpoints';
 import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { styles } from './FilesPage.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('FilesPage');
+
 
 export default function FilesPage() {
   const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
@@ -172,7 +175,7 @@ export default function FilesPage() {
           setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
         }, 3000);
       } catch (err) {
-        console.error(err);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
         failCount++;
         setUploadItems((prev) =>
           prev.map((item) =>
@@ -221,7 +224,7 @@ export default function FilesPage() {
         time: 3000,
       });
     } catch (err) {
-      console.error(err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
       showNotification({
         id: `delete-failed-${Date.now()}`,
         title: 'Ошибка удаления',
@@ -251,7 +254,7 @@ export default function FilesPage() {
         setPreviewContent(text);
       }
     } catch (err) {
-      console.error(err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
       setPreviewContent('Не удалось прочитать содержимое файла. Возможно, это бинарный или пустой файл.');
     } finally {
       setIsPreviewLoading(false);
@@ -279,7 +282,7 @@ export default function FilesPage() {
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error(err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
       showNotification({
         id: `download-failed-${Date.now()}`,
         title: 'Ошибка скачивания',

@@ -13,6 +13,9 @@ import {
   type NodeKey,
 } from "lexical";
 import { $isGraphNode } from './graphNode.tsx';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('GraphNodeComponent');
+
 import './graphNode.css';
 
 type DesmosCalculator = {
@@ -139,7 +142,7 @@ export default function GraphComponent({
           setStatus('error');
         }
 
-        console.error(error);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', error);
       }
     };
 

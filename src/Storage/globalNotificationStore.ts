@@ -1,4 +1,7 @@
 import { create } from 'zustand';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('globalNotificationStore');
+
 
 export interface NotificationConfig {
   id: string;
@@ -32,7 +35,7 @@ const loadSavedNotifications = (): NotificationConfig[] => {
     const lowMed = lowMedStr ? JSON.parse(lowMedStr) : [];
     return [...high, ...lowMed];
   } catch (e) {
-    console.error("Failed to load notifications from storage", e);
+    logger.logEventForDebug(DebugSeverity.DANGER, "Failed to load notifications from storage", e);
     return [];
   }
 };
@@ -54,7 +57,7 @@ const saveNotificationsToStorage = (notifications: NotificationConfig[]) => {
       sessionStorage.removeItem(STORAGE_KEYS.LOW_MED);
     }
   } catch (e) {
-    console.error("Failed to save notifications to storage", e);
+    logger.logEventForDebug(DebugSeverity.DANGER, "Failed to save notifications to storage", e);
   }
 };
 

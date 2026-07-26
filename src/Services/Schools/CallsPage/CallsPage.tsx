@@ -7,6 +7,9 @@ import { useCreateCall } from './hooks/useCreateCall';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import config from '../../../config';
 import { styles } from './CallsPage.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('CallsPage');
+
 
 export default function CallsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
@@ -57,7 +60,7 @@ export default function CallsPage() {
       const jwt = url.searchParams.get('jwt') || undefined;
       return { domain, roomName, jwt };
     } catch (e) {
-      console.error("Failed to parse Jitsi URL", e);
+      logger.logEventForDebug(DebugSeverity.DANGER, "Failed to parse Jitsi URL", e);
       return null;
     }
   }, [roomUrl]);

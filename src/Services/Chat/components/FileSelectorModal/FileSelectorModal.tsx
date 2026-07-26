@@ -36,6 +36,9 @@ import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
 import { filesEndpoints, type ApiFile } from '@/Endpoints';
 import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
 import { styles } from './FileSelectorModal.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('FileSelectorModal');
+
 
 interface FileSelectorModalProps {
   open: boolean;
@@ -178,7 +181,7 @@ export default function FileSelectorModal({
             setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
           }, 3000);
         } catch (fileErr) {
-          console.error('Individual file upload error', fileErr);
+          logger.logEventForDebug(DebugSeverity.DANGER, 'Individual file upload error', fileErr);
           setUploadItems((prev) =>
             prev.map((item) =>
               item.id === uploadId
@@ -192,7 +195,7 @@ export default function FileSelectorModal({
         }
       }
     } catch (err) {
-      console.error('File upload failed in modal', err);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'File upload failed in modal', err);
     } finally {
       setIsLocalUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';

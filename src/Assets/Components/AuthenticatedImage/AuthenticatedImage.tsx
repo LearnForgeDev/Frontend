@@ -3,6 +3,9 @@ import { Box, Skeleton, type SxProps, type Theme } from '@mui/material';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
 import { filesEndpoints } from '@/Endpoints';
 import { styles } from './AuthenticatedImage.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('AuthenticatedImage');
+
 
 interface AuthenticatedImageProps {
   schoolPublicId: string;
@@ -41,7 +44,7 @@ export default function AuthenticatedImage({
       })
       .catch((err: unknown) => {
         if (!isMounted) return;
-        console.error('Failed to load authenticated image:', err);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to load authenticated image:', err);
         setError(true);
         setLoading(false);
       });

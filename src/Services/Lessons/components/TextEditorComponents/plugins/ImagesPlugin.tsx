@@ -35,6 +35,9 @@ import {
   type LexicalEditor,
 } from 'lexical';
 import {useEffect} from 'react';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('ImagesPlugin');
+
 
 import {
   $createImageNode,
@@ -100,7 +103,7 @@ export default function ImagesPlugin({
               event.preventDefault();
 
               if (!schoolPublicId) {
-                console.error('No active schoolPublicId found for upload.');
+                logger.logEventForDebug(DebugSeverity.DANGER, 'No active schoolPublicId found for upload.');
                 return false;
               }
 
@@ -126,7 +129,7 @@ export default function ImagesPlugin({
                     }
                   });
                 })
-                .catch(console.error);
+                .catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
 
               return true;
             }

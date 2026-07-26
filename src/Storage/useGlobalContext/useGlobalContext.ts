@@ -8,6 +8,9 @@ export interface User {
 }
 
 import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('useGlobalContext');
+
 
 interface AuthSlice {
     user: User | null;
@@ -64,7 +67,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                 try {
                     localStorage.setItem('user_identity', JSON.stringify(newUser));
                 } catch {
-                    console.error('Failed to persist user to localStorage');
+                    logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to persist user to localStorage');
                 }
 
                 return {

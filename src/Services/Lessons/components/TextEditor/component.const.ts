@@ -9,6 +9,9 @@ import { RutubeNode } from '../TextEditorComponents/nodes/RutubeNode.tsx';
 import { EquationNode } from '../TextEditorComponents/nodes/EquationNode.tsx';
 import { FileNode } from '../TextEditorComponents/nodes/FileNode.tsx';
 import lexicalEditorTheme from '../TextEditorComponents/utils/lexicalEditorTheme.ts';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('component.const');
+
 
 export const EDITOR_NAMESPACE = 'PostEditor';
 
@@ -30,5 +33,5 @@ export const INITIAL_EDITOR_CONFIG = {
     EquationNode,
     FileNode,
   ],
-  onError: (error: Error) => console.warn(error),
+  onError: (error: Error) => logger.logEventForDebug(DebugSeverity.WARNING, 'Log:', error),
 };

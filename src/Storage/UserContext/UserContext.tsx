@@ -1,6 +1,9 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('UserContext');
+
 
 export const USER_STORAGE_KEY = 'user_identity';
 
@@ -18,7 +21,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
             const stored = localStorage.getItem(USER_STORAGE_KEY);
             return stored ? (JSON.parse(stored) as UserIdentity) : null;
         } catch (err) {
-            console.error('Failed to parse stored user identity:', err);
+            logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to parse stored user identity:', err);
             return null;
         }
     });
@@ -27,7 +30,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         try {
             localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
         } catch (err) {
-            console.error('Failed to persist user identity to localStorage:', err);
+            logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to persist user identity to localStorage:', err);
         }
         setUserState(nextUser);
     }, []);
@@ -36,7 +39,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         try {
             localStorage.removeItem(USER_STORAGE_KEY);
         } catch (err) {
-            console.error('Failed to remove user identity from localStorage:', err);
+            logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to remove user identity from localStorage:', err);
         }
         setUserState(null);
     }, []);

@@ -19,9 +19,10 @@ type AdminPanelTopBarProps = {
   isDesktop: boolean;
   pageTitle: string;
   onToggleMenu: () => void;
+  hideMenuButton?: boolean;
 };
 
-export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }: AdminPanelTopBarProps) {
+export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu, hideMenuButton }: AdminPanelTopBarProps) {
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<HTMLElement | null>(null);
   const notifications = useGlobalNotificationStore((state) => state.notifications);
 
@@ -48,7 +49,7 @@ export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu }:
   return (
     <AppBar position="fixed" elevation={0} sx={appBarSx(isDesktop)}>
       <Toolbar sx={toolbarSx(isDesktop)}>
-        {!isDesktop && (
+        {!isDesktop && !hideMenuButton && (
           <IconButton onClick={onToggleMenu} sx={menuButtonSx}>
             <Box component="span" className="material-symbols-outlined">menu</Box>
           </IconButton>

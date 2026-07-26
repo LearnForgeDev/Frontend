@@ -5,6 +5,9 @@ import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
 import {$createFileNode} from '../../nodes/FileNode.tsx';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('InsertFileModal');
+
 import './InsertImageModal.css';
 
 export default function InsertFileModal({onClose}: {onClose: () => void}) {
@@ -57,7 +60,7 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
         const url = filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId);
         handleInsert(url, file.name, file.size);
       } catch (error) {
-        console.error('Failed to upload file', error);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to upload file', error);
         setFileUrlError('Ошибка при загрузке файла');
       } finally {
         setIsUploading(false);

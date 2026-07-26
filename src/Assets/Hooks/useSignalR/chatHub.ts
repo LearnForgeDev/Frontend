@@ -3,6 +3,9 @@ import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
 import type { ChatType } from '@/Services/Chat/Chat.types';
 import { RECONNECT_DELAYS_MS } from '@/Services/Chat/Chat.const';
 import config from '../../../config';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('chatHub');
+
 
 export interface ChatHubParams {
   type: ChatType;
@@ -38,7 +41,7 @@ export function useChatHubConnection(params: ChatHubParams) {
         await newConnection.start();
         setStatus('connected');
       } catch (err) {
-        console.error('SignalR Connection Error: ', err);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'SignalR Connection Error: ', err);
         setStatus('disconnected');
       }
     };

@@ -9,6 +9,9 @@ import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts
 
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('LoginPage');
+
 
 function LoginPageContent() {
   const navigate = useNavigate();
@@ -35,7 +38,7 @@ function LoginPageContent() {
           }
         }
       } catch (err) {
-        console.error("Auto-refresh failed", err);
+        logger.logEventForDebug(DebugSeverity.DANGER, "Auto-refresh failed", err);
       }
     };
     checkAndRefresh();

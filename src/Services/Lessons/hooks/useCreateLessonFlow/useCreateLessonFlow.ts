@@ -5,6 +5,9 @@ import { useNotification } from '@/Assets/Hooks/useNotification/useNotification'
 import type { UseCreateLessonFlowReturn } from './useCreateLessonFlow.types';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('useCreateLessonFlow');
+
 
 export function useCreateLessonFlow({
   onSuccess
@@ -44,7 +47,7 @@ export function useCreateLessonFlow({
       
       createNotification('Урок успешно создан', undefined, 'success');
     } catch (error) {
-      console.error('Failed to create lesson flow', error);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to create lesson flow', error);
       setIsFileUploading(false);
       createNotification('Ошибка при создании урока', undefined, 'error');
     }

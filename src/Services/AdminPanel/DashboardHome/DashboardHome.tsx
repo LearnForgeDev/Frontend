@@ -1,47 +1,67 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Skeleton } from '@mui/material';
 
 import { useActiveSchoolRequests } from '@/Services/AdminPanel/hooks/useActiveSchoolRequests';
-import { ServerHealthWidget } from './Components/ServerHealthWidget';
+import { useGetGreetingMessage } from '@/Services/AdminPanel/hooks/useGetGreetingMessage';
+import { getTimeOfDay, getGradient } from '@/Services/AdminPanel/utils';
+import { useWindowScroll } from 'react-use';
+import { gradientFadeIn, textSlideUp, widgetFadeIn, gradientPulse } from './DashboardHome.const';
 
 const DashboardHome: React.FC = () => {
   const { requests, isLoading: isLoadingRequests } = useActiveSchoolRequests();
+  const { y } = useWindowScroll();
 
   const hasAnyContent = requests.length > 0;
+  const greetingMessage = useGetGreetingMessage();
+
+  const dynamicFontSize = Math.max(2.5, 5 - y / 80);
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-      <Box
-        sx={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
-        <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "1.25rem",
+        position: 'relative',
+        zIndex: 0,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: '-15rem',
+          left: '-30rem',
+          right: '-15rem',
+          height: '80vh',
+          background: getGradient(getTimeOfDay()),
+          zIndex: -1,
+          pointerEvents: 'none',
+          transformOrigin: 'top left',
+          animation: `${gradientFadeIn} 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards, ${gradientPulse} 10s ease-in-out infinite 1.5s`,
+        }
+      }}
+    >
+      <Box>
+        <Box sx={{ animation: `${textSlideUp} 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards`, opacity: 0 }}>
           <Typography
             component="h1"
             sx={{
-              margin: 0,
+              marginTop: '20vh',
               color: "var(--admin-text)",
               fontFamily: "Manrope, sans-serif",
-              fontSize: "1.9rem",
+              fontSize: `${dynamicFontSize}rem`,
               fontWeight: 800,
               lineHeight: 1.2,
             }}
           >
-            Панель управления
+            {greetingMessage}
           </Typography>
           <Typography
             sx={{
-              margin: "0.35rem 0 0",
               color: "var(--admin-muted)",
               maxWidth: "680px",
+              fontSize: "1.5rem",
             }}
           >
-            Текущий статус сервисов, пользователей и работоспособности платформы.
+            С чего сегодня начнем?
           </Typography>
         </Box>
       </Box>
@@ -49,13 +69,18 @@ const DashboardHome: React.FC = () => {
       <Box
         sx={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
           gap: "1rem",
+          minHeight: "150px",
+          animation: `${widgetFadeIn} 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards`,
+          opacity: 0,
         }}
       >
-        <ServerHealthWidget />
-        {/* Placeholder - only if no services AND no school requests (and not loading) */}
-        {!hasAnyContent && !isLoadingRequests && <WidgetsPlaceholder />}
+        {isLoadingRequests ? (
+          <Skeleton variant="rounded" width="100%" height={150} sx={{ borderRadius: '1.5rem' }} />
+        ) : !hasAnyContent ? (
+          <WidgetsPlaceholder />
+        ) : null}
       </Box>
     </Box>
   );
@@ -72,6 +97,11 @@ const WidgetsPlaceholder = () => {
         background: "var(--admin-surface)",
         padding: "1.75rem",
         color: "var(--admin-muted)",
+        minHeight: "150px",
+        boxSizing: "border-box",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
       }}
     >
       <Typography

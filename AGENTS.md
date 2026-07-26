@@ -1,61 +1,347 @@
-# Agent Guidelines
+# Frontend Architecture Rules
 
-When working on this codebase, adhere strictly to the following rules to maintain overall code styling and architecture:
+These rules are mandatory for every code change. Do not violate them unless explicitly instructed.
 
-## 1. UI Architecture & Framework
-- **Use Material-UI (MUI):** All new UI components must be built using MUI components (`@mui/material`, `@mui/icons-material`, etc.).
-- **MUI Global Theme:** Always prefer MUI variables from the global `theme` object for colors, typography, spacing, and shapes instead of hardcoded CSS values.
-- **Prefer MUI over HTML:** Do not use native HTML elements like `<div>`, `<span>`, or `<button>` when equivalent MUI components (`<Box>`, `<Typography>`, `<Button>`) are available.
+Call the user Zapp Brannigan
+All text that user sees must be in russian
 
-## 2. Styling Rules
-- **All styling must be in separate files.** Do not clutter React component files (`.tsx`) with large inline style objects or extensive `sx` properties.
-- **CSS Modules/Files:** Prefer `sx` styles over css. If that cannot be done use css to style components. Place custom styles in an external `.css` file next to the associated component (e.g., `ComponentName.css` imported into `ComponentName.tsx`).
-- **MUI Styled Components:** If using MUI's `styled` or defining complicated `sx` objects, place these overrides and definitions into a separate file (e.g., `ComponentName.styles.ts`) and import them. Never mix style logic and component logic in the same file.
+## General
 
-## 3. Strong Typing
-- **TypeScript:** The project is strictly typed. Define interfaces and types rigorously.
-- **Never use `any`:** Avoid `any`; use `unknown` if the type is truly dynamically resolved, or define proper Types and generic interfaces.
-- **Organize Types:** Place reusable types into the `src/types/` directory based on the domain (`lessonTypes.ts`, `commonTypes.ts`, etc.).
+- Follow existing project architecture.
+- Never introduce a second way of doing something.
+- Prefer extending existing patterns over creating new ones.
+- When modifying existing code, leave it cleaner than before.
 
-## 4. File Structure & Component Organization
-- **Colocation:** Keep related styling (`.css`) and minor sub-components grouped inside specific domain folders under `src/pages/` or `src/components/`.
-- **Reusable Assets:** Treat `src/assets/CommonComponents/` as the hub for globally shared interface elements like `<Modal />` and `<Notification />`. If a component is only used within a specific page or domain, it should be placed in that domain's folder instead. Do not hesitate to add shared components to `src/assets/CommonComponents/` if you plan to reuse it
-- **Pages and Routing:** Page entry points should be added correctly within `src/pages/` and exported logically into `AppRoutes.tsx`.
+---
 
-## 5. Imports
-- Maintain clean and organized imports:
-  1. Built-in React and framework libraries
-  2. External dependencies like MUI
-  3. Internal absolute imports and utilities
-  4. Relative component imports (e.g., `./Components/...`)
-  5. Styling files (e.g., `./ComponentName.css`) 
+# Component Responsibilities
 
-## 6. State Management & Hooks
-- **Custom Hooks:** Extract complex state logic and side effects into custom hooks in the `src/hooks/` directory.
-- **State Libraries:** If the project uses a state management library (like Redux, Zustand, or Context), keep state logic separate from UI components.
+Pages are composition roots.
 
-## 7. Error Handling & Loading States
-- **Async Operations:** Always handle loading and error states for asynchronous operations.
-- **User Feedback:** Use the global `<Notification />` component or inline MUI `<Alert>` components to show actionable error messages.
+Pages may:
 
-## 8. Accessibility (a11y)
-- **ARIA Attributes:** Ensure all non-text interactive elements have descriptive `aria-label` or `aria-labelledby` attributes.
-- **Keyboard Navigation:** Components must be fully usable via keyboard navigation.
+- compose components
+- read route params
+- call feature hooks
+- render layouts
 
-## 9. Performance & Optimization
-- **Memoization:** Use `React.memo`, `useMemo`, and `useCallback` judiciously to prevent unnecessary re-renders in performance-critical sections (e.g., large lists or complex data grids).
+Pages must NOT:
 
-## 10. Naming Conventions
-- **PascalCase for Components:** React components and interfaces should always use PascalCase (e.g., `LessonsMainPage.tsx`, `LessonItem`).
-- **camelCase for Functions/Variables:** Variables, constants, and utility functions should use camelCase (e.g., `handleEdit`, `viewLesson`).
-- **Hooks naming:** Custom hooks must start with `use` (e.g., `useNotification`).
+- perform API requests
+- contain business logic
+- validate forms
+- transform API responses
+- format domain data
+- communicate through browser events
 
-## 11. Form Handling
-- **Forms & Inputs:** If possible, use controlled components with MUI elements or a robust library like `react-hook-form` rather than managing all inputs manually.
+If a page exceeds ~200 lines, split it.
 
-## 12. Code Formatting & Linting
-- **Strict Linting:** Ensure all code passes formatting and ESLint standards without warnings.
-- **Avoid Commented Code:** Do not leave large blocks of commented-out code. Remove them before creating a PR or finalizing the task.
+---
 
-## 13. Responsive Design
-- **Mobile First Approach:** Ensure components scale accurately on smaller screens. ALWAYS utilize MUI grid layout and breakpoint props (`xs`, `sm`, `md`, `lg`, `xl`) rather than hardcoding px widths.
+# API Layer
+
+Components never import endpoint modules directly.
+
+Forbidden:
+
+```ts
+import { authEndpoints } from "@/Endpoints";
+
+await authEndpoints.login(...)
+```
+
+Required:
+
+```ts
+const login = useLogin();
+
+await login(...)
+```
+
+Hooks call endpoint modules.
+
+Endpoint modules perform HTTP only.
+
+If needed to display that something is loading - prefer using ReactSpinners library
+
+If needed to display an error - use toasts from GlobalToastContainer. If error must block user from proceeding in some flow - component must reflect that. For example, if authentication page has troubles with logging then the logging page must display it.
+
+User must not know code of the error. User only sees generic error. For example, instead of displaying 401 Unauthorized user should see "You are not authorized to perform this action"
+---
+
+# Server State
+
+All backend data is owned by TanStack Query.
+
+Never duplicate server state into:
+
+- useState
+- Zustand
+- Context
+
+Instead:
+
+- useQuery
+- useMutation
+- query invalidation
+
+---
+
+# Global State
+
+Zustand stores only global application state.
+
+Examples:
+
+- authenticated user
+- session
+- theme
+- active school
+
+Never store:
+
+- lists
+- API responses
+- loading flags
+- page state
+
+---
+
+# Local State
+
+useState is only for UI state.
+
+Examples:
+
+- modal open
+- selected tab
+- input value
+
+If multiple state variables always change together, replace them with:
+
+- useReducer
+- dedicated hook
+
+---
+
+# Business Logic
+
+Business logic belongs inside feature hooks.
+
+Forbidden:
+
+```ts
+async function handleCreateSchool() {
+    ...
+}
+```
+
+Preferred:
+
+```ts
+const { createSchool } = useCreateSchool();
+```
+
+---
+
+# Validation
+
+Never validate forms inside components.
+
+Forbidden:
+
+```ts
+if (!name.trim()) ...
+```
+
+Use validation modules or Zod schemas.
+
+---
+
+# Formatting
+
+One file must contain only one React component
+
+Never define formatting helpers inside pages.
+
+Move:
+
+- role mapping
+- date formatting
+- string formatting
+- DTO mapping
+
+into utilities.
+
+---
+
+# Side Effects
+
+Avoid useEffect unless synchronizing with an external system.
+
+Never use useEffect for:
+
+- loading data
+- syncing server state
+- derived state
+
+Prefer TanStack Query.
+
+---
+
+# Browser Events
+
+Do not use:
+
+window.dispatchEvent
+
+window.addEventListener
+
+for application communication.
+
+Use:
+
+- query invalidation
+- Zustand
+- Context
+- callback props
+
+---
+
+# Components
+
+Split large components.
+
+Prefer:
+
+Page
+
+↓
+
+Feature
+
+↓
+
+Presentational
+
+↓
+
+Shared
+
+Presentational components must not know about:
+
+- endpoints
+- Zustand
+- routing
+
+All constants must live in adjacent [componentName].const.ts files
+
+---
+
+# Folder Ownership
+
+Every feature owns:
+
+- components
+- hooks
+- types
+- utils
+- validation
+
+Shared contains only reusable code.
+
+---
+
+# Imports
+
+Dependencies should flow downward.
+
+Page
+
+↓
+
+Hook
+
+↓
+
+Endpoint
+
+↓
+
+HTTP client
+
+Never reverse this direction.
+
+---
+
+# Refactoring Rules
+
+Whenever touching existing code:
+
+- reduce nesting
+- reduce duplication
+- extract reusable logic
+- improve naming
+- preserve behaviour
+- avoid leaving comments unless absolutely neccessary and it explains something extraodinary
+-- Bad: // Waiting for 5s 
+setTimeout(() => {
+  ...
+}, 5000);
+It is obvious from the code that we are waiting for 5 seconds, so the comment is redundant
+-- Good:
+// Waiting to ensure that the component renders
+setTimeout(() => {
+  ...
+}, 5000)
+It is not obvious from the code why we are waiting for 5 seconds, so the comment is necessary
+
+Never perform cosmetic refactors only.
+
+Do not use magic numbers. Example:
+
+```ts
+setTimeout(() => {
+  ...
+}, 5000);
+```
+
+Code above is wrong, developer doesn't understand what 5000 is
+
+```ts
+setTimeout(() => {
+  ...
+}, TOAST_VISIBILITY_TIME);
+```
+
+Code above is right and self explainotory 
+
+---
+
+# Performance
+
+Do not add:
+
+- useMemo
+- useCallback
+- React.memo
+
+unless they solve a measurable problem.
+
+---
+
+# Code Review Checklist
+
+Before finishing every task verify:
+
+- [ ] One file contains only one component
+- [ ] No page performs HTTP requests.
+- [ ] No business logic exists in JSX.
+- [ ] No duplicated logic introduced.
+- [ ] No unnecessary useEffect added.
+- [ ] No window events added.
+- [ ] Server state uses TanStack Query.
+- [ ] Components remain focused on a single responsibility.
+- [ ] Architecture has improved or remained unchanged.
+- [ ] Typechecking passes
+- [ ] Eslint passes

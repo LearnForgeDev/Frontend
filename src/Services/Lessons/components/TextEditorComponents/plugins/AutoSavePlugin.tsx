@@ -2,6 +2,9 @@ import {type JSX, useEffect} from 'react';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {serializedDocumentFromEditorState} from '@lexical/file';
 import { useLessonEditor } from '../../../hooks/useLessonEditor/useLessonEditor';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('AutoSavePlugin');
+
 
 export default function AutoSavePlugin({lessonId}: {lessonId: number | string}): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
@@ -25,7 +28,7 @@ export default function AutoSavePlugin({lessonId}: {lessonId: number | string}):
     const saveEditorToServer = setInterval(() => {
       const editorState = editor.getEditorState();
       saveEditorState(editorState.toJSON())
-        .catch(err => console.error('Failed to save to server', err));
+        .catch(err => logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to save to server', err));
     }, SAVE_TO_SERVER_INTERVAL_MS);
 
     return () => clearInterval(saveEditorToServer);

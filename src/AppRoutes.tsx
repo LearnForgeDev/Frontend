@@ -6,10 +6,7 @@ const PublicLayout = lazy(() => import('./layouts/PublicLayout'));
 const LessonsMainPage = lazy(() => import('./Services/Lessons/LessonsMainPage'));
 const LessonIdPage = lazy(() => import('./Services/Lessons/LessonIdPage'));
 const AdminPanelLayout = lazy(() => import('./Services/AdminPanel/AdminPanelLayout/AdminPanelLayout'));
-const DashboardHome = lazy(() => import('./Services/AdminPanel/DashboardHome/DashboardHome'));
-
-const SchoolsPage = lazy(() => import('./Services/AdminPanel/SchoolsPage/SchoolsPage'));
-const AdminPlaceholder = lazy(() => import('./Services/AdminPanel/AdminPlaceholder'));
+const AdminPage = lazy(() => import('./Services/AdminPanel/AdminPage'));
 const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
 const ForbiddenPage = lazy(() => import('./Services/Forbidden/ForbiddenPage'));
 const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout.tsx'));
@@ -46,21 +43,7 @@ const AppRoutes = () => {
     },
     {
       path: "/admin",
-      element: <AdminPanelLayout />,
-      children: [
-        {
-          index: true,
-          element: <DashboardHome />,
-        },
-        {
-          path: "schools",
-          element: <SchoolsPage />,
-        },
-        {
-          path: "services/*",
-          element: <AdminPlaceholder />,
-        },
-      ],
+      element: <AdminPage />,
     },
     {
       path: "/profile",

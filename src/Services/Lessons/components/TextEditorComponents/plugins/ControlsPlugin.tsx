@@ -22,6 +22,9 @@ export default function ControlsPlugin({ lessonId }: { lessonId: string | number
 import { useLessonEditor } from '@/Services/Lessons/hooks/useLessonEditor/useLessonEditor';
 
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('ControlsPlugin');
+
 
 function SaveButton({ lessonId, editor }: { lessonId: string | number, editor: LexicalEditor }) {
   const { saveEditorState, isSaving } = useLessonEditor({ lessonId: String(lessonId) });
@@ -44,7 +47,7 @@ function SaveButton({ lessonId, editor }: { lessonId: string | number, editor: L
         });
       })
       .catch((error) => {
-        console.error('Save failed:', error);
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Save failed:', error);
         showNotification({
           id: `lesson-save-failed-${Date.now()}`,
           title: 'Ошибка сохранения',

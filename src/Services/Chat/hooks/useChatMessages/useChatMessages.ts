@@ -3,6 +3,9 @@ import { useChatHubConnection, type ChatHubParams } from '@/Assets/Hooks/useSign
 import type { ChatMessage, ChatFileDto } from '@/Services/Chat/Chat.types';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { chatEndpoints, filesEndpoints } from '@/Endpoints';
+import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+const logger = createDebugger('useChatMessages');
+
 
 interface ApiFileItem {
   publicId?: string;
@@ -73,7 +76,7 @@ export function useChatMessages(params: ChatHubParams) {
             };
           }));
         })
-        .catch(console.error);
+        .catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
     } else if (params.type === 'direct') {
       chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
         .then((history: ApiHistoryItem[]) => {
@@ -92,7 +95,7 @@ export function useChatMessages(params: ChatHubParams) {
             };
           }));
         })
-        .catch(console.error);
+        .catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
     }
 
     return () => {
@@ -130,9 +133,9 @@ export function useChatMessages(params: ChatHubParams) {
     if (!connection || status !== 'connected') return;
 
     if (params.type === 'branch') {
-      connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, filePublicIds).catch(console.error);
+      connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, filePublicIds).catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
     } else {
-      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, filePublicIds).catch(console.error);
+      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, filePublicIds).catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
     }
   }, [connection, status, params]);
 
