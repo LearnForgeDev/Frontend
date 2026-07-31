@@ -5,7 +5,6 @@ import { Navigate, useRoutes, type RouteObject } from 'react-router-dom';
 const PublicLayout = lazy(() => import('./layouts/PublicLayout'));
 const LessonsMainPage = lazy(() => import('./Services/Lessons/LessonsMainPage'));
 const LessonIdPage = lazy(() => import('./Services/Lessons/LessonIdPage'));
-const AdminPanelLayout = lazy(() => import('./Services/AdminPanel/AdminPanelLayout/AdminPanelLayout'));
 const AdminPage = lazy(() => import('./Services/AdminPanel/AdminPage'));
 const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
 const ForbiddenPage = lazy(() => import('./Services/Forbidden/ForbiddenPage'));
@@ -29,7 +28,7 @@ const AppRoutes = () => {
       children: [
         {
           path: "/",
-          element: <Navigate to="/auth/login"/>,
+          element: <Navigate to="/auth/login" />,
         },
         {
           path: "/Lessons",
@@ -47,13 +46,7 @@ const AppRoutes = () => {
     },
     {
       path: "/profile",
-      element: <AdminPanelLayout />,
-      children: [
-        {
-          index: true,
-          element: <ProfilePage />,
-        },
-      ],
+      element: <ProfilePage />,
     },
     {
       path: "/admin/schools/:schoolPublicId",

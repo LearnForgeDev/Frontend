@@ -5,6 +5,9 @@ export interface User {
     userName: string;
     roles: Array<{ role: 0 | 1 | 2; schoolId: number }>;
     activeSchoolId: number;
+    activeSchoolPublicId?: string;
+    email?: string;
+    phone?: string;
 }
 
 import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
@@ -16,6 +19,7 @@ interface AuthSlice {
     user: User | null;
     isAuthenticated: boolean;
     setActiveSchool: (schoolId: number) => void;
+    setActiveSchoolPublicId: (schoolPublicId: string) => void;
     setUser: (userIdentity: UserIdentity) => void;
     logout: () => void;
 }
@@ -35,6 +39,7 @@ const getInitialUser = (): User | null => {
 
         const roles = (data.roles || data.userRoles || []) as Array<{ role: number; schoolId: number }>;
         let activeSchoolId = data.activeSchoolId || 0;
+        const activeSchoolPublicId = data.activeSchoolPublicId || undefined;
         if (!activeSchoolId && roles.length > 0) {
             const teacherOrOwner = roles.find((r) => r.role >= 1);
             const chosen = teacherOrOwner ? teacherOrOwner : roles[0];
@@ -46,6 +51,9 @@ const getInitialUser = (): User | null => {
             userName,
             roles: roles.map((r) => ({ role: r.role as 0 | 1 | 2, schoolId: r.schoolId })),
             activeSchoolId,
+            activeSchoolPublicId,
+            email: data.email,
+            phone: data.phone,
         };
     } catch {
         return null;
@@ -77,6 +85,24 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                     },
                 };
             }),
+        setActiveSchoolPublicId: (schoolPublicId: string) =>
+            set((state) => {
+                if (!state.auth.user) return state;
+                const newUser: User = { ...state.auth.user, activeSchoolPublicId: schoolPublicId };
+
+                try {
+                    localStorage.setItem('user_identity', JSON.stringify(newUser));
+                } catch {
+                    logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to persist user to localStorage');
+                }
+
+                return {
+                    auth: {
+                        ...state.auth,
+                        user: newUser,
+                    },
+                };
+            }),
         setUser: (res: UserIdentity) =>
             set((state) => {
                 let activeSchoolId = 0;
@@ -91,6 +117,8 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                     userName: res.userName,
                     roles: res.userRoles as Array<{ role: 0 | 1 | 2; schoolId: number }>,
                     activeSchoolId,
+                    email: res.email,
+                    phone: res.phone,
                 };
 
                 // persist user to localStorage

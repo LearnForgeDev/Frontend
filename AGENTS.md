@@ -247,10 +247,17 @@ Every feature owns:
 - types
 - utils
 - validation
+- styles
 
 Shared contains only reusable code.
 
 ---
+
+# Styling
+
+- Always use global styles for fonts and coloring
+- Make UI/UX modern and understanble. If you see an anti-pattern in design, propose a fix, never implement it on your own
+- In designing UI/UX prefer using as little text as possible. User must understand UI without pointing him to it
 
 # Imports
 
@@ -281,6 +288,7 @@ Whenever touching existing code:
 - reduce nesting
 - reduce duplication
 - extract reusable logic
+- extract styles into seperate styling file
 - improve naming
 - preserve behaviour
 - avoid leaving comments unless absolutely neccessary and it explains something extraodinary
@@ -340,6 +348,7 @@ Before finishing every task verify:
 - [ ] No duplicated logic introduced.
 - [ ] No unnecessary useEffect added.
 - [ ] No window events added.
+- [ ] No component contains inline styles
 - [ ] Server state uses TanStack Query.
 - [ ] Components remain focused on a single responsibility.
 - [ ] Architecture has improved or remained unchanged.

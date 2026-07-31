@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import {
   formCardSx,
   formRowSx,
@@ -13,6 +14,7 @@ import {
 
 const SchoolListPage = () => {
   const navigate = useNavigate();
+  const setActiveSchoolPublicId = useGlobalContext(state => state.auth.setActiveSchoolPublicId);
   const [schoolPublicId, setSchoolPublicId] = useState('');
   const [schoolName, setSchoolName] = useState('');
 
@@ -22,6 +24,7 @@ const SchoolListPage = () => {
       return;
     }
 
+    setActiveSchoolPublicId(trimmedId);
     navigate(`/admin/schools/${encodeURIComponent(trimmedId)}`, {
       state: { schoolName: schoolName.trim() || `Школа ${trimmedId}` },
     });

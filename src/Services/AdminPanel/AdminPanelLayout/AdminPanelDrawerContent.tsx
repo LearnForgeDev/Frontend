@@ -8,6 +8,9 @@ import {
 } from "@mui/material";
 import { NavLink } from 'react-router-dom';
 import type { ServiceManifest } from '@/Assets/Types/serviceTypes';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
+import { formatRoles } from '@/Assets/globalUtils';
 import {
   backLinkIconSx,
   backLinkSx,
@@ -29,19 +32,47 @@ type AdminPanelDrawerContentProps = {
 };
 
 export default function AdminPanelDrawerContent({
-  services,
   pathname,
   onCloseMenu,
 }: AdminPanelDrawerContentProps) {
+  const user = useGlobalContext((s) => s.auth.user);
+  const { data: schools } = useSchools();
+  const activeSchool = schools?.find((s) => s.schoolPublicId === user?.activeSchoolPublicId) || schools?.find((s) => s.schoolPublicId === String(user?.activeSchoolId));
+
   return (
     <Box sx={drawerContentSx}>
       <Box sx={drawerHeaderSx}>
         <Typography component="h2" sx={drawerTitleSx}>
           Панель управления
         </Typography>
-        <Typography component="p" sx={drawerSubtitleSx}>
-          Обучающее пространство
-        </Typography>
+        {activeSchool ? (
+          <Box sx={{ mt: 1.5, p: 1.5, bgcolor: 'rgba(48, 51, 48, 0.04)', borderRadius: 2, border: '1px solid rgba(48, 51, 48, 0.06)' }}>
+            <Typography 
+              component="p" 
+              sx={{ 
+                ...drawerSubtitleSx, 
+                color: 'var(--admin-text)', 
+                fontWeight: 700, 
+                mb: 0.5, 
+                whiteSpace: 'nowrap', 
+                overflow: 'hidden', 
+                textOverflow: 'ellipsis',
+                fontSize: '0.75rem',
+                letterSpacing: 'normal',
+                textTransform: 'none'
+              }}
+            >
+              {activeSchool.schoolName}
+            </Typography>
+            <Typography component="p" sx={{ ...drawerSubtitleSx, fontSize: '0.65rem' }}>
+              Роль: {formatRoles(activeSchool.roles)}
+            </Typography>
+          </Box>
+        ) : (
+          <Typography component="p" sx={drawerSubtitleSx}>
+            Обучающее пространство
+          </Typography>
+        )}
       </Box>
 
       <List sx={navListSx}>
@@ -77,50 +108,8 @@ export default function AdminPanelDrawerContent({
               school
             </Box>
           </ListItemIcon>
-          <ListItemText primary="Мои школы" />
+          <ListItemText primary="Мои школы" sx={{ marginTop: '20vh' }} />
         </ListItemButton>
-
-        {services
-          .filter((service) => service.isBought && service.isEnabled)
-          .map((service) => {
-            const isActive = pathname.includes(
-              `/services/${service.adminRoute}`,
-            );
-            return (
-              <ListItemButton
-                key={service.id}
-                component={NavLink}
-                to={`services/${service.adminRoute}`}
-                onClick={onCloseMenu}
-                selected={isActive}
-                sx={navItemSx}
-              >
-                <ListItemIcon sx={navIconSx}>
-                  <Box
-                    component="span"
-                    sx={{
-                      display: "inline-flex",
-                      color: isActive
-                        ? "var(--admin-primary)"
-                        : "color-mix(in srgb, var(--admin-text) 60%, transparent)",
-                    }}
-                  >
-                    {typeof service.icon === "string" ? (
-                      <Box
-                        component="span"
-                        className="material-symbols-outlined"
-                      >
-                        {service.icon}
-                      </Box>
-                    ) : (
-                      service.icon
-                    )}
-                  </Box>
-                </ListItemIcon>
-                <ListItemText primary={service.name} />
-              </ListItemButton>
-            );
-          })}
       </List>
 
       <Box sx={navFooterSx}>

@@ -35,4 +35,6 @@ export type UserIdentity = {
   userPublicId: string;
   userRoles: Array<{ role: AuthRole; schoolId: number; userId: number }>;
   exp: number;
+  email?: string;
+  phone?: string;
 };

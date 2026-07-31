@@ -17,9 +17,10 @@ interface ActiveSchoolsListProps {
   isLoading: boolean;
   onNavigateToSchool: (school: UserSchoolInfo) => void;
   onAddSchoolClick: () => void;
+  activeSchoolPublicId?: string;
 }
 
-export default function ActiveSchoolsList({ schools, isLoading, onNavigateToSchool, onAddSchoolClick }: ActiveSchoolsListProps) {
+export default function ActiveSchoolsList({ schools, isLoading, onNavigateToSchool, onAddSchoolClick, activeSchoolPublicId }: ActiveSchoolsListProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [activeSchool, setActiveSchool] = useState<UserSchoolInfo | null>(null);
   const [schoolToDelete, setSchoolToDelete] = useState<UserSchoolInfo | null>(null);
@@ -84,7 +85,7 @@ export default function ActiveSchoolsList({ schools, isLoading, onNavigateToScho
             />
           ))
         ) : schools.length === 0 ? (
-          <Typography sx={{ color: "var(--admin-muted)", py: 2 }}>
+          <Typography sx={{ color: "var(--admin-muted)", py: 1, gridColumn: "1 / -1" }}>
             Вы пока не состоите ни в одной школе.
           </Typography>
         ) : (
@@ -93,12 +94,17 @@ export default function ActiveSchoolsList({ schools, isLoading, onNavigateToScho
               key={school.schoolPublicId}
               sx={{
                 borderRadius: "1rem",
-                border: "1px solid var(--admin-border)",
-                boxShadow: "var(--admin-shadow)",
+                border: school.schoolPublicId === activeSchoolPublicId 
+                  ? "2px solid var(--admin-primary)" 
+                  : "1px solid var(--admin-border)",
+                boxShadow: school.schoolPublicId === activeSchoolPublicId 
+                  ? "0 0 0 4px #4958ac25" 
+                  : "var(--admin-shadow)",
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "space-between",
                 '&:hover .school-actions-btn': { opacity: 1 },
+                position: "relative",
               }}
             >
               <CardContent>

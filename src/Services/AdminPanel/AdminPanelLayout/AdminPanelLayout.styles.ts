@@ -8,6 +8,7 @@ export const layoutRootSx: SxProps<Theme> = {
   minHeight: '100vh',
   backgroundColor: 'var(--admin-bg)',
   color: 'var(--admin-text)',
+  overflowX: 'hidden',
 };
 
 export const drawerRootSx: SxProps<Theme> = {
