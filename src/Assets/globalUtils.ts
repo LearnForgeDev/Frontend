@@ -45,3 +45,27 @@ export const createUUID = (length: number = 36): string => {
     }
     return result.substring(0, length);
 };
+
+/**
+ * Gets value of query param and deletes the param from the url
+ * @param param - Name of the query parameter to extract
+ * @returns Value of the query parameter or null if not found
+ */
+export const extractQueryParam = (param: string): string | null => {
+    if (typeof window === 'undefined') return null;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const value = urlParams.get(param);
+
+    if (value !== null) {
+        urlParams.delete(param);
+        const newSearch = urlParams.toString();
+        const newUrl =
+            window.location.pathname +
+            (newSearch ? `?${newSearch}` : '') +
+            window.location.hash;
+        window.history.replaceState(null, '', newUrl);
+    }
+
+    return value;
+};

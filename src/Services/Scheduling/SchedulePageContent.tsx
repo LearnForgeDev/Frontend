@@ -4,6 +4,7 @@ import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingCont
 import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
 import { useIsTeacherOrOwner } from '@/Services/Scheduling/hooks/useIsTeacherOrOwner/useIsTeacherOrOwner';
+import { useHandleEventIdParam } from '@/Services/Scheduling/hooks/useHandleEventIdParam/useHandleEventIdParam';
 import { formatLocalTimeInput } from '@/Services/Scheduling/utils/time.utils';
 import { ScheduleHeader } from '@/Services/Scheduling/components/ScheduleHeader/ScheduleHeader';
 import { ScheduleSidebar } from '@/Services/Scheduling/components/ScheduleSidebar/ScheduleSidebar';
@@ -27,6 +28,8 @@ export function SchedulePageContent() {
   const [createStartTime, setCreateStartTime] = useState<string | undefined>(undefined);
   const [createEndTime, setCreateEndTime] = useState<string | undefined>(undefined);
 
+  useHandleEventIdParam(events, isLoading);
+
   const selectedEvent = useMemo(
     () => events.find((e) => e.id === selectedEventId) ?? null,
     [events, selectedEventId],
@@ -46,14 +49,14 @@ export function SchedulePageContent() {
     selectedEventId,
     onSelectTimeSlot: canManage
       ? (targetDate: Date) => {
-          const startStr = formatLocalTimeInput(targetDate);
-          const endTarget = new Date(targetDate.getTime() + 60 * 60 * 1000);
-          const endStr = formatLocalTimeInput(endTarget);
-          setCreateInitialDate(targetDate);
-          setCreateStartTime(startStr);
-          setCreateEndTime(endStr);
-          setCreateOpen(true);
-        }
+        const startStr = formatLocalTimeInput(targetDate);
+        const endTarget = new Date(targetDate.getTime() + 60 * 60 * 1000);
+        const endStr = formatLocalTimeInput(endTarget);
+        setCreateInitialDate(targetDate);
+        setCreateStartTime(startStr);
+        setCreateEndTime(endStr);
+        setCreateOpen(true);
+      }
       : undefined,
   };
 

@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, IconButton } from '@mui/material';
+import { Box, Typography, IconButton, Skeleton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { useNavigate } from 'react-router-dom';
 import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
+import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
+
+import { useScheduleEvents } from '../Scheduling/hooks/useScheduleEvents/useScheduleEvents';
 
 import {
   pageRootSx,
@@ -20,14 +23,24 @@ import {
 import { ProfileCard } from './components/ProfileCard/ProfileCard';
 import { StatCard } from './components/StatCard/StatCard';
 import { LessonCard } from './components/LessonCard/LessonCard';
+import type { ScheduleEvent } from '../Scheduling/Scheduling.types';
+import { getClosestEvent } from './ProfilePage.utils';
 
 const ProfilePage: React.FC = () => {
+  const [closestEvent, setClosestEvent] = useState<ScheduleEvent | undefined | null>(undefined);
   const user = useGlobalContext((s) => s.auth.user);
   const logout = useGlobalContext((s) => s.auth.logout);
   const navigate = useNavigate();
 
   const { data: schools } = useSchools();
   const activeSchool = schools?.find(s => s.schoolPublicId === user?.activeSchoolPublicId) || schools?.find(s => s.schoolPublicId === String(user?.activeSchoolId));
+
+  const { events } = useScheduleEvents();
+
+  useEffect(() => {
+    console.log(events)
+    setClosestEvent(getClosestEvent(events));
+  }, [events]);
 
   useEffect(() => {
     if (!user) {
@@ -62,8 +75,6 @@ const ProfilePage: React.FC = () => {
     navigate('/admin');
   };
 
-
-
   return (
     <Box sx={pageRootSx}>
       <Box sx={bannerSx(undefined, scrollY)}>
@@ -83,7 +94,6 @@ const ProfilePage: React.FC = () => {
         </Box>
 
         <Box sx={widgetsContainerSx}>
-          {/* Статистика */}
           <Box sx={statsGridSx}>
             <StatCard
               title="Пройдено уроков"
@@ -102,12 +112,27 @@ const ProfilePage: React.FC = () => {
             />
           </Box>
 
-          {/* Расписание */}
-          <LessonCard
-            title="Ближайший урок"
-            lessonName="Математика: Производные"
-            details="Завтра в 14:00 • Преподаватель: Анна Иванова"
-          />
+
+          {
+            closestEvent ?
+              (
+                <LessonCard
+                  title="Ближайший урок"
+                  lessonName={closestEvent?.title}
+                  details={formatEventFullDateTime(closestEvent?.start, closestEvent?.end)}
+                  actionText='Посмотреть в календаре'
+                  onActionClick={() => navigate(
+                    `/admin/schools/${activeSchool?.schoolPublicId}/schedule?eventId=${closestEvent?.id}`
+                  )}
+                />
+              ) : null
+          }
+          {
+            closestEvent === undefined ?
+              (
+                <Skeleton variant="rectangular" width={200} height={100} />
+              ) : null
+          }
         </Box>
       </Box>
     </Box>

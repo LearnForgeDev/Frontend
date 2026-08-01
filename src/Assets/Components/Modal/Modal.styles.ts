@@ -13,7 +13,6 @@ export const styles = {
   },
   dialogContent: {
     padding: '1.5rem',
-    paddingRight: '3.5rem',
     overflowY: 'auto',
     display: 'flex',
     flexDirection: 'column',

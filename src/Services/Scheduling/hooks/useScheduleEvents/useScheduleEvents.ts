@@ -7,11 +7,7 @@ import type { ScheduleEventDto } from '@/Endpoints/schedule/types';
 import type { AppError } from '@/Endpoints';
 import type { UseScheduleEventsReturn } from './useScheduleEvents.types';
 
-/**
- * Loads the active school's scheduled sessions from the real
- * `GET /api/ApiSchedule/{schoolPublicId}/events` endpoint. loading/error
- * reflect the actual network call; there is no fixture fallback.
- */
+
 export function useScheduleEvents(): UseScheduleEventsReturn {
   const schoolId = useSchoolId();
 
@@ -19,7 +15,7 @@ export function useScheduleEvents(): UseScheduleEventsReturn {
     queryKey: ['schedule-events', schoolId],
     queryFn: () =>
       scheduleEndpoints.listEvents(schoolId).then((dtos: ScheduleEventDto[]) => dtos.map(scheduleEventDtoToEvent)),
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    staleTime: 2 * 60 * 1000,
     enabled: !!schoolId,
   });
 

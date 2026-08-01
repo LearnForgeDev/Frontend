@@ -1,27 +1,13 @@
 import { MONTH_NAMES_NOMINATIVE } from '@/Services/Scheduling/Scheduling.const';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 
-/**
- * Pure, framework-free time helpers for the calendar.
- *
- * Day/slot comparisons use UTC components so they are deterministic
- * regardless of the host timezone — events are stored as ISO-8601 UTC.
- * Pass a `date` whose UTC calendar day is the day you want to inspect.
- */
-
 const MS_PER_MINUTE = 60_000;
 
-/** True once the current time has reached `windowMinutes` before `startIso`. */
 export function isWithinJoinWindow(startIso: string, windowMinutes: number): boolean {
   const opensAt = new Date(startIso).getTime() - windowMinutes * MS_PER_MINUTE;
   return Date.now() >= opensAt;
 }
 
-/**
- * Milliseconds until the join window opens, for a single-fire `setTimeout`
- * recheck (no polling). Returns `null` when the window is already open —
- * meaning there is nothing further to schedule.
- */
 export function getMillisUntilWindowChange(
   startIso: string,
   windowMinutes: number,
