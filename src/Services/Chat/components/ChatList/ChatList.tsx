@@ -9,9 +9,9 @@ import { useChatList } from '@/Services/Chat/hooks/useChatList/useChatList';
 import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
-export default function ChatList({ schoolId, schoolPublicId }: { schoolId: number; schoolPublicId: string }) {
+export default function ChatList({ schoolPublicId }: { schoolPublicId: string }) {
   const [tab, setTab] = useState<'branch' | 'direct'>('branch');
-  const { threads, isLoading, isError } = useChatList(schoolId, schoolPublicId);
+  const { threads, isLoading, isError } = useChatList(schoolPublicId);
   const { setActiveThread } = useChatContext();
 
   const filteredThreads = threads.filter(t => t.type === tab);

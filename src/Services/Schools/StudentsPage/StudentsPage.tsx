@@ -9,7 +9,7 @@ const StudentsPage = () => {
   const { schoolPublicId } = useParams();
   const user = useGlobalContext((s) => s.auth.user);
   
-  const currentRole = user?.roles.find((r) => r.schoolId === user.activeSchoolId)?.role;
+  const currentRole = user?.roles[0]?.role;
   const isStudent = currentRole === 0;
 
   return (

@@ -5,11 +5,10 @@ import ChatThreadView from '../ChatThreadView/ChatThreadView';
 import { widgetStyles } from './ChatWidget.styles';
 
 interface ChatMiniPanelProps {
-  schoolId: number;
   schoolPublicId: string;
 }
 
-export default function ChatMiniPanel({ schoolId, schoolPublicId }: ChatMiniPanelProps) {
+export default function ChatMiniPanel({ schoolPublicId }: ChatMiniPanelProps) {
   const { activeThread } = useChatContext();
 
   return (
@@ -17,7 +16,7 @@ export default function ChatMiniPanel({ schoolId, schoolPublicId }: ChatMiniPane
       {activeThread ? (
         <ChatThreadView />
       ) : (
-        <ChatList schoolId={schoolId} schoolPublicId={schoolPublicId} />
+        <ChatList schoolPublicId={schoolPublicId} />
       )}
     </Paper>
   );

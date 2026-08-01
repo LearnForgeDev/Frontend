@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, Typography, IconButton, Skeleton } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
@@ -33,7 +33,9 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
 
   const { data: schools } = useSchools();
-  const activeSchool = schools?.find(s => s.schoolPublicId === user?.activeSchoolPublicId) || schools?.find(s => s.schoolPublicId === String(user?.activeSchoolId));
+  const activeSchool = schools?.find(
+    s => s.schoolPublicId === user?.activeSchoolPublicId
+  )
 
   const { events } = useScheduleEvents();
 
@@ -44,7 +46,10 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth/login', { replace: true });
+      navigate('/auth/login', {
+        replace: true,
+        state: { from: location.pathname }
+      });
     }
   }, [user, navigate]);
 
@@ -58,6 +63,15 @@ const ProfilePage: React.FC = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/auth/login', { replace: true });
+  }, [logout, navigate]);
+
+  const handleAdminPanel = useCallback(() => {
+    navigate('/admin');
+  }, [navigate]);
+
   if (!user) {
     return (
       <Box sx={notAuthContainerSx}>
@@ -65,15 +79,6 @@ const ProfilePage: React.FC = () => {
       </Box>
     );
   }
-
-  const handleLogout = () => {
-    logout();
-    navigate('/auth/login', { replace: true });
-  };
-
-  const handleAdminPanel = () => {
-    navigate('/admin');
-  };
 
   return (
     <Box sx={pageRootSx}>

@@ -11,7 +11,6 @@ import {
 import { adminPanelCommonStyles } from '../../AdminPanel/AdminPanelLayout/AdminPanelCommon.styles';
 import SchoolDrawerContent from './SchoolDrawerContent';
 import { useSchoolInfo } from '@/Services/Schools/hooks/useSchoolInfo';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { ChatProvider } from '@/Storage/useChatContext/useChatContext.tsx';
 import ChatWidget from '@/Services/Chat/components/ChatWidget/ChatWidget';
 
@@ -20,7 +19,6 @@ const SchoolLayout = () => {
   const location = useLocation();
   const isDesktop = useMediaQuery('(min-width:980px)');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const schoolId = useGlobalContext((s) => s.auth.user?.activeSchoolId) || 0;
   const { school } = useSchoolInfo(schoolPublicId);
 
   // Resolve the real name from the endpoint (source of truth, survives reloads),
@@ -65,8 +63,8 @@ const SchoolLayout = () => {
           <Outlet />
         </Box>
         
-        {schoolId > 0 && schoolPublicId && (
-          <ChatWidget schoolId={schoolId} schoolPublicId={schoolPublicId} />
+        {schoolPublicId && (
+          <ChatWidget schoolPublicId={schoolPublicId} />
         )}
       </Box>
     </ChatProvider>

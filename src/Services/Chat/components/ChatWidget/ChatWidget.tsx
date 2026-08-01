@@ -7,18 +7,17 @@ import { widgetStyles } from './ChatWidget.styles';
 import { CSS } from '@/Services/Chat/Chat.const';
 
 interface ChatWidgetProps {
-  schoolId: number;
   schoolPublicId: string;
 }
 
-export default function ChatWidget({ schoolId, schoolPublicId }: ChatWidgetProps) {
+export default function ChatWidget({ schoolPublicId }: ChatWidgetProps) {
   const { isMiniOpen, setMiniOpen } = useChatContext();
 
   return (
     <Box sx={widgetStyles.container}>
       <Zoom in={isMiniOpen} unmountOnExit>
         <Box className={CSS.miniPanel}>
-          <ChatMiniPanel schoolId={schoolId} schoolPublicId={schoolPublicId} />
+        <ChatMiniPanel schoolPublicId={schoolPublicId} />
         </Box>
       </Zoom>
 

@@ -5,10 +5,7 @@ export function useSchoolId(): string {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
   const user = useGlobalContext((s) => s.auth.user);
 
-  const resolvedSchoolId =
-    schoolPublicId ||
-    user?.activeSchoolPublicId ||
-    (user?.activeSchoolId ? String(user.activeSchoolId) : '');
+  const resolvedSchoolId = schoolPublicId || user?.activeSchoolPublicId;
 
   return resolvedSchoolId || '';
 }
