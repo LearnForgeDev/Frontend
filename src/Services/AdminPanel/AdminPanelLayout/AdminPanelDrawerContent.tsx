@@ -37,7 +37,7 @@ export default function AdminPanelDrawerContent({
 }: AdminPanelDrawerContentProps) {
   const user = useGlobalContext((s) => s.auth.user);
   const { data: schools } = useSchools();
-  const activeSchool = schools?.find((s) => s.schoolPublicId === user?.activeSchoolPublicId) || schools?.find((s) => s.schoolPublicId === String(user?.activeSchoolId));
+  const activeSchool = schools?.find((s) => s.schoolPublicId === user?.activeSchoolPublicId);
 
   return (
     <Box sx={drawerContentSx}>

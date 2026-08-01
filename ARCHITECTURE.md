@@ -900,7 +900,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
         return {
           auth: {
             ...state.auth,
-            user: { ...state.auth.user, activeSchoolId: schoolId },
+            user: { ...state.auth.user, activeSchoolPublicId: schoolId },
           },
         };
       }),
