@@ -3,6 +3,7 @@ import VideocamIcon from '@mui/icons-material/Videocam';
 import { useJoinWindow } from '@/Services/Scheduling/hooks/useJoinWindow/useJoinWindow';
 import { useJoinMeeting } from '@/Services/Scheduling/hooks/useJoinMeeting/useJoinMeeting';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import { getCallButtonText } from './utils';
 
 export interface JoinButtonProps {
   event: ScheduleEvent;
@@ -22,7 +23,7 @@ export function JoinButton({ event, size = 'small' }: JoinButtonProps) {
       startIcon={joinMeeting.isPending ? <CircularProgress size={16} color="inherit" /> : <VideocamIcon />}
       onClick={() => joinMeeting.mutate(event)}
     >
-      {isOpen ? 'Войти' : 'Скоро'}
+      {getCallButtonText(isOpen, event)}
     </Button>
   );
 }

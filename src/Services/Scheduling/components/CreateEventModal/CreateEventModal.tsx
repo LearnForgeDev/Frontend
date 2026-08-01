@@ -17,27 +17,50 @@ import { Modal } from '@/Assets/Components/Modal/Modal';
 import { useSchoolMembers } from '@/Services/Scheduling/hooks/useSchoolMembers/useSchoolMembers';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import {
+  isoToLocalDateInput,
+  isoToLocalTimeInput,
+  formatLocalDateInput,
+  localDateTimeToIso,
+} from '@/Services/Scheduling/utils/time.utils';
+import {
+  MODAL_TITLE_CREATE,
+  MODAL_TITLE_EDIT,
+  LABEL_TITLE,
+  LABEL_DESCRIPTION,
+  LABEL_DATE,
+  LABEL_START_TIME,
+  LABEL_END_TIME,
+  LABEL_ROOM,
+  HELPER_TEXT_ROOM,
+  LABEL_ATTENDEES,
+  LABEL_ALL_ATTENDEES,
+  LABEL_LOADING_ATTENDEES,
+  LABEL_NO_ATTENDEES,
+  BUTTON_CANCEL,
+  BUTTON_SUBMIT_CREATE,
+  BUTTON_SUBMIT_EDIT,
+  ERROR_MISSING_TITLE,
+  ERROR_MISSING_DATE,
+  ERROR_MISSING_TIME,
+  ERROR_INVALID_TIME_RANGE,
+  DEFAULT_START_TIME,
+  DEFAULT_END_TIME,
+  ALL_ATTENDEES_SENTINEL,
+} from './CreateEventModal.const';
 import { styles } from './CreateEventModal.styles';
 
 export interface CreateEventModalProps {
   onClose: () => void;
   /** When provided, the modal edits this event instead of creating a new one. */
   event?: ScheduleEvent | null;
+  /** Initial date selected in the calendar when opening the create dialog. */
+  initialDate?: Date;
+  initialStartTime?: string;
+  initialEndTime?: string;
 }
 
-/** ISO (UTC) → `datetime-local` value (local time). */
-function toLocalInput(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-
-/** `datetime-local` value → ISO string (treated as local time). */
-function toIso(local: string): string {
-  return new Date(local).toISOString();
-}
-
-export function CreateEventModal({ onClose, event = null }: CreateEventModalProps) {
+export function CreateEventModal({ onClose, event = null, initialDate, initialStartTime, initialEndTime }: CreateEventModalProps) {
   const isEdit = !!event;
   const { members, isLoading: membersLoading } = useSchoolMembers();
   const { createEvent, updateEvent } = useScheduleMutations();
@@ -45,43 +68,57 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
 
   const [title, setTitle] = useState(event?.title ?? '');
   const [description, setDescription] = useState(event?.description ?? '');
-  const [start, setStart] = useState(event ? toLocalInput(event.start) : '');
-  const [end, setEnd] = useState(event ? toLocalInput(event.end) : '');
+  const [date, setDate] = useState(() =>
+    event ? isoToLocalDateInput(event.start) : formatLocalDateInput(initialDate),
+  );
+  const [startTime, setStartTime] = useState(() =>
+    event ? isoToLocalTimeInput(event.start) : (initialStartTime ?? DEFAULT_START_TIME),
+  );
+  const [endTime, setEndTime] = useState(() =>
+    event ? isoToLocalTimeInput(event.end) : (initialEndTime ?? DEFAULT_END_TIME),
+  );
   const [room, setRoom] = useState(event?.room ?? '');
-  const [attendeeIds, setAttendeeIds] = useState<string[]>(
-    event ? event.attendees.map((a) => a.userPublicId) : [],
+  const [selectedAttendeeIds, setSelectedAttendeeIds] = useState<string[] | null>(
+    event ? event.attendees.map((a) => a.userPublicId) : null,
   );
   const [error, setError] = useState<string | null>(null);
 
   const allIds = members.map((m) => m.userPublicId);
+  const attendeeIds = selectedAttendeeIds ?? allIds;
   const allSelected = allIds.length > 0 && allIds.every((id) => attendeeIds.includes(id));
 
   const memberName = (id: string) =>
-    members.find((m) => m.userPublicId === id)?.displayName
-    ?? event?.attendees.find((a) => a.userPublicId === id)?.displayName
-    ?? id;
+    members.find((m) => m.userPublicId === id)?.displayName ??
+    event?.attendees.find((a) => a.userPublicId === id)?.displayName ??
+    id;
 
   const handleAttendeesChange = (value: string | string[]) => {
     const next = typeof value === 'string' ? value.split(',') : value;
-    // The "Все" sentinel toggles selecting every member.
-    if (next.includes('__all__')) {
-      setAttendeeIds(allSelected ? [] : allIds);
+    if (next.includes(ALL_ATTENDEES_SENTINEL)) {
+      setSelectedAttendeeIds(allSelected ? [] : allIds);
       return;
     }
-    setAttendeeIds(next);
+    setSelectedAttendeeIds(next);
   };
 
   const handleSubmit = () => {
-    if (!title.trim()) return setError('Укажите название.');
-    if (!start || !end) return setError('Укажите начало и конец.');
-    if (new Date(start) >= new Date(end)) return setError('Начало должно быть раньше конца.');
+    if (!title.trim()) return setError(ERROR_MISSING_TITLE);
+    if (!date) return setError(ERROR_MISSING_DATE);
+    if (!startTime || !endTime) return setError(ERROR_MISSING_TIME);
+
+    const startUtc = localDateTimeToIso(date, startTime);
+    const endUtc = localDateTimeToIso(date, endTime);
+
+    if (!startUtc || !endUtc || new Date(startUtc) >= new Date(endUtc)) {
+      return setError(ERROR_INVALID_TIME_RANGE);
+    }
     setError(null);
 
     const input = {
       title: title.trim(),
       description: description.trim() ? description.trim() : null,
-      startUtc: toIso(start),
-      endUtc: toIso(end),
+      startUtc,
+      endUtc,
       room: room.trim() ? room.trim() : undefined,
       attendeeUserPublicIds: attendeeIds,
     };
@@ -94,54 +131,71 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
   };
 
   return (
-    <Modal title={isEdit ? 'Редактировать занятие' : 'Новое занятие'} onClose={onClose}>
+    <Modal title={isEdit ? MODAL_TITLE_EDIT : MODAL_TITLE_CREATE} onClose={onClose}>
       <Box sx={styles.form}>
-        <TextField label="Название" value={title} onChange={(e) => setTitle(e.target.value)} required fullWidth />
         <TextField
-          label="Описание"
+          label={LABEL_TITLE}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          required
+          fullWidth
+        />
+        <TextField
+          label={LABEL_DESCRIPTION}
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           multiline
           minRows={2}
           fullWidth
         />
+        <TextField
+          label={LABEL_DATE}
+          type="date"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          slotProps={{ inputLabel: { shrink: true } }}
+          required
+          fullWidth
+        />
         <Box sx={styles.row}>
           <TextField
-            label="Начало"
-            type="datetime-local"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
+            label={LABEL_START_TIME}
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
+            required
             fullWidth
           />
           <TextField
-            label="Конец"
-            type="datetime-local"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
+            label={LABEL_END_TIME}
+            type="time"
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
             slotProps={{ inputLabel: { shrink: true } }}
+            required
             fullWidth
           />
         </Box>
         <TextField
-          label="Кабинет (необязательно)"
+          label={LABEL_ROOM}
           value={room}
           onChange={(e) => setRoom(e.target.value)}
-          helperText="Оставьте пустым — комната Jitsi будет создана автоматически."
+          helperText={HELPER_TEXT_ROOM}
           fullWidth
         />
         <FormControl fullWidth>
-          <InputLabel id="attendees-label">Участники</InputLabel>
+          <InputLabel id="attendees-label">{LABEL_ATTENDEES}</InputLabel>
           <Select
             labelId="attendees-label"
             multiple
             value={attendeeIds}
             onChange={(e) => handleAttendeesChange(e.target.value)}
-            input={<OutlinedInput label="Участники" />}
+            input={<OutlinedInput label={LABEL_ATTENDEES} />}
             renderValue={(selected) =>
               allSelected ? (
                 <Box sx={styles.chips}>
-                  <Chip label="Все участники школы" size="small" color="primary" />
+                  <Chip label={LABEL_ALL_ATTENDEES} size="small" color="primary" />
                 </Box>
               ) : (
                 <Box sx={styles.chips}>
@@ -154,13 +208,13 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
           >
             {members.length === 0 && (
               <MenuItem disabled value="">
-                {membersLoading ? 'Загрузка участников…' : 'Участники не найдены'}
+                {membersLoading ? LABEL_LOADING_ATTENDEES : LABEL_NO_ATTENDEES}
               </MenuItem>
             )}
             {members.length > 0 && (
-              <MenuItem value="__all__">
+              <MenuItem value={ALL_ATTENDEES_SENTINEL}>
                 <Checkbox checked={allSelected} />
-                <ListItemText primary="Все участники школы" />
+                <ListItemText primary={LABEL_ALL_ATTENDEES} />
               </MenuItem>
             )}
             {members.map((m) => (
@@ -180,10 +234,10 @@ export function CreateEventModal({ onClose, event = null }: CreateEventModalProp
 
         <Box sx={styles.actions}>
           <Button onClick={onClose} disabled={mutation.isPending}>
-            Отмена
+            {BUTTON_CANCEL}
           </Button>
           <Button variant="contained" onClick={handleSubmit} disabled={mutation.isPending}>
-            {isEdit ? 'Сохранить' : 'Создать'}
+            {isEdit ? BUTTON_SUBMIT_EDIT : BUTTON_SUBMIT_CREATE}
           </Button>
         </Box>
       </Box>

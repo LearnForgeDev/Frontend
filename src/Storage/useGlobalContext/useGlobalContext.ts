@@ -1,16 +1,16 @@
 import { create } from 'zustand';
+import { AuthRole, type UserIdentity } from '@/Assets/Types/commonTypes.ts';
 
 export interface User {
     userPublicId: string;
     userName: string;
-    roles: Array<{ role: 0 | 1 | 2; schoolId: number }>;
+    roles: Array<{ role: AuthRole; schoolId: number }>;
     activeSchoolId: number;
     activeSchoolPublicId?: string;
     email?: string;
     phone?: string;
 }
 
-import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('useGlobalContext');
 
@@ -41,7 +41,7 @@ const getInitialUser = (): User | null => {
         let activeSchoolId = data.activeSchoolId || 0;
         const activeSchoolPublicId = data.activeSchoolPublicId || undefined;
         if (!activeSchoolId && roles.length > 0) {
-            const teacherOrOwner = roles.find((r) => r.role >= 1);
+            const teacherOrOwner = roles.find((r) => r.role >= AuthRole.TEACHER);
             const chosen = teacherOrOwner ? teacherOrOwner : roles[0];
             activeSchoolId = chosen.schoolId;
         }
@@ -49,7 +49,7 @@ const getInitialUser = (): User | null => {
         return {
             userPublicId,
             userName,
-            roles: roles.map((r) => ({ role: r.role as 0 | 1 | 2, schoolId: r.schoolId })),
+            roles: roles.map((r) => ({ role: r.role as AuthRole, schoolId: r.schoolId })),
             activeSchoolId,
             activeSchoolPublicId,
             email: data.email,
@@ -107,7 +107,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
             set((state) => {
                 let activeSchoolId = 0;
                 if (res.userRoles && res.userRoles.length > 0) {
-                    const teacherOrOwner = res.userRoles.find((r) => r.role >= 1);
+                    const teacherOrOwner = res.userRoles.find((r) => r.role >= AuthRole.TEACHER);
                     const chosen = teacherOrOwner ? teacherOrOwner : res.userRoles[0];
                     activeSchoolId = chosen.schoolId;
                 }
@@ -115,7 +115,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                 const user: User = {
                     userPublicId: res.userPublicId,
                     userName: res.userName,
-                    roles: res.userRoles as Array<{ role: 0 | 1 | 2; schoolId: number }>,
+                    roles: res.userRoles as Array<{ role: AuthRole; schoolId: number }>,
                     activeSchoolId,
                     email: res.email,
                     phone: res.phone,

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Dialog, DialogContent, IconButton, Fade, Typography, Icon } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import type { ModalProps } from './Modal.types';
 import { styles } from './Modal.styles';
 
@@ -55,21 +56,19 @@ export function Modal({ title, subtitle, icon, time, className, onClose, childre
         },
       }}
     >
+      <IconButton
+        aria-label="закрыть"
+        onClick={handleClose}
+        sx={styles.closeBtn}
+      >
+        <CloseIcon />
+      </IconButton>
+
       <DialogContent sx={styles.dialogContent}>
-        <IconButton
-          aria-label="закрыть"
-          onClick={handleClose}
-          sx={styles.closeBtn}
-        >
-          <Box component="span" sx={{ fontSize: '2rem', lineHeight: 1 }}>
-            ×
-          </Box>
-        </IconButton>
-        
         {title && (
           <Box sx={styles.header}>
             {icon && (
-              <Icon sx={{ fontSize: '2rem' }}>{icon}</Icon>
+              <Icon sx={styles.icon}>{icon}</Icon>
             )}
             <Box>
               <Typography variant="h6" component="h2" sx={styles.title}>

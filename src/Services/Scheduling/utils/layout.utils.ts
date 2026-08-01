@@ -2,17 +2,17 @@ import { getEventDurationMinutes } from '@/Services/Scheduling/utils/time.utils'
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 
 /**
- * Returns the seven UTC days of the week containing `date` (Monday-first).
+ * Returns the seven days of the week containing `date` in local timezone (Monday-first).
  */
 export function getWeekDays(date: Date): Date[] {
-  const base = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-  const dow = (base.getUTCDay() + 6) % 7; // Monday = 0
+  const base = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const dow = (base.getDay() + 6) % 7; // Monday = 0
   const monday = new Date(base);
-  monday.setUTCDate(base.getUTCDate() - dow);
+  monday.setDate(base.getDate() - dow);
 
   return Array.from({ length: 7 }, (_, i) => {
     const d = new Date(monday);
-    d.setUTCDate(monday.getUTCDate() + i);
+    d.setDate(monday.getDate() + i);
     return d;
   });
 }
@@ -23,7 +23,7 @@ export function getWeekDays(date: Date): Date[] {
  */
 export function getEventTopPx(event: ScheduleEvent, startHour: number, slotPx: number): number {
   const start = new Date(event.start);
-  const hours = start.getUTCHours() + start.getUTCMinutes() / 60;
+  const hours = start.getHours() + start.getMinutes() / 60;
   return Math.max(0, (hours - startHour) * slotPx);
 }
 

@@ -5,6 +5,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { authEndpoints } from '@/Endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { useParams } from 'react-router-dom';
+import { AuthRole } from '@/Assets/Types/commonTypes.ts';
 
 interface InviteTokenWidgetProps {
   schoolPublicId: string;
@@ -29,7 +30,7 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
       setError(null);
       const res = await authEndpoints.invite({
         schoolPublicId,
-        role: 0,
+        role: AuthRole.STUDENT,
       });
 
       if (typeof res === 'string') {
@@ -49,7 +50,7 @@ export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
   }, [schoolPublicId]);
 
   useEffect(() => {
-    if (userRole === 0) return;
+    if (userRole === AuthRole.STUDENT) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchToken();
   }, [fetchToken, userRole]);

@@ -27,6 +27,7 @@
     "@mui/material": "^9.0.0",
     "@tanstack/react-query": "^5.101.0",
     "axios": "^1.18.1",
+    "calendar-link": "^2.11.4",
     "desmos": "^1.5.4",
     "install": "^0.13.0",
     "katex": "^0.16.27",

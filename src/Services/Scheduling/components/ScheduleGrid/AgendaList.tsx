@@ -28,7 +28,7 @@ export function AgendaList({ events, onSelectEvent, selectedEventId }: GridProps
       {[...groups.entries()].map(([day, dayEvents]) => (
         <Box key={day}>
           <Typography sx={styles.agendaDay}>{day}</Typography>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.75 }}>
+          <Box sx={styles.agendaDayList}>
             {dayEvents.map((event) => (
               <EventBlock
                 key={event.id}

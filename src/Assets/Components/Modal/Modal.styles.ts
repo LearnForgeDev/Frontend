@@ -21,13 +21,17 @@ export const styles = {
   },
   closeBtn: {
     position: 'absolute',
-    top: '0.5rem',
-    right: '0.5rem',
+    top: '0.75rem',
+    right: '0.75rem',
+    zIndex: 10,
     color: 'var(--muted-text, #666)',
     borderRadius: '4px',
     '&:hover': {
       background: 'rgba(0, 0, 0, 0.05)',
     },
+  },
+  icon: {
+    fontSize: '2rem',
   },
   header: {
     display: 'flex',

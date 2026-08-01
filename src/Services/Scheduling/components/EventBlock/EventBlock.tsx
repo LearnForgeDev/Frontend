@@ -14,7 +14,7 @@ export function EventBlock({ event, onSelect, selected = false, sized = false }:
       role="button"
       tabIndex={0}
       aria-pressed={selected}
-      sx={{ ...styles.root(selected), height }}
+      sx={styles.root(selected, height)}
       onClick={() => onSelect?.(event.id)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') onSelect?.(event.id);

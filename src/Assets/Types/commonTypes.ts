@@ -20,13 +20,11 @@ export type ModalTriggerProps = {
   onClose?: () => void;
 };
 
-export const AuthRole = {
-  STUDENT: 0,
-  TEACHER: 1,
-  OWNER: 2,
-} as const;
-
-export type AuthRole = (typeof AuthRole)[keyof typeof AuthRole];
+export enum AuthRole {
+  STUDENT = 0,
+  TEACHER = 1,
+  OWNER = 2,
+}
 
 export type UserIdentity = {
   jwtToken: string;
