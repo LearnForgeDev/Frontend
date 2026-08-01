@@ -5,6 +5,7 @@ import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { AuthFlowProvider } from '../../contexts/AuthFlowContext';
 import * as S from './AuthLayout.styles';
 import { useEffect } from 'react';
+import { getRedirectPath } from './AuthLayout.utils';
 
 function AuthLayoutContent() {
   return (
@@ -22,10 +23,13 @@ export default function AuthLayout() {
   const user = useGlobalContext((s) => s.auth.user);
 
   useEffect(() => {
-    const fromLocation = location.state?.from;
+    const fromLocation = location.state?.from as string | undefined;
 
     if (user) {
-      navigate(fromLocation ?? `/admin/schools/${user.activeSchoolPublicId ?? ''}`);
+      navigate(getRedirectPath({
+        fromLocation,
+        selectedSchool: user.activeSchoolPublicId
+      }));
     }
   }, [])
 

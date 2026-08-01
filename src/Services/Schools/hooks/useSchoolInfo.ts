@@ -9,22 +9,27 @@ export interface UseSchoolInfoReturn {
   error: AppError | null;
 }
 
-/**
- * Loads public info for a single school (id + name) from the real
- * `GET /api/ApiSchool/{schoolPublicId}` endpoint. Durable across reloads, so
- * the school name resolves on direct navigation / deep links — unlike
- * router `location.state`, which is only present when navigating from the list.
- *
- * Returns the whole `SchoolInfo` object (not just the name) so future fields
- * (logo, description, plan…) flow through to consumers without API changes.
- */
-export function useSchoolInfo(schoolPublicId: string | undefined): UseSchoolInfoReturn {
+const STALE_TIME_5_MINUTES = 5 * 60 * 1000;
+
+export function useSchoolInfo(schoolPublicId?: string): UseSchoolInfoReturn {
   const { data, isLoading, isError, error } = useQuery<SchoolInfo, AppError>({
     queryKey: ['school-info', schoolPublicId],
-    queryFn: () => schoolsEndpoints.getSchoolInfo(schoolPublicId as string),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => schoolsEndpoints.getSchoolInfo(schoolPublicId!),
+    staleTime: STALE_TIME_5_MINUTES,
     enabled: !!schoolPublicId,
   });
+
+  if (!schoolPublicId) {
+    return {
+      school: null,
+      isLoading: false,
+      isError: true,
+      error: {
+        code: '400',
+        message: 'No school public ID was passed',
+      },
+    };
+  }
 
   return {
     school: data ?? null,
