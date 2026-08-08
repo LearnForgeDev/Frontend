@@ -31,7 +31,7 @@ export default function AuthLayout() {
         selectedSchool: user.activeSchoolPublicId
       }));
     }
-  }, [])
+  }, [location.state?.from, navigate, user]);
 
   return (
     <AuthFlowProvider>

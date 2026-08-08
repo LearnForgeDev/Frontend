@@ -23,11 +23,9 @@ import {
 import { ProfileCard } from './components/ProfileCard/ProfileCard';
 import { StatCard } from './components/StatCard/StatCard';
 import { LessonCard } from './components/LessonCard/LessonCard';
-import type { ScheduleEvent } from '../Scheduling/Scheduling.types';
 import { getClosestEvent } from './ProfilePage.utils';
 
 const ProfilePage: React.FC = () => {
-  const [closestEvent, setClosestEvent] = useState<ScheduleEvent | undefined | null>(undefined);
   const user = useGlobalContext((s) => s.auth.user);
   const logout = useGlobalContext((s) => s.auth.logout);
   const navigate = useNavigate();
@@ -38,11 +36,7 @@ const ProfilePage: React.FC = () => {
   )
 
   const { events } = useScheduleEvents();
-
-  useEffect(() => {
-    console.log(events)
-    setClosestEvent(getClosestEvent(events));
-  }, [events]);
+  const closestEvent = events ? getClosestEvent(events) : undefined;
 
   useEffect(() => {
     if (!user) {
