@@ -1,33 +1,27 @@
-import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback, type FormEvent } from 'react';
 import { Box, Typography, TextField, Button, CircularProgress, Paper } from '@mui/material';
 import { useParams, useSearchParams } from 'react-router-dom';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ErrorIcon from '@mui/icons-material/Error';
-import { useCreateCall } from './hooks/useCreateCall';
-import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import config from '../../../config';
-import { styles } from './CallsPage.styles';
+
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import config from '../../../config';
+import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+
+import {
+  CUSTOM_INVITE_BUTTON_ELEMENT_ID,
+  CUSTOM_INVITE_BUTTON_ID,
+  INVITE_BUTTON_ICON,
+  JITSI_SCRIPT_ID,
+  ROOM_NOT_CREATED_MESSAGE,
+} from './CallsPage.constants';
+import { useCreateCall } from './hooks/useCreateCall';
+import type { JitsiApi } from './typings';
+
+import { styles } from './CallsPage.styles';
 
 const logger = createDebugger('CallsPage');
-
-interface JitsiApi {
-  dispose: () => void;
-  executeCommand: (command: string) => void;
-  addEventListener: (event: string, listener: (...args: unknown[]) => void) => void;
-  registerCustomToolbarButton?: (button: { id: string; text: string; icon: string; btnId: string }) => void;
-}
-
-interface JitsiMeetExternalAPIConstructor {
-  new (domain: string, options: unknown): JitsiApi;
-}
-
-declare global {
-  interface Window {
-    JitsiMeetExternalAPI?: JitsiMeetExternalAPIConstructor;
-  }
-}
 
 function loadJitsiScript(domain: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -35,11 +29,10 @@ function loadJitsiScript(domain: string): Promise<void> {
       resolve();
       return;
     }
-    const scriptId = 'jitsi-external-api-script';
-    let script = document.getElementById(scriptId) as HTMLScriptElement;
+    let script = document.getElementById(JITSI_SCRIPT_ID) as HTMLScriptElement | null;
     if (!script) {
       script = document.createElement('script');
-      script.id = scriptId;
+      script.id = JITSI_SCRIPT_ID;
       script.src = `https://${domain}/external_api.js`;
       script.async = true;
       script.onload = () => resolve();
@@ -88,6 +81,14 @@ export default function CallsPage() {
         priority: 'low',
         time: 3000,
       });
+    }).catch(() => {
+      showNotification({
+        id: `invite-copy-error-${Date.now()}`,
+        title: 'Не удалось скопировать ссылку',
+        subtitle: 'Скопируйте ссылку приглашения вручную.',
+        priority: 'high',
+        time: 5000,
+      });
     });
   }, [schoolPublicId, showNotification]);
 
@@ -102,15 +103,14 @@ export default function CallsPage() {
         onSuccess: (url) => {
           setRoomUrl(url);
         },
-        onError: (err) => {
-          setCallError(err?.message || 'Комната ещё не создана преподавателем или недоступна.');
+        onError: () => {
+          setCallError(ROOM_NOT_CREATED_MESSAGE);
           setRoomUrl(null);
         },
       }
     );
   }, [schoolPublicId, createCall]);
 
-  // Handle URL query parameter room on mount/change
   useEffect(() => {
     if (roomFromQuery && !roomUrl && !isPending && !callError && schoolPublicId) {
       createCall(
@@ -119,8 +119,8 @@ export default function CallsPage() {
           onSuccess: (url) => {
             setRoomUrl(url);
           },
-          onError: (err) => {
-            setCallError(err?.message || 'Комната ещё не создана преподавателем или недоступна.');
+          onError: () => {
+            setCallError(ROOM_NOT_CREATED_MESSAGE);
             setRoomUrl(null);
           },
         }
@@ -142,7 +142,6 @@ export default function CallsPage() {
     }
   }, [roomUrl]);
 
-  // Embed Jitsi Iframe once config is ready
   useEffect(() => {
     if (!jitsiConfig || !containerRef.current) return;
 
@@ -158,7 +157,7 @@ export default function CallsPage() {
           jitsiApiRef.current = null;
         }
 
-        containerRef.current.innerHTML = '';
+        containerRef.current.replaceChildren();
 
         if (!window.JitsiMeetExternalAPI) return;
 
@@ -185,19 +184,19 @@ export default function CallsPage() {
         api.addEventListener('videoConferenceJoined', () => {
           logger.logEventForDebug(DebugSeverity.NEUTRAL, 'Joined Jitsi Conference', roomName);
           try {
-            api.registerCustomToolbarButton({
-              id: 'custom-invite-btn',
+            api.registerCustomToolbarButton?.({
+              id: CUSTOM_INVITE_BUTTON_ID,
               text: 'Пригласить',
-              icon: 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 96 960 960" width="24" fill="%23ffffff"><path d="M720 656v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80Zm-360 0q-66 0-113-47t-47-113q0-66 47-113t113-47q66 0 113 47t47 113q0 66-47 113t-113 47ZM40 896v-112q0-34 17.5-62.5T106 678q75-38 152.5-58T416 600q30 0 60 3.5t60 10.5q-13 18-20.5 39T508 698q-23-5-46-7.5T416 688q-65 0-128.5 16.5T164 748v36h348q9 22 22 41t30 31H40Z"/></svg>',
-              btnId: 'btn-invite-custom',
+              icon: INVITE_BUTTON_ICON,
+              btnId: CUSTOM_INVITE_BUTTON_ELEMENT_ID,
             });
           } catch (e) {
             logger.logEventForDebug(DebugSeverity.WARNING, 'Failed to register custom toolbar button', e);
           }
         });
 
-        api.addEventListener('customToolbarButtonClicked', (event: { id: string }) => {
-          if (event.id === 'custom-invite-btn') {
+        api.addEventListener('customToolbarButtonClicked', (event) => {
+          if (event.id === CUSTOM_INVITE_BUTTON_ID) {
             handleCopyInviteLink(activeRoom || roomName);
           }
         });
@@ -237,7 +236,7 @@ export default function CallsPage() {
     setSearchParams({});
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!roomNameInput.trim()) return;
     setSearchParams({ room: roomNameInput.trim() });
@@ -250,7 +249,6 @@ export default function CallsPage() {
         Звонки
       </Typography>
 
-      {/* State 1: Loading Call Token */}
       {isPending && (
         <Box sx={styles.loadingBox}>
           <CircularProgress size={48} />
@@ -260,17 +258,16 @@ export default function CallsPage() {
         </Box>
       )}
 
-      {/* State 2: Error joining room */}
       {!isPending && callError && (
         <Paper sx={styles.errorCard}>
-          <ErrorIcon color="error" sx={{ fontSize: 56 }} />
+          <ErrorIcon color="error" sx={styles.errorIcon} />
           <Typography variant="h6" color="error">
             Не удалось войти в звонок
           </Typography>
           <Typography variant="body2" color="text.secondary">
             {callError}
           </Typography>
-          <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
+          <Box sx={styles.errorActions}>
             <Button
               variant="contained"
               onClick={() => {
@@ -293,10 +290,9 @@ export default function CallsPage() {
         </Paper>
       )}
 
-      {/* State 3: Room Input Form when not in a call */}
       {!isPending && !callError && !jitsiConfig && (
         <Paper component="form" onSubmit={handleFormSubmit} sx={styles.formCard}>
-          <Typography variant="h6" sx={{ fontWeight: 600 }}>
+          <Typography variant="h6" sx={styles.formTitle}>
             Присоединиться или создать звонок
           </Typography>
           <Typography variant="body2" color="text.secondary">
@@ -309,7 +305,7 @@ export default function CallsPage() {
             fullWidth
             value={roomNameInput}
             onChange={(e) => setRoomNameInput(e.target.value)}
-            placeholder="Например: Math-101"
+            placeholder="Например: Математика-101"
             disabled={isPending}
           />
 
@@ -325,14 +321,13 @@ export default function CallsPage() {
         </Paper>
       )}
 
-      {/* State 4: Active Call with Jitsi Iframe */}
       {!isPending && jitsiConfig && (
-        <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, height: '100%' }}>
+        <Box sx={styles.callLayout}>
           <Box sx={styles.callHeaderBar}>
-            <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+            <Typography variant="subtitle1" sx={styles.callTitle}>
               Комната: {activeRoom || jitsiConfig.roomName}
             </Typography>
-            <Box sx={{ display: 'flex', gap: 1 }}>
+            <Box sx={styles.callActions}>
               <Button
                 variant="outlined"
                 size="small"

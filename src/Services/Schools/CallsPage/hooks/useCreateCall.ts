@@ -3,6 +3,7 @@ import { meetEndpoints } from '@/Endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import type { AppError } from '@/Endpoints';
 import type { CreateJitsiTokenRequest } from '@/Endpoints';
+import { ROOM_NOT_CREATED_MESSAGE } from '../CallsPage.constants';
 
 export function useCreateCall() {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
@@ -12,16 +13,11 @@ export function useCreateCall() {
       const response = await meetEndpoints.getMeetToken(dto);
       return response.roomUrl;
     },
-    onError: (error) => {
-      let message = error.message || 'Failed to create call.';
-      if (error.code === 'FORBIDDEN') {
-        message = 'You do not have permission to create a call.';
-      }
-
+    onError: () => {
       showNotification({
         id: `create-call-error-${Date.now()}`,
-        title: 'Error Creating Call',
-        subtitle: message,
+        title: 'Не удалось войти в звонок',
+        subtitle: ROOM_NOT_CREATED_MESSAGE,
         priority: 'high',
         time: 5000,
       });

@@ -26,6 +26,9 @@ export const styles = {
     margin: '40px auto 0 auto',
     width: '100%',
   },
+  formTitle: {
+    fontWeight: 600,
+  },
   errorCard: {
     padding: (theme: Theme) => theme.spacing(4),
     display: 'flex',
@@ -38,6 +41,27 @@ export const styles = {
     maxWidth: '550px',
     margin: '40px auto 0 auto',
     textAlign: 'center',
+  },
+  errorIcon: {
+    fontSize: 56,
+  },
+  errorActions: {
+    display: 'flex',
+    gap: (theme: Theme) => theme.spacing(2),
+    marginTop: (theme: Theme) => theme.spacing(2),
+  },
+  callLayout: {
+    display: 'flex',
+    flexDirection: 'column',
+    flexGrow: 1,
+    height: '100%',
+  },
+  callTitle: {
+    fontWeight: 600,
+  },
+  callActions: {
+    display: 'flex',
+    gap: (theme: Theme) => theme.spacing(1),
   },
   callHeaderBar: {
     display: 'flex',
@@ -56,7 +80,7 @@ export const styles = {
     borderRadius: (theme: Theme) => `0 0 ${theme.shape.borderRadius}px ${theme.shape.borderRadius}px`,
     overflow: 'hidden',
     border: (theme: Theme) => `1px solid ${theme.palette.divider}`,
-    background: '#000000',
+    background: (theme: Theme) => theme.palette.common.black,
   },
   loadingBox: {
     display: 'flex',
@@ -67,4 +91,3 @@ export const styles = {
     minHeight: '400px',
   },
 };
-
