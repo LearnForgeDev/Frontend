@@ -11,10 +11,10 @@ export const styles = {
     gap: 2,
     flexDirection: { xs: 'column', sm: 'row' },
   },
-  chips: {
+  studentsStatus: {
     display: 'flex',
-    flexWrap: 'wrap',
-    gap: 0.5,
+    alignItems: 'center',
+    gap: 1,
   },
   actions: {
     display: 'flex',

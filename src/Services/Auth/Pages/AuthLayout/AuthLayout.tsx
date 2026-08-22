@@ -1,41 +1,51 @@
-import { Box, Paper } from '@mui/material';
-import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { Box, Paper, Typography } from '@mui/material';
+import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded';
+import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
+import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
+import { Navigate, Outlet } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-
 import { AuthFlowProvider } from '../../contexts/AuthFlowContext';
 import * as S from './AuthLayout.styles';
-import { useEffect } from 'react';
-import { getRedirectPath } from './AuthLayout.utils';
-
-function AuthLayoutContent() {
-  return (
-    <Box sx={S.container}>
-      <Paper elevation={3} sx={S.paper}>
-        <Outlet />
-      </Paper>
-    </Box>
-  );
-}
 
 export default function AuthLayout() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const user = useGlobalContext((s) => s.auth.user);
+  const isAuthenticated = useGlobalContext((state) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    const fromLocation = location.state?.from as string | undefined;
-
-    if (user) {
-      navigate(getRedirectPath({
-        fromLocation,
-        selectedSchool: user.activeSchoolPublicId
-      }));
-    }
-  }, [])
+  if (isAuthenticated) {
+    return <Navigate to="/app" replace />;
+  }
 
   return (
     <AuthFlowProvider>
-      <AuthLayoutContent />
+      <Box sx={S.pageSx}>
+        <Box component="section" sx={S.introSx}>
+          <Box sx={S.brandSx}>
+            <Box sx={S.logoFrameSx}>
+              <Box component="img" src="/brand-mark.png" alt="" sx={S.logoSx} />
+            </Box>
+            LearnForge
+          </Box>
+          <Box sx={S.introContentSx}>
+            <Typography component="p" sx={S.eyebrowSx}>Рабочее пространство преподавателя</Typography>
+            <Typography component="h1" sx={S.heroTitleSx}>
+              Всё для занятия — в одном спокойном месте
+            </Typography>
+            <Typography sx={S.heroTextSx}>
+              Планируйте встречи, готовьте уроки и оставайтесь на связи со школой.
+            </Typography>
+            <Box sx={S.featureListSx}>
+              <Box sx={S.featureSx}><CalendarMonthRoundedIcon />Расписание без лишних действий</Box>
+              <Box sx={S.featureSx}><AutoStoriesRoundedIcon />Уроки и материалы рядом</Box>
+              <Box sx={S.featureSx}><Groups2RoundedIcon />Школа всегда под рукой</Box>
+            </Box>
+          </Box>
+        </Box>
+
+        <Box component="main" sx={S.formPaneSx}>
+          <Paper elevation={0} sx={S.paperSx}>
+            <Outlet />
+          </Paper>
+        </Box>
+      </Box>
     </AuthFlowProvider>
   );
 }

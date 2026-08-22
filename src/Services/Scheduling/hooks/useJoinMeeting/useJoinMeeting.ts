@@ -22,13 +22,16 @@ export function useJoinMeeting(): UseMutationResult<string, AppError, ScheduleEv
       return response.roomUrl;
     },
     onSuccess: (roomUrl) => {
-      window.open(roomUrl, '_blank', 'noopener,noreferrer');
+      const meetingWindow = window.open(roomUrl, '_blank', 'noopener,noreferrer');
+      if (!meetingWindow) {
+        window.location.assign(roomUrl);
+      }
     },
     onError: (error) => {
       showNotification({
         id: `join-meeting-error-${Date.now()}`,
-        title: 'Error Joining Session',
-        subtitle: appErrorMessage(error, 'Could not join the meeting. Please try again.'),
+        title: 'Не удалось войти во встречу',
+        subtitle: appErrorMessage(error, 'Попробуйте войти ещё раз.'),
         priority: 'high',
         time: 5000,
       });

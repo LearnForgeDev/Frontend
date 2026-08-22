@@ -20,19 +20,15 @@ export default function LessonEditorContainer({
   }
 
   if (isError) {
-    return <Box>Error loading editor state.</Box>;
+    return <Box>Не удалось загрузить содержимое урока.</Box>;
   }
-
-  // We pass editorStatePromise here since TextEditor's LoadPreviousStatePlugin
-  // expects a promise, but we can wrap the fetched state in a resolved promise.
-  const editorStatePromise = Promise.resolve(editorState ?? undefined);
 
   return (
     <Suspense fallback={<SkeletonBox />}>
       <TextEditor
         isEditMode={isEditMode}
         id={id}
-        editorStatePromise={editorStatePromise}
+        editorState={editorState}
       />
     </Suspense>
   );

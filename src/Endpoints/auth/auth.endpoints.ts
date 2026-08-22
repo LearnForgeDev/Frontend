@@ -14,7 +14,7 @@ import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
 
 export * from './types';
 
-const apiClient = createApiClient({ staleTime: 12 * 60 * 60 * 1000 });
+const apiClient = createApiClient({ staleTime: 0 });
 const queryFn = createQueryFn();
 
 export const authEndpoints = {
@@ -59,10 +59,19 @@ export const authEndpoints = {
         return response.data;
     },
 
+    async createSchool(dto: RequestSchoolParams): Promise<SchoolRequestStatusDto> {
+        const queryKey = ['/api/ApiAuth/create-school'];
+        const response = await apiClient.fetchQuery({
+            queryKey: [...queryKey, dto],
+            queryFn: () => queryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
+        });
+        return response.data;
+    },
+
     async requestSchool(dto: RequestSchoolParams): Promise<SchoolRequestStatusDto> {
         const queryKey = ['/api/ApiAuth/request-school'];
         const response = await apiClient.fetchQuery({
-            queryKey,
+            queryKey: [...queryKey, dto],
             queryFn: () => queryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
         });
         return response.data;
@@ -89,7 +98,7 @@ export const authEndpoints = {
     async joinSchool(dto: JoinSchoolByInviteParams): Promise<UserIdentity> {
         const queryKey = ['/api/ApiAuth/join-school'];
         const response = await apiClient.fetchQuery({
-            queryKey,
+            queryKey: [...queryKey, dto],
             queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto)
         });
         useGlobalContext.getState().auth.setUser(response.data);
@@ -99,7 +108,7 @@ export const authEndpoints = {
     async invite(dto: InviteParams): Promise<unknown> {
         const queryKey = ['/api/ApiAuth/invite'];
         const response = await apiClient.fetchQuery({
-            queryKey,
+            queryKey: [...queryKey, dto],
             queryFn: () => queryFn.post(queryKey[0], dto)
         });
         return response.data;

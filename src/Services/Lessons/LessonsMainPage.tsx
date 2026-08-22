@@ -11,9 +11,10 @@ import './LessonsMainPage.css';
 
 interface LessonsMainPageProps {
   onOpenLesson?: (id: string, title: string) => void;
+  canManageLessons?: boolean;
 }
 
-function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
+function LessonsMainPage({ onOpenLesson, canManageLessons = false }: LessonsMainPageProps) {
   const navigate = useNavigate();
   const { lessons, isLoading, isError, refetch } = useLessons();
   const mutations = useLessonMutations();
@@ -36,14 +37,16 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
         <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>
           Мои уроки
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleCreateLesson()}
-          disabled={isCreating}
-        >
-          Создать урок
-        </Button>
+        {canManageLessons && (
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleCreateLesson()}
+            disabled={isCreating}
+          >
+            Создать урок
+          </Button>
+        )}
       </Box>
       <Box component="main" sx={{ flexGrow: 1, height: '100%' }}>
         {isLoading ? (
@@ -70,11 +73,12 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
                 key={lesson.id}
                 lesson={lesson}
                 selected={false}
-                onClick={() => {}}
+                onClick={() => handleOpenLesson(lesson.id, lesson.title)}
                 onOpen={() => handleOpenLesson(lesson.id, lesson.title)}
                 onRename={() => {}} // No implementation yet in the original either
                 onMove={() => {}}
                 onDelete={() => mutations.deleteLesson.mutate({ id: lesson.id })}
+                canManage={canManageLessons}
               />
             ))}
           </Box>
@@ -84,11 +88,11 @@ function LessonsMainPage({ onOpenLesson }: LessonsMainPageProps) {
   );
 }
 
-export default function LessonsMainPageWithErrorBoundary({ onOpenLesson }: LessonsMainPageProps) {
+export default function LessonsMainPageWithErrorBoundary({ onOpenLesson, canManageLessons }: LessonsMainPageProps) {
   return (
     <ErrorBoundary>
       <LessonsProvider>
-        <LessonsMainPage onOpenLesson={onOpenLesson} />
+        <LessonsMainPage onOpenLesson={onOpenLesson} canManageLessons={canManageLessons} />
       </LessonsProvider>
     </ErrorBoundary>
   );

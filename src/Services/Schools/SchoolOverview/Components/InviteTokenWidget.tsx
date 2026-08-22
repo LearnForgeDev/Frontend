@@ -1,107 +1,159 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Box, Typography, CircularProgress, Alert, Paper, IconButton, Tooltip } from '@mui/material';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import { authEndpoints } from '@/Endpoints';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
-import { useParams } from 'react-router-dom';
-import { AuthRole } from '@/Assets/Types/commonTypes.ts';
+import { useState, type FormEvent } from 'react';
+import {
+  Alert,
+  AppBar,
+  Box,
+  Button,
+  Dialog,
+  IconButton,
+  MenuItem,
+  TextField,
+  Toolbar,
+  Typography,
+} from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
+import { QRCodeSVG } from 'qrcode.react';
+import { AuthRole } from '@/Assets/Types/commonTypes';
+import { useCurrentSchool } from '@/Services/AppShell/hooks/useCurrentSchool';
+import { useCreateInvite } from '@/Services/Schools/StudentsPage/hooks/useCreateInvite';
+import {
+  COPY_FEEDBACK_DURATION_MS,
+  DEFAULT_INVITE_EXPIRATION_HOURS,
+  DEFAULT_INVITE_MAX_USES,
+  MAX_INVITE_EXPIRATION_HOURS,
+  MAX_INVITE_USES,
+  MIN_INVITE_EXPIRATION_HOURS,
+  MIN_INVITE_USES,
+  MINUTES_IN_HOUR,
+} from '@/Services/Schools/StudentsPage/Components/InviteWidget.const';
+import * as S from '@/Services/Schools/StudentsPage/Components/InviteWidget.styles';
 
-interface InviteTokenWidgetProps {
+type InviteTokenWidgetProps = {
   schoolPublicId: string;
-}
+};
 
-export const InviteTokenWidget: React.FC<InviteTokenWidgetProps> = () => {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
+  const { capabilities } = useCurrentSchool();
+  const createInvite = useCreateInvite();
+  const [isOpen, setIsOpen] = useState(false);
+  const [role, setRole] = useState<AuthRole>(AuthRole.STUDENT);
+  const [maxUses, setMaxUses] = useState(DEFAULT_INVITE_MAX_USES);
+  const [expirationHours, setExpirationHours] = useState(DEFAULT_INVITE_EXPIRATION_HOURS);
+  const [isCopied, setIsCopied] = useState(false);
+  const token = createInvite.data;
+  const inviteUrl = token
+    ? `${window.location.origin}/onboarding?invite=${encodeURIComponent(token)}`
+    : '';
 
-  const { schoolPublicId } = useParams();
-  const userRole = useGlobalContext().auth.user?.roles.find((r) => String(r?.schoolId) === schoolPublicId)?.role;
-
-  if (!schoolPublicId) {
-    throw new Error('No active school public id');
-  }
-
-  const fetchToken = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await authEndpoints.invite({
-        schoolPublicId,
-        role: AuthRole.STUDENT,
-      });
-
-      if (typeof res === 'string') {
-        setToken(res);
-      } else if (res && typeof res === 'object' && 'inviteToken' in res) {
-        setToken((res as Record<string, unknown>).inviteToken as string);
-      } else if (res && typeof res === 'object' && 'token' in res) {
-        setToken((res as Record<string, unknown>).token as string);
-      } else {
-        setToken(JSON.stringify(res));
-      }
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Не удалось создать токен");
-    } finally {
-      setLoading(false);
-    }
-  }, [schoolPublicId]);
-
-  useEffect(() => {
-    if (userRole === AuthRole.STUDENT) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchToken();
-  }, [fetchToken, userRole]);
-
-  const handleCopy = () => {
-    if (token) {
-      navigator.clipboard.writeText(token);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    createInvite.mutate({
+      schoolPublicId,
+      role,
+      maxUses,
+      expiresInMinutes: expirationHours * MINUTES_IN_HOUR,
+    });
   };
 
-  if (userRole === 0) return null;
+  const handleCopy = async () => {
+    if (!inviteUrl) {
+      return;
+    }
+
+    await navigator.clipboard.writeText(inviteUrl);
+    setIsCopied(true);
+    window.setTimeout(() => setIsCopied(false), COPY_FEEDBACK_DURATION_MS);
+  };
 
   return (
-    <Paper className="admin-card" sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2, borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography component="h3" sx={{ fontFamily: 'Manrope, sans-serif', fontWeight: 700, fontSize: '1.1rem' }}>
-          Токен-приглашение (Ученик)
-        </Typography>
-        <Tooltip title="Сгенерировать заново">
-          <IconButton onClick={fetchToken} disabled={loading} size="small" color="primary">
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-      </Box>
+    <>
+      <Button
+        variant="contained"
+        startIcon={<AddRoundedIcon />}
+        onClick={() => setIsOpen(true)}
+      >
+        Пригласить в школу
+      </Button>
 
-      {loading && <CircularProgress size={24} />}
-
-      {error && (
-        <Alert severity="error" action={
-          <IconButton color="inherit" size="small" onClick={fetchToken}>
-            <RefreshIcon />
-          </IconButton>
-        }>
-          {error}
-        </Alert>
-      )}
-
-      {!loading && !error && token && (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, bgcolor: 'background.default', p: 1.5, borderRadius: 2 }}>
-          <Typography sx={{ fontFamily: 'monospace', fontSize: '1.2rem', letterSpacing: 2, fontWeight: 600, color: 'primary.main', flexGrow: 1, overflowX: 'scroll' }}>
-            {token}
-          </Typography>
-          <Tooltip title={copied ? "Скопировано!" : "Скопировать токен"} placement="top">
-            <IconButton onClick={handleCopy} color={copied ? "success" : "primary"} size="small">
-              <ContentCopyIcon />
+      <Dialog fullScreen open={isOpen} onClose={() => setIsOpen(false)}>
+        <AppBar position="sticky" color="inherit" elevation={0} sx={S.appBarSx}>
+          <Toolbar sx={S.toolbarSx}>
+            <IconButton edge="start" onClick={() => setIsOpen(false)} aria-label="Закрыть">
+              <CloseRoundedIcon />
             </IconButton>
-          </Tooltip>
+            <Typography component="h2" sx={S.dialogTitleSx}>Пригласить в школу</Typography>
+          </Toolbar>
+        </AppBar>
+
+        <Box sx={S.dialogContentSx}>
+          <Box component="section" sx={S.cardSx}>
+            <Box sx={S.headerSx}>
+              <Typography sx={S.subtitleSx}>
+                Создайте ссылку или покажите QR-код. Срок и лимит помогут контролировать доступ.
+              </Typography>
+            </Box>
+
+            <Box component="form" onSubmit={handleSubmit} sx={S.fieldsSx}>
+              <TextField
+                select
+                label="Роль"
+                value={role}
+                onChange={(event) => setRole(Number(event.target.value) as AuthRole)}
+              >
+                <MenuItem value={AuthRole.STUDENT}>Ученик</MenuItem>
+                {capabilities.canManageSchool && <MenuItem value={AuthRole.TEACHER}>Преподаватель</MenuItem>}
+              </TextField>
+              <TextField
+                type="number"
+                label="Количество входов"
+                value={maxUses}
+                onChange={(event) => setMaxUses(Number(event.target.value))}
+                slotProps={{ htmlInput: { min: MIN_INVITE_USES, max: MAX_INVITE_USES } }}
+              />
+              <TextField
+                type="number"
+                label="Срок, часов"
+                value={expirationHours}
+                onChange={(event) => setExpirationHours(Number(event.target.value))}
+                slotProps={{ htmlInput: { min: MIN_INVITE_EXPIRATION_HOURS, max: MAX_INVITE_EXPIRATION_HOURS } }}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                startIcon={<LinkRoundedIcon />}
+                disabled={createInvite.isPending}
+                sx={S.submitButtonSx}
+              >
+                {createInvite.isPending ? 'Создаём приглашение…' : 'Создать приглашение'}
+              </Button>
+            </Box>
+
+            {createInvite.isError && (
+              <Alert severity="error" sx={S.errorSx}>
+                Не удалось создать приглашение. Попробуйте ещё раз.
+              </Alert>
+            )}
+
+            {token && (
+              <Box sx={S.resultSx}>
+                <Box sx={S.qrSx}>
+                  <QRCodeSVG value={inviteUrl} size={136} level="M" title="QR-код приглашения" />
+                </Box>
+                <Box>
+                  <Typography sx={S.resultTitleSx}>Приглашение готово</Typography>
+                  <Typography sx={S.tokenSx}>{token}</Typography>
+                  <Button startIcon={<ContentCopyRoundedIcon />} onClick={handleCopy} sx={S.copyButtonSx}>
+                    {isCopied ? 'Ссылка скопирована' : 'Скопировать ссылку'}
+                  </Button>
+                </Box>
+              </Box>
+            )}
+          </Box>
         </Box>
-      )}
-    </Paper>
+      </Dialog>
+    </>
   );
-};
+}

@@ -1,71 +1,51 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const profileCardSx: SxProps<Theme> = {
-  p: 4,
-  borderRadius: 2,
+  p: { xs: 2.5, md: 3 },
+  borderRadius: 3,
   display: 'flex',
-  flexDirection: { xs: 'column', md: 'row' },
-  alignItems: 'center',
-  textAlign: { xs: 'center', md: 'left' },
-  gap: { xs: 3, md: 4 },
-  boxShadow: '0 12px 48px rgba(0,0,0,0.06)',
-  bgcolor: 'background.paper',
+  flexDirection: { xs: 'column', sm: 'row' },
+  alignItems: { xs: 'flex-start', sm: 'center' },
+  gap: 2.5,
+  bgcolor: 'var(--admin-surface)',
   border: '1px solid',
-  borderColor: 'rgba(0,0,0,0.04)',
-};
-
-export const avatarContainerSx: SxProps<Theme> = {
-  position: 'relative',
-  mb: { xs: 3, md: 0 },
-  flexShrink: 0,
+  borderColor: 'var(--admin-border)',
+  boxShadow: 'var(--admin-shadow)',
 };
 
 export const avatarSx: SxProps<Theme> = {
-  width: 140,
-  height: 140,
-  bgcolor: 'primary.main',
-  fontSize: '4rem',
+  width: 76,
+  height: 76,
+  bgcolor: 'var(--admin-primary)',
+  fontSize: '1.6rem',
   fontWeight: 800,
   fontFamily: 'Manrope, sans-serif',
-  boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-  border: '4px solid #fff',
-};
-
-export const avatarOverlaySx: SxProps<Theme> = {
-  position: 'absolute',
-  bottom: 0,
-  right: 0,
-  bgcolor: 'background.paper',
-  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-  '&:hover': { bgcolor: 'action.hover' },
-};
-
-export const hiddenInputSx: SxProps<Theme> = {
-  display: 'none',
 };
 
 export const userNameSx: SxProps<Theme> = {
   fontWeight: 800,
   fontFamily: 'Manrope, sans-serif',
-  color: '#111827', // off-black
-  mb: 1,
+  color: 'var(--admin-text)',
+  mb: 0.75,
   lineHeight: 1.2,
+  fontSize: { xs: '1.5rem', md: '1.8rem' },
 };
 
 export const userInfoStackSx: SxProps<Theme> = {
-  mt: 1.5,
-  mb: 2.5,
+  flex: 1,
+  minWidth: 0,
 };
 
 export const contactItemSx: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   gap: 1.5,
-  color: '#6B7280',
+  color: 'var(--admin-muted)',
+  py: 0.25,
 };
 
 export const contactIconSx: SxProps<Theme> = {
-  color: '#9CA3AF',
+  color: 'var(--admin-muted)',
   fontSize: '1.25rem',
 };
 
@@ -74,46 +54,17 @@ export const contactTextSx: SxProps<Theme> = {
   fontSize: '0.95rem',
 };
 
-
 export const logoutButtonSx: SxProps<Theme> = {
   borderRadius: 3,
   textTransform: 'none',
   fontWeight: 700,
   fontFamily: 'Manrope, sans-serif',
-  width: { xs: '100%', md: 'auto' },
-  px: { xs: 2, md: 4 },
-  py: 1.5,
-  bgcolor: '#FEF2F2',
-  color: '#DC2626',
-  boxShadow: 'none',
+  width: { xs: '100%', sm: 'auto' },
+  px: 2,
+  color: 'var(--admin-danger)',
+  borderColor: 'color-mix(in srgb, var(--admin-danger) 35%, transparent)',
   '&:hover': {
-    bgcolor: '#FEE2E2',
-    boxShadow: 'none',
+    borderColor: 'var(--admin-danger)',
+    bgcolor: 'color-mix(in srgb, var(--admin-danger) 7%, transparent)',
   },
-};
-
-export const adminButtonSx: SxProps<Theme> = {
-  borderRadius: 3,
-  textTransform: 'none',
-  fontWeight: 700,
-  fontFamily: 'Manrope, sans-serif',
-  width: { xs: '100%', md: 'auto' },
-  px: { xs: 2, md: 4 },
-  py: 1.5,
-  bgcolor: 'transparent',
-  color: '#4B5563',
-  border: '1px solid',
-  borderColor: '#D1D5DB',
-  boxShadow: 'none',
-  '&:hover': {
-    bgcolor: '#F3F4F6',
-    boxShadow: 'none',
-  },
-};
-
-export const buttonsContainerSx: SxProps<Theme> = {
-  display: 'flex',
-  gap: 2,
-  flexDirection: { xs: 'column', md: 'row' },
-  mt: { xs: 3, md: 0 },
 };

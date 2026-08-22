@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
+import { getIsMobileDevice } from '@/Assets/device.utils';
 
 export type ScheduleView = 'day' | 'week' | 'agenda';
 
@@ -14,16 +15,18 @@ export interface SchedulingContextValue {
 const SchedulingContext = createContext<SchedulingContextValue | undefined>(undefined);
 
 export function SchedulingProvider({ children }: { children: ReactNode }) {
+  const isMobile = getIsMobileDevice();
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
-  const [view, setView] = useState<ScheduleView>('week');
+  const [selectedView, setSelectedView] = useState<ScheduleView>(() => isMobile ? 'agenda' : 'week');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const view = isMobile && selectedView === 'week' ? 'agenda' : selectedView;
 
   const value = useMemo<SchedulingContextValue>(
     () => ({
       selectedDate,
       setSelectedDate,
       view,
-      setView,
+      setView: setSelectedView,
       selectedEventId,
       setSelectedEventId,
     }),

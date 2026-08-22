@@ -44,7 +44,6 @@ type RegisterStepsOptions = {
   onNameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
   onConfirmPasswordChange: (value: string) => void;
-  onBack: () => void;
 };
 
 type LoginStepsOptions = {
@@ -116,7 +115,6 @@ export function getRegisterSteps({
   onNameChange,
   onPasswordChange,
   onConfirmPasswordChange,
-  onBack,
 }: RegisterStepsOptions): RegisterSteps {
   return [
     {
@@ -134,7 +132,6 @@ export function getRegisterSteps({
             onNameChange,
             onPasswordChange,
             onConfirmPasswordChange,
-            onBack,
           },
         },
       ],

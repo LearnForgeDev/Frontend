@@ -29,7 +29,22 @@ declare module '@mui/material/Typography' {
 
 export const theme = createTheme({
   typography: {
-    fontFamily: "'Inter', sans-serif",
+    fontFamily: "'Manrope', 'Inter', sans-serif",
+    h1: {
+      fontFamily: "'Manrope', sans-serif",
+      fontWeight: 800,
+      letterSpacing: '-0.035em',
+    },
+    h2: {
+      fontFamily: "'Manrope', sans-serif",
+      fontWeight: 800,
+      letterSpacing: '-0.025em',
+    },
+    h3: {
+      fontFamily: "'Manrope', sans-serif",
+      fontWeight: 800,
+      letterSpacing: '-0.02em',
+    },
     titleS: {
       fontSize: '1.25rem',
       fontWeight: 600,
@@ -47,34 +62,85 @@ export const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 12,
+    borderRadius: 14,
   },
   palette: {
     mode: 'light',
     primary: {
-      main: '#4968f2',
+      main: '#2859d8',
+      dark: '#1942b5',
+      light: '#6f91ed',
+      contrastText: '#ffffff',
     },
     brand: {
-      main: '#6b5cff',
-      light: '#8c80ff',
-      dark: '#4c3eff',
+      main: '#2859d8',
+      light: '#6f91ed',
+      dark: '#1942b5',
       contrastText: '#fff',
     },
     secondary: {
-      main: '#6b5cff',
+      main: '#58705c',
     },
     success: {
-      main: '#2e7d32',
+      main: '#3f7650',
     },
     error: {
-      main: '#d32f2f',
+      main: '#b44444',
     },
     warning: {
-      main: '#e4ae18',
+      main: '#a56c1d',
     },
     background: {
-      default: '#f7f8fb',
-      paper: '#ffffff',
+      default: '#f7f5ef',
+      paper: '#fffdf9',
+    },
+  },
+  components: {
+    MuiButton: {
+      defaultProps: {
+        disableElevation: true,
+      },
+      styleOverrides: {
+        root: {
+          minHeight: 42,
+          borderRadius: 14,
+          textTransform: 'none',
+          fontWeight: 750,
+          transition: 'background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease',
+        },
+      },
+    },
+    MuiTextField: {
+      defaultProps: {
+        variant: 'outlined',
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: 14,
+          backgroundColor: '#fffdf9',
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 24,
+          border: '1px solid rgba(29, 37, 48, 0.10)',
+          backgroundImage: 'none',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 22,
+          border: '1px solid rgba(29, 37, 48, 0.10)',
+          backgroundImage: 'none',
+          boxShadow: '0 14px 34px rgba(39, 45, 53, 0.07)',
+        },
+      },
     },
   },
 });

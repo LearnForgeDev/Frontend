@@ -110,7 +110,7 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
 
           useGlobalContext.getState().auth.setUser(result);
           setUser(userIdentity);
-          navigate("/admin");
+          navigate('/app');
           return;
         }
 
@@ -126,9 +126,13 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
           setUser(userIdentity);
         }
 
-        navigate("/admin");
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Неизвестная ошибка");
+        navigate('/app');
+      } catch {
+        setError(
+          mode === 'login'
+            ? 'Не удалось войти. Проверьте имя и пароль.'
+            : 'Не удалось зарегистрироваться. Попробуйте ещё раз.',
+        );
       } finally {
         setIsLoading(false);
       }

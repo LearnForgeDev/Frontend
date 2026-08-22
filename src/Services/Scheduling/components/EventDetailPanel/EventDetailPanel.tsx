@@ -6,12 +6,16 @@ import PeopleOutlinedIcon from '@mui/icons-material/PeopleOutlined';
 import VideocamIcon from '@mui/icons-material/Videocam';
 import { AttendeeAvatars } from '@/Services/Scheduling/components/AttendeeAvatars/AttendeeAvatars';
 import { JoinButton } from '@/Services/Scheduling/components/JoinButton/JoinButton';
+import { StartMeetingNowButton } from '@/Services/Scheduling/components/StartMeetingNowButton/StartMeetingNowButton';
 import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
 import { useUpdateEventTitle } from '@/Services/Scheduling/hooks/useUpdateEventTitle/useUpdateEventTitle';
+import { useSchoolStudents } from '@/Services/Scheduling/hooks/useSchoolStudents/useSchoolStudents';
+import { haveSameNonEmptyIds } from '@/Services/Scheduling/utils/audience.utils';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 import {
   EVENT_DETAIL_SELECT_PROMPT,
   EVENT_DETAIL_NO_ATTENDEES,
+  EVENT_DETAIL_ALL_SCHOOL,
   EVENT_DETAIL_EDIT_TITLE_HINT,
   EVENT_DETAIL_TITLE_ARIA,
 } from './EventDetailPanel.const';
@@ -26,6 +30,7 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [titleValue, setTitleValue] = useState('');
   const { saveTitle } = useUpdateEventTitle(event);
+  const { studentIds } = useSchoolStudents();
 
   const startEditing = () => {
     if (!canManage || !event) return;
@@ -49,6 +54,11 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
       </Box>
     );
   }
+
+  const includesAllSchool = haveSameNonEmptyIds(
+    studentIds,
+    event.attendees.map((attendee) => attendee.userPublicId),
+  );
 
   return (
     <Box sx={styles.root}>
@@ -102,6 +112,7 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
         </Box>
         <Box sx={styles.contentColumn}>
           <JoinButton event={event} size="medium" />
+          {canManage && <StartMeetingNowButton event={event} />}
         </Box>
       </Box>
 
@@ -123,7 +134,9 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
           <PeopleOutlinedIcon sx={styles.rowIcon} />
         </Box>
         <Box sx={styles.contentColumn}>
-          {event.attendees.length > 0 ? (
+          {includesAllSchool ? (
+            <Typography variant="body2">{EVENT_DETAIL_ALL_SCHOOL}</Typography>
+          ) : event.attendees.length > 0 ? (
             <AttendeeAvatars attendees={event.attendees} />
           ) : (
             <Typography variant="body2" color="text.secondary">
@@ -135,4 +148,3 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
     </Box>
   );
 }
-

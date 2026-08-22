@@ -67,10 +67,20 @@ export const filesEndpoints = {
     content: string | Blob,
     contentType?: string,
     contentMd5?: string,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    signal?: AbortSignal,
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
+      const cleanupAbortListener = () => signal?.removeEventListener('abort', handleAbort);
+      const handleAbort = () => xhr.abort();
+
+      if (signal?.aborted) {
+        reject(new DOMException('Upload cancelled', 'AbortError'));
+        return;
+      }
+
+      signal?.addEventListener('abort', handleAbort, { once: true });
       xhr.open('PUT', uploadUrl, true);
 
       let effectiveContentType = contentType;
@@ -99,6 +109,7 @@ export const filesEndpoints = {
       }
 
       xhr.onload = () => {
+        cleanupAbortListener();
         if (xhr.status >= 200 && xhr.status < 300) {
           resolve();
         } else {
@@ -106,8 +117,14 @@ export const filesEndpoints = {
         }
       };
 
-      xhr.onerror = () => reject(new Error('Direct upload network error'));
-      xhr.onabort = () => reject(new Error('Direct upload aborted'));
+      xhr.onerror = () => {
+        cleanupAbortListener();
+        reject(new Error('Direct upload network error'));
+      };
+      xhr.onabort = () => {
+        cleanupAbortListener();
+        reject(new DOMException('Upload cancelled', 'AbortError'));
+      };
 
       xhr.send(content);
     });
@@ -120,8 +137,10 @@ export const filesEndpoints = {
     bucketType: string = 'files',
     allowedUserPublicIds?: string[],
     allowedGroupIds?: number[],
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    signal?: AbortSignal,
   ): Promise<ApiFile> {
+    signal?.throwIfAborted();
     const effectiveFileName = fileName || (file instanceof File ? file.name : 'file');
     const mimeType = file.type || 'application/octet-stream';
     const contentMd5 = await calculateContentMd5Base64(file);
@@ -134,13 +153,18 @@ export const filesEndpoints = {
       bucketType,
     });
 
+    signal?.throwIfAborted();
+
     await this.uploadFileDirect(
       presignResponse.uploadUrl,
       file,
       mimeType,
       contentMd5,
-      onProgress
+      onProgress,
+      signal,
     );
+
+    signal?.throwIfAborted();
 
     return await this.completeUpload(schoolPublicId, {
       storageKey: presignResponse.storageKey,

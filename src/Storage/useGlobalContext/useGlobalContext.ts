@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { AuthRole, type UserIdentity } from '@/Assets/Types/commonTypes.ts';
+import { persistActiveSchool, persistUserIdentity } from './useGlobalContext.utils';
 
 export interface User {
     userPublicId: string;
@@ -63,7 +64,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                 const newUser: User = { ...state.auth.user, activeSchoolPublicId: schoolPublicId };
 
                 try {
-                    localStorage.setItem('user_identity', JSON.stringify(newUser));
+                    persistActiveSchool(newUser);
                 } catch {
                     logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to persist user to localStorage');
                 }
@@ -88,9 +89,8 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                     phone: res.phone,
                 };
 
-                // persist user to localStorage
                 try {
-                    localStorage.setItem('user_identity', JSON.stringify(user));
+                    persistUserIdentity(res, activeSchoolPublicId);
                 } catch {
                     // ignore storage errors
                 }
@@ -121,4 +121,3 @@ export const useGlobalContext = create<GlobalState>((set) => ({
             }),
     },
 }));
-

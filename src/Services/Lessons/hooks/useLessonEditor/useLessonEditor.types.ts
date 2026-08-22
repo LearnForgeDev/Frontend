@@ -1,13 +1,13 @@
-import type { lessonObject } from '@/Services/Lessons/lessonTypes';
+import type { SerializedDocument } from '@lexical/file';
 
 export interface UseLessonEditorProps {
   lessonId: string | number;
 }
 
 export interface UseLessonEditorReturn {
-  editorState: lessonObject | undefined;
+  editorState: SerializedDocument | undefined;
   isLoading: boolean;
   isError: boolean;
-  saveEditorState: (serializedState: unknown) => Promise<void>;
+  saveEditorState: (serializedState: SerializedDocument) => Promise<void>;
   isSaving: boolean;
 }

@@ -3,20 +3,6 @@ import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 
 const MS_PER_MINUTE = 60_000;
 
-export function isWithinJoinWindow(startIso: string, windowMinutes: number): boolean {
-  const opensAt = new Date(startIso).getTime() - windowMinutes * MS_PER_MINUTE;
-  return Date.now() >= opensAt;
-}
-
-export function getMillisUntilWindowChange(
-  startIso: string,
-  windowMinutes: number,
-): number | null {
-  const opensAt = new Date(startIso).getTime() - windowMinutes * MS_PER_MINUTE;
-  const delta = opensAt - Date.now();
-  return delta > 0 ? delta : null;
-}
-
 export function formatEventTimeRange(startIso: string, endIso: string): string {
   const opts: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: false };
   const start = new Date(startIso).toLocaleTimeString([], opts);

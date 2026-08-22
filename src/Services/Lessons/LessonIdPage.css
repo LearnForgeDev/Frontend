@@ -1,17 +1,28 @@
 .lesson-id-page {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-
-  width: min(95%, 1000px);
+  width: min(100%, 1000px);
   margin: 0 auto;
 
+  .lesson-page-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+  }
+
   .lesson-name {
-    text-align: center;
-    padding: 0.2rem;
+    color: var(--app-text);
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 1.08;
+    padding: 0.35rem 0;
 
     &.editable {
-      border: var(--muted-text) 2px dashed;
+      border-bottom: 2px solid var(--app-primary);
+      outline: none;
     }
   }
 }

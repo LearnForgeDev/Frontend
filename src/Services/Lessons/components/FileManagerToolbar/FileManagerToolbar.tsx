@@ -8,7 +8,6 @@ import {
   MenuItem,
   ToggleButtonGroup,
   ToggleButton,
-  useMediaQuery,
   type SelectChangeEvent,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
@@ -24,6 +23,7 @@ import FolderBreadcrumb from '../FolderBreadcrumb/FolderBreadcrumb';
 import type { LessonFolder } from '../FileManager/FileManager.types';
 import { FILE_MANAGER_CONSTANTS, SORT_OPTIONS } from '../FileManager/FileManager.const';
 import { styles } from './FileManagerToolbar.styles';
+import { getIsMobileDevice } from '@/Assets/device.utils';
 
 export interface FileManagerToolbarProps {
   folders: LessonFolder[];
@@ -45,7 +45,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
     setView,
   } = useLessonsContext();
 
-  const isMobile = useMediaQuery('(max-width:768px)');
+  const isMobile = getIsMobileDevice();
   const [localSearch, setLocalSearch] = useState(search);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
 

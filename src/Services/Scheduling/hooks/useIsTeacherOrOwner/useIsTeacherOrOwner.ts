@@ -4,7 +4,7 @@ import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId
 import type { UserSchoolInfo } from '@/Endpoints/schools/types';
 
 /** Role names (from GET /api/ApiSchool/my-schools) that may manage a school. */
-const MANAGER_ROLES = new Set(['Teacher', 'Owner', 'Founder', 'Admin']);
+const MANAGER_ROLES = new Set(['Teacher', 'Owner']);
 
 /**
  * True when the current user can manage the *school currently being viewed*

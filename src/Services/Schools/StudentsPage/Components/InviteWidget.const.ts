@@ -1,0 +1,8 @@
+export const DEFAULT_INVITE_MAX_USES = 20;
+export const DEFAULT_INVITE_EXPIRATION_HOURS = 24;
+export const MIN_INVITE_USES = 1;
+export const MAX_INVITE_USES = 100;
+export const MIN_INVITE_EXPIRATION_HOURS = 1;
+export const MAX_INVITE_EXPIRATION_HOURS = 168;
+export const MINUTES_IN_HOUR = 60;
+export const COPY_FEEDBACK_DURATION_MS = 2_000;

@@ -44,7 +44,10 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
 
   const createEvent = useMutation<ScheduleEvent, AppError, CreateScheduleEventInput>({
     mutationFn: (input) =>
-      scheduleEndpoints.createEvent(schoolId, input).then(scheduleEventDtoToEvent),
+      scheduleEndpoints.createEvent(schoolId, {
+        ...input,
+        room: input.room ?? crypto.randomUUID(),
+      }).then(scheduleEventDtoToEvent),
     onError: (error) => notifyError(error, 'Ошибка создания занятия', 'Не удалось создать занятие.'),
     onSettled: invalidateAndRefetchEvents,
   });

@@ -1,102 +1,89 @@
-import React, { useEffect, useState } from 'react';
+import { Alert, Avatar, Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
+import { ClipLoader } from 'react-spinners';
+import { useStudents } from '../hooks/useStudents';
 import {
-  Box,
-  Paper,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
-import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
+  getStudentDisplayName,
+  getStudentInitials,
+  getStudentPublicId,
+} from './StudentsTable.utils';
+import * as S from './StudentsTable.styles';
 
-interface StudentsTableProps {
+type StudentsTableProps = {
   schoolPublicId: string;
-}
+  onOpenChat: (studentPublicId: string) => void;
+};
 
-interface StudentData {
-  userPublicId?: string;
-  id?: string;
-  displayName?: string;
-  name?: string;
-  firstName?: string;
-}
+export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps) {
+  const studentsQuery = useStudents(schoolPublicId);
 
-export const StudentsTable: React.FC<StudentsTableProps> = ({ schoolPublicId }) => {
-  const [students, setStudents] = useState<StudentData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    let isMounted = true;
-    const fetchStudents = async () => {
-      try {
-        setLoading(true);
-        const data = await schoolsEndpoints.getStudents(schoolPublicId);
-        if (isMounted) {
-          setStudents(data as StudentData[]);
-          setError(null);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : 'Ошибка при загрузке списка студентов');
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-    fetchStudents();
-    return () => {
-      isMounted = false;
-    };
-  }, [schoolPublicId]);
-
-  if (loading) {
+  if (studentsQuery.isLoading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-        <CircularProgress />
+      <Box role="status" sx={S.loadingSx}>
+        <ClipLoader color="var(--app-primary)" size={30} />
       </Box>
     );
   }
 
-  if (error) {
-    return <Alert severity="error">{error}</Alert>;
-  }
-
-  if (students.length === 0) {
+  if (studentsQuery.isError) {
     return (
-      <Paper sx={{ p: 3, textAlign: 'center', borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-        <Typography color="text.secondary">Студентов пока нет</Typography>
-      </Paper>
+      <Alert
+        severity="error"
+        action={<Button color="inherit" onClick={() => studentsQuery.refetch()}>Повторить</Button>}
+      >
+        Не удалось загрузить учеников.
+      </Alert>
     );
   }
 
+  const students = studentsQuery.data ?? [];
+  if (students.length === 0) {
+    return <Typography sx={S.emptySx}>В школе пока нет учеников.</Typography>;
+  }
+
   return (
-    <TableContainer component={Paper} className="admin-card" sx={{ borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
-      <Table>
+    <TableContainer sx={S.cardSx}>
+      <Table aria-label="Ученики школы">
         <TableHead>
           <TableRow>
-            <TableCell sx={{ fontWeight: 600 }}>Имя</TableCell>
-            <TableCell sx={{ fontWeight: 600 }}>ID</TableCell>
+            <TableCell>Ученик</TableCell>
+            <TableCell>Группы</TableCell>
+            <TableCell align="right">Действия</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {students.map((student, index) => (
-            <TableRow key={student.userPublicId || student.id || index}>
-              <TableCell>{student.displayName || student.name || student.firstName || 'Неизвестно'}</TableCell>
-              <TableCell sx={{ fontFamily: 'monospace', color: 'text.secondary' }}>
-                {student.userPublicId || student.id || '-'}
-              </TableCell>
-            </TableRow>
-          ))}
+          {students.map((student) => {
+            const displayName = getStudentDisplayName(student);
+            const studentPublicId = getStudentPublicId(student);
+
+            return (
+              <TableRow key={studentPublicId ?? `${displayName}-${student.email ?? ''}`} hover>
+                <TableCell>
+                  <Box sx={S.studentCellSx}>
+                    <Avatar sx={S.avatarSx}>{getStudentInitials(displayName)}</Avatar>
+                    <Box>
+                      <Typography sx={S.studentNameSx}>{displayName}</Typography>
+                      {student.email && (
+                        <Typography variant="body2" color="text.secondary">{student.email}</Typography>
+                      )}
+                    </Box>
+                  </Box>
+                </TableCell>
+                <TableCell>{student.groupNames?.join(', ') || 'Без группы'}</TableCell>
+                <TableCell align="right">
+                  <Button
+                    startIcon={<ChatBubbleOutlineRoundedIcon />}
+                    disabled={!studentPublicId}
+                    onClick={() => studentPublicId && onOpenChat(studentPublicId)}
+                  >
+                    Написать
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
         </TableBody>
       </Table>
     </TableContainer>
   );
-};
+}

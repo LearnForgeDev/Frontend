@@ -5,8 +5,16 @@ export const formContainer = {
 };
 
 export const title = {
-    fontWeight: 'bold',
-    mb: 2,
+    fontFamily: 'Manrope, sans-serif',
+    fontSize: '2rem',
+    fontWeight: 800,
+    letterSpacing: '-0.035em',
+};
+
+export const subtitle = {
+    mt: -1,
+    mb: 1,
+    color: 'var(--app-text-muted)',
 };
 
 export const toggleGroup = {
@@ -17,6 +25,7 @@ export const toggleGroup = {
 
 
 export const linkText = {
-    mt: 2,
+    mt: 1,
+    color: 'var(--app-text-muted)',
+    '& a': { fontWeight: 750 },
 };
-

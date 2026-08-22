@@ -1,27 +1,42 @@
 import { useEffect, useState } from 'react';
-import { getMillisUntilWindowChange } from '@/Services/Scheduling/utils/time.utils';
-import { JOIN_WINDOW_MINUTES } from '@/Services/Scheduling/Scheduling.const';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import {
+  MAX_TIMER_DELAY_MS,
+  MILLISECONDS_PER_MINUTE,
+  STUDENT_JOIN_WINDOW_MINUTES,
+  TIMER_TRANSITION_TOLERANCE_MS,
+} from './useJoinWindow.const';
 
-const MS_PER_MINUTE = 60_000;
+export interface JoinWindowState {
+  canJoin: boolean;
+  isFuture: boolean;
+  isEnded: boolean;
+}
 
-/**
- * Returns whether the join window for an event is currently open. Openness is
- * derived from a timestamp held in state; a single `setTimeout` advances that
- * timestamp exactly when the window opens — no polling, and no impure time
- * reads during render.
- */
-export function useJoinWindow(event: ScheduleEvent): boolean {
+/** Keeps the meeting phase current at the student-access, start, and end boundaries. */
+export function useJoinWindow(event: ScheduleEvent, canManage: boolean): JoinWindowState {
   const [nowTs, setNowTs] = useState(() => Date.now());
+  const startTs = new Date(event.start).getTime();
+  const endTs = new Date(event.end).getTime();
+  const hasValidInterval = Number.isFinite(startTs) && Number.isFinite(endTs) && endTs > startTs;
+  const studentOpensAt = startTs - STUDENT_JOIN_WINDOW_MINUTES * MILLISECONDS_PER_MINUTE;
 
   useEffect(() => {
-    const millisUntilOpen = getMillisUntilWindowChange(event.start, JOIN_WINDOW_MINUTES);
-    if (millisUntilOpen === null) return;
+    const transitions = [studentOpensAt, startTs, endTs].filter((transition) => transition > nowTs);
+    if (transitions.length === 0) return;
 
-    const timer = setTimeout(() => setNowTs(Date.now()), millisUntilOpen);
+    const nextTransition = Math.min(...transitions);
+    const delay = Math.min(
+      nextTransition - nowTs + TIMER_TRANSITION_TOLERANCE_MS,
+      MAX_TIMER_DELAY_MS,
+    );
+    const timer = setTimeout(() => setNowTs(Date.now()), delay);
     return () => clearTimeout(timer);
-  }, [event.start, event.end, nowTs]);
+  }, [studentOpensAt, startTs, endTs, nowTs]);
 
-  const opensAt = new Date(event.start).getTime() - JOIN_WINDOW_MINUTES * MS_PER_MINUTE;
-  return nowTs >= opensAt && new Date(event.end).getTime() > nowTs;
+  const isFuture = hasValidInterval && nowTs < startTs;
+  const isEnded = !hasValidInterval || nowTs >= endTs;
+  const canJoin = hasValidInterval && !isEnded && (canManage || nowTs >= studentOpensAt);
+
+  return { canJoin, isFuture, isEnded };
 }

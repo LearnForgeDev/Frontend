@@ -20,8 +20,6 @@ export const formatRoles = (roles: string[]) => {
     const roleMap: Record<string, string> = {
         Teacher: "Преподаватель",
         Student: "Студент",
-        Founder: "Основатель",
-        Admin: "Администратор",
         Owner: "Владелец",
     };
     return roles.map((r) => roleMap[r] || r).join(", ");

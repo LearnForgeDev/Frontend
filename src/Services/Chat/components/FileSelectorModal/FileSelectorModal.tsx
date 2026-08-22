@@ -35,6 +35,8 @@ import VideoFileIcon from '@mui/icons-material/VideoFile';
 import { useFiles } from '@/Services/Schools/FilesPage/hooks/useFiles';
 import { filesEndpoints, type ApiFile } from '@/Endpoints';
 import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components/FileUploadProgress/FileUploadProgress';
+import { CANCELLED_UPLOAD_VISIBILITY_MS } from '@/Assets/Components/FileUploadProgress/FileUploadProgress.const';
+import { isUploadAbortError } from '@/Assets/Components/FileUploadProgress/FileUploadProgress.utils';
 import { styles } from './FileSelectorModal.styles';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('FileSelectorModal');
@@ -94,6 +96,7 @@ export default function FileSelectorModal({
   const [search, setSearch] = useState('');
   const [filterType, setFilterType] = useState('all');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadControllersRef = useRef(new Map<string, AbortController>());
 
   const [uploadItems, setUploadItems] = useState<UploadItemProgress[]>([]);
 
@@ -137,6 +140,8 @@ export default function FileSelectorModal({
       for (let i = 0; i < fileList.length; i++) {
         const file = fileList[i];
         const uploadId = `chat-upload-${Date.now()}-${i}`;
+        const uploadController = new AbortController();
+        uploadControllersRef.current.set(uploadId, uploadController);
 
         setUploadItems((prev) => [
           ...prev,
@@ -163,8 +168,11 @@ export default function FileSelectorModal({
                   item.id === uploadId ? { ...item, progress: percent } : item
                 )
               );
-            }
+            },
+            uploadController.signal,
           );
+
+          uploadControllersRef.current.delete(uploadId);
 
           setUploadItems((prev) =>
             prev.map((item) =>
@@ -181,6 +189,17 @@ export default function FileSelectorModal({
             setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
           }, 3000);
         } catch (fileErr) {
+          uploadControllersRef.current.delete(uploadId);
+          if (isUploadAbortError(fileErr)) {
+            setUploadItems((prev) => prev.map((item) => (
+              item.id === uploadId ? { ...item, status: 'cancelled' } : item
+            )));
+            window.setTimeout(() => {
+              setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+            }, CANCELLED_UPLOAD_VISIBILITY_MS);
+            continue;
+          }
+
           logger.logEventForDebug(DebugSeverity.DANGER, 'Individual file upload error', fileErr);
           setUploadItems((prev) =>
             prev.map((item) =>
@@ -202,6 +221,10 @@ export default function FileSelectorModal({
     }
   };
 
+  const handleCancelUpload = (uploadId: string) => {
+    uploadControllersRef.current.get(uploadId)?.abort();
+  };
+
   const handleConfirm = () => {
     const matched = allAvailableFiles
       .filter((f: ApiFile) => selectedIds.includes(f.publicId))
@@ -215,6 +238,8 @@ export default function FileSelectorModal({
   };
 
   const handleClose = () => {
+    uploadControllersRef.current.forEach((controller) => controller.abort());
+    uploadControllersRef.current.clear();
     setSelectedIds([]);
     setLocalUploadedFiles([]);
     setSearch('');
@@ -344,7 +369,7 @@ export default function FileSelectorModal({
           Прикрепить ({selectedIds.length})
         </Button>
       </DialogActions>
-      <FileUploadProgress items={uploadItems} />
+      <FileUploadProgress items={uploadItems} onCancel={handleCancelUpload} />
     </Dialog>
   );
 }
