@@ -1,56 +1,51 @@
-import { Box, Typography, Alert } from "@mui/material";
+import { Alert, Box, Button, Typography } from '@mui/material';
+import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { useNavigate } from 'react-router-dom';
-import { type UserSchoolInfo } from '@/Endpoints';
-import { useSchools } from './hooks/useSchools';
-import { useState } from 'react';
+import type { UserSchoolInfo } from '@/Endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import ActiveSchoolsList from './Components/ActiveSchoolsList';
-import AddSchoolModal from './Components/AddSchoolModal';
+import { useSchools } from './hooks/useSchools';
+import * as S from './SchoolsPage.styles';
 
 export default function SchoolsPage() {
   const navigate = useNavigate();
-  const [isAddModalOpen, setAddModalOpen] = useState(false);
-  const activeSchoolPublicId = useGlobalContext(state => state.auth.user?.activeSchoolPublicId);
-  const setActiveSchoolPublicId = useGlobalContext(state => state.auth.setActiveSchoolPublicId);
-
-  const { data: schools, isLoading: isLoadingSchools, error: fetchError } = useSchools();
+  const activeSchoolPublicId = useGlobalContext((state) => state.auth.user?.activeSchoolPublicId);
+  const setActiveSchoolPublicId = useGlobalContext((state) => state.auth.setActiveSchoolPublicId);
+  const schoolsQuery = useSchools();
 
   const handleNavigateToSchool = (school: UserSchoolInfo) => {
     setActiveSchoolPublicId(school.schoolPublicId);
-    navigate(`/admin/schools/${school.schoolPublicId}`, {
-      state: { schoolName: school.schoolName },
-    });
+    navigate(`/app/schools/${school.schoolPublicId}/today`);
   };
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-      <Box>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: "Manrope, sans-serif",
-            fontWeight: 800,
-            color: "var(--admin-text)",
-            marginTop: "8rem",
-          }}
-        >
-          Мои школы
-        </Typography>
+    <Box sx={S.pageSx}>
+      <Box sx={S.headerSx}>
+        <Box>
+          <Typography component="h1" sx={S.titleSx}>Мои школы</Typography>
+          <Typography sx={S.descriptionSx}>
+            Выберите рабочее пространство или присоединитесь к новой школе.
+          </Typography>
+        </Box>
+        <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={() => navigate('/onboarding')}>
+          Добавить школу
+        </Button>
       </Box>
 
-      {fetchError && <Alert severity="error">Не удалось загрузить данные</Alert>}
+      {schoolsQuery.isError && (
+        <Alert
+          severity="error"
+          action={<Button color="inherit" onClick={() => schoolsQuery.refetch()}>Повторить</Button>}
+        >
+          Не удалось загрузить список школ.
+        </Alert>
+      )}
 
       <ActiveSchoolsList
-        schools={schools ?? []}
-        isLoading={isLoadingSchools}
-        onNavigateToSchool={handleNavigateToSchool}
-        onAddSchoolClick={() => setAddModalOpen(true)}
+        schools={schoolsQuery.data ?? []}
+        isLoading={schoolsQuery.isLoading}
         activeSchoolPublicId={activeSchoolPublicId}
-      />
-
-      <AddSchoolModal
-        open={isAddModalOpen}
-        onClose={() => setAddModalOpen(false)}
+        onNavigateToSchool={handleNavigateToSchool}
       />
     </Box>
   );

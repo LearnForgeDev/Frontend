@@ -44,6 +44,7 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SearchIcon from '@mui/icons-material/Search';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
+import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
 
 import { useFiles } from './hooks/useFiles';
 import { filesEndpoints } from '@/Endpoints';
@@ -52,6 +53,9 @@ import FileUploadProgress, { type UploadItemProgress } from '@/Assets/Components
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { styles } from './FilesPage.styles';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import { getIsMobileDevice } from '@/Assets/device.utils';
+import { CANCELLED_UPLOAD_VISIBILITY_MS } from '@/Assets/Components/FileUploadProgress/FileUploadProgress.const';
+import { isUploadAbortError } from '@/Assets/Components/FileUploadProgress/FileUploadProgress.utils';
 const logger = createDebugger('FilesPage');
 
 
@@ -59,6 +63,9 @@ export default function FilesPage() {
   const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const uploadControllersRef = useRef(new Map<string, AbortController>());
+  const isMobile = getIsMobileDevice();
 
   const {
     files,
@@ -152,6 +159,8 @@ export default function FilesPage() {
         progress: 0,
         status: 'uploading',
       };
+      const uploadController = new AbortController();
+      uploadControllersRef.current.set(uploadId, uploadController);
 
       setUploadItems((prev) => [...prev, newItem]);
 
@@ -162,7 +171,9 @@ export default function FilesPage() {
               item.id === uploadId ? { ...item, progress: percent } : item
             )
           );
-        });
+        }, uploadController.signal);
+
+        uploadControllersRef.current.delete(uploadId);
 
         setUploadItems((prev) =>
           prev.map((item) =>
@@ -175,6 +186,17 @@ export default function FilesPage() {
           setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
         }, 3000);
       } catch (err) {
+        uploadControllersRef.current.delete(uploadId);
+        if (isUploadAbortError(err)) {
+          setUploadItems((prev) => prev.map((item) => (
+            item.id === uploadId ? { ...item, status: 'cancelled' } : item
+          )));
+          window.setTimeout(() => {
+            setUploadItems((prev) => prev.filter((item) => item.id !== uploadId));
+          }, CANCELLED_UPLOAD_VISIBILITY_MS);
+          continue;
+        }
+
         logger.logEventForDebug(DebugSeverity.DANGER, 'Log:', err);
         failCount++;
         setUploadItems((prev) =>
@@ -208,6 +230,10 @@ export default function FilesPage() {
         time: 4000,
       });
     }
+  };
+
+  const handleCancelUpload = (uploadId: string) => {
+    uploadControllersRef.current.get(uploadId)?.abort();
   };
 
   const handleDeleteConfirm = async () => {
@@ -296,9 +322,16 @@ export default function FilesPage() {
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (!e.dataTransfer.types.includes('Files')) {
+      return;
+    }
+
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
-    } else if (e.type === 'dragleave') {
+    } else if (
+      e.type === 'dragleave'
+      && !e.currentTarget.contains(e.relatedTarget as Node | null)
+    ) {
       setDragActive(false);
     }
   };
@@ -314,12 +347,18 @@ export default function FilesPage() {
   };
 
   return (
-    <Box sx={styles.container}>
+    <Box
+      sx={styles.container}
+      onDragEnter={handleDrag}
+      onDragOver={handleDrag}
+      onDragLeave={handleDrag}
+      onDrop={handleDrop}
+    >
       <Box sx={styles.header}>
         <Typography variant="h4" component="h1" sx={styles.title}>
-          Файлы школы
+          Материалы
         </Typography>
-        <Box>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           <input
             type="file"
             multiple
@@ -327,6 +366,24 @@ export default function FilesPage() {
             ref={fileInputRef}
             onChange={(e) => handleUploadFiles(e.target.files)}
           />
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            style={{ display: 'none' }}
+            ref={cameraInputRef}
+            onChange={(event) => handleUploadFiles(event.target.files)}
+          />
+          {isMobile && (
+            <Button
+              variant="outlined"
+              startIcon={<PhotoCameraRoundedIcon />}
+              onClick={() => cameraInputRef.current?.click()}
+              disabled={isUploading}
+            >
+              Снять
+            </Button>
+          )}
           <Button
             variant="contained"
             color="primary"
@@ -392,25 +449,14 @@ export default function FilesPage() {
         </ToggleButtonGroup>
       </Box>
 
-      <Box
-        sx={{
-          ...styles.dropZone,
-          borderColor: dragActive ? 'primary.dark' : 'primary.main',
-          backgroundColor: dragActive ? 'action.hover' : 'primary.main' + '08',
-        }}
-        onDragEnter={handleDrag}
-        onDragOver={handleDrag}
-        onDragLeave={handleDrag}
-        onDrop={handleDrop}
-      >
-        <CloudUploadIcon sx={{ fontSize: 48, mb: 1, color: 'primary.main' }} />
-        <Typography variant="body1" sx={{ fontWeight: 500 }}>
-          Перетащите файлы сюда для быстрой загрузки
-        </Typography>
-        <Typography variant="caption" color="text.secondary">
-          Поддерживается загрузка любых файлов на сервер MinIO
-        </Typography>
-      </Box>
+      {dragActive && (
+        <Box sx={styles.dropZone}>
+          <CloudUploadIcon sx={styles.dropZoneIcon} />
+          <Typography variant="body1" sx={styles.dropZoneTitle}>
+            Перетащите файлы сюда для быстрой загрузки
+          </Typography>
+        </Box>
+      )}
 
       {isLoading && (
         <Box sx={{ display: 'flex', justifyContent: 'center', p: 8 }}>
@@ -639,7 +685,7 @@ export default function FilesPage() {
         </DialogActions>
       </Dialog>
 
-      <FileUploadProgress items={uploadItems} />
+      <FileUploadProgress items={uploadItems} onCancel={handleCancelUpload} />
     </Box>
   );
 }

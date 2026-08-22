@@ -1,48 +1,15 @@
-import { createElement, useMemo, useEffect, type FormEvent } from 'react';
+import { createElement, useMemo, type FormEvent } from 'react';
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
-import { useUser, USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.tsx';
-import { authEndpoints } from '@/Endpoints';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
-
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
-import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
-const logger = createDebugger('LoginPage');
 
 
 function LoginPageContent() {
-  const navigate = useNavigate();
-  const { setUser } = useUser();
   const { name, password, error, isLoading, setField, handleSubmit } =
     useAuthFlow();
-
-  useEffect(() => {
-    const checkAndRefresh = async () => {
-      try {
-        const storedStr = localStorage.getItem(USER_STORAGE_KEY);
-        const cookies = document.cookie.split('; ');
-        const isAuthInCookies = cookies.includes('devushkavishnya');
-
-        if (!storedStr || !isAuthInCookies) return;
-
-        const storedUser = JSON.parse(storedStr);
-        if (storedUser?.refreshToken) {
-          const result = await authEndpoints.refreshToken({ refreshToken: storedUser.refreshToken });
-          if (result) {
-            useGlobalContext.getState().auth.setUser(result);
-            setUser({ ...storedUser, ...result });
-            navigate("/admin", { replace: true });
-          }
-        }
-      } catch (err) {
-        logger.logEventForDebug(DebugSeverity.DANGER, "Auto-refresh failed", err);
-      }
-    };
-    checkAndRefresh();
-  }, [navigate, setUser]);
 
   const loginSteps = useMemo(
     () =>
@@ -68,6 +35,10 @@ function LoginPageContent() {
       onSubmit={handleFormSubmit}
       sx={{ display: "flex", flexDirection: "column", gap: 2 }}
     >
+      <Box sx={S.headingSx}>
+        <Typography component="h1" sx={S.title}>С возвращением</Typography>
+        <Typography sx={S.subtitle}>Войдите, чтобы продолжить работу.</Typography>
+      </Box>
       {error && <Alert severity="error">{error}</Alert>}
 
       {currentStep?.components.map((componentConfig) => {
@@ -88,7 +59,7 @@ function LoginPageContent() {
       })}
 
       <Typography variant="body2" align="center" sx={S.linkText}>
-        Нет аккаунта?{" "}
+        Нет аккаунта?{' '}
         <MuiLink component={Link} to="/auth/register" underline="hover">
           Зарегистрироваться
         </MuiLink>

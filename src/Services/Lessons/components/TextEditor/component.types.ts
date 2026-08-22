@@ -1,7 +1,7 @@
-import type { lessonObject } from '@/Services/Lessons/lessonTypes';
+import type { SerializedDocument } from '@lexical/file';
 
 export interface TextEditorProps {
   isEditMode: boolean;
   id: number | string;
-  editorStatePromise?: Promise<lessonObject | undefined | null>;
+  editorState?: SerializedDocument;
 }

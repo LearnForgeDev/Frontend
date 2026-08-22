@@ -8,10 +8,10 @@ import type { AppError } from '@/Endpoints';
 export function appErrorMessage(error: AppError, fallback: string): string {
   switch (error.code) {
     case 'FORBIDDEN':
-      return 'You do not have permission to perform this action.';
+      return 'У вас нет доступа к этому действию.';
     case 'NOT_FOUND':
-      return 'The requested item no longer exists.';
+      return 'Запрошенный объект больше не существует.';
     default:
-      return error.message || fallback;
+      return fallback;
   }
 }

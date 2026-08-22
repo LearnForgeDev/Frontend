@@ -14,6 +14,7 @@ export interface LessonCardProps {
   onRename: () => void;
   onMove: () => void;
   onDelete: () => void;
+  canManage?: boolean;
 }
 
 export default function LessonCard({
@@ -24,6 +25,7 @@ export default function LessonCard({
   onRename,
   onMove,
   onDelete,
+  canManage = false,
 }: LessonCardProps) {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
@@ -60,19 +62,21 @@ export default function LessonCard({
         sx={cardStyle}
         onClick={onClick}
         onDoubleClick={onOpen}
-        onContextMenu={handleContextMenu}
+        onContextMenu={canManage ? handleContextMenu : undefined}
         onKeyDown={handleKeyDown}
       >
         <Box sx={styles.thumbnail}>
           <ArticleIcon sx={{ fontSize: '3rem', opacity: 0.7 }} />
-          <IconButton
-            aria-label="Опции урока"
-            size="small"
-            sx={styles.kebabButton}
-            onClick={handleKebabClick}
-          >
-            <MoreVertIcon fontSize="small" />
-          </IconButton>
+          {canManage && (
+            <IconButton
+              aria-label="Опции урока"
+              size="small"
+              sx={styles.kebabButton}
+              onClick={handleKebabClick}
+            >
+              <MoreVertIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
         <CardContent sx={styles.content}>
           <Typography variant="subtitle2" component="h3" sx={styles.title}>
@@ -81,14 +85,16 @@ export default function LessonCard({
         </CardContent>
       </Card>
 
-      <ContextMenu
-        anchorEl={menuAnchor}
-        onClose={handleCloseMenu}
-        onOpen={onOpen}
-        onRename={onRename}
-        onMove={onMove}
-        onDelete={onDelete}
-      />
+      {canManage && (
+        <ContextMenu
+          anchorEl={menuAnchor}
+          onClose={handleCloseMenu}
+          onOpen={onOpen}
+          onRename={onRename}
+          onMove={onMove}
+          onDelete={onDelete}
+        />
+      )}
     </>
   );
 }

@@ -1,141 +1,120 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Box, Typography, IconButton, Skeleton } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { useCallback } from 'react';
+import { Alert, Box, Paper, Typography } from '@mui/material';
+import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
+import { ClipLoader } from 'react-spinners';
 import { useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { useUser } from '@/Storage/UserContext/UserContext';
 import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
+import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
 import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
-
-import { useScheduleEvents } from '../Scheduling/hooks/useScheduleEvents/useScheduleEvents';
-
-import {
-  pageRootSx,
-  bannerSx,
-  containerSx,
-  backButtonSx,
-  profileSidebarSx,
-  notAuthContainerSx,
-  widgetsContainerSx,
-  statsGridSx,
-} from './ProfilePage.styles';
-
 import { ProfileCard } from './components/ProfileCard/ProfileCard';
-import { StatCard } from './components/StatCard/StatCard';
 import { LessonCard } from './components/LessonCard/LessonCard';
-import { getClosestEvent } from './ProfilePage.utils';
+import { PROFILE_PAGE_TEXT } from './ProfilePage.const';
+import { formatSchoolRoles, getClosestEvent } from './ProfilePage.utils';
+import * as S from './ProfilePage.styles';
 
-const ProfilePage: React.FC = () => {
-  const user = useGlobalContext((s) => s.auth.user);
-  const logout = useGlobalContext((s) => s.auth.logout);
+export default function ProfilePage() {
   const navigate = useNavigate();
-
-  const { data: schools } = useSchools();
-  const activeSchool = schools?.find(
-    s => s.schoolPublicId === user?.activeSchoolPublicId
-  )
-
-  const { events } = useScheduleEvents();
-  const closestEvent = events ? getClosestEvent(events) : undefined;
-
-  useEffect(() => {
-    if (!user) {
-      navigate('/auth/login', {
-        replace: true,
-        state: { from: location.pathname }
-      });
-    }
-  }, [user, navigate]);
-
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const user = useGlobalContext((state) => state.auth.user);
+  const logout = useGlobalContext((state) => state.auth.logout);
+  const { clearUser } = useUser();
+  const schoolsQuery = useSchools();
+  const schedule = useScheduleEvents();
+  const activeSchool = schoolsQuery.data?.find(
+    (school) => school.schoolPublicId === user?.activeSchoolPublicId,
+  );
+  const closestEvent = getClosestEvent(schedule.events);
 
   const handleLogout = useCallback(() => {
     logout();
+    clearUser();
     navigate('/auth/login', { replace: true });
-  }, [logout, navigate]);
-
-  const handleAdminPanel = useCallback(() => {
-    navigate('/admin');
-  }, [navigate]);
+  }, [clearUser, logout, navigate]);
 
   if (!user) {
     return (
-      <Box sx={notAuthContainerSx}>
-        <Typography color="error">Пользователь не авторизован</Typography>
+      <Box sx={S.notAuthContainerSx}>
+        <Typography>{PROFILE_PAGE_TEXT.notAuthorized}</Typography>
       </Box>
     );
   }
 
   return (
-    <Box sx={pageRootSx}>
-      <Box sx={bannerSx(undefined, scrollY)}>
-        <IconButton onClick={() => navigate(-1)} sx={backButtonSx}>
-          <ArrowBackIcon />
-        </IconButton>
+    <Box sx={S.pageRootSx}>
+      <Box component="header" sx={S.headerSx}>
+        <Typography component="h1" sx={S.pageTitleSx}>
+          {PROFILE_PAGE_TEXT.title}
+        </Typography>
+        <Typography sx={S.subtitleSx}>{PROFILE_PAGE_TEXT.subtitle}</Typography>
       </Box>
 
-      <Box sx={containerSx}>
-        <Box sx={profileSidebarSx}>
-          <ProfileCard
-            user={user}
-            activeSchool={activeSchool}
-            onLogout={handleLogout}
-            onAdminPanel={handleAdminPanel}
-          />
-        </Box>
+      <ProfileCard user={user} onLogout={handleLogout} />
 
-        <Box sx={widgetsContainerSx}>
-          <Box sx={statsGridSx}>
-            <StatCard
-              title="Пройдено уроков"
-              value="42"
-              label="+3 за эту неделю"
-            />
-            <StatCard
-              title="Часов на платформе"
-              value="128"
-              label="Входит в топ 10% учеников"
-            />
-            <StatCard
-              title="Средний балл"
-              value="4.8"
-              label="Отличный результат"
-            />
-          </Box>
+      <Box sx={S.contentGridSx}>
+        <Paper component="section" elevation={0} sx={S.sectionSx}>
+          <Typography component="h2" sx={S.sectionTitleSx}>
+            {PROFILE_PAGE_TEXT.schoolsTitle}
+          </Typography>
 
+          {schoolsQuery.isError ? (
+            <Alert severity="error">{PROFILE_PAGE_TEXT.schoolsError}</Alert>
+          ) : schoolsQuery.isLoading ? (
+            <Box sx={S.eventEmptySx}>
+              <ClipLoader size={28} color="var(--admin-primary)" />
+            </Box>
+          ) : !schoolsQuery.data?.length ? (
+            <Typography sx={S.eventEmptySx}>{PROFILE_PAGE_TEXT.schoolsEmpty}</Typography>
+          ) : (
+            <Box sx={S.schoolsListSx}>
+              {schoolsQuery.data.map((school) => (
+                <Box key={school.schoolPublicId} sx={S.schoolRowSx}>
+                  <Box sx={S.schoolIconSx}>
+                    <SchoolOutlinedIcon />
+                  </Box>
+                  <Box>
+                    <Typography sx={S.schoolNameSx}>{school.schoolName}</Typography>
+                    <Typography sx={S.schoolRolesSx}>
+                      {PROFILE_PAGE_TEXT.rolePrefix} {formatSchoolRoles(school.roles)}
+                    </Typography>
+                  </Box>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Paper>
 
-          {
-            closestEvent ?
-              (
-                <LessonCard
-                  title="Ближайший урок"
-                  lessonName={closestEvent?.title}
-                  details={formatEventFullDateTime(closestEvent?.start, closestEvent?.end)}
-                  actionText='Посмотреть в календаре'
-                  onActionClick={() => navigate(
-                    `/admin/schools/${activeSchool?.schoolPublicId}/schedule?eventId=${closestEvent?.id}`
-                  )}
-                />
-              ) : null
-          }
-          {
-            closestEvent === undefined ?
-              (
-                <Skeleton variant="rectangular" width={200} height={100} />
-              ) : null
-          }
-        </Box>
+        <Paper component="section" elevation={0} sx={S.sectionSx}>
+          {schedule.isError ? (
+            <Alert severity="error">{PROFILE_PAGE_TEXT.scheduleError}</Alert>
+          ) : schedule.isLoading ? (
+            <Box sx={S.eventEmptySx}>
+              <ClipLoader size={28} color="var(--admin-primary)" />
+            </Box>
+          ) : closestEvent && activeSchool ? (
+            <LessonCard
+              title={PROFILE_PAGE_TEXT.upcomingLessonTitle}
+              lessonName={closestEvent.title}
+              details={formatEventFullDateTime(closestEvent.start, closestEvent.end)}
+              actionText={PROFILE_PAGE_TEXT.openCalendar}
+              onActionClick={() =>
+                navigate(
+                  `/app/schools/${encodeURIComponent(activeSchool.schoolPublicId)}/schedule?eventId=${encodeURIComponent(closestEvent.id)}`,
+                )
+              }
+            />
+          ) : (
+            <Box>
+              <Typography component="h2" sx={S.sectionTitleSx}>
+                {PROFILE_PAGE_TEXT.upcomingLessonTitle}
+              </Typography>
+              <Typography sx={S.eventEmptySx}>
+                {PROFILE_PAGE_TEXT.upcomingLessonEmpty}
+              </Typography>
+            </Box>
+          )}
+        </Paper>
       </Box>
     </Box>
   );
-};
-
-export default ProfilePage;
+}

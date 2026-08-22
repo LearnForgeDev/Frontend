@@ -18,7 +18,7 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
   };
 
   const uploadMutation = useMutation({
-    mutationFn: (variables: { file: File; bucket?: string; onProgress?: (percent: number) => void }) =>
+    mutationFn: (variables: { file: File; bucket?: string; onProgress?: (percent: number) => void; signal?: AbortSignal }) =>
       filesEndpoints.uploadFileDirectPipeline(
         schoolPublicId,
         variables.file,
@@ -26,7 +26,8 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
         variables.bucket ?? bucketType,
         undefined,
         undefined,
-        variables.onProgress
+        variables.onProgress,
+        variables.signal,
       ),
     onSettled: invalidateAndRefetchFiles,
   });
@@ -41,8 +42,8 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
     isLoading,
     isError,
     refetch,
-    uploadFile: (file: File, bucket?: string, onProgress?: (percent: number) => void) =>
-      uploadMutation.mutateAsync({ file, bucket, onProgress }),
+    uploadFile: (file: File, bucket?: string, onProgress?: (percent: number) => void, signal?: AbortSignal) =>
+      uploadMutation.mutateAsync({ file, bucket, onProgress, signal }),
     isUploading: uploadMutation.isPending,
     deleteFile: deleteMutation.mutateAsync,
     isDeleting: deleteMutation.isPending,

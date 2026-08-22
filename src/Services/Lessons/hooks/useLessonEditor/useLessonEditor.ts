@@ -1,11 +1,16 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import { lessonsEndpoints } from '@/Endpoints';
 import { filesEndpoints } from '@/Endpoints';
 import type { UseLessonEditorProps, UseLessonEditorReturn } from './useLessonEditor.types';
+import type { SerializedDocument } from '@lexical/file';
+import {
+  normalizeLessonDocument,
+  readLessonDraft,
+  writeLessonDraft,
+} from './useLessonEditor.utils';
 
 export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEditorReturn => {
-  const queryClient = useQueryClient();
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
   const queryKey = ['lessonEditorState', lessonId, schoolPublicId];
 
@@ -29,31 +34,20 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEd
     queryKey,
     queryFn: async () => {
       if (!schoolPublicId) throw new Error('Missing schoolPublicId');
-      if (!fileId) return null;
+      const draft = readLessonDraft(lessonId);
+      if (draft) return draft;
+      if (!fileId) return undefined;
       const content = await filesEndpoints.getFileContent(schoolPublicId, fileId);
-      return typeof content === 'string' ? JSON.parse(content) : content;
+      const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
+      return normalizeLessonDocument(parsedContent);
     },
     enabled: Boolean(lessonId && schoolPublicId && fileId),
   });
 
   const mutation = useMutation({
-    mutationFn: async (serializedState: unknown) => {
-      if (!schoolPublicId) throw new Error('Missing schoolPublicId');
-      if (!fileId) throw new Error('No lesson file ID associated');
-      
-      const fileContent = JSON.stringify(serializedState);
-      const fileBlob = new Blob([fileContent], { type: 'application/json' });
-      const fileName = lesson?.lessonJsonFile?.fileName || 'lesson.json';
-      
-      await filesEndpoints.uploadFileDirectPipeline(
-        schoolPublicId,
-        fileBlob,
-        fileName,
-        'lessons'
-      );
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey });
+    mutationFn: async (serializedState: SerializedDocument) => {
+      writeLessonDraft(lessonId, serializedState);
+      return serializedState;
     },
   });
 
@@ -61,7 +55,7 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEd
     editorState,
     isLoading: isEditorLoading,
     isError,
-    saveEditorState: async (serializedState: unknown) => {
+    saveEditorState: async (serializedState: SerializedDocument) => {
       await mutation.mutateAsync(serializedState);
     },
     isSaving: mutation.isPending,

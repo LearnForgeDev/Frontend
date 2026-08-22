@@ -1,5 +1,7 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
 import type { UserSchoolInfo, SchoolInfo, MemberDto } from './types';
+import { studentsEndpoints } from '../students/students.endpoints';
+import { profileEndpoints } from '../profile/profile.endpoints';
 
 const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();
@@ -69,52 +71,22 @@ export const schoolsEndpoints = {
   },
 
   async getStudents(schoolPublicId: string): Promise<unknown[]> {
-    const queryKey = [`/api/ApiStudents/${schoolPublicId}`];
-    const response = await apiClient.fetchQuery({
-      queryKey,
-      queryFn: () => queryFn.get<unknown[]>(queryKey[0]),
-    });
-    return response.data;
+    return studentsEndpoints.getStudents(schoolPublicId);
   },
 
   async getStudentsSimple(schoolPublicId: string): Promise<unknown[]> {
-    const queryKey = [`/api/ApiStudents/${schoolPublicId}/simple`];
-    const response = await apiClient.fetchQuery({
-      queryKey,
-      queryFn: () => queryFn.get<unknown[]>(queryKey[0]),
-    });
-    return response.data;
+    return studentsEndpoints.getStudentsSimple(schoolPublicId);
   },
 
   async getStudentById(schoolPublicId: string, studentPublicId: string): Promise<unknown> {
-    const queryKey = [`/api/ApiStudents/${schoolPublicId}/${studentPublicId}`];
-    const response = await apiClient.fetchQuery({
-      queryKey,
-      queryFn: () => queryFn.get<unknown>(queryKey[0]),
-    });
-    return response.data;
+    return studentsEndpoints.getStudentById(schoolPublicId, studentPublicId);
   },
 
   async getStudentGroups(schoolPublicId: string): Promise<unknown[]> {
-    const queryKey = [`/api/ApiStudents/${schoolPublicId}/groups`];
-    const response = await apiClient.fetchQuery({
-      queryKey,
-      queryFn: () => queryFn.get<unknown[]>(queryKey[0]),
-    });
-    return response.data;
+    return studentsEndpoints.getStudentGroups(schoolPublicId);
   },
 
-  async uploadAvatar(file: File, schoolPublicId?: string): Promise<string> {
-    const queryKey = ['/api/ApiProfile/avatar'];
-    const formData = new FormData();
-    formData.append('File', file);
-    if (schoolPublicId) {
-      formData.append('SchoolPublicId', schoolPublicId);
-    }
-    const response = await apiClient.fetchQuery({
-      queryKey: [...queryKey, file.name, schoolPublicId],
-      queryFn: () => queryFn.post<string>(queryKey[0], formData),
-    });
-    return response.data;
+  async uploadAvatar(schoolPublicId: string, file: File): Promise<string> {
+    return profileEndpoints.uploadAvatar(file, schoolPublicId);
   },
 };

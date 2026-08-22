@@ -1,7 +1,14 @@
-import React from 'react';
-import { Paper, Typography, Box, Button } from '@mui/material';
+import { Typography, Box, Button } from '@mui/material';
 import EventNoteIcon from '@mui/icons-material/EventNote';
-import { widgetCardSx, widgetTitleSx } from './LessonCard.styles';
+import { LESSON_CARD_DEFAULT_ACTION } from './LessonCard.const';
+import {
+  actionSx,
+  detailsSx,
+  headerSx,
+  lessonNameSx,
+  widgetCardSx,
+  widgetTitleSx,
+} from './LessonCard.styles';
 
 export interface LessonCardProps {
   title: string;
@@ -11,28 +18,28 @@ export interface LessonCardProps {
   actionText?: string;
 }
 
-export const LessonCard: React.FC<LessonCardProps> = ({ 
-  title, 
-  lessonName, 
-  details, 
-  onActionClick, 
-  actionText = 'Перейти к материалам' 
-}) => {
+export const LessonCard = ({
+  title,
+  lessonName,
+  details,
+  onActionClick,
+  actionText = LESSON_CARD_DEFAULT_ACTION,
+}: LessonCardProps) => {
   return (
-    <Paper elevation={0} sx={widgetCardSx}>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+    <Box sx={widgetCardSx}>
+      <Box sx={headerSx}>
         <EventNoteIcon color="primary" />
         <Typography sx={widgetTitleSx}>{title}</Typography>
       </Box>
-      <Typography variant="body1" sx={{ fontWeight: 600, color: '#111827' }}>
+      <Typography variant="body1" sx={lessonNameSx}>
         {lessonName}
       </Typography>
-      <Typography variant="body2" sx={{ color: '#6B7280', mb: 2 }}>
+      <Typography variant="body2" sx={detailsSx}>
         {details}
       </Typography>
-      <Button variant="outlined" size="small" sx={{ alignSelf: 'flex-start', borderRadius: 2, textTransform: 'none', fontWeight: 600 }} onClick={onActionClick}>
+      <Button variant="outlined" size="small" sx={actionSx} onClick={onActionClick}>
         {actionText}
       </Button>
-    </Paper>
+    </Box>
   );
 };

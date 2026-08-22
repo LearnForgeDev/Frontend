@@ -1,4 +1,3 @@
-export const JOIN_WINDOW_MINUTES = 10;
 export const WIDGET_VISIBLE_START_HOUR = 0;
 export const WIDGET_VISIBLE_END_HOUR = 23;
 export const SLOT_HEIGHT_PX = 64;

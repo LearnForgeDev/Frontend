@@ -26,7 +26,7 @@ import { INITIAL_EDITOR_CONFIG } from './component.const';
 export default function TextEditor({
   isEditMode,
   id,
-  editorStatePromise,
+  editorState,
 }: TextEditorProps) {
   return (
     <LexicalComposer initialConfig={INITIAL_EDITOR_CONFIG}>
@@ -48,8 +48,7 @@ export default function TextEditor({
       <FilesPlugin />
       <ToggleIsEditable isEditable={isEditMode} />
       <LoadPreviousStatePlugin
-        editorStatePromise={editorStatePromise}
-        lessonId={id}
+        editorState={editorState}
       />
       <AutoSavePlugin lessonId={id} />
 

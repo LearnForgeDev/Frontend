@@ -1,0 +1,1 @@
+export const CANCELLED_UPLOAD_VISIBILITY_MS = 2_000;

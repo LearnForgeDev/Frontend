@@ -1,4 +1,4 @@
-export type SchoolRole = "Teacher" | "Student" | "Owner" | "Founder" | "Admin";
+export type SchoolRole = 'Student' | 'Teacher' | 'Owner';
 
 export interface UserSchoolInfo {
   schoolPublicId: string;
@@ -15,4 +15,3 @@ export interface SchoolInfo {
   publicId: string;
   name: string;
 }
-

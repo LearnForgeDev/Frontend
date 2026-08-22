@@ -41,7 +41,7 @@ function SaveButton({ lessonId, editor }: { lessonId: string | number, editor: L
         showNotification({
           id: `lesson-saved-${Date.now()}`,
           title: 'Урок сохранён',
-          subtitle: `Урок успешно сохранён! (id: ${id})`,
+          subtitle: `Черновик урока ${id} сохранён на этом устройстве.`,
           priority: 'low',
           time: 3000,
         });

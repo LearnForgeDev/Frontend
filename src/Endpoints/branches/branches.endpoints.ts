@@ -32,6 +32,15 @@ export const branchesEndpoints = {
     return response.data;
   },
 
+  async getBranchHistory(schoolPublicId: string, branchId: string): Promise<unknown[]> {
+    const queryKey = [`/api/ApiBreanches/${schoolPublicId}/${branchId}/history`];
+    const response = await apiClient.fetchQuery({
+      queryKey,
+      queryFn: () => queryFn.get(queryKey[0]),
+    });
+    return response.data;
+  },
+
   async createBranch(schoolPublicId: string, dto: BranchModel): Promise<Branch> {
     const queryKey = [`/api/ApiBreanches/${schoolPublicId}/createBreanch`];
     const response = await apiClient.fetchQuery({

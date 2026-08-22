@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchesEndpoints, schoolsEndpoints } from '@/Endpoints';
 import type { Branch } from '@/Endpoints/branches/types';
@@ -58,7 +58,12 @@ export function useChats(schoolPublicId: string) {
     },
   });
 
-  const addDirectChat = (name: string, otherUserId: string) => {
+  const addDirectChat = useCallback((name: string, otherUserId: string) => {
+    const existingThread = directThreads.find((thread) => thread.id === otherUserId);
+    if (existingThread) {
+      return existingThread;
+    }
+
     const newThread: ChatThread = {
       id: otherUserId,
       type: 'direct',
@@ -73,7 +78,7 @@ export function useChats(schoolPublicId: string) {
       logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to save direct thread', e);
     }
     return newThread;
-  };
+  }, [directThreads, schoolPublicId]);
 
   return {
     branchThreads,

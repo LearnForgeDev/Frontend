@@ -7,6 +7,7 @@ export * from './checkHealth';
 export * from './files';
 export * from './lessons';
 export * from './meet';
+export * from './profile';
 export * from './schedule';
 export * from './schools';
-export * from './factory/types';
+export * from './students';

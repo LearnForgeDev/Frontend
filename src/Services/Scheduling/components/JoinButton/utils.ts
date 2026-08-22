@@ -1,19 +1,10 @@
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-
-
 export const getCallButtonText = (
-    isOpen: boolean,
-    event: ScheduleEvent
+  canJoin: boolean,
+  isFuture: boolean,
 ): string => {
-    if (isOpen) {
-        return 'Войти';
-    }
+  if (canJoin) {
+    return 'Войти';
+  }
 
-    const currentUTCTime = new Date().toISOString();
-
-    if (event.start > currentUTCTime) {
-        return 'Скоро';
-    }
-
-    return 'Завершено';
-}
+  return isFuture ? 'Скоро' : 'Завершено';
+};

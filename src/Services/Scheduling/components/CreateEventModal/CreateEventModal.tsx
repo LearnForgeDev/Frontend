@@ -1,27 +1,20 @@
 import { useState } from 'react';
 import {
+  Alert,
   Box,
   Button,
-  Checkbox,
-  Chip,
-  FormControl,
-  InputLabel,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
-  Select,
   TextField,
   Typography,
 } from '@mui/material';
+import { ClipLoader } from 'react-spinners';
 import { Modal } from '@/Assets/Components/Modal/Modal';
-import { useSchoolMembers } from '@/Services/Scheduling/hooks/useSchoolMembers/useSchoolMembers';
+import { useSchoolStudents } from '@/Services/Scheduling/hooks/useSchoolStudents/useSchoolStudents';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
 import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
 import {
   isoToLocalDateInput,
   isoToLocalTimeInput,
   formatLocalDateInput,
-  localDateTimeToIso,
 } from '@/Services/Scheduling/utils/time.utils';
 import {
   MODAL_TITLE_CREATE,
@@ -31,23 +24,16 @@ import {
   LABEL_DATE,
   LABEL_START_TIME,
   LABEL_END_TIME,
-  LABEL_ROOM,
-  HELPER_TEXT_ROOM,
-  LABEL_ATTENDEES,
-  LABEL_ALL_ATTENDEES,
-  LABEL_LOADING_ATTENDEES,
-  LABEL_NO_ATTENDEES,
   BUTTON_CANCEL,
   BUTTON_SUBMIT_CREATE,
   BUTTON_SUBMIT_EDIT,
-  ERROR_MISSING_TITLE,
-  ERROR_MISSING_DATE,
-  ERROR_MISSING_TIME,
-  ERROR_INVALID_TIME_RANGE,
+  STUDENTS_LOADING_TEXT,
+  STUDENTS_ERROR_TEXT,
+  STUDENTS_RETRY_TEXT,
   DEFAULT_START_TIME,
   DEFAULT_END_TIME,
-  ALL_ATTENDEES_SENTINEL,
 } from './CreateEventModal.const';
+import { validateScheduleEventForm } from './CreateEventModal.validation';
 import { styles } from './CreateEventModal.styles';
 
 export interface CreateEventModalProps {
@@ -62,7 +48,12 @@ export interface CreateEventModalProps {
 
 export function CreateEventModal({ onClose, event = null, initialDate, initialStartTime, initialEndTime }: CreateEventModalProps) {
   const isEdit = !!event;
-  const { members, isLoading: membersLoading } = useSchoolMembers();
+  const {
+    studentIds,
+    isLoading: studentsLoading,
+    isError: studentsError,
+    refetch: refetchStudents,
+  } = useSchoolStudents();
   const { createEvent, updateEvent } = useScheduleMutations();
   const mutation = isEdit ? updateEvent : createEvent;
 
@@ -77,50 +68,26 @@ export function CreateEventModal({ onClose, event = null, initialDate, initialSt
   const [endTime, setEndTime] = useState(() =>
     event ? isoToLocalTimeInput(event.end) : (initialEndTime ?? DEFAULT_END_TIME),
   );
-  const [room, setRoom] = useState(event?.room ?? '');
-  const [selectedAttendeeIds, setSelectedAttendeeIds] = useState<string[] | null>(
-    event ? event.attendees.map((a) => a.userPublicId) : null,
-  );
   const [error, setError] = useState<string | null>(null);
-
-  const allIds = members.map((m) => m.userPublicId);
-  const attendeeIds = selectedAttendeeIds ?? allIds;
-  const allSelected = allIds.length > 0 && allIds.every((id) => attendeeIds.includes(id));
-
-  const memberName = (id: string) =>
-    members.find((m) => m.userPublicId === id)?.displayName ??
-    event?.attendees.find((a) => a.userPublicId === id)?.displayName ??
-    id;
-
-  const handleAttendeesChange = (value: string | string[]) => {
-    const next = typeof value === 'string' ? value.split(',') : value;
-    if (next.includes(ALL_ATTENDEES_SENTINEL)) {
-      setSelectedAttendeeIds(allSelected ? [] : allIds);
-      return;
-    }
-    setSelectedAttendeeIds(next);
-  };
+  const isAudienceUnavailable = !isEdit && (studentsLoading || studentsError);
 
   const handleSubmit = () => {
-    if (!title.trim()) return setError(ERROR_MISSING_TITLE);
-    if (!date) return setError(ERROR_MISSING_DATE);
-    if (!startTime || !endTime) return setError(ERROR_MISSING_TIME);
-
-    const startUtc = localDateTimeToIso(date, startTime);
-    const endUtc = localDateTimeToIso(date, endTime);
-
-    if (!startUtc || !endUtc || new Date(startUtc) >= new Date(endUtc)) {
-      return setError(ERROR_INVALID_TIME_RANGE);
+    const validation = validateScheduleEventForm({ title, date, startTime, endTime });
+    if (validation.error !== null) {
+      setError(validation.error);
+      return;
     }
     setError(null);
 
     const input = {
       title: title.trim(),
       description: description.trim() ? description.trim() : null,
-      startUtc,
-      endUtc,
-      room: room.trim() ? room.trim() : undefined,
-      attendeeUserPublicIds: attendeeIds,
+      startUtc: validation.startUtc,
+      endUtc: validation.endUtc,
+      room: event?.room,
+      attendeeUserPublicIds: event
+        ? event.attendees.map((attendee) => attendee.userPublicId)
+        : studentIds,
     };
 
     if (isEdit && event) {
@@ -177,54 +144,23 @@ export function CreateEventModal({ onClose, event = null, initialDate, initialSt
             fullWidth
           />
         </Box>
-        <TextField
-          label={LABEL_ROOM}
-          value={room}
-          onChange={(e) => setRoom(e.target.value)}
-          helperText={HELPER_TEXT_ROOM}
-          fullWidth
-        />
-        <FormControl fullWidth>
-          <InputLabel id="attendees-label">{LABEL_ATTENDEES}</InputLabel>
-          <Select
-            labelId="attendees-label"
-            multiple
-            value={attendeeIds}
-            onChange={(e) => handleAttendeesChange(e.target.value)}
-            input={<OutlinedInput label={LABEL_ATTENDEES} />}
-            renderValue={(selected) =>
-              allSelected ? (
-                <Box sx={styles.chips}>
-                  <Chip label={LABEL_ALL_ATTENDEES} size="small" color="primary" />
-                </Box>
-              ) : (
-                <Box sx={styles.chips}>
-                  {selected.map((id) => (
-                    <Chip key={id} label={memberName(id)} size="small" />
-                  ))}
-                </Box>
-              )
-            }
+        {!isEdit && studentsLoading && (
+          <Box sx={styles.studentsStatus} role="status">
+            <ClipLoader size={18} />
+            <Typography variant="body2" color="text.secondary">
+              {STUDENTS_LOADING_TEXT}
+            </Typography>
+          </Box>
+        )}
+
+        {!isEdit && studentsError && (
+          <Alert
+            severity="error"
+            action={<Button onClick={refetchStudents}>{STUDENTS_RETRY_TEXT}</Button>}
           >
-            {members.length === 0 && (
-              <MenuItem disabled value="">
-                {membersLoading ? LABEL_LOADING_ATTENDEES : LABEL_NO_ATTENDEES}
-              </MenuItem>
-            )}
-            {members.length > 0 && (
-              <MenuItem value={ALL_ATTENDEES_SENTINEL}>
-                <Checkbox checked={allSelected} />
-                <ListItemText primary={LABEL_ALL_ATTENDEES} />
-              </MenuItem>
-            )}
-            {members.map((m) => (
-              <MenuItem key={m.userPublicId} value={m.userPublicId}>
-                <Checkbox checked={attendeeIds.includes(m.userPublicId)} />
-                <ListItemText primary={m.displayName} />
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+            {STUDENTS_ERROR_TEXT}
+          </Alert>
+        )}
 
         {error && (
           <Typography color="error" variant="body2">
@@ -236,7 +172,11 @@ export function CreateEventModal({ onClose, event = null, initialDate, initialSt
           <Button onClick={onClose} disabled={mutation.isPending}>
             {BUTTON_CANCEL}
           </Button>
-          <Button variant="contained" onClick={handleSubmit} disabled={mutation.isPending}>
+          <Button
+            variant="contained"
+            onClick={handleSubmit}
+            disabled={mutation.isPending || isAudienceUnavailable}
+          >
             {isEdit ? BUTTON_SUBMIT_EDIT : BUTTON_SUBMIT_CREATE}
           </Button>
         </Box>

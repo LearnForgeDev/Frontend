@@ -1,119 +1,89 @@
 import { lazy, Suspense } from 'react';
-import { Box, CircularProgress, Typography } from '@mui/material';
 import { Navigate, useRoutes, type RouteObject } from 'react-router-dom';
+import ProtectedRoute from './Router/ProtectedRoute';
+import SchoolAccessGuard from './Router/SchoolAccessGuard';
+import SchoolCapabilityGuard from './Router/SchoolCapabilityGuard';
+import LegacySchoolRedirect from './Router/LegacySchoolRedirect';
+import RouteLoadingFallback from './Router/RouteLoadingFallback';
 
-const PublicLayout = lazy(() => import('./layouts/PublicLayout'));
-const LessonsMainPage = lazy(() => import('./Services/Lessons/LessonsMainPage'));
+const AppShell = lazy(() => import('./Services/AppShell/AppShell'));
+const AppEntryPage = lazy(() => import('./Services/AppShell/AppEntryPage'));
+const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage'));
 const LessonIdPage = lazy(() => import('./Services/Lessons/LessonIdPage'));
-const AdminPage = lazy(() => import('./Services/AdminPanel/AdminPage'));
 const NotFoundPage = lazy(() => import('./Services/NotFound/NotFoundPage'));
 const ForbiddenPage = lazy(() => import('./Services/Forbidden/ForbiddenPage'));
-const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout.tsx'));
-const LoginPage = lazy(() => import('./Services/Auth/Pages/LoginPage/LoginPage.tsx'));
-const RegisterPage = lazy(() => import('./Services/Auth/Pages/RegisterPage/RegisterPage.tsx'));
-const SchoolLayout = lazy(() => import('./Services/Schools/SchoolLayout/SchoolLayout.tsx'));
-const SchoolOverviewPage = lazy(() => import('./Services/Schools/SchoolOverview/SchoolOverviewPage.tsx'));
-const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage.tsx'));
-const LessonsPage = lazy(() => import('./Services/Schools/LessonsPage/LessonsPage.tsx'));
-const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage.tsx'));
-const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage.tsx'));
-const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage.tsx'));
-const StudentsPage = lazy(() => import('./Services/Schools/StudentsPage/StudentsPage.tsx'));
-const SettingsPage = lazy(() => import('./Services/Settings/SettingsPage.tsx'));
-const ProfilePage = lazy(() => import('./Services/Profile/ProfilePage.tsx'));
-const AppRoutes = () => {
+const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout'));
+const LoginPage = lazy(() => import('./Services/Auth/Pages/LoginPage/LoginPage'));
+const RegisterPage = lazy(() => import('./Services/Auth/Pages/RegisterPage/RegisterPage'));
+const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage'));
+const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage'));
+const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage'));
+const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage'));
+const StudentsPage = lazy(() => import('./Services/Schools/StudentsPage/StudentsPage'));
+const SchoolsPage = lazy(() => import('./Services/AdminPanel/SchoolsPage/SchoolsPage'));
+const TodayPage = lazy(() => import('./Services/Today/TodayPage'));
+const ProfilePage = lazy(() => import('./Services/Profile/ProfilePage'));
+const OnboardingPage = lazy(() => import('./Services/Onboarding/OnboardingPage'));
+const WaitingConfirmationPage = lazy(() => import('./Services/Onboarding/WaitingConfirmationPage'));
+const DeveloperRequestsPage = lazy(() => import('./Services/Developer/DeveloperRequestsPage'));
+
+export default function AppRoutes() {
   const routes: RouteObject[] = [
     {
-      element: <PublicLayout />,
-      children: [
-        {
-          path: "/",
-          element: <Navigate to="/auth/login" />,
-        },
-        {
-          path: "/Lessons",
-          element: <LessonsMainPage />,
-        },
-        {
-          path: "/Lessons/:lessonId",
-          element: <LessonIdPage />,
-        },
-      ],
+      path: '/',
+      element: <Navigate to="/auth/login" replace />,
     },
     {
-      path: "/admin",
-      element: <AdminPage />,
-    },
-    {
-      path: "/profile",
-      element: <ProfilePage />,
-    },
-    {
-      path: "/admin/schools/:schoolPublicId",
-      element: <SchoolLayout />,
-      children: [
-        {
-          index: true,
-          element: <SchoolOverviewPage />,
-        },
-        {
-          path: "calls",
-          element: <CallsPage />,
-        },
-        {
-          path: "lessons",
-          element: <LessonsPage />,
-        },
-        {
-          path: "files",
-          element: <FilesPage />,
-        },
-        {
-          path: "chats",
-          element: <ChatsPage />,
-        },
-        {
-          path: "schedule",
-          element: <SchedulePage />,
-        },
-        {
-          path: "students",
-          element: <StudentsPage />,
-        },
-
-        {
-          path: "lessons/:lessonId",
-          element: <LessonIdPage />,
-        },
-        {
-          path: "settings",
-          element: <SettingsPage />,
-        },
-      ],
-    },
-    {
-      path: "/auth",
+      path: '/auth',
       element: <AuthLayout />,
       children: [
-        {
-          path: "login",
-          element: <LoginPage />,
-        },
-        {
-          path: "register",
-          element: <RegisterPage />,
-        },
+        { index: true, element: <Navigate to="login" replace /> },
+        { path: 'login', element: <LoginPage /> },
+        { path: 'register', element: <RegisterPage /> },
       ],
     },
-
     {
-      path: "/403",
-      element: <ForbiddenPage />,
+      element: <ProtectedRoute />,
+      children: [
+        {
+          path: '/app',
+          element: <AppShell />,
+          children: [
+            { index: true, element: <AppEntryPage /> },
+            { path: 'schools', element: <SchoolsPage /> },
+            { path: 'profile', element: <ProfilePage /> },
+            {
+              path: 'schools/:schoolPublicId',
+              element: <SchoolAccessGuard />,
+              children: [
+                { index: true, element: <Navigate to="today" replace /> },
+                { path: 'today', element: <TodayPage /> },
+                { path: 'lessons', element: <LessonsPage /> },
+                { path: 'lessons/:lessonId', element: <LessonIdPage /> },
+                { path: 'schedule', element: <SchedulePage /> },
+                { path: 'calls', element: <CallsPage /> },
+                { path: 'files', element: <FilesPage /> },
+                { path: 'chats', element: <ChatsPage /> },
+                {
+                  element: <SchoolCapabilityGuard capability="canTeach" />,
+                  children: [{ path: 'students', element: <StudentsPage /> }],
+                },
+              ],
+            },
+          ],
+        },
+        { path: '/onboarding', element: <OnboardingPage /> },
+        { path: '/onboarding/waiting/:requestPublicId', element: <WaitingConfirmationPage /> },
+        { path: '/developer', element: <DeveloperRequestsPage /> },
+        { path: '/admin', element: <Navigate to="/app" replace /> },
+        { path: '/admin/schools/:schoolPublicId/*', element: <LegacySchoolRedirect /> },
+        { path: '/profile', element: <Navigate to="/app/profile" replace /> },
+        { path: '/Lessons', element: <Navigate to="/app" replace /> },
+        { path: '/Lessons/:lessonId', element: <Navigate to="/app" replace /> },
+      ],
     },
-    {
-      path: "*",
-      element: <NotFoundPage />,
-    },
+    { path: '/403', element: <ForbiddenPage /> },
+    { path: '*', element: <NotFoundPage /> },
   ];
 
   return (
@@ -121,25 +91,4 @@ const AppRoutes = () => {
       {useRoutes(routes)}
     </Suspense>
   );
-};
-
-export default AppRoutes;
-
-const RouteLoadingFallback = () => (
-  <Box
-    role="status"
-    aria-live="polite"
-    sx={{
-      minHeight: '100vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 2,
-      px: 3,
-    }}
-  >
-    <CircularProgress />
-    <Typography color="text.secondary">Загрузка раздела…</Typography>
-  </Box>
-);
+}

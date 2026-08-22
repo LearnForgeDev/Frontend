@@ -1,38 +1,34 @@
-import {type JSX, useEffect} from 'react';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {serializedDocumentFromEditorState} from '@lexical/file';
-import { useLessonEditor } from '../../../hooks/useLessonEditor/useLessonEditor';
+import { useEffect, type JSX } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { serializedDocumentFromEditorState } from '@lexical/file';
+import { writeLessonDraft } from '@/Services/Lessons/hooks/useLessonEditor/useLessonEditor.utils';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import { LOCAL_DRAFT_AUTOSAVE_INTERVAL_MS } from './AutoSavePlugin.const';
+
 const logger = createDebugger('AutoSavePlugin');
 
-
-export default function AutoSavePlugin({lessonId}: {lessonId: number | string}): JSX.Element | null {
+export default function AutoSavePlugin({
+  lessonId,
+}: {
+  lessonId: number | string;
+}): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const { saveEditorState } = useLessonEditor({ lessonId });
-
-  const SAVE_LOCALLY_INTERVAL_MS = 30_000;
-  const SAVE_TO_SERVER_INTERVAL_MS = 15 * 60_000;
 
   useEffect(() => {
-    const saveEditor = setInterval(() => {
-      const savedEditorState =
-        JSON.stringify(serializedDocumentFromEditorState(editor.getEditorState()));
+    const saveDraft = () => {
+      try {
+        writeLessonDraft(
+          lessonId,
+          serializedDocumentFromEditorState(editor.getEditorState()),
+        );
+      } catch (error) {
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to save local draft', error);
+      }
+    };
 
-      sessionStorage.setItem(`lesson-draft-${lessonId}`, savedEditorState);
-    }, SAVE_LOCALLY_INTERVAL_MS)
-
-    return () => clearInterval(saveEditor);
+    const intervalId = window.setInterval(saveDraft, LOCAL_DRAFT_AUTOSAVE_INTERVAL_MS);
+    return () => window.clearInterval(intervalId);
   }, [editor, lessonId]);
-
-  useEffect(() => {
-    const saveEditorToServer = setInterval(() => {
-      const editorState = editor.getEditorState();
-      saveEditorState(editorState.toJSON())
-        .catch(err => logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to save to server', err));
-    }, SAVE_TO_SERVER_INTERVAL_MS);
-
-    return () => clearInterval(saveEditorToServer);
-  }, [SAVE_TO_SERVER_INTERVAL_MS, editor, saveEditorState]);
 
   return null;
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box,
@@ -21,8 +21,6 @@ import {
   DialogActions,
   Chip,
   Autocomplete,
-  useMediaQuery,
-  useTheme,
 } from '@mui/material';
 
 import GroupIcon from '@mui/icons-material/Group';
@@ -34,6 +32,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 
 import { useChats } from './hooks/useChats';
+import { useRequestedDirectChat } from './hooks/useRequestedDirectChat';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
@@ -43,6 +42,7 @@ import { filesEndpoints } from '@/Endpoints';
 import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import { styles } from './ChatsPage.styles';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import { getIsMobileDevice } from '@/Assets/device.utils';
 const logger = createDebugger('ChatsPage');
 
 
@@ -53,8 +53,7 @@ export default function ChatsPage() {
   }
 
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = getIsMobileDevice();
 
   const currentUserPublicId = useGlobalContext((s) => s.auth.user?.userPublicId);
 
@@ -72,6 +71,17 @@ export default function ChatsPage() {
 
   const [activeTab, setActiveTab] = useState<'branch' | 'direct'>('branch');
   const [activeThread, setActiveThread] = useState<ChatThread | null>(null);
+  const openRequestedThread = useCallback((thread: ChatThread) => {
+    setActiveTab('direct');
+    setActiveThread(thread);
+  }, []);
+
+  useRequestedDirectChat({
+    members,
+    directThreads,
+    addDirectChat,
+    onOpenThread: openRequestedThread,
+  });
   
   const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
   const [groupName, setGroupName] = useState('');
@@ -204,7 +214,7 @@ export default function ChatsPage() {
           {!isLoading && !isError && currentThreads.length === 0 && (
             <Box sx={{ p: 4, textAlign: 'center' }}>
               <Typography color="text.secondary" variant="body2">
-                {activeTab === 'branch' ? 'Ветки отсутствуют' : 'Нет личных контактов'}
+                {activeTab === 'branch' ? 'Групповых чатов пока нет' : 'Нет личных диалогов'}
               </Typography>
             </Box>
           )}
@@ -231,7 +241,7 @@ export default function ChatsPage() {
                       </Typography>
                     }
                     secondary={
-                      thread.type === 'branch' ? 'Групповая ветка' : 'Личная переписка'
+                      thread.type === 'branch' ? 'Групповой чат' : 'Личная переписка'
                     }
                   />
                 </ListItemButton>
@@ -250,7 +260,7 @@ export default function ChatsPage() {
           {activeThread ? (
             <ActiveChatView
               activeThread={activeThread}
-              isMobile={isMobile}
+              isMobile={Boolean(isMobile)}
               onBack={() => setActiveThread(null)}
             />
           ) : (
@@ -275,7 +285,7 @@ export default function ChatsPage() {
         maxWidth="xs"
         fullWidth
       >
-        <DialogTitle>Новый групповой чат (Ветка)</DialogTitle>
+        <DialogTitle>Новый групповой чат</DialogTitle>
         <Box component="form" onSubmit={handleCreateGroupSubmit}>
           <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <TextField
@@ -287,7 +297,7 @@ export default function ChatsPage() {
               placeholder="Например: Обсуждение ДЗ"
             />
             <TextField
-              label="Описание ветки"
+              label="Описание чата"
               fullWidth
               multiline
               rows={2}
@@ -442,7 +452,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
             {activeThread.name}
           </Typography>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-            {activeThread.type === 'branch' ? 'Групповая ветка' : 'Личный чат'}
+            {activeThread.type === 'branch' ? 'Групповой чат' : 'Личный чат'}
           </Typography>
         </Box>
         <Chip

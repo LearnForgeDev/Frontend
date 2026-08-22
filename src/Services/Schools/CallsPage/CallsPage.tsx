@@ -72,7 +72,7 @@ export default function CallsPage() {
 
   const handleCopyInviteLink = useCallback((roomToShare: string) => {
     if (!schoolPublicId || !roomToShare) return;
-    const inviteUrl = `${window.location.origin}/schools/${schoolPublicId}/calls?room=${encodeURIComponent(roomToShare)}`;
+    const inviteUrl = `${window.location.origin}/app/schools/${schoolPublicId}/calls?room=${encodeURIComponent(roomToShare)}`;
     navigator.clipboard.writeText(inviteUrl).then(() => {
       showNotification({
         id: `invite-copied-${Date.now()}`,

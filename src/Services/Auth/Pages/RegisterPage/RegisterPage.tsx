@@ -35,7 +35,6 @@ function RegisterPageContent() {
         onNameChange: (value) => setField("name", value),
         onPasswordChange: (value) => setField("password", value),
         onConfirmPasswordChange: (value) => setField("confirmPassword", value),
-        onBack: () => {},
       }),
     [formData, isLoading, setField],
   );
@@ -52,6 +51,9 @@ function RegisterPageContent() {
     <Box component="form" onSubmit={handleFormSubmit} sx={S.formContainer}>
       <Typography variant="h5" component="h1" align="center" sx={S.title}>
         {currentStep?.title ?? "Регистрация"}
+      </Typography>
+      <Typography align="center" sx={S.subtitle}>
+        Создайте аккаунт — школу можно выбрать после регистрации.
       </Typography>
 
       {error && <Alert severity="error">{error}</Alert>}
@@ -74,7 +76,7 @@ function RegisterPageContent() {
       })}
 
       <Typography variant="body2" align="center" sx={S.linkText}>
-        Уже есть аккаунт?{" "}
+        Уже есть аккаунт?{' '}
         <MuiLink component={Link} to="/auth/login" underline="hover">
           Войти
         </MuiLink>

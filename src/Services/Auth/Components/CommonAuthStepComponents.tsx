@@ -83,7 +83,6 @@ type AuthCredentialsStepProps = {
     onNameChange: (value: string) => void;
     onPasswordChange: (value: string) => void;
     onConfirmPasswordChange: (value: string) => void;
-    onBack: () => void;
 };
 
 export function AuthCredentialsStep({
@@ -94,7 +93,6 @@ export function AuthCredentialsStep({
     onNameChange,
     onPasswordChange,
     onConfirmPasswordChange,
-    onBack,
 }: AuthCredentialsStepProps) {
     return (
         <>
@@ -115,10 +113,6 @@ export function AuthCredentialsStep({
                 value={confirmPassword}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onConfirmPasswordChange(event.target.value)}
             />
-
-            <Button variant="outlined" onClick={onBack} sx={S.backButton}>
-                Назад
-            </Button>
 
             <Button
                 type="submit"

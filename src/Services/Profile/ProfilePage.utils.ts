@@ -1,25 +1,23 @@
-import type { ScheduleEvent } from "../Scheduling/Scheduling.types";
+import type { ScheduleEvent } from '../Scheduling/Scheduling.types';
+import { SCHOOL_ROLE_LABELS } from './ProfilePage.const';
 
 export const getClosestEvent = (
-    events: ScheduleEvent[] | undefined
+  events: ScheduleEvent[] | undefined,
 ): ScheduleEvent | null => {
-    if (!events) {
-        return null;
-    }
+  if (!events) {
+    return null;
+  }
 
-    const timeNow = new Date().getTime();
+  const now = Date.now();
 
-    let smallestDifference = Infinity;
-    let selectedEvent: null | ScheduleEvent = null;
-    for (const event of events) {
-        const timeOfEvent = new Date(event.start).getTime();
-        const difference = timeOfEvent - timeNow;
+  return [...events]
+    .filter((event) => new Date(event.end).getTime() >= now)
+    .sort(
+      (first, second) =>
+        new Date(first.start).getTime() - new Date(second.start).getTime(),
+    )[0] ?? null;
+};
 
-        if (difference > 0 && difference < smallestDifference) {
-            smallestDifference = difference;
-            selectedEvent = event;
-        }
-    }
-
-    return selectedEvent;
-}
+export const formatSchoolRoles = (roles: string[]): string => {
+  return [...new Set(roles.map((role) => SCHOOL_ROLE_LABELS[role] ?? role))].join(', ');
+};
