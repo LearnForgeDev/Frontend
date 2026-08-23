@@ -1,69 +1,247 @@
-import { useState, useMemo } from 'react';
-import { Box, Typography, TextField, Button, IconButton, Tooltip } from '@mui/material';
-import { useParams } from 'react-router-dom';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
-import { useCreateCall } from './hooks/useCreateCall';
-import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-import config from '../../../config';
-import { styles } from './CallsPage.styles';
+import { useState, useMemo, useEffect, useRef, useCallback, type FormEvent } from 'react';
+import { Box, Typography, TextField, Button, CircularProgress, Paper } from '@mui/material';
+import { useParams, useSearchParams } from 'react-router-dom';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import CallEndIcon from '@mui/icons-material/CallEnd';
+import ErrorIcon from '@mui/icons-material/Error';
+
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import config from '../../../config';
+import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
+
+import {
+  CUSTOM_INVITE_BUTTON_ELEMENT_ID,
+  CUSTOM_INVITE_BUTTON_ID,
+  INVITE_BUTTON_ICON,
+  JITSI_SCRIPT_ID,
+  ROOM_NOT_CREATED_MESSAGE,
+} from './CallsPage.constants';
+import { useCreateCall } from './hooks/useCreateCall';
+import type { JitsiApi } from './typings';
+
+import { styles } from './CallsPage.styles';
+
 const logger = createDebugger('CallsPage');
 
+function loadJitsiScript(domain: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (window.JitsiMeetExternalAPI) {
+      resolve();
+      return;
+    }
+    let script = document.getElementById(JITSI_SCRIPT_ID) as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = JITSI_SCRIPT_ID;
+      script.src = `https://${domain}/external_api.js`;
+      script.async = true;
+      script.onload = () => resolve();
+      script.onerror = (err) => reject(err);
+      document.body.appendChild(script);
+    } else {
+      script.addEventListener('load', () => resolve());
+    }
+  });
+}
 
 export default function CallsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
-  const [roomNameInput, setRoomNameInput] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const roomFromQuery = searchParams.get('room');
+
+  const [roomNameInput, setRoomNameInput] = useState(roomFromQuery || '');
+  const [prevRoomFromQuery, setPrevRoomFromQuery] = useState(roomFromQuery);
+  const [activeRoom, setActiveRoom] = useState<string | null>(roomFromQuery);
   const [roomUrl, setRoomUrl] = useState<string | null>(null);
+  const [callError, setCallError] = useState<string | null>(null);
+
+  if (roomFromQuery !== prevRoomFromQuery) {
+    setPrevRoomFromQuery(roomFromQuery);
+    if (roomFromQuery) {
+      setRoomNameInput(roomFromQuery);
+      setActiveRoom(roomFromQuery);
+      setCallError(null);
+    }
+  }
+
+  const containerRef = useRef<HTMLDivElement>(null);
+  const jitsiApiRef = useRef<JitsiApi | null>(null);
 
   const { mutate: createCall, isPending } = useCreateCall();
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
-  const handleCreateCall = () => {
-    if (!schoolPublicId || !roomNameInput.trim()) return;
 
-    createCall(
-      { schoolPublicId, room: roomNameInput.trim() },
-      {
-        onSuccess: (url) => {
-          setRoomUrl(url);
-          showNotification({
-            id: `call-created-${Date.now()}`,
-            title: 'Call Created',
-            subtitle: 'Meeting link is ready and the call is embedded below.',
-            priority: 'low',
-            time: 3000,
-          });
-        },
-      }
-    );
-  };
-
-  const handleCopyLink = () => {
-    if (!roomUrl) return;
-    navigator.clipboard.writeText(roomUrl).then(() => {
+  const handleCopyInviteLink = useCallback((roomToShare: string) => {
+    if (!schoolPublicId || !roomToShare) return;
+    const inviteUrl = `${window.location.origin}/app/schools/${schoolPublicId}/calls?room=${encodeURIComponent(roomToShare)}`;
+    navigator.clipboard.writeText(inviteUrl).then(() => {
       showNotification({
-        id: `copied-${Date.now()}`,
-        title: 'Link Copied',
-        subtitle: 'The meeting link has been copied to your clipboard.',
+        id: `invite-copied-${Date.now()}`,
+        title: 'Ссылка скопирована',
+        subtitle: 'Ссылка на приглашение в звонок скопирована в буфер обмена.',
         priority: 'low',
         time: 3000,
       });
+    }).catch(() => {
+      showNotification({
+        id: `invite-copy-error-${Date.now()}`,
+        title: 'Не удалось скопировать ссылку',
+        subtitle: 'Скопируйте ссылку приглашения вручную.',
+        priority: 'high',
+        time: 5000,
+      });
     });
-  };
+  }, [schoolPublicId, showNotification]);
+
+  const startCall = useCallback((roomName: string) => {
+    if (!schoolPublicId || !roomName.trim()) return;
+    setCallError(null);
+    setActiveRoom(roomName.trim());
+
+    createCall(
+      { schoolPublicId, room: roomName.trim() },
+      {
+        onSuccess: (url) => {
+          setRoomUrl(url);
+        },
+        onError: () => {
+          setCallError(ROOM_NOT_CREATED_MESSAGE);
+          setRoomUrl(null);
+        },
+      }
+    );
+  }, [schoolPublicId, createCall]);
+
+  useEffect(() => {
+    if (roomFromQuery && !roomUrl && !isPending && !callError && schoolPublicId) {
+      createCall(
+        { schoolPublicId, room: roomFromQuery.trim() },
+        {
+          onSuccess: (url) => {
+            setRoomUrl(url);
+          },
+          onError: () => {
+            setCallError(ROOM_NOT_CREATED_MESSAGE);
+            setRoomUrl(null);
+          },
+        }
+      );
+    }
+  }, [roomFromQuery, roomUrl, isPending, callError, schoolPublicId, createCall]);
 
   const jitsiConfig = useMemo(() => {
     if (!roomUrl) return null;
     try {
       const url = new URL(roomUrl);
-      const domain = config.meetServerUrl || url.origin;
+      const domain = config.meetServerUrl ? new URL(config.meetServerUrl).host : url.host;
       const roomName = url.pathname.substring(1);
       const jwt = url.searchParams.get('jwt') || undefined;
       return { domain, roomName, jwt };
     } catch (e) {
-      logger.logEventForDebug(DebugSeverity.DANGER, "Failed to parse Jitsi URL", e);
+      logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to parse Jitsi URL', e);
       return null;
     }
   }, [roomUrl]);
+
+  useEffect(() => {
+    if (!jitsiConfig || !containerRef.current) return;
+
+    let isMounted = true;
+    const { domain, roomName, jwt } = jitsiConfig;
+
+    loadJitsiScript(domain)
+      .then(() => {
+        if (!isMounted || !containerRef.current) return;
+
+        if (jitsiApiRef.current) {
+          jitsiApiRef.current.dispose();
+          jitsiApiRef.current = null;
+        }
+
+        containerRef.current.replaceChildren();
+
+        if (!window.JitsiMeetExternalAPI) return;
+
+        const api = new window.JitsiMeetExternalAPI(domain, {
+          roomName,
+          jwt,
+          parentNode: containerRef.current,
+          width: '100%',
+          height: '100%',
+          configOverwrite: {
+            prejoinPageEnabled: false,
+            startWithAudioMuted: false,
+            startWithVideoMuted: false,
+          },
+          interfaceConfigOverwrite: {
+            SHOW_JITSI_WATERMARK: false,
+            SHOW_WATERMARK_FOR_GUESTS: false,
+            SHOW_BRAND_WATERMARK: false,
+          },
+        });
+
+        jitsiApiRef.current = api;
+
+        api.addEventListener('videoConferenceJoined', () => {
+          logger.logEventForDebug(DebugSeverity.NEUTRAL, 'Joined Jitsi Conference', roomName);
+          try {
+            api.registerCustomToolbarButton?.({
+              id: CUSTOM_INVITE_BUTTON_ID,
+              text: 'Пригласить',
+              icon: INVITE_BUTTON_ICON,
+              btnId: CUSTOM_INVITE_BUTTON_ELEMENT_ID,
+            });
+          } catch (e) {
+            logger.logEventForDebug(DebugSeverity.WARNING, 'Failed to register custom toolbar button', e);
+          }
+        });
+
+        api.addEventListener('customToolbarButtonClicked', (event) => {
+          if (event.id === CUSTOM_INVITE_BUTTON_ID) {
+            handleCopyInviteLink(activeRoom || roomName);
+          }
+        });
+
+        api.addEventListener('videoConferenceLeft', () => {
+          if (jitsiApiRef.current) {
+            jitsiApiRef.current.dispose();
+            jitsiApiRef.current = null;
+          }
+          setRoomUrl(null);
+          setActiveRoom(null);
+          setSearchParams({});
+        });
+      })
+      .catch((err) => {
+        logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to load Jitsi external_api.js', err);
+        setCallError('Не удалось загрузить клиент видеозвонка.');
+      });
+
+    return () => {
+      isMounted = false;
+      if (jitsiApiRef.current) {
+        jitsiApiRef.current.dispose();
+        jitsiApiRef.current = null;
+      }
+    };
+  }, [jitsiConfig, activeRoom, handleCopyInviteLink, setSearchParams]);
+
+  const handleLeaveCall = () => {
+    if (jitsiApiRef.current) {
+      jitsiApiRef.current.executeCommand('hangup');
+      jitsiApiRef.current.dispose();
+      jitsiApiRef.current = null;
+    }
+    setRoomUrl(null);
+    setActiveRoom(null);
+    setSearchParams({});
+  };
+
+  const handleFormSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!roomNameInput.trim()) return;
+    setSearchParams({ room: roomNameInput.trim() });
+    startCall(roomNameInput.trim());
+  };
 
   return (
     <Box sx={styles.container}>
@@ -71,10 +249,54 @@ export default function CallsPage() {
         Звонки
       </Typography>
 
-      {!jitsiConfig && (
-        <Box sx={styles.formCard}>
-          <Typography variant="body1" color="text.secondary">
-            Создайте новую комнату для звонка и присоединяйтесь прямо здесь.
+      {isPending && (
+        <Box sx={styles.loadingBox}>
+          <CircularProgress size={48} />
+          <Typography variant="h6" color="text.secondary">
+            Подключение к звонку...
+          </Typography>
+        </Box>
+      )}
+
+      {!isPending && callError && (
+        <Paper sx={styles.errorCard}>
+          <ErrorIcon color="error" sx={styles.errorIcon} />
+          <Typography variant="h6" color="error">
+            Не удалось войти в звонок
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            {callError}
+          </Typography>
+          <Box sx={styles.errorActions}>
+            <Button
+              variant="contained"
+              onClick={() => {
+                if (activeRoom) startCall(activeRoom);
+              }}
+            >
+              Попробовать снова
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setCallError(null);
+                setActiveRoom(null);
+                setSearchParams({});
+              }}
+            >
+              К списку звонков
+            </Button>
+          </Box>
+        </Paper>
+      )}
+
+      {!isPending && !callError && !jitsiConfig && (
+        <Paper component="form" onSubmit={handleFormSubmit} sx={styles.formCard}>
+          <Typography variant="h6" sx={styles.formTitle}>
+            Присоединиться или создать звонок
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Введите название комнаты для нового звонка или подключения к существующему.
           </Typography>
 
           <TextField
@@ -83,46 +305,51 @@ export default function CallsPage() {
             fullWidth
             value={roomNameInput}
             onChange={(e) => setRoomNameInput(e.target.value)}
-            placeholder="Например: Урок математики"
+            placeholder="Например: Математика-101"
             disabled={isPending}
           />
 
           <Button
+            type="submit"
             variant="contained"
             size="large"
             color="primary"
-            onClick={handleCreateCall}
             disabled={!roomNameInput.trim() || isPending || !schoolPublicId}
           >
-            {isPending ? 'Создание...' : 'Создать звонок и войти'}
+            Войти в звонок
           </Button>
-        </Box>
+        </Paper>
       )}
 
-      {roomUrl && jitsiConfig && (
-        <>
-          <Box sx={styles.resultBox}>
-            <Typography variant="body2" sx={styles.urlText}>
-              {roomUrl}
+      {!isPending && jitsiConfig && (
+        <Box sx={styles.callLayout}>
+          <Box sx={styles.callHeaderBar}>
+            <Typography variant="subtitle1" sx={styles.callTitle}>
+              Комната: {activeRoom || jitsiConfig.roomName}
             </Typography>
-            <Tooltip title="Копировать ссылку">
-              <IconButton onClick={handleCopyLink} color="primary">
-                <ContentCopyIcon />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Открыть в новой вкладке">
-              <IconButton
-                component="a"
-                href={roomUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                color="primary"
+            <Box sx={styles.callActions}>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={<PersonAddIcon />}
+                onClick={() => handleCopyInviteLink(activeRoom || jitsiConfig.roomName)}
               >
-                <OpenInNewIcon />
-              </IconButton>
-            </Tooltip>
+                Пригласить
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                size="small"
+                startIcon={<CallEndIcon />}
+                onClick={handleLeaveCall}
+              >
+                Покинуть
+              </Button>
+            </Box>
           </Box>
-        </>
+
+          <Box ref={containerRef} sx={styles.jitsiContainer} />
+        </Box>
       )}
     </Box>
   );

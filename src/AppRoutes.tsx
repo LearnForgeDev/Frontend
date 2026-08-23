@@ -15,7 +15,7 @@ const ForbiddenPage = lazy(() => import('./Services/Forbidden/ForbiddenPage'));
 const AuthLayout = lazy(() => import('./Services/Auth/Pages/AuthLayout/AuthLayout'));
 const LoginPage = lazy(() => import('./Services/Auth/Pages/LoginPage/LoginPage'));
 const RegisterPage = lazy(() => import('./Services/Auth/Pages/RegisterPage/RegisterPage'));
-const CallsRedirect = lazy(() => import('./Services/Scheduling/CallsRedirect'));
+const CallsPage = lazy(() => import('./Services/Schools/CallsPage/CallsPage'));
 const FilesPage = lazy(() => import('./Services/Schools/FilesPage/FilesPage'));
 const ChatsPage = lazy(() => import('./Services/Schools/ChatsPage/ChatsPage'));
 const SchedulePage = lazy(() => import('./Services/Scheduling/SchedulePage'));
@@ -61,7 +61,7 @@ export default function AppRoutes() {
                 { path: 'lessons', element: <LessonsPage /> },
                 { path: 'lessons/:lessonId', element: <LessonIdPage /> },
                 { path: 'schedule', element: <SchedulePage /> },
-                { path: 'calls', element: <CallsRedirect /> },
+                { path: 'calls', element: <CallsPage /> },
                 { path: 'files', element: <FilesPage /> },
                 { path: 'chats', element: <ChatsPage /> },
                 {
