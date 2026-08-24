@@ -134,6 +134,9 @@ npm run deploy         # сборка и деплой на GitHub Pages
 VITE_API_BASE_URL=http://localhost:5000
 VITE_SERVER_LINK=http://localhost:5000
 VITE_SERVER_HEALTH=http://localhost:5000/health
+
+# Опционально: отдельный публичный URL Jitsi
+VITE_MEET_SERVER_LINK=https://meet.example.com
 ```
  
 > **Важно.** Все `VITE_`-переменные встраиваются в бандл в виде открытого текста. Никогда не кладите в них секреты — только публичные URL и идентификаторы.
@@ -145,6 +148,7 @@ VITE_SERVER_HEALTH=http://localhost:5000/health
 | `VITE_API_BASE_URL` | ✅ | Базовый URL бэкенда для Lessons API |
 | `VITE_SERVER_LINK` | ✅ | Базовый URL бэкенда для Auth/Admin API |
 | `VITE_SERVER_HEALTH`| ❌ | URL для проверки работоспособности сервера |
+| `VITE_MEET_SERVER_LINK` | ❌ | Публичный URL Jitsi, если его нужно переопределить вместо домена из ссылки комнаты |
  
 ---
  
