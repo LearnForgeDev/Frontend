@@ -9,6 +9,7 @@ import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMe
 import { useDownloadChatFile } from '@/Services/Chat/hooks/useDownloadChatFile/useDownloadChatFile';
 import { useCreateChatCallInvite } from '@/Services/Chat/hooks/useCreateChatCallInvite/useCreateChatCallInvite';
 import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
+import ChatCallInviteButton from '@/Services/Chat/components/ChatCallInviteButton/ChatCallInviteButton';
 import ChatInput from './ChatInput';
 import ChatMessageText from './ChatMessageText';
 import {
@@ -59,6 +60,11 @@ export default function ChatThreadView() {
             {activeThread.type === 'branch' ? 'Групповой чат' : 'Личный чат'}
           </Typography>
         </Box>
+        <ChatCallInviteButton
+          onClick={createChatCallInvite.createCallInvite}
+          disabled={status !== 'connected'}
+          isPending={createChatCallInvite.isPending}
+        />
         <Chip 
           size="small" 
           label={getChatStatusLabel(status)}
@@ -142,8 +148,6 @@ export default function ChatThreadView() {
         onSendMessage={sendMessage}
         disabled={status !== 'connected'}
         schoolPublicId={activeThread?.schoolPublicId || ''}
-        onCreateCallInvite={createChatCallInvite.createCallInvite}
-        isCreateCallInvitePending={createChatCallInvite.isPending}
       />
 
       <Dialog

@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { Box, TextField, IconButton, Chip, CircularProgress } from '@mui/material';
+import { Box, TextField, IconButton, Chip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
-import VideocamIcon from '@mui/icons-material/Videocam';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 import { MESSAGE_MAX_LENGTH, CSS } from '@/Services/Chat/Chat.const';
 import FileSelectorModal from '../FileSelectorModal/FileSelectorModal';
 import {
   ATTACH_FILE_LABEL,
   CHAT_INPUT_PLACEHOLDER,
-  CREATE_CALL_INVITE_LABEL,
   SEND_MESSAGE_LABEL,
 } from './ChatInput.const';
 import { styles } from './ChatInput.styles';
@@ -18,16 +16,12 @@ interface ChatInputProps {
   onSendMessage: (text: string, filePublicIds?: string[]) => void;
   disabled?: boolean;
   schoolPublicId: string;
-  onCreateCallInvite: () => void;
-  isCreateCallInvitePending?: boolean;
 }
 
 export default function ChatInput({
   onSendMessage,
   disabled,
   schoolPublicId,
-  onCreateCallInvite,
-  isCreateCallInvitePending,
 }: ChatInputProps) {
   const [text, setText] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
@@ -75,14 +69,6 @@ export default function ChatInput({
             aria-label={ATTACH_FILE_LABEL}
           >
             <AttachFileIcon sx={styles.attachIcon} />
-          </IconButton>
-          <IconButton
-            color="primary"
-            onClick={onCreateCallInvite}
-            disabled={disabled || isCreateCallInvitePending}
-            aria-label={CREATE_CALL_INVITE_LABEL}
-          >
-            {isCreateCallInvitePending ? <CircularProgress size={20} color="inherit" /> : <VideocamIcon />}
           </IconButton>
           <TextField
             fullWidth

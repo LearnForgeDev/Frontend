@@ -1,5 +1,8 @@
 import type { Theme } from '@mui/material/styles';
 
+const FULLSCREEN_HEADER_HOVER_STRIP = '8px';
+const FULLSCREEN_HEADER_TRANSITION = 'transform 180ms ease, opacity 180ms ease';
+
 export const styles = {
   container: {
     display: 'flex',
@@ -57,6 +60,8 @@ export const styles = {
     flexGrow: 1,
     height: '100%',
     minHeight: 0,
+    position: 'relative',
+    overflow: 'hidden',
   },
   callTitle: {
     fontWeight: 600,
@@ -71,23 +76,38 @@ export const styles = {
     flexShrink: 0,
     flexWrap: 'wrap',
   },
-  callHeaderBar: {
+  callHeaderBar: (isFullscreen: boolean) => ({
     display: 'flex',
     alignItems: 'center',
-    justify: 'space-between',
+    justifyContent: 'space-between',
     gap: (theme: Theme) => theme.spacing(2),
     padding: (theme: Theme) => theme.spacing(1.5, 2),
     background: (theme: Theme) => theme.palette.background.paper,
     border: (theme: Theme) => `1px solid ${theme.palette.divider}`,
     borderBottom: 'none',
     flexShrink: 0,
-    position: 'relative',
-    zIndex: 1,
+    position: isFullscreen ? 'absolute' : 'relative',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 2,
+    transform: isFullscreen ? `translateY(calc(-100% + ${FULLSCREEN_HEADER_HOVER_STRIP}))` : 'translateY(0)',
+    opacity: isFullscreen ? 0.96 : 1,
+    transition: FULLSCREEN_HEADER_TRANSITION,
+    boxShadow: isFullscreen ? (theme: Theme) => theme.shadows[4] : 'none',
+    ...(isFullscreen
+      ? {
+          '&:hover': {
+            transform: 'translateY(0)',
+            opacity: 1,
+          },
+        }
+      : {}),
     '@media (max-width: 640px)': {
       alignItems: 'stretch',
       flexDirection: 'column',
     },
-  },
+  }),
   jitsiContainer: {
     flexGrow: 1,
     width: '100%',

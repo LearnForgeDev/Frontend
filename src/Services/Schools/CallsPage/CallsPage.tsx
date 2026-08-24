@@ -266,7 +266,11 @@ export default function CallsPage() {
     };
   }, []);
 
-  const handleLeaveCall = () => {
+  const handleLeaveCall = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+
     if (jitsiApiRef.current) {
       jitsiApiRef.current.executeCommand('hangup');
       jitsiApiRef.current.dispose();
@@ -332,7 +336,7 @@ export default function CallsPage() {
 
       {!isPending && jitsiConfig && (
         <Box sx={styles.callLayout}>
-          <Box sx={styles.callHeaderBar}>
+          <Box sx={styles.callHeaderBar(isFullscreen)}>
             <Typography variant="subtitle1" sx={styles.callTitle}>
               {activeCallTitle || `Комната: ${activeRoom || jitsiConfig.roomName}`}
             </Typography>
