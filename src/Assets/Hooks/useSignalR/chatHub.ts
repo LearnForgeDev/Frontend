@@ -13,9 +13,11 @@ export interface ChatHubParams {
   threadId: string; // branchId or otherUserId
 }
 
+export type ChatConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
+
 export function useChatHubConnection(params: ChatHubParams) {
   const [connection, setConnection] = useState<HubConnection | null>(null);
-  const [status, setStatus] = useState<'connecting' | 'connected' | 'reconnecting' | 'disconnected'>('disconnected');
+  const [status, setStatus] = useState<ChatConnectionStatus>('disconnected');
 
   const { type, schoolPublicId, threadId } = params;
 

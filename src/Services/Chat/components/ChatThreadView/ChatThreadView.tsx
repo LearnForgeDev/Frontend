@@ -6,27 +6,18 @@ import PersonIcon from '@mui/icons-material/Person';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
-import { filesEndpoints } from '@/Endpoints';
+import { useDownloadChatFile } from '@/Services/Chat/hooks/useDownloadChatFile/useDownloadChatFile';
+import { useCreateChatCallInvite } from '@/Services/Chat/hooks/useCreateChatCallInvite/useCreateChatCallInvite';
 import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import ChatInput from './ChatInput';
+import ChatMessageText from './ChatMessageText';
+import {
+  formatChatMessageTime,
+  getChatStatusColor,
+  getChatStatusLabel,
+  isImageFile,
+} from './ChatThreadView.utils';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
-
-function formatMessageTime(dateStr: string): string {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  if (isNaN(d.getTime())) return '';
-  const now = new Date();
-  const isToday =
-    d.getDate() === now.getDate() &&
-    d.getMonth() === now.getMonth() &&
-    d.getFullYear() === now.getFullYear();
-
-  if (isToday) {
-    return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  return `${d.toLocaleDateString([], { day: '2-digit', month: '2-digit' })} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-}
 
 export default function ChatThreadView() {
   const { activeThread, setActiveThread } = useChatContext();
@@ -39,28 +30,17 @@ export default function ChatThreadView() {
   });
 
   const [previewImageFileId, setPreviewImageFileId] = useState<string | null>(null);
+  const downloadChatFile = useDownloadChatFile(activeThread?.schoolPublicId || '');
+  const createChatCallInvite = useCreateChatCallInvite({
+    thread: activeThread,
+    sendMessage,
+  });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const isImageFile = (fileName?: string): boolean => {
-    if (!fileName) return false;
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    return ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '');
-  };
-
   if (!activeThread) return null;
-
-  const getStatusColor = () => {
-    switch (status) {
-      case 'connected': return 'success';
-      case 'connecting':
-      case 'reconnecting': return 'warning';
-      case 'disconnected': return 'error';
-      default: return 'default';
-    }
-  };
 
   return (
     <>
@@ -81,8 +61,8 @@ export default function ChatThreadView() {
         </Box>
         <Chip 
           size="small" 
-          label={status} 
-          color={getStatusColor()} 
+          label={getChatStatusLabel(status)}
+          color={getChatStatusColor(status)}
           sx={{ height: 20, '& .MuiChip-label': { px: 1, fontSize: '0.65rem' } }}
         />
       </Box>
@@ -103,9 +83,7 @@ export default function ChatThreadView() {
                 {msg.senderName}
               </Typography>
             )}
-            <Typography variant="body2" sx={{ wordBreak: 'break-word' }}>
-              {msg.text}
-            </Typography>
+            <ChatMessageText text={msg.text} />
             {msg.files && msg.files.length > 0 && (
               <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: 0.9 }}>
                 {msg.files.map((file) => (
@@ -132,7 +110,7 @@ export default function ChatThreadView() {
                     ) : (
                       <Box
                         sx={{ display: 'flex', alignItems: 'center', gap: 0.5, cursor: 'pointer' }}
-                        onClick={() => file.publicId && filesEndpoints.downloadFile(activeThread.schoolPublicId, file.publicId, file.fileName)}
+                        onClick={() => file.publicId && downloadChatFile(file.publicId, file.fileName)}
                       >
                         <AttachFileIcon sx={{ fontSize: '0.8rem', transform: 'rotate(45deg)' }} />
                         <Typography
@@ -153,7 +131,7 @@ export default function ChatThreadView() {
               </Box>
             )}
             <Typography variant="caption" sx={{ display: 'block', textAlign: 'right', mt: 0.5, opacity: 0.7, fontSize: '0.65rem' }}>
-              {formatMessageTime(msg.receivedAt)}
+              {formatChatMessageTime(msg.receivedAt)}
             </Typography>
           </Box>
         ))}
@@ -164,6 +142,8 @@ export default function ChatThreadView() {
         onSendMessage={sendMessage}
         disabled={status !== 'connected'}
         schoolPublicId={activeThread?.schoolPublicId || ''}
+        onCreateCallInvite={createChatCallInvite.createCallInvite}
+        isCreateCallInvitePending={createChatCallInvite.isPending}
       />
 
       <Dialog

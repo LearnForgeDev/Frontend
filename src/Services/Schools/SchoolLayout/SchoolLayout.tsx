@@ -20,6 +20,7 @@ const SchoolLayout = () => {
   const isDesktop = useMediaQuery('(min-width:980px)');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { school } = useSchoolInfo(schoolPublicId);
+  const isCallsPage = location.pathname.endsWith('/calls');
 
   // Resolve the real name from the endpoint (source of truth, survives reloads),
   // falling back to the name passed via router state for instant render when
@@ -59,7 +60,7 @@ const SchoolLayout = () => {
           />
         </Drawer>
 
-        <Box component="main" sx={mainContentSx(isDesktop)}>
+        <Box component="main" sx={mainContentSx(isDesktop, isCallsPage)}>
           <Outlet />
         </Box>
         

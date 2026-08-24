@@ -16,7 +16,12 @@ export function useJoinMeeting(): UseMutationResult<void, Error, ScheduleEvent> 
       if (!schoolPublicId || !event.room) {
         throw new Error('Meeting room is unavailable.');
       }
-      navigate(`/app/schools/${schoolPublicId}/calls?room=${encodeURIComponent(event.room)}`);
+      const searchParams = new URLSearchParams({
+        room: event.room,
+        title: event.title,
+      });
+
+      navigate(`/app/schools/${schoolPublicId}/calls?${searchParams.toString()}`);
     },
   });
 }

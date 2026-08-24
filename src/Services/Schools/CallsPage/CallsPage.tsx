@@ -1,13 +1,14 @@
-import { useState, useMemo, useEffect, useRef, useCallback, type FormEvent } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, Paper } from '@mui/material';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
+import { Box, Typography, Button, CircularProgress, Paper } from '@mui/material';
 import { useParams, useSearchParams } from 'react-router-dom';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ErrorIcon from '@mui/icons-material/Error';
+import FullscreenIcon from '@mui/icons-material/Fullscreen';
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 import config from '../../../config';
-import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 
 import {
   CUSTOM_INVITE_BUTTON_ELEMENT_ID,
@@ -17,11 +18,23 @@ import {
   ROOM_NOT_CREATED_MESSAGE,
 } from './CallsPage.constants';
 import { useCreateCall } from './hooks/useCreateCall';
+import { useBroadcastCallInvite } from './hooks/useBroadcastCallInvite/useBroadcastCallInvite';
+import CallsInviteDialog from './components/CallsInviteDialog/CallsInviteDialog';
 import type { JitsiApi } from './typings';
 
 import { styles } from './CallsPage.styles';
 
 const logger = createDebugger('CallsPage');
+
+interface CallConnectionState {
+  room: string;
+  url: string;
+}
+
+interface CallErrorState {
+  room: string;
+  message: string;
+}
 
 function loadJitsiScript(domain: string): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -48,85 +61,77 @@ export default function CallsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
   const roomFromQuery = searchParams.get('room');
-
-  const [roomNameInput, setRoomNameInput] = useState(roomFromQuery || '');
-  const [prevRoomFromQuery, setPrevRoomFromQuery] = useState(roomFromQuery);
-  const [activeRoom, setActiveRoom] = useState<string | null>(roomFromQuery);
-  const [roomUrl, setRoomUrl] = useState<string | null>(null);
-  const [callError, setCallError] = useState<string | null>(null);
-
-  if (roomFromQuery !== prevRoomFromQuery) {
-    setPrevRoomFromQuery(roomFromQuery);
-    if (roomFromQuery) {
-      setRoomNameInput(roomFromQuery);
-      setActiveRoom(roomFromQuery);
-      setCallError(null);
-    }
-  }
+  const titleFromQuery = searchParams.get('title');
+  const activeRoom = roomFromQuery?.trim() || null;
+  const activeCallTitle = titleFromQuery?.trim() || null;
+  const [connectionState, setConnectionState] = useState<CallConnectionState | null>(null);
+  const [callErrorState, setCallErrorState] = useState<CallErrorState | null>(null);
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
+  const roomUrl = connectionState?.room === activeRoom ? connectionState.url : null;
+  const callError = callErrorState?.room === activeRoom ? callErrorState.message : null;
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const jitsiApiRef = useRef<JitsiApi | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const { mutate: createCall, isPending } = useCreateCall();
-  const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
+  const {
+    recipients,
+    broadcastInvite,
+    isPending: isInvitePending,
+    isDisabled: isInviteDisabled,
+  } = useBroadcastCallInvite(schoolPublicId || '');
 
-  const handleCopyInviteLink = useCallback((roomToShare: string) => {
-    if (!schoolPublicId || !roomToShare) return;
-    const inviteUrl = `${window.location.origin}/app/schools/${schoolPublicId}/calls?room=${encodeURIComponent(roomToShare)}`;
-    navigator.clipboard.writeText(inviteUrl).then(() => {
-      showNotification({
-        id: `invite-copied-${Date.now()}`,
-        title: 'Ссылка скопирована',
-        subtitle: 'Ссылка на приглашение в звонок скопирована в буфер обмена.',
-        priority: 'low',
-        time: 3000,
-      });
-    }).catch(() => {
-      showNotification({
-        id: `invite-copy-error-${Date.now()}`,
-        title: 'Не удалось скопировать ссылку',
-        subtitle: 'Скопируйте ссылку приглашения вручную.',
-        priority: 'high',
-        time: 5000,
-      });
-    });
-  }, [schoolPublicId, showNotification]);
+  const handleOpenInviteDialog = useCallback(() => {
+    setIsInviteDialogOpen(true);
+  }, []);
+
+  const handleToggleFullscreen = useCallback(() => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      return;
+    }
+
+    pageRef.current?.requestFullscreen();
+  }, []);
 
   const startCall = useCallback((roomName: string) => {
-    if (!schoolPublicId || !roomName.trim()) return;
-    setCallError(null);
-    setActiveRoom(roomName.trim());
+    const trimmedRoomName = roomName.trim();
+
+    if (!schoolPublicId || !trimmedRoomName) return;
+    setCallErrorState(null);
 
     createCall(
-      { schoolPublicId, room: roomName.trim() },
+      { schoolPublicId, room: trimmedRoomName },
       {
         onSuccess: (url) => {
-          setRoomUrl(url);
+          setConnectionState({ room: trimmedRoomName, url });
         },
         onError: () => {
-          setCallError(ROOM_NOT_CREATED_MESSAGE);
-          setRoomUrl(null);
+          setCallErrorState({ room: trimmedRoomName, message: ROOM_NOT_CREATED_MESSAGE });
+          setConnectionState(null);
         },
       }
     );
   }, [schoolPublicId, createCall]);
 
   useEffect(() => {
-    if (roomFromQuery && !roomUrl && !isPending && !callError && schoolPublicId) {
+    if (activeRoom && !roomUrl && !isPending && !callError && schoolPublicId) {
       createCall(
-        { schoolPublicId, room: roomFromQuery.trim() },
+        { schoolPublicId, room: activeRoom },
         {
           onSuccess: (url) => {
-            setRoomUrl(url);
+            setConnectionState({ room: activeRoom, url });
           },
           onError: () => {
-            setCallError(ROOM_NOT_CREATED_MESSAGE);
-            setRoomUrl(null);
+            setCallErrorState({ room: activeRoom, message: ROOM_NOT_CREATED_MESSAGE });
+            setConnectionState(null);
           },
         }
       );
     }
-  }, [roomFromQuery, roomUrl, isPending, callError, schoolPublicId, createCall]);
+  }, [activeRoom, roomUrl, isPending, callError, schoolPublicId, createCall]);
 
   const jitsiConfig = useMemo(() => {
     if (!roomUrl) return null;
@@ -141,6 +146,19 @@ export default function CallsPage() {
       return null;
     }
   }, [roomUrl]);
+
+  const handleSendInvite = useCallback((recipientUserPublicIds: string[]) => {
+    const roomToShare = activeRoom || jitsiConfig?.roomName;
+
+    if (!roomToShare) return;
+
+    broadcastInvite({
+      room: roomToShare,
+      title: activeCallTitle,
+      recipientUserPublicIds,
+    });
+    setIsInviteDialogOpen(false);
+  }, [activeCallTitle, activeRoom, broadcastInvite, jitsiConfig?.roomName]);
 
   useEffect(() => {
     if (!jitsiConfig || !containerRef.current) return;
@@ -171,12 +189,20 @@ export default function CallsPage() {
             prejoinPageEnabled: false,
             startWithAudioMuted: false,
             startWithVideoMuted: false,
+            defaultLanguage: 'ru',
+            hideConferenceSubject: true,
+            subject: '',
           },
           interfaceConfigOverwrite: {
             SHOW_JITSI_WATERMARK: false,
             SHOW_WATERMARK_FOR_GUESTS: false,
             SHOW_BRAND_WATERMARK: false,
+            SHOW_POWERED_BY: false,
+            SHOW_ROOM_NAME: false,
+            DEFAULT_LOGO_URL: '',
+            DEFAULT_WELCOME_PAGE_LOGO_URL: '',
           },
+          lang: 'ru',
         });
 
         jitsiApiRef.current = api;
@@ -197,7 +223,7 @@ export default function CallsPage() {
 
         api.addEventListener('customToolbarButtonClicked', (event) => {
           if (event.id === CUSTOM_INVITE_BUTTON_ID) {
-            handleCopyInviteLink(activeRoom || roomName);
+            handleOpenInviteDialog();
           }
         });
 
@@ -206,14 +232,17 @@ export default function CallsPage() {
             jitsiApiRef.current.dispose();
             jitsiApiRef.current = null;
           }
-          setRoomUrl(null);
-          setActiveRoom(null);
+          setConnectionState(null);
+          setCallErrorState(null);
           setSearchParams({});
         });
       })
       .catch((err) => {
         logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to load Jitsi external_api.js', err);
-        setCallError('Не удалось загрузить клиент видеозвонка.');
+        setCallErrorState({
+          room: activeRoom || jitsiConfig.roomName,
+          message: 'Не удалось загрузить клиент видеозвонка.',
+        });
       });
 
     return () => {
@@ -223,7 +252,19 @@ export default function CallsPage() {
         jitsiApiRef.current = null;
       }
     };
-  }, [jitsiConfig, activeRoom, handleCopyInviteLink, setSearchParams]);
+  }, [jitsiConfig, activeRoom, handleOpenInviteDialog, setSearchParams]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(document.fullscreenElement === pageRef.current);
+    };
+
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+    };
+  }, []);
 
   const handleLeaveCall = () => {
     if (jitsiApiRef.current) {
@@ -231,24 +272,13 @@ export default function CallsPage() {
       jitsiApiRef.current.dispose();
       jitsiApiRef.current = null;
     }
-    setRoomUrl(null);
-    setActiveRoom(null);
+    setConnectionState(null);
+    setCallErrorState(null);
     setSearchParams({});
   };
 
-  const handleFormSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    if (!roomNameInput.trim()) return;
-    setSearchParams({ room: roomNameInput.trim() });
-    startCall(roomNameInput.trim());
-  };
-
   return (
-    <Box sx={styles.container}>
-      <Typography variant="h4" component="h1" sx={styles.header}>
-        Звонки
-      </Typography>
-
+    <Box ref={pageRef} sx={styles.container}>
       {isPending && (
         <Box sx={styles.loadingBox}>
           <CircularProgress size={48} />
@@ -279,45 +309,24 @@ export default function CallsPage() {
             <Button
               variant="outlined"
               onClick={() => {
-                setCallError(null);
-                setActiveRoom(null);
+                setCallErrorState(null);
                 setSearchParams({});
               }}
             >
-              К списку звонков
+              Закрыть
             </Button>
           </Box>
         </Paper>
       )}
 
       {!isPending && !callError && !jitsiConfig && (
-        <Paper component="form" onSubmit={handleFormSubmit} sx={styles.formCard}>
-          <Typography variant="h6" sx={styles.formTitle}>
-            Присоединиться или создать звонок
+        <Paper sx={styles.emptyCard}>
+          <Typography variant="h6" sx={styles.emptyTitle}>
+            Звонок не выбран
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Введите название комнаты для нового звонка или подключения к существующему.
+            Создайте конференцию в чате или откройте ссылку приглашения.
           </Typography>
-
-          <TextField
-            label="Название комнаты"
-            variant="outlined"
-            fullWidth
-            value={roomNameInput}
-            onChange={(e) => setRoomNameInput(e.target.value)}
-            placeholder="Например: Математика-101"
-            disabled={isPending}
-          />
-
-          <Button
-            type="submit"
-            variant="contained"
-            size="large"
-            color="primary"
-            disabled={!roomNameInput.trim() || isPending || !schoolPublicId}
-          >
-            Войти в звонок
-          </Button>
         </Paper>
       )}
 
@@ -325,14 +334,23 @@ export default function CallsPage() {
         <Box sx={styles.callLayout}>
           <Box sx={styles.callHeaderBar}>
             <Typography variant="subtitle1" sx={styles.callTitle}>
-              Комната: {activeRoom || jitsiConfig.roomName}
+              {activeCallTitle || `Комната: ${activeRoom || jitsiConfig.roomName}`}
             </Typography>
             <Box sx={styles.callActions}>
               <Button
                 variant="outlined"
                 size="small"
-                startIcon={<PersonAddIcon />}
-                onClick={() => handleCopyInviteLink(activeRoom || jitsiConfig.roomName)}
+                startIcon={isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+                onClick={handleToggleFullscreen}
+              >
+                {isFullscreen ? 'Свернуть' : 'На весь экран'}
+              </Button>
+              <Button
+                variant="outlined"
+                size="small"
+                startIcon={isInvitePending ? <CircularProgress size={16} color="inherit" /> : <PersonAddIcon />}
+                disabled={isInviteDisabled || (!activeRoom && !jitsiConfig.roomName)}
+                onClick={handleOpenInviteDialog}
               >
                 Пригласить
               </Button>
@@ -349,6 +367,13 @@ export default function CallsPage() {
           </Box>
 
           <Box ref={containerRef} sx={styles.jitsiContainer} />
+          <CallsInviteDialog
+            open={isInviteDialogOpen}
+            recipients={recipients}
+            isPending={isInvitePending}
+            onClose={() => setIsInviteDialogOpen(false)}
+            onInvite={handleSendInvite}
+          />
         </Box>
       )}
     </Box>
