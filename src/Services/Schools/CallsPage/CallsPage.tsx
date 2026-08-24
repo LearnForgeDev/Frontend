@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Box, Typography, Button, CircularProgress, Paper } from '@mui/material';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import CallEndIcon from '@mui/icons-material/CallEnd';
 import ErrorIcon from '@mui/icons-material/Error';
@@ -59,6 +59,7 @@ function loadJitsiScript(domain: string): Promise<void> {
 
 export default function CallsPage() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const roomFromQuery = searchParams.get('room');
   const titleFromQuery = searchParams.get('title');
@@ -279,6 +280,10 @@ export default function CallsPage() {
     setConnectionState(null);
     setCallErrorState(null);
     setSearchParams({});
+
+    if (schoolPublicId) {
+      navigate(`/app/schools/${schoolPublicId}/today`);
+    }
   };
 
   return (
