@@ -2,7 +2,6 @@ import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { Box, Typography, Button, CircularProgress, Paper } from '@mui/material';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import CallEndIcon from '@mui/icons-material/CallEnd';
 import ErrorIcon from '@mui/icons-material/Error';
 import FullscreenIcon from '@mui/icons-material/Fullscreen';
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
@@ -83,6 +82,20 @@ export default function CallsPage() {
     isPending: isInvitePending,
     isDisabled: isInviteDisabled,
   } = useBroadcastCallInvite(schoolPublicId || '');
+
+  const closeCallView = useCallback(async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+    }
+
+    setConnectionState(null);
+    setCallErrorState(null);
+    setSearchParams({});
+
+    if (schoolPublicId) {
+      navigate(`/app/schools/${schoolPublicId}/today`);
+    }
+  }, [navigate, schoolPublicId, setSearchParams]);
 
   const handleOpenInviteDialog = useCallback(() => {
     setIsInviteDialogOpen(true);
@@ -233,9 +246,7 @@ export default function CallsPage() {
             jitsiApiRef.current.dispose();
             jitsiApiRef.current = null;
           }
-          setConnectionState(null);
-          setCallErrorState(null);
-          setSearchParams({});
+          void closeCallView();
         });
       })
       .catch((err) => {
@@ -253,7 +264,7 @@ export default function CallsPage() {
         jitsiApiRef.current = null;
       }
     };
-  }, [jitsiConfig, activeRoom, handleOpenInviteDialog, setSearchParams]);
+  }, [jitsiConfig, activeRoom, closeCallView, handleOpenInviteDialog]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -266,25 +277,6 @@ export default function CallsPage() {
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
     };
   }, []);
-
-  const handleLeaveCall = async () => {
-    if (document.fullscreenElement) {
-      await document.exitFullscreen();
-    }
-
-    if (jitsiApiRef.current) {
-      jitsiApiRef.current.executeCommand('hangup');
-      jitsiApiRef.current.dispose();
-      jitsiApiRef.current = null;
-    }
-    setConnectionState(null);
-    setCallErrorState(null);
-    setSearchParams({});
-
-    if (schoolPublicId) {
-      navigate(`/app/schools/${schoolPublicId}/today`);
-    }
-  };
 
   return (
     <Box ref={pageRef} sx={styles.container}>
@@ -362,15 +354,6 @@ export default function CallsPage() {
                 onClick={handleOpenInviteDialog}
               >
                 Пригласить
-              </Button>
-              <Button
-                variant="contained"
-                color="error"
-                size="small"
-                startIcon={<CallEndIcon />}
-                onClick={handleLeaveCall}
-              >
-                Покинуть
               </Button>
             </Box>
           </Box>
