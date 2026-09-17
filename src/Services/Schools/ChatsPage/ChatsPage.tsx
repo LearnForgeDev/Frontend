@@ -34,10 +34,13 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { useChats } from './hooks/useChats';
 import { useRequestedDirectChat } from './hooks/useRequestedDirectChat';
 import { useChatMessages } from '@/Services/Chat/hooks/useChatMessages/useChatMessages';
+import { useCreateChatCallInvite } from '@/Services/Chat/hooks/useCreateChatCallInvite/useCreateChatCallInvite';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import FileSelectorModal from '@/Services/Chat/components/FileSelectorModal/FileSelectorModal';
+import ChatMessageText from '@/Services/Chat/components/ChatThreadView/ChatMessageText';
+import ChatCallInviteButton from '@/Services/Chat/components/ChatCallInviteButton/ChatCallInviteButton';
 import { filesEndpoints } from '@/Endpoints';
 import AuthenticatedImage from '@/Assets/Components/AuthenticatedImage';
 import { styles } from './ChatsPage.styles';
@@ -389,6 +392,10 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
     threadId: activeThread.id,
     schoolPublicId: activeThread.schoolPublicId,
   });
+  const createChatCallInvite = useCreateChatCallInvite({
+    thread: activeThread,
+    sendMessage,
+  });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -447,7 +454,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
         <Avatar sx={{ bgcolor: 'primary.dark' }}>
           {activeThread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}
         </Avatar>
-        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        <Box sx={styles.chatHeaderIdentity}>
           <Typography variant="subtitle1" sx={styles.chatHeaderTitle} noWrap>
             {activeThread.name}
           </Typography>
@@ -455,6 +462,11 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
             {activeThread.type === 'branch' ? 'Групповой чат' : 'Личный чат'}
           </Typography>
         </Box>
+        <ChatCallInviteButton
+          onClick={createChatCallInvite.createCallInvite}
+          disabled={status !== 'connected'}
+          isPending={createChatCallInvite.isPending}
+        />
         <Chip
           label={getStatusLabel()}
           color={getStatusColor()}
@@ -480,9 +492,7 @@ function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps)
                   {msg.senderName}
                 </Typography>
               )}
-              <Typography variant="body2" sx={{ wordBreak: 'break-word', whiteSpace: 'pre-wrap' }}>
-                {msg.text}
-              </Typography>
+              <ChatMessageText text={msg.text} />
               {msg.files && msg.files.length > 0 && (
                 <Box sx={{ mt: 1, display: 'flex', flexDirection: 'column', gap: 0.5, opacity: 0.9 }}>
                   {msg.files.map((file) => (

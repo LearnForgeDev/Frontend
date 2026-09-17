@@ -68,6 +68,10 @@ export const styles = {
   chatHeaderTitle: {
     fontWeight: 600,
   },
+  chatHeaderIdentity: {
+    flexGrow: 1,
+    minWidth: 0,
+  },
   messagesArea: {
     flexGrow: 1,
     overflowY: 'auto',

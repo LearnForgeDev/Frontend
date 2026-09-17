@@ -29,6 +29,16 @@ export interface ChatFileDto {
   fileUrl?: string;
 }
 
+export interface ChatMessageTextPart {
+  type: 'text' | 'link';
+  value: string;
+}
+
+export interface ChatCallInvite {
+  title: string;
+  url: string;
+}
+
 export interface BranchMessageDto {
   publicId: string;
   senderPublicId: string;

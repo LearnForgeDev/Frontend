@@ -5,6 +5,12 @@ import AttachFileIcon from '@mui/icons-material/AttachFile';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 import { MESSAGE_MAX_LENGTH, CSS } from '@/Services/Chat/Chat.const';
 import FileSelectorModal from '../FileSelectorModal/FileSelectorModal';
+import {
+  ATTACH_FILE_LABEL,
+  CHAT_INPUT_PLACEHOLDER,
+  SEND_MESSAGE_LABEL,
+} from './ChatInput.const';
+import { styles } from './ChatInput.styles';
 
 interface ChatInputProps {
   onSendMessage: (text: string, filePublicIds?: string[]) => void;
@@ -12,7 +18,11 @@ interface ChatInputProps {
   schoolPublicId: string;
 }
 
-export default function ChatInput({ onSendMessage, disabled, schoolPublicId }: ChatInputProps) {
+export default function ChatInput({
+  onSendMessage,
+  disabled,
+  schoolPublicId,
+}: ChatInputProps) {
   const [text, setText] = useState('');
   const [attachedFiles, setAttachedFiles] = useState<Array<{ publicId: string; fileName: string }>>([]);
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
@@ -35,36 +45,35 @@ export default function ChatInput({ onSendMessage, disabled, schoolPublicId }: C
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column' }} className={CSS.inputBar}>
-      {/* Attached files preview */}
+    <Box sx={styles.root} className={CSS.inputBar}>
       {attachedFiles.length > 0 && (
-        <Box sx={{ p: 1, display: 'flex', flexWrap: 'wrap', gap: 0.5, borderTop: (theme) => `1px solid ${theme.palette.divider}`, bgcolor: 'background.default' }}>
+        <Box sx={styles.attachedFiles}>
           {attachedFiles.map((file) => (
             <Chip
               key={file.publicId}
               label={file.fileName}
               onDelete={() => setAttachedFiles(prev => prev.filter(f => f.publicId !== file.publicId))}
               size="small"
-              sx={{ maxWidth: 150 }}
+              sx={styles.attachedFileChip}
             />
           ))}
         </Box>
       )}
 
       <Box sx={widgetStyles.inputArea}>
-        <Box sx={{ display: 'flex', gap: 1, width: '100%', alignItems: 'center' }}>
+        <Box sx={styles.controls}>
           <IconButton
             color="primary"
             onClick={() => setIsFileModalOpen(true)}
             disabled={disabled}
-            aria-label="Прикрепить файл"
+            aria-label={ATTACH_FILE_LABEL}
           >
-            <AttachFileIcon sx={{ transform: 'rotate(45deg)' }} />
+            <AttachFileIcon sx={styles.attachIcon} />
           </IconButton>
           <TextField
             fullWidth
             size="small"
-            placeholder="Введите сообщение..."
+            placeholder={CHAT_INPUT_PLACEHOLDER}
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => {
@@ -82,7 +91,8 @@ export default function ChatInput({ onSendMessage, disabled, schoolPublicId }: C
             color="primary" 
             onClick={handleSend} 
             disabled={disabled || (!text.trim() && attachedFiles.length === 0)}
-            sx={{ alignSelf: 'flex-end' }}
+            sx={styles.sendButton}
+            aria-label={SEND_MESSAGE_LABEL}
           >
             <SendIcon />
           </IconButton>

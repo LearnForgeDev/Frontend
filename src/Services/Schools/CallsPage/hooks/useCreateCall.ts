@@ -5,7 +5,12 @@ import type { AppError } from '@/Endpoints';
 import type { CreateJitsiTokenRequest } from '@/Endpoints';
 import { ROOM_NOT_CREATED_MESSAGE } from '../CallsPage.constants';
 
-export function useCreateCall() {
+interface UseCreateCallOptions {
+  errorTitle?: string;
+  errorSubtitle?: string;
+}
+
+export function useCreateCall(options: UseCreateCallOptions = {}) {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
 
   return useMutation<string, AppError, CreateJitsiTokenRequest>({
@@ -16,8 +21,8 @@ export function useCreateCall() {
     onError: () => {
       showNotification({
         id: `create-call-error-${Date.now()}`,
-        title: 'Не удалось войти в звонок',
-        subtitle: ROOM_NOT_CREATED_MESSAGE,
+        title: options.errorTitle || 'Не удалось войти в звонок',
+        subtitle: options.errorSubtitle || ROOM_NOT_CREATED_MESSAGE,
         priority: 'high',
         time: 5000,
       });

@@ -214,10 +214,11 @@ export const avatarSx: SxProps<Theme> = {
   fontSize: '0.75rem',
 };
 
-export const mainContentSx = (isDesktop: boolean): SxProps<Theme> => ({
+export const mainContentSx = (isDesktop: boolean, isFlush: boolean = false): SxProps<Theme> => ({
   flex: 1,
   marginLeft: isDesktop ? `${SIDEBAR_WIDTH}px` : 0,
-  padding: isDesktop ? '88px 2.25rem 2rem' : '5rem 1rem 1rem',
+  padding: isFlush ? '64px 0 0' : isDesktop ? '88px 2.25rem 2rem' : '5rem 1rem 1rem',
   width: '100%',
   boxSizing: 'border-box',
+  minHeight: '100vh',
 });

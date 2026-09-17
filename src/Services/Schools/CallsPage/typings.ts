@@ -18,15 +18,23 @@ export interface JitsiMeetExternalAPIOptions {
   parentNode: HTMLElement;
   width: string;
   height: string;
+  lang?: string;
   configOverwrite: {
     prejoinPageEnabled: boolean;
     startWithAudioMuted: boolean;
     startWithVideoMuted: boolean;
+    defaultLanguage: string;
+    hideConferenceSubject: boolean;
+    subject: string;
   };
   interfaceConfigOverwrite: {
     SHOW_JITSI_WATERMARK: boolean;
     SHOW_WATERMARK_FOR_GUESTS: boolean;
     SHOW_BRAND_WATERMARK: boolean;
+    SHOW_POWERED_BY: boolean;
+    SHOW_ROOM_NAME: boolean;
+    DEFAULT_LOGO_URL: string;
+    DEFAULT_WELCOME_PAGE_LOGO_URL: string;
   };
 }
 
