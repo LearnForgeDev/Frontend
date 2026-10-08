@@ -4,6 +4,7 @@ import { isAxiosError } from 'axios';
 import { HTTP_STATUS } from '@/Endpoints/factory/factory.const';
 import { CourseCreationUncertainError } from './saveCourse.errors';
 import { getCourseAudience, getRestrictedCourseAudience } from '../utils/courseAudience';
+import { canEditCourseProgram, toCourseDetail } from '../utils/courseMapping';
 import { COURSE_ITEM_TYPES } from '../utils/courseMapping.const';
 
 interface SaveCourseOptions {
@@ -32,6 +33,11 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
   }
   if (!coursePublicId) onCreated(current);
   const publicId = current.publicId;
+  const currentView = toCourseDetail(current);
+  const editableProgram = canEditCourseProgram(currentView);
+  if (!editableProgram && currentView.lessons.map(lesson => lesson.lessonId).join(',') !== input.lessonIds.join(',')) {
+    throw new Error('Программа изменилась. Откройте курс заново.');
+  }
   const audience = getCourseAudience(input, current.allowedUserPublicIds ?? [], studentIds, authorPublicId);
   const restricted = coursePublicId ? getRestrictedCourseAudience({
     allowedUserPublicIds: current.allowedUserPublicIds ?? [], allowedGroupIds: current.allowedGroupIds,
@@ -39,7 +45,6 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
   if (restricted) await coursesEndpoints.updateAccess(schoolPublicId, publicId, restricted);
   await coursesEndpoints.updateCourse(schoolPublicId, publicId, metadata);
   const program = [...current.items].sort((a, b) => a.position - b.position);
-  const editableProgram = program.every(item => item.itemType === COURSE_ITEM_TYPES.LESSON) && new Set(program.map(item => item.lessonId)).size === program.length;
   if (editableProgram) {
     let nextPosition = program.reduce((position, item) => Math.max(position, item.position + 1), 0);
     for (const lessonId of input.lessonIds) {

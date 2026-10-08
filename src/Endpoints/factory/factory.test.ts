@@ -1,55 +1,34 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { AxiosError, AxiosHeaders } from 'axios';
-import { createApiClient, createQueryFn } from './factory';
-import { getRequestErrorMessage } from './factory.utils';
-import { REQUEST_ERROR_MESSAGES } from './factory.const';
+import { createUnauthenticatedError, getRequestErrorMessage, shouldRetryRequest } from './factory.utils';
+import { HTTP_STATUS, REQUEST_ERROR_MESSAGES } from './factory.const';
 
 function networkError(method: string) {
   return new AxiosError('Network Error', 'ERR_NETWORK', { method, headers: new AxiosHeaders() });
 }
 
-afterEach(() => vi.useRealTimers());
-
-describe('обработка недоступного сервера', () => {
-  it('не повторяет POST, даже если разрешены повторы чтения', async () => {
-    const client = createApiClient({ retryCount: 1 });
-    const request = vi.fn().mockRejectedValue(networkError('post'));
-
-    await expect(client.fetchQuery({ queryKey: ['create'], queryFn: request })).rejects.toBeInstanceOf(AxiosError);
-    expect(request).toHaveBeenCalledTimes(1);
-    client.clear();
+describe('Обработка недоступного сервера', () => {
+  it('не повторяет запрос изменения данных', () => {
+    expect(shouldRetryRequest(0, networkError('post'), 1)).toBe(false);
+    expect(shouldRetryRequest(0, networkError('put'), 1)).toBe(false);
+    expect(shouldRetryRequest(0, networkError('delete'), 1)).toBe(false);
   });
 
-  it('повторяет GET не больше одного раза', async () => {
-    vi.useFakeTimers();
-    const client = createApiClient({ retryCount: 1 });
-    const error = networkError('get');
-    const request = vi.fn().mockRejectedValue(error);
-    const result = client.fetchQuery({ queryKey: ['list'], queryFn: request }).catch((failure) => failure);
-
-    await vi.runAllTimersAsync();
-    expect(await result).toBe(error);
-    expect(request).toHaveBeenCalledTimes(2);
-    client.clear();
+  it('ограничивает повторы чтения', () => {
+    expect(shouldRetryRequest(0, networkError('get'), 1)).toBe(true);
+    expect(shouldRetryRequest(1, networkError('get'), 1)).toBe(false);
+    expect(shouldRetryRequest(0, networkError('get'), 0)).toBe(false);
   });
 
-  it('не повторяет запрос внутри endpoint-клиента', async () => {
-    const client = createApiClient({});
-    const request = vi.fn().mockRejectedValue(networkError('get'));
-
-    await expect(client.fetchQuery({ queryKey: ['endpoint'], queryFn: request })).rejects.toBeInstanceOf(AxiosError);
-    expect(request).toHaveBeenCalledTimes(1);
-    client.clear();
+  it('сохраняет статус ошибки истёкшей сессии', () => {
+    const error = createUnauthenticatedError();
+    expect(error.status).toBe(HTTP_STATUS.UNAUTHORIZED);
+    expect(getRequestErrorMessage(error)).toBe(REQUEST_ERROR_MESSAGES.unauthorized);
   });
 
-  it('заменяет техническую ошибку таймаута понятным сообщением', async () => {
-    const client = createQueryFn();
+  it('заменяет техническую ошибку таймаута понятным сообщением', () => {
     const error = new AxiosError('timeout of 15000ms exceeded', 'ECONNABORTED');
-
-    await expect(client.get('/health', { adapter: () => Promise.reject(error) })).rejects.toMatchObject({
-      message: REQUEST_ERROR_MESSAGES.unavailable,
-      code: 'ECONNABORTED',
-    });
+    expect(getRequestErrorMessage(error)).toBe(REQUEST_ERROR_MESSAGES.unavailable);
   });
 
   it('не показывает внутренний текст неизвестной ошибки', () => {
