@@ -1,4 +1,5 @@
-import type { CourseDetail, CourseStudentOption } from '@/Endpoints/courses';
+import type { SimpleStudentDto } from '@/Endpoints/students';
+import type { CourseDetail, CourseStudentOption } from '@/Services/Courses/Courses.types';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import type { LessonOption } from '../Courses.types';
 
@@ -16,10 +17,12 @@ export function getLessonOptions(lessons: Lesson[], course?: CourseDetail): Less
   return [...options.values()];
 }
 
-export function getStudentOptions(students: CourseStudentOption[], course?: CourseDetail) {
+export function getStudentOptions(students: SimpleStudentDto[], course?: CourseDetail) {
   const options = new Map<string, CourseStudentOption>();
-  for (const student of [...course?.students ?? [], ...students]) {
-    options.set(student.userPublicId, student);
+  for (const student of course?.students ?? []) options.set(student.userPublicId, student);
+  for (const student of students) {
+    const userPublicId = student.publicId ?? student.userPublicId;
+    if (userPublicId) options.set(userPublicId, { userPublicId, displayName: student.name ?? student.userName ?? student.displayName ?? userPublicId });
   }
   return [...options.values()];
 }

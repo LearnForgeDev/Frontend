@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { CourseDetail } from '@/Endpoints/courses';
+import type { CourseDetail } from '@/Services/Courses/Courses.types';
 import { useCurrentSchool } from '@/Services/AppShell/hooks/useCurrentSchool';
 import { useCoursesQuery } from './useCourseQueries';
 import { getCoursePath } from '../utils/coursePath';

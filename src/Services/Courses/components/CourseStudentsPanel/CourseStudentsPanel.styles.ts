@@ -6,7 +6,7 @@ export const styles: Record<string, SxProps<Theme>> = {
   title: { fontWeight: 700 },
   button: { textTransform: 'none' },
   list: { display: 'flex', flexDirection: 'column', listStyle: 'none', m: 0, p: 0, border: '1px solid', borderColor: 'divider', borderRadius: 3, overflow: 'hidden', backgroundColor: 'background.paper' },
-  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, p: 2.5, borderBottom: '1px solid', borderColor: 'divider', '&:last-child': { borderBottom: 0 } },
+  row: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5, p: 2, flexWrap: { xs: 'wrap', sm: 'nowrap' }, borderBottom: '1px solid', borderColor: 'divider', '&:last-child': { borderBottom: 0 } },
   identity: { display: 'flex', alignItems: 'center', gap: 1.5, minWidth: 0 },
   icon: { color: 'text.secondary' },
   name: { overflowWrap: 'anywhere' },

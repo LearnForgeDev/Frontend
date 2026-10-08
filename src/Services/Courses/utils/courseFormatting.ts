@@ -1,4 +1,4 @@
-import type { CourseDetail, CourseStudent, CourseSummary } from '@/Endpoints/courses';
+import type { CourseDetail, CourseStudent, CourseSummary } from '@/Services/Courses/Courses.types';
 import {
   LESSON_PLURAL_FORMS,
   PERCENT_SCALE,
@@ -20,22 +20,22 @@ export function getCourseProgress(completed: number, total: number) {
 }
 
 export function getCourseProgressLabel(course: CourseSummary) {
-  return `Пройдено ${course.completedLessonCount ?? 0} из ${course.lessonCount}`;
+  return `Пройдено ${course.completedLessonCount ?? 0} из ${course.requiredItemCount}`;
 }
 
-export function getStudentProgress(student: CourseStudent, course: CourseDetail) {
-  const lessonIds = new Set(course.lessons.map(lesson => lesson.lessonId));
-  const completed = new Set(student.completedLessonIds.filter(id => lessonIds.has(id))).size;
-  return {
-    completed,
-    percentage: getCourseProgress(completed, course.lessons.length),
-    label: `Пройдено ${completed} из ${course.lessons.length}`,
-  };
+export function getStudentProgress(student: CourseStudent) {
+  return { completed: student.completedCount, percentage: student.percentage, label: `${student.completedCount} из ${student.totalCount}` };
 }
 
 export function getCourseProgressRows(course: CourseDetail) {
-  return course.students.map(student => {
-    const progress = getStudentProgress(student, course);
-    return { ...student, ...progress, isComplete: course.lessons.length > 0 && progress.completed === course.lessons.length };
-  });
+  if (!course.canManage) return course.completedLessonCount === null ? [] : [{
+    userPublicId: 'current', displayName: 'Мой прогресс',
+    completed: course.completedLessonCount, percentage: course.progressPercent ?? 0,
+    label: `${course.completedLessonCount} из ${course.requiredItemCount}`,
+    isComplete: course.requiredItemCount > 0 && course.completedLessonCount === course.requiredItemCount,
+  }];
+  return course.students.map(student => ({
+    ...student, ...getStudentProgress(student),
+    isComplete: student.totalCount > 0 && student.completedCount === student.totalCount,
+  }));
 }

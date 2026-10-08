@@ -1,6 +1,6 @@
 import { Box, Button, Checkbox, FormControlLabel, Typography } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
-import type { CourseLesson } from '@/Endpoints/courses';
+import type { CourseLesson } from '@/Services/Courses/Courses.types';
 import { styles } from './CourseLessonRow.styles';
 
 interface CourseLessonRowProps {

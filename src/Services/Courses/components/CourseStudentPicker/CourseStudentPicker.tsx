@@ -1,5 +1,5 @@
 import { Autocomplete, Box, TextField, Typography } from '@mui/material';
-import type { CourseStudentOption } from '@/Endpoints/courses';
+import type { CourseStudentOption } from '@/Services/Courses/Courses.types';
 import { styles } from './CourseStudentPicker.styles';
 
 interface CourseStudentPickerProps {
@@ -18,6 +18,6 @@ export default function CourseStudentPicker({ options, selectedIds, onChange, di
       onChange={(_, value) => onChange(value.map(student => student.userPublicId))}
       noOptionsText="Доступных учеников нет" openText="Выбрать учеников" closeText="Закрыть" clearText="Убрать всех учеников"
       renderInput={params => <TextField {...params} label="Ученики школы" placeholder="Найти ученика" />} />
-    <Typography variant="body2" sx={styles.hint}>Курс доступен выбранным ученикам.</Typography>
+    <Typography variant="body2" sx={styles.hint}>Ученики получат доступ к курсу. Доступ к самим урокам настраивается отдельно.</Typography>
   </Box>;
 }

@@ -1,2 +1,2 @@
 export { coursesEndpoints } from './courses.endpoints';
-export type { CourseSummary, CourseDetail, CourseInput, CourseLesson, CourseStudent, CourseStudentOption } from './types';
+export type { CourseDto, CourseItemDto, CourseProgressDto, CourseRosterDto, CourseMetadataInput, CourseAccessInput, CourseItemInput } from './types';

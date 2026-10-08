@@ -1,6 +1,6 @@
 import { Box, Button, Chip, Typography } from '@mui/material';
 import { PersonOutlined } from '@mui/icons-material';
-import type { CourseStudent } from '@/Endpoints/courses';
+import type { CourseStudent } from '../../Courses.types';
 import CourseState from '../CourseState/CourseState';
 import { formatStudentCount } from '../../utils/courseFormatting';
 import { styles } from './CourseStudentsPanel.styles';
@@ -20,7 +20,7 @@ export default function CourseStudentsPanel({ students, onEdit }: CourseStudents
     <Box component="ul" sx={styles.list}>
       {students.map(student => <Box component="li" key={student.userPublicId} sx={styles.row}>
         <Box sx={styles.identity}><PersonOutlined sx={styles.icon} /><Typography sx={styles.name}>{student.displayName}</Typography></Box>
-        <Chip label="Доступ открыт" size="small" variant="outlined" color="success" />
+        <Chip label={student.accessLabel} size="small" variant="outlined" />
       </Box>)}
     </Box>
   </Box>;

@@ -1,0 +1,2 @@
+export const COURSE_ITEM_TYPES = { MATERIAL: 0, CALL: 1, LESSON: 2, HOMEWORK: 3 } as const;
+export const COURSE_PROGRESS_STATUS = { NOT_STARTED: 0, IN_PROGRESS: 1, COMPLETED: 2 } as const;

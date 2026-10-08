@@ -1,5 +1,5 @@
 import { Box } from '@mui/material';
-import type { CourseSummary } from '@/Endpoints/courses';
+import type { CourseSummary } from '@/Services/Courses/Courses.types';
 import CourseCard from '../CourseCard/CourseCard';
 import { gridSx } from './CoursesList.styles';
 
