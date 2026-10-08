@@ -29,14 +29,14 @@ export default function TextEditor({
   editorState,
 }: TextEditorProps) {
   return (
-    <LexicalComposer initialConfig={INITIAL_EDITOR_CONFIG}>
+    <LexicalComposer initialConfig={{ ...INITIAL_EDITOR_CONFIG, editable: isEditMode }}>
       {isEditMode && <Toolbar />}
 
       <RichTextPlugin
         contentEditable={<ContentEditable className="editor-input" />}
         ErrorBoundary={LexicalErrorBoundary}
       />
-      <AutoFocusPlugin />
+      {isEditMode && <AutoFocusPlugin />}
       <HistoryPlugin />
       <ListPlugin />
       <LinkPlugin />
@@ -50,7 +50,7 @@ export default function TextEditor({
       <LoadPreviousStatePlugin
         editorState={editorState}
       />
-      <AutoSavePlugin lessonId={id} />
+      {isEditMode && <AutoSavePlugin lessonId={id} />}
 
       {isEditMode && <ControlsPlugin lessonId={id} />}
     </LexicalComposer>

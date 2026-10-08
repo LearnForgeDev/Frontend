@@ -10,6 +10,8 @@ import {
 import { useNavigate } from 'react-router-dom';
 
 import { authEndpoints } from '@/Endpoints';
+import { getAuthErrorMessage } from './AuthFlowContext.utils';
+import { useToast } from '@/Storage/useToastStore';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { useUser } from '@/Storage/UserContext/UserContext.tsx';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
@@ -67,6 +69,7 @@ function toUserIdentity(result: Partial<UserIdentity>): UserIdentity | null {
 export function AuthFlowProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const { setUser } = useUser();
+  const { error: showErrorToast } = useToast();
   const [authState, setAuthState] = useState<AuthFormState>(() =>
     getInitialAuthState(),
   );
@@ -127,17 +130,15 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
         }
 
         navigate('/app');
-      } catch {
-        setError(
-          mode === 'login'
-            ? 'Не удалось войти. Проверьте имя и пароль.'
-            : 'Не удалось зарегистрироваться. Попробуйте ещё раз.',
-        );
+      } catch (err: unknown) {
+        const message = getAuthErrorMessage(err, mode);
+        setError(message);
+        showErrorToast(message);
       } finally {
         setIsLoading(false);
       }
     },
-    [authState, navigate, setUser],
+    [authState, navigate, setUser, showErrorToast],
   );
 
   const value = useMemo<AuthFlowContextValue>(

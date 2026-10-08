@@ -27,6 +27,10 @@ const OnboardingPage = lazy(() => import('./Services/Onboarding/OnboardingPage')
 const WaitingConfirmationPage = lazy(() => import('./Services/Onboarding/WaitingConfirmationPage'));
 const DeveloperRequestsPage = lazy(() => import('./Services/Developer/DeveloperRequestsPage'));
 
+const CoursesPage = lazy(() => import('./Services/Courses/CoursesPage'));
+const CoursePage = lazy(() => import('./Services/Courses/CoursePage'));
+const CourseLessonPage = lazy(() => import('./Services/Courses/CourseLessonPage'));
+
 export default function AppRoutes() {
   const routes: RouteObject[] = [
     {
@@ -59,6 +63,9 @@ export default function AppRoutes() {
                 { index: true, element: <Navigate to="today" replace /> },
                 { path: 'today', element: <TodayPage /> },
                 { path: 'lessons', element: <LessonsPage /> },
+                { path: 'courses', element: <CoursesPage /> },
+                { path: 'courses/:coursePublicId', element: <CoursePage /> },
+                { path: 'courses/:coursePublicId/lessons/:lessonId', element: <CourseLessonPage /> },
                 { path: 'lessons/:lessonId', element: <LessonIdPage /> },
                 { path: 'schedule', element: <SchedulePage /> },
                 { path: 'calls', element: <CallsPage /> },
