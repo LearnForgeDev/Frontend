@@ -31,3 +31,9 @@ dist-ssr
 /githubPersonal
 /githubPersonal.pub
 /skills-lock.json
+
+/playwright-report/
+/test-results/
+/.ci/
+/tests/backend/Seed/bin/
+/tests/backend/Seed/obj/

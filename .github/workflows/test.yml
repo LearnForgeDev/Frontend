@@ -1,22 +1,102 @@
-name: Run Tests
+name: Проверка production-сборки
 
-on: 
+on:
   pull_request:
-    branches: [ "main" ]
+  workflow_call:
+    secrets:
+      CI_BACKEND_TOKEN:
+        required: false
+  workflow_dispatch:
 
-jobs: 
-  test:
+permissions:
+  contents: read
+
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  verify:
     runs-on: ubuntu-latest
-    container:
-      image: node:24
+    timeout-minutes: 30
+    env:
+      CI_BACKEND_URL: http://127.0.0.1:8080
+      VITE_SERVER_LINK: ""
+      VITE_MEET_SERVER_LINK: ""
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install dependencies
+          cache: npm
+      - name: Установить зависимости
         run: npm ci
-      - name: Run tests
+      - name: Проверить типы
+        run: npm run typecheck
+      - name: Проверить ESLint
+        run: npm run lint
+      - name: Проверить логику приложения
         run: npm test
-  
+      - name: Собрать production
+        run: npm run build
+      - name: Проверить лимит 200 КБ и ES2015
+        run: npm run check:build
+      - name: Сохранить production-сборку
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-build
+          path: dist
+          include-hidden-files: true
+          retention-days: 7
+      - name: Установить Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Проверить публичные страницы и невалидную локальную сессию
+        run: npm run test:e2e -- --grep @public
+      - name: Сохранить публичный браузерный отчёт
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: public-smoke
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+      - name: Проверить секрет доступа к backend
+        env:
+          CI_BACKEND_TOKEN: ${{ secrets.CI_BACKEND_TOKEN }}
+        run: |
+          if [ -z "$CI_BACKEND_TOKEN" ]; then
+            echo "::error::В Repository secrets Frontend отсутствует CI_BACKEND_TOKEN"
+            exit 1
+          fi
+      - name: Получить backend
+        uses: actions/checkout@v4
+        with:
+          repository: LearnForgeDev/Backend-General
+          ref: d078460f314a98b1bf4c6a5a33ed99542803e5ce
+          path: .ci/backend
+          token: ${{ secrets.CI_BACKEND_TOKEN }}
+          persist-credentials: false
+      - name: Поднять тестовый backend
+        run: docker compose -f tests/backend/compose.yml up -d api
+      - name: Дождаться готовности API и хранилища
+        run: |
+          curl --fail --retry 90 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:8080/health
+          curl --fail --retry 30 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:9000/minio/health/ready
+      - name: Проверить production с настоящим backend
+        run: npm run test:e2e -- --grep-invert @public
+      - name: Сохранить отчёты
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-checks
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+      - name: Сохранить логи backend
+        if: failure()
+        run: docker compose -f tests/backend/compose.yml logs --no-color
+      - name: Удалить тестовое окружение
+        if: always()
+        run: docker compose -f tests/backend/compose.yml down --volumes --remove-orphans

@@ -55,7 +55,6 @@ export const authEndpoints = {
             queryKey,
             queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto || {})
         });
-        useGlobalContext.getState().auth.setUser(response.data);
         return response.data;
     },
 
