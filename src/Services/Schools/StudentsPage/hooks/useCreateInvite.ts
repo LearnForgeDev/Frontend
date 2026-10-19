@@ -1,5 +1,7 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authEndpoints } from '@/Endpoints';
+import { useToast } from '@/Storage/useToastStore';
+import { INVITES_QUERY_KEY } from '../Components/InviteWidget.const';
 import type { InviteParams } from '@/Endpoints/auth/types';
 
 function readInviteToken(response: unknown): string {
@@ -19,7 +21,11 @@ function readInviteToken(response: unknown): string {
 }
 
 export function useCreateInvite() {
+  const client = useQueryClient();
+  const toast = useToast();
   return useMutation<string, Error, InviteParams>({
     mutationFn: async (input) => readInviteToken(await authEndpoints.invite(input)),
+    onSuccess: (_token, input) => client.invalidateQueries({ queryKey: [INVITES_QUERY_KEY, input.schoolPublicId] }),
+    onError: () => toast.error('Не удалось создать приглашение'),
   });
 }

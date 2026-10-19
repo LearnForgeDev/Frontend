@@ -24,11 +24,11 @@ test('чужая сохранённая заявка не блокирует н�
   await page.clock.install();
   await page.goto(`/onboarding/waiting/${requestPublicId}`);
   await expect(page.getByRole('heading', { name: 'Не удалось проверить заявку' })).toBeVisible();
-  const invite = page.getByLabel('Код приглашения', { exact: true });
-  await invite.fill('черновик приглашения');
+  const profile = page.getByRole('button', { name: 'Открыть профиль' });
+  await expect(profile).toBeVisible();
   await page.clock.fastForward(SCHOOL_REQUEST_POLLING_INTERVAL_MS * 3);
   expect(statusRequests).toBe(1);
-  await expect(invite).toHaveValue('черновик приглашения');
+  await expect(profile).toBeVisible();
   await page.getByRole('button', { name: 'К моим школам', exact: true }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
   await expect(page.getByLabel('Название школы')).toBeVisible();

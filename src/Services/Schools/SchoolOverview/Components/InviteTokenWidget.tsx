@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   AppBar,
@@ -15,19 +15,15 @@ import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
 import LinkRoundedIcon from '@mui/icons-material/LinkRounded';
+import { useInviteCreationForm } from '@/Services/Schools/StudentsPage/hooks/useInviteCreationForm';
 import { QRCodeSVG } from 'qrcode.react';
 import { AuthRole } from '@/Assets/Types/commonTypes';
 import { useCurrentSchool } from '@/Services/AppShell/hooks/useCurrentSchool';
-import { useCreateInvite } from '@/Services/Schools/StudentsPage/hooks/useCreateInvite';
 import {
-  COPY_FEEDBACK_DURATION_MS,
-  DEFAULT_INVITE_EXPIRATION_HOURS,
-  DEFAULT_INVITE_MAX_USES,
   MAX_INVITE_EXPIRATION_HOURS,
   MAX_INVITE_USES,
   MIN_INVITE_EXPIRATION_HOURS,
   MIN_INVITE_USES,
-  MINUTES_IN_HOUR,
 } from '@/Services/Schools/StudentsPage/Components/InviteWidget.const';
 import * as S from '@/Services/Schools/StudentsPage/Components/InviteWidget.styles';
 
@@ -37,36 +33,10 @@ type InviteTokenWidgetProps = {
 
 export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
   const { capabilities } = useCurrentSchool();
-  const createInvite = useCreateInvite();
   const [isOpen, setIsOpen] = useState(false);
-  const [role, setRole] = useState<AuthRole>(AuthRole.STUDENT);
-  const [maxUses, setMaxUses] = useState(DEFAULT_INVITE_MAX_USES);
-  const [expirationHours, setExpirationHours] = useState(DEFAULT_INVITE_EXPIRATION_HOURS);
-  const [isCopied, setIsCopied] = useState(false);
+  const { fields, change, submit, createInvite, copy, inviteUrl } = useInviteCreationForm(schoolPublicId);
+  const { role, maxUses, expirationHours } = fields;
   const token = createInvite.data;
-  const inviteUrl = token
-    ? `${window.location.origin}/onboarding?invite=${encodeURIComponent(token)}`
-    : '';
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    createInvite.mutate({
-      schoolPublicId,
-      role,
-      maxUses,
-      expiresInMinutes: expirationHours * MINUTES_IN_HOUR,
-    });
-  };
-
-  const handleCopy = async () => {
-    if (!inviteUrl) {
-      return;
-    }
-
-    await navigator.clipboard.writeText(inviteUrl);
-    setIsCopied(true);
-    window.setTimeout(() => setIsCopied(false), COPY_FEEDBACK_DURATION_MS);
-  };
 
   return (
     <>
@@ -96,28 +66,30 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
               </Typography>
             </Box>
 
-            <Box component="form" onSubmit={handleSubmit} sx={S.fieldsSx}>
+            <Box component="form" onSubmit={submit} sx={S.fieldsSx}>
               <TextField
                 select
                 label="Роль"
                 value={role}
-                onChange={(event) => setRole(Number(event.target.value) as AuthRole)}
+                onChange={(event) => change({ role: Number(event.target.value) as AuthRole })}
               >
                 <MenuItem value={AuthRole.STUDENT}>Ученик</MenuItem>
                 {capabilities.canManageSchool && <MenuItem value={AuthRole.TEACHER}>Преподаватель</MenuItem>}
               </TextField>
               <TextField
                 type="number"
-                label="Количество входов"
+                required
+                label="Лимит использований"
                 value={maxUses}
-                onChange={(event) => setMaxUses(Number(event.target.value))}
+                onChange={(event) => change({ maxUses: Number(event.target.value) })}
                 slotProps={{ htmlInput: { min: MIN_INVITE_USES, max: MAX_INVITE_USES } }}
               />
               <TextField
                 type="number"
+                required
                 label="Срок, часов"
                 value={expirationHours}
-                onChange={(event) => setExpirationHours(Number(event.target.value))}
+                onChange={(event) => change({ expirationHours: Number(event.target.value) })}
                 slotProps={{ htmlInput: { min: MIN_INVITE_EXPIRATION_HOURS, max: MAX_INVITE_EXPIRATION_HOURS } }}
               />
               <Button
@@ -144,9 +116,9 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
                 </Box>
                 <Box>
                   <Typography sx={S.resultTitleSx}>Приглашение готово</Typography>
-                  <Typography sx={S.tokenSx}>{token}</Typography>
-                  <Button startIcon={<ContentCopyRoundedIcon />} onClick={handleCopy} sx={S.copyButtonSx}>
-                    {isCopied ? 'Ссылка скопирована' : 'Скопировать ссылку'}
+                  <Typography sx={S.tokenSx}>{inviteUrl}</Typography>
+                  <Button startIcon={<ContentCopyRoundedIcon />} onClick={() => token && void copy(token)} sx={S.copyButtonSx}>
+                    Скопировать ссылку
                   </Button>
                 </Box>
               </Box>

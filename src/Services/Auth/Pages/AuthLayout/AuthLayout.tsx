@@ -2,16 +2,18 @@ import { Box, Paper, Typography } from '@mui/material';
 import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { getInviteReturnPath } from '@/Services/Onboarding/utils/inviteNavigation.utils';
 import { AuthFlowProvider } from '../../contexts/AuthFlowContext';
 import * as S from './AuthLayout.styles';
 
 export default function AuthLayout() {
+  const location = useLocation();
   const isAuthenticated = useGlobalContext((state) => state.auth.isAuthenticated);
 
   if (isAuthenticated) {
-    return <Navigate to="/app" replace />;
+    return <Navigate to={getInviteReturnPath(location.state)} replace />;
   }
 
   return (

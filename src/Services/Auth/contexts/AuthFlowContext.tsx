@@ -7,8 +7,9 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
+import { getInviteReturnPath } from '@/Services/Onboarding/utils/inviteNavigation.utils';
 import { authEndpoints } from '@/Endpoints';
 import { getAuthErrorMessage } from './AuthFlowContext.utils';
 import { useToast } from '@/Storage/useToastStore';
@@ -47,6 +48,7 @@ function getInitialAuthState(): AuthFormState {
 
 export function AuthFlowProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setUser } = useUser();
   const { error: showErrorToast } = useToast();
   const [authState, setAuthState] = useState<AuthFormState>(() =>
@@ -91,7 +93,7 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
           }
 
           setUser(userIdentity);
-          navigate('/app');
+          navigate(getInviteReturnPath(location.state), { replace: true });
           return;
         }
 
@@ -106,7 +108,7 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
           setUser(userIdentity);
         }
 
-        navigate('/app');
+        navigate(getInviteReturnPath(location.state), { replace: true });
       } catch (err: unknown) {
         const message = getAuthErrorMessage(err, mode);
         setError(message);
@@ -115,7 +117,7 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
         setIsLoading(false);
       }
     },
-    [authState, navigate, setUser, showErrorToast],
+    [authState, navigate, setUser, showErrorToast, location.state],
   );
 
   const value = useMemo<AuthFlowContextValue>(

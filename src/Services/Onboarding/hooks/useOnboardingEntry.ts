@@ -7,6 +7,7 @@ export function useOnboardingEntry() {
   const schoolsQuery = useOnboardingSchools();
 
   return {
+    schoolsQuery,
     pointer: readSchoolRequestPointer(userPublicId),
     knownSchoolPublicIds: schoolsQuery.data?.map((school) => school.schoolPublicId) ?? [],
   };

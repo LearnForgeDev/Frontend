@@ -6,3 +6,5 @@ export const MIN_INVITE_EXPIRATION_HOURS = 1;
 export const MAX_INVITE_EXPIRATION_HOURS = 168;
 export const MINUTES_IN_HOUR = 60;
 export const COPY_FEEDBACK_DURATION_MS = 2_000;
+export const MILLISECONDS_IN_HOUR = 60 * 60 * 1_000;
+export const INVITES_QUERY_KEY = 'school-invites';

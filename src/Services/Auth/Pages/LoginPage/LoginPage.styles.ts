@@ -17,3 +17,5 @@ export const linkText: SxProps<Theme> = {
   color: 'var(--app-text-muted)',
   '& a': { fontWeight: 750 },
 };
+
+export const formSx = { display: 'flex', flexDirection: 'column', gap: 2 };
