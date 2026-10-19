@@ -4,6 +4,6 @@ export const ERROR_BOUNDARY_DEFAULTS: {
   retryButtonText: string;
 } = {
   defaultTitle: 'Что-то пошло не так',
-  defaultMessage: 'Произошла непредвиденная ошибка.',
-  retryButtonText: 'Повторить попытку',
+  defaultMessage: 'Не удалось открыть страницу. Попробуйте обновить её.',
+  retryButtonText: 'Обновить страницу',
 };

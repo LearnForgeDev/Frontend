@@ -22,19 +22,18 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   private handleRetry = () => {
-    this.setState({ hasError: false, error: null });
     window.location.reload();
   };
 
   public override render() {
     if (this.state.hasError) {
       return (
-        <Box sx={styles.container}>
+        <Box role="alert" sx={styles.container}>
           <Typography variant="h5" component="h2" sx={styles.title}>
             {ERROR_BOUNDARY_DEFAULTS.defaultTitle}
           </Typography>
           <Typography variant="body1" sx={styles.message}>
-            {this.state.error?.message || ERROR_BOUNDARY_DEFAULTS.defaultMessage}
+            {ERROR_BOUNDARY_DEFAULTS.defaultMessage}
           </Typography>
           <Button variant="contained" onClick={this.handleRetry} sx={styles.button}>
             {ERROR_BOUNDARY_DEFAULTS.retryButtonText}
