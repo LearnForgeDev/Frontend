@@ -12,18 +12,22 @@ export default function SchoolRequestStatus({
   schoolName,
   viewState,
 }: SchoolRequestStatusProps) {
-  const content = SCHOOL_REQUEST_STATUS_CONTENT[viewState];
+  const { Icon, title, description } = SCHOOL_REQUEST_STATUS_CONTENT[viewState];
 
   return (
     <Box sx={S.container} aria-live="polite">
-      <Box sx={S.statusDot(viewState)} aria-hidden="true">
-        {content.symbol}
+      <Box sx={S.header}>
+        <Box sx={S.heading}>
+          <Typography component="h1" variant="h4" sx={S.title}>
+            {title}
+          </Typography>
+          <Typography variant="h6" sx={S.schoolName}>{schoolName}</Typography>
+        </Box>
+        <Box sx={S.statusIcon(viewState)} aria-hidden="true">
+          <Icon />
+        </Box>
       </Box>
-      <Typography component="h1" variant="h4" sx={S.title}>
-        {content.title}
-      </Typography>
-      <Typography variant="h6">{schoolName}</Typography>
-      <Typography sx={S.description}>{content.description}</Typography>
+      <Typography sx={S.description}>{description}</Typography>
     </Box>
   );
 }
