@@ -1,7 +1,7 @@
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import type { User } from './useGlobalContext';
 
-const USER_STORAGE_KEY = 'user_identity';
+import { USER_STORAGE_KEY } from '../UserContext/UserContext.const';
 
 type StoredUserIdentity = Partial<UserIdentity> & {
   activeSchoolPublicId?: string;

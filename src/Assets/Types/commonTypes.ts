@@ -29,6 +29,7 @@ export enum AuthRole {
 export type UserIdentity = {
   jwtToken: string;
   refreshToken: string;
+  activeSchoolPublicId?: string;
   userName: string;
   userPublicId: string;
   userRoles: Array<{ role: AuthRole; schoolId: number; userId: number }>;

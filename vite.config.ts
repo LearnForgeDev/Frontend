@@ -5,45 +5,45 @@ import path from 'path';
 
 export default defineConfig({
     base: "/",
-    plugins: [
-        react({
-            babel: {
-                presets: [[
-                    '@babel/preset-env',
-                    {
-                        targets: {
-                            chrome: '58',
-                            edge: '16',
-                            firefox: '54',
-                            safari: '11',
-                            ios: '11',
-                        },
-                        modules: false,
-                    },
-                ]],
-            },
-        }),
-    ],
+    plugins: [react({ babel: { babelrc: false, configFile: false } })],
     define: {
         'import.meta.env.VITE_YENV': JSON.stringify(process.env.YENV || ""),
     },
     esbuild: {
-        target: 'es2017',
+        target: 'es2015',
     },
     build: {
-        target: 'es2017',
+        manifest: true,
+        target: 'es2015',
         rollupOptions: {
             output: {
+                onlyExplicitManualChunks: true,
                 manualChunks(id) {
                     if (!id.includes('node_modules')) {
                         return undefined;
+                    }
+
+                    if (/\/node_modules\/(react|react-dom|scheduler)\//.test(id)) {
+                        return 'vendor-react';
+                    }
+
+                    if (/\/node_modules\/(react-router|react-router-dom)\//.test(id)) {
+                        return 'vendor-router';
+                    }
+
+                    if (id.includes('@emotion/')) {
+                        return 'vendor-styles';
+                    }
+
+                    if (id.includes('@tanstack/')) {
+                        return 'vendor-query';
                     }
 
                     if (id.includes('katex')) {
                         return 'vendor-katex';
                     }
 
-                    if (id.includes('/lexical/') || id.includes('@lexical')) {
+                    if (id.includes('/lexical/') || id.includes('@lexical') || /\/node_modules\/prismjs\//.test(id)) {
                         return 'vendor-lexical';
                     }
 
@@ -76,13 +76,18 @@ export default defineConfig({
             },
         },
     },
+    preview: {
+        proxy: process.env.CI_BACKEND_URL ? {
+            '/api': process.env.CI_BACKEND_URL,
+            '/health': process.env.CI_BACKEND_URL,
+            '/chatHub': { target: process.env.CI_BACKEND_URL, ws: true },
+            '/directChatHub': { target: process.env.CI_BACKEND_URL, ws: true },
+        } : undefined,
+    },
     resolve: {
         alias: {
             "src": path.resolve(__dirname, "./src"),
-            "@/Endpoints": path.resolve(__dirname, "./src/Endpoints"),
-            "@/Services": path.resolve(__dirname, "./src/Services"),
-            "@/Storage": path.resolve(__dirname, "./src/Storage"),
-            "@/Assets": path.resolve(__dirname, "./src/Assets"),
+            "@": path.resolve(__dirname, "./src"),
         },
     },
 })

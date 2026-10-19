@@ -1,0 +1,87 @@
+name: learnforge-ci
+
+x-backend-environment: &backend-environment
+  ASPNETCORE_ENVIRONMENT: Development
+  ASPNETCORE_URLS: http://+:8080
+  DOTNET_RUNNING_IN_CONTAINER: "true"
+  UseHttpsRedirection: "false"
+  UseSecureCookies: "false"
+  ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=LearnForge_CI;Username=postgres;Password=ci-postgres
+  ConnectionStrings__TenantMigrationConnection: Host=db;Port=5432;Database=LF_Empty;Username=postgres;Password=ci-postgres
+  Migrations__AutoApplyMasterOnStartup: "true"
+  Auth__Issuer: LearnForgeCI
+  Auth__Audience: LearnForgeCI
+  Auth__Key: ci-only-jwt-signing-key-at-least-32-characters
+  Auth__TokenLifetimeHours: "12"
+  AuthRateLimit__PermitLimit: "1000"
+  CookieName: devushkavishnya
+  Encryption__Key: 0123456789abcdef0123456789abcdef
+  Encryption__IV: 0123456789abcdef
+  CloudStorage__Endpoint: minio:9000
+  CloudStorage__ExternalEndpoint: 127.0.0.1:9000
+  CloudStorage__AccessKey: ci-minio
+  CloudStorage__SecretKey: ci-minio-password
+  CloudStorage__BucketName: learnforge-ci
+  CloudStorage__UseSsl: "false"
+  Jitsi__AppId: learnforge-ci
+  Jitsi__AppSecret: ci-only-jitsi-key-at-least-32-characters
+  Jitsi__Subject: meet.jitsi
+  Jitsi__PublicUrl: https://meet.invalid
+  AdminTotp__SharedSecret: JBSWY3DPEHPK3PXP
+  IsLocalMode: "false"
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: LearnForge_CI
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ci-postgres
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U postgres -d LearnForge_CI"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  minio:
+    build:
+      context: .
+      dockerfile: Minio.Dockerfile
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: ci-minio
+      MINIO_ROOT_PASSWORD: ci-minio-password
+      MINIO_API_CORS_ALLOW_ORIGIN: http://127.0.0.1:4173
+    ports:
+      - "127.0.0.1:9000:9000"
+    tmpfs:
+      - /data
+
+  seed:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    working_dir: /seed
+    command: dotnet run --project Seed.csproj -c Release -p:BackendRoot=/backend
+    environment: *backend-environment
+    volumes:
+      - ../../.ci/backend:/backend
+      - ./Seed:/seed
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    image: mcr.microsoft.com/dotnet/sdk:8.0
+    working_dir: /backend
+    command: dotnet run --project LearnForge.Web/LearnForge.Web.csproj -c Release --no-launch-profile
+    environment: *backend-environment
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ../../.ci/backend:/backend
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+      minio:
+        condition: service_started

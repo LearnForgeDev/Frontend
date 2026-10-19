@@ -23,6 +23,8 @@
   },
   "include": [
     "vite.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
     "../../../AppData/Local/JetBrains/WebStorm2025.1/javascript/typings/node/25.0.3/node_modules/@types/node/module.d.ts"
   ]
 }

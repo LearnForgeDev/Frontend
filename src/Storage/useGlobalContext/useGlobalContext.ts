@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { AuthRole, type UserIdentity } from '@/Assets/Types/commonTypes.ts';
 import { persistActiveSchool, persistUserIdentity } from './useGlobalContext.utils';
+import { USER_STORAGE_KEY } from '../UserContext/UserContext.const';
 
 export interface User {
     userPublicId: string;
@@ -27,37 +28,10 @@ export interface GlobalState {
     auth: AuthSlice;
 }
 
-const getInitialUser = (): User | null => {
-    try {
-        const stored = localStorage.getItem('user_identity');
-        if (!stored) return null;
-        const data = JSON.parse(stored);
-        const userPublicId = data.userPublicId;
-        const userName = data.userName;
-        if (!userPublicId || !userName) return null;
-
-        const roles = (data.roles || data.userRoles || []) as Array<{ role: number; schoolId: number }>;
-        const activeSchoolPublicId = data.activeSchoolPublicId || undefined;
-
-        return {
-            userPublicId,
-            userName,
-            roles: roles.map((r) => ({ role: r.role as AuthRole, schoolId: r.schoolId })),
-            activeSchoolPublicId,
-            email: data.email,
-            phone: data.phone,
-        };
-    } catch {
-        return null;
-    }
-};
-
-const initialUser = getInitialUser();
-
 export const useGlobalContext = create<GlobalState>((set) => ({
     auth: {
-        user: initialUser,
-        isAuthenticated: !!initialUser,
+        user: null,
+        isAuthenticated: false,
         setActiveSchoolPublicId: (schoolPublicId: string) =>
             set((state) => {
                 if (!state.auth.user) return state;
@@ -78,7 +52,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
             }),
         setUser: (res: UserIdentity) =>
             set((state) => {
-                const activeSchoolPublicId = (res as unknown as { activeSchoolPublicId?: string }).activeSchoolPublicId || undefined;
+                const activeSchoolPublicId = res.activeSchoolPublicId || undefined;
 
                 const user: User = {
                     userPublicId: res.userPublicId,
@@ -106,7 +80,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
         logout: () =>
             set((state) => {
                 try {
-                    localStorage.removeItem('user_identity');
+                    localStorage.removeItem(USER_STORAGE_KEY);
                 } catch {
                     // ignore storage errors
                 }

@@ -1,8 +1,11 @@
 import { QueryClient } from '@tanstack/react-query'
 import axios, { AxiosError, isAxiosError } from "axios";
 import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
-import { USER_STORAGE_KEY } from "@/Storage/UserContext/UserContext.tsx";
+import { USER_STORAGE_KEY } from "@/Storage/UserContext/UserContext.const";
 import config from "src/config.ts";
+import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { matchesRefreshedSession } from './factory.utils';
 
 export function createApiClient({retryCount = 3, staleTime = 0}) {
     return new QueryClient({
@@ -46,7 +49,19 @@ export function createQueryFnWithRefresh() {
 
             if (currentTime >= parsedUserData.exp) {
                 const { authEndpoints } = await import('../auth/auth.endpoints');
-                await authEndpoints.refreshToken({ refreshToken: parsedUserData.refreshToken });
+                const refreshed = await authEndpoints.refreshToken({ refreshToken: parsedUserData.refreshToken });
+                const user = normalizeRestoredSession(refreshed);
+                if (!user) return Promise.reject(new AxiosError('Invalid session', '401'));
+                const stored = localStorage.getItem(USER_STORAGE_KEY);
+                const auth = useGlobalContext.getState().auth;
+                if (!auth.isAuthenticated || auth.user?.userPublicId !== parsedUserData.userPublicId) {
+                    return Promise.reject(new AxiosError('Session changed', '401'));
+                }
+                if (stored !== userData) {
+                    if (matchesRefreshedSession(stored, user, auth.user.userPublicId)) return config;
+                    return Promise.reject(new AxiosError('Session changed', '401'));
+                }
+                useGlobalContext.getState().auth.setUser({ ...user, activeSchoolPublicId: parsedUserData.activeSchoolPublicId });
             }
 
             return config;
