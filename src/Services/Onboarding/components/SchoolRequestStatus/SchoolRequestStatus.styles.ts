@@ -4,38 +4,42 @@ import type { SchoolRequestViewState } from '../../utils/schoolRequestStatus.uti
 export const container: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',
-  alignItems: 'center',
-  textAlign: 'center',
-  gap: 1.5,
+  gap: 2,
 };
 
-export const statusDot = (viewState: SchoolRequestViewState): SxProps<Theme> => ({
-  width: 72,
-  height: 72,
-  borderRadius: '50%',
+export const header: SxProps<Theme> = {
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  gap: 2,
+};
+
+export const heading: SxProps<Theme> = {
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 1,
+};
+
+export const statusIcon = (viewState: SchoolRequestViewState): SxProps<Theme> => ({
+  flexShrink: 0,
   display: 'grid',
   placeItems: 'center',
-  bgcolor:
-    viewState === 'approved'
-      ? 'success.light'
-      : viewState === 'rejected'
-        ? 'error.light'
-        : 'warning.light',
-  color:
-    viewState === 'approved'
-      ? 'success.dark'
-      : viewState === 'rejected'
-        ? 'error.dark'
-        : 'warning.dark',
-  fontSize: 32,
-  fontWeight: 800,
+  p: 1,
+  borderRadius: 1,
+  bgcolor: 'action.hover',
+  color: viewState === 'approved' ? 'success.main' : viewState === 'rejected' ? 'error.main' : 'warning.main',
 });
 
 export const title: SxProps<Theme> = {
-  fontWeight: 800,
+  typography: { xs: 'h5', sm: 'h4' },
+  overflowWrap: 'anywhere',
+};
+
+export const schoolName: SxProps<Theme> = {
+  overflowWrap: 'anywhere',
 };
 
 export const description: SxProps<Theme> = {
   color: 'text.secondary',
-  maxWidth: 520,
 };

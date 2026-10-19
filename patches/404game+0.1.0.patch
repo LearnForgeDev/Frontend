@@ -1,0 +1,131 @@
+diff --git a/node_modules/404game/dist/404game.js b/node_modules/404game/dist/404game.js
+index e002544..3f72622 100644
+--- a/node_modules/404game/dist/404game.js
++++ b/node_modules/404game/dist/404game.js
+@@ -18,6 +18,7 @@ class te {
+     }, t = (f) => {
+       this.handleKey(f.key, !1);
+     }, n = (f) => {
++      this.target.focus();
+       const g = f.touches[0];
+       g && (this.touchStartX = g.clientX, this.touchStartY = g.clientY, this.touchStartTime = performance.now(), f.preventDefault());
+     }, o = (f) => {
+@@ -26,9 +27,9 @@ class te {
+       const l = g.clientX - this.touchStartX, c = g.clientY - this.touchStartY, a = performance.now() - this.touchStartTime, i = Math.abs(l), d = Math.abs(c);
+       i < F && d < F && a < 400 ? (this.nextTap = !0, this.nextSwipe = null, this.actionWasPressed = !0) : i > d ? this.nextSwipe = l > 0 ? "right" : "left" : this.nextSwipe = c > 0 ? "down" : "up", f.preventDefault();
+     }, u = (f) => {
+-      this.nextTap = !0, this.actionWasPressed = !0, f.preventDefault();
++      this.target.focus(), this.nextTap = !0, this.actionWasPressed = !0, f.preventDefault();
+     };
+-    this.addListener(window, "keydown", e), this.addListener(window, "keyup", t), this.addListener(this.target, "touchstart", n, { passive: !1 }), this.addListener(this.target, "touchend", o, { passive: !1 }), this.addListener(this.target, "mousedown", u);
++    this.addListener(this.target, "keydown", e), this.addListener(this.target, "keyup", t), this.addListener(this.target, "touchstart", n, { passive: !1 }), this.addListener(this.target, "touchend", o, { passive: !1 }), this.addListener(this.target, "mousedown", u);
+   }
+   addListener(e, t, n, o) {
+     e.addEventListener(t, n, o), this.boundHandlers.push({ type: t, fn: n, target: e });
+@@ -135,16 +136,16 @@ class ne {
+     this.opts = t, this.root = e, this.banner = document.createElement("div"), this.banner.className = "g404-banner", this.banner.innerHTML = `
+       <div class="g404-banner-title">${B(t.message)}</div>
+       <div class="g404-banner-sub">${B(t.subMessage)}</div>
+-    `, this.hud = document.createElement("div"), this.hud.className = "g404-hud", this.scoreEl = document.createElement("span"), this.scoreEl.className = "g404-score", this.scoreEl.textContent = "Score: 0", this.highEl = document.createElement("span"), this.highEl.className = "g404-high", this.highEl.textContent = "Best: 0", this.hud.appendChild(this.scoreEl), t.showHighscore && this.hud.appendChild(this.highEl), this.startScreen = document.createElement("div"), this.startScreen.className = "g404-screen g404-start", this.startScreen.innerHTML = `
+-      <div class="g404-screen-title">READY?</div>
+-      <div class="g404-screen-sub">Press SPACE or TAP to start</div>
+-      <button class="g404-btn" type="button">▶ START</button>
++    `, this.hud = document.createElement("div"), this.hud.className = "g404-hud", this.scoreEl = document.createElement("span"), this.scoreEl.className = "g404-score", this.scoreEl.textContent = "Счёт: 0", this.highEl = document.createElement("span"), this.highEl.className = "g404-high", this.highEl.textContent = "Рекорд: 0", this.hud.appendChild(this.scoreEl), t.showHighscore && this.hud.appendChild(this.highEl), this.startScreen = document.createElement("div"), this.startScreen.className = "g404-screen g404-start", this.startScreen.innerHTML = `
++      <div class="g404-screen-title">Готовы?</div>
++      <div class="g404-screen-sub">Нажмите пробел или коснитесь поля</div>
++      <button class="g404-btn" type="button">Начать</button>
+     `, this.startScreen.querySelector("button").addEventListener("click", (n) => {
+       n.stopPropagation(), t.onStart();
+     }), this.gameOverScreen = document.createElement("div"), this.gameOverScreen.className = "g404-screen g404-gameover", this.gameOverScreen.style.display = "none", this.gameOverScreen.innerHTML = `
+-      <div class="g404-screen-title">GAME OVER</div>
+-      <div class="g404-final-score">Score: <span class="g404-final">0</span></div>
+-      <button class="g404-btn" type="button">↻ PLAY AGAIN</button>
++      <div class="g404-screen-title">Игра окончена</div>
++      <div class="g404-final-score">Счёт: <span class="g404-final">0</span></div>
++      <button class="g404-btn" type="button">Ещё раз</button>
+     `, this.finalScoreEl = this.gameOverScreen.querySelector(".g404-final"), this.gameOverScreen.querySelector("button").addEventListener("click", (n) => {
+       n.stopPropagation(), t.onRestart();
+     }), this.injectStyles(t.theme), this.root.appendChild(this.banner), this.root.appendChild(this.hud), this.root.appendChild(this.startScreen), this.root.appendChild(this.gameOverScreen);
+@@ -173,10 +174,10 @@ class ne {
+     `, document.head.appendChild(t);
+   }
+   setScore(e) {
+-    this.scoreEl.textContent = `Score: ${e}`;
++    this.scoreEl.textContent = `Счёт: ${Math.floor(e)}`;
+   }
+   setHighscore(e) {
+-    this.highEl.textContent = `Best: ${e}`;
++    this.highEl.textContent = `Рекорд: ${Math.floor(e)}`;
+   }
+   showStart() {
+     this.startScreen.style.display = "flex", this.gameOverScreen.style.display = "none";
+@@ -185,7 +186,7 @@ class ne {
+     this.startScreen.style.display = "none";
+   }
+   showGameOver(e) {
+-    this.finalScoreEl.textContent = String(e), this.gameOverScreen.style.display = "flex", this.startScreen.style.display = "none";
++    this.finalScoreEl.textContent = String(Math.floor(e)), this.gameOverScreen.style.display = "flex", this.startScreen.style.display = "none";
+   }
+   hideGameOver() {
+     this.gameOverScreen.style.display = "none";
+@@ -485,12 +486,12 @@ function G(s) {
+ function pe(s, e = {}) {
+   const t = U(s), n = A.get(t);
+   n && n.destroy();
+-  const o = ie(e.theme), u = e.width ?? (Math.min(t.clientWidth || 480, 720) || 480), f = e.height ?? 360;
++  const o = typeof e.theme === "object" ? e.theme : ie(e.theme), u = e.width ?? (Math.min(t.clientWidth || 480, 720) || 480), f = e.height ?? 360;
+   t.classList.add("g404-root"), t.innerHTML = "";
+   const g = document.createElement("div");
+   g.className = "g404-canvas-wrap";
+   const l = document.createElement("canvas");
+-  l.className = "g404-canvas", l.style.background = o.bg, g.appendChild(l), t.appendChild(g);
++  l.className = "g404-canvas", l.tabIndex = 0, l.setAttribute("aria-label", "Игра Динозаврик. Пробел — прыжок"), l.style.background = o.bg, g.appendChild(l), t.appendChild(g);
+   let c = "", a = 0, i = G(e.game);
+   c = i.name;
+   const d = new ne(t, {
+@@ -530,6 +531,7 @@ function pe(s, e = {}) {
+       }
+     });
+   }
++  const cleanup = [];
+   if (b(), e.autoStart)
+     d.hideStart(), m.start();
+   else {
+@@ -538,13 +540,17 @@ function pe(s, e = {}) {
+       var x, D, N;
+       v.preventDefault(), !m.isRunning() && ((D = (x = t.querySelector(".g404-start")) == null ? void 0 : x.checkVisibility) == null ? void 0 : D.call(x)) !== !1 && (r == null ? void 0 : r.style.display) !== "none" && (d.hideStart(), m.start(), (N = e.onStart) == null || N.call(e));
+     };
+-    l.addEventListener("click", w), window.addEventListener("keydown", (v) => {
++    const startOnKey = (v) => {
+       var x;
+       (v.key === " " || v.key === "Enter") && !m.isRunning() && (r == null ? void 0 : r.style.display) !== "none" && (v.preventDefault(), d.hideStart(), m.start(), (x = e.onStart) == null || x.call(e));
+-    });
++    };
++    l.addEventListener("click", w);
++    l.addEventListener("keydown", startOnKey);
++    cleanup.push(() => l.removeEventListener("click", w), () => l.removeEventListener("keydown", startOnKey));
+   }
+   const W = {
+     destroy() {
++      cleanup.forEach((dispose) => dispose());
+       m.destroy(), d.destroy(), t.innerHTML = "", t.classList.remove("g404-root"), A.delete(t);
+     },
+     restart() {
+@@ -568,4 +574,3 @@ export {
+   we as unmount,
+   ye as version
+ };
+-//# sourceMappingURL=404game.js.map
+diff --git a/node_modules/404game/dist/types.d.ts b/node_modules/404game/dist/types.d.ts
+index 492006e..a4edc67 100644
+--- a/node_modules/404game/dist/types.d.ts
++++ b/node_modules/404game/dist/types.d.ts
+@@ -7,7 +7,7 @@ export interface Game404Options {
+     /** Which game to load. Defaults to 'random'. */
+     game?: GameName;
+     /** Visual theme. Defaults to 'neon'. */
+-    theme?: ThemeName;
++    theme?: ThemeName | Theme;
+     /** Canvas width in CSS pixels. Defaults to container width or 480. */
+     width?: number;
+     /** Canvas height in CSS pixels. Defaults to container height or 360. */

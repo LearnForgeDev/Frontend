@@ -19,11 +19,11 @@ export const content: SxProps<Theme> = {
 };
 
 export const statusCard: SxProps<Theme> = {
-  p: { xs: 3, sm: 5 },
-  borderRadius: 5,
+  p: { xs: 2.5, sm: 3 },
+  borderRadius: 2,
   border: '1px solid',
   borderColor: 'divider',
-  boxShadow: '0 20px 60px rgba(38, 55, 92, 0.10)',
+  boxShadow: 1,
 };
 
 export const actionsCard: SxProps<Theme> = {
