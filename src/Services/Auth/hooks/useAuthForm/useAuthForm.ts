@@ -24,6 +24,7 @@ export function useAuthForm() {
   const { error: showErrorToast } = useToast();
   const redirectPath = getRedirectPath({ fromLocation: searchParams.get(AUTH_RETURN_PARAM) });
   const mutation = useMutation({
+    networkMode: 'always',
     mutationFn: async (values: AuthFormState) => {
       const result = await authEndpoints[mode](values);
       const identity = normalizeRestoredSession(result);
