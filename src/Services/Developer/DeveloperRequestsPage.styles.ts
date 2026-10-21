@@ -43,3 +43,5 @@ export const requestSx: SxProps<Theme> = {
 export const metaSx: SxProps<Theme> = { color: 'var(--app-text-muted)', fontSize: '0.82rem' };
 
 export const actionsSx: SxProps<Theme> = { display: 'flex', gap: 1, flexWrap: 'wrap' };
+export const loadingSx: SxProps<Theme> = { minHeight: 320, display: 'grid', placeItems: 'center' };
+export const requestTitleSx: SxProps<Theme> = { fontWeight: 800 };
