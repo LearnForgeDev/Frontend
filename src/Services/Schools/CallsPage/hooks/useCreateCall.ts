@@ -14,6 +14,7 @@ export function useCreateCall(options: UseCreateCallOptions = {}) {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);
 
   return useMutation<string, AppError, CreateJitsiTokenRequest>({
+    networkMode: 'always',
     mutationFn: async (dto) => {
       const response = await meetEndpoints.getMeetToken(dto);
       return response.roomUrl;

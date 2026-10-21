@@ -25,7 +25,7 @@ export function useCreateChatCallInvite({ thread, sendMessage }: UseCreateChatCa
   });
 
   const toast = useToast();
-  const invite = useMutation({ mutationFn: async () => {
+  const invite = useMutation({ networkMode: 'always', mutationFn: async () => {
     if (!thread) return;
 
     const room = createChatCallRoomName(thread);
