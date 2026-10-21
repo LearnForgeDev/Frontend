@@ -34,6 +34,7 @@ export function useChatMessages(params: ChatHubParams) {
   }, [connection, queryClient, schoolPublicId, type, threadId, userPublicId]);
 
   const send = useMutation({
+    networkMode: 'always',
     mutationFn: async ({ text, filePublicIds }: { text: string; filePublicIds: string[] }) => {
       if (!connection || status !== 'connected') throw new Error(CHAT_CONNECTION_ERROR);
       await connection.invoke(type === 'branch' ? 'SendMessageToBreanch' : 'SendMessageToDirect', schoolPublicId, threadId, text, filePublicIds);

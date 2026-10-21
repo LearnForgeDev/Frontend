@@ -18,6 +18,7 @@ export function useChatDraft({ draftKey, disabled, onSendMessage }: UseChatDraft
   const toast = useToast();
   const draft = drafts[draftKey] ?? createChatDraft();
   const send = useMutation({
+    networkMode: 'always',
     mutationFn: (snapshot: ChatDraftSnapshot) => onSendMessage(snapshot.text.trim(), snapshot.files.map(file => file.publicId)),
     onSuccess: (_, snapshot) => dispatch({ type: 'sent', snapshot }),
     onError: (_, snapshot) => {

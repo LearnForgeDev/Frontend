@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -19,7 +19,7 @@ function createWrapper() {
 }
 
 beforeEach(() => { vi.clearAllMocks(); status = 'connected'; invoke.mockResolvedValue(undefined); });
-afterEach(cleanup);
+afterEach(() => { cleanup(); onlineManager.setOnline(true); });
 
 describe('Подтверждение отправки SignalR', () => {
   it('возвращает ошибку сервера вызывающей форме', async () => {
@@ -30,6 +30,7 @@ describe('Подтверждение отправки SignalR', () => {
   });
 
   it('не считает отключённое соединение успешной отправкой', async () => {
+    onlineManager.setOnline(false);
     status = 'disconnected';
     const { result } = renderHook(() => useChatMessages({ type: 'direct', schoolPublicId: 'school', threadId: 'person' }), { wrapper: createWrapper() });
     await act(async () => { await expect(result.current.sendMessage('Текст')).rejects.toThrow('Нет соединения'); });

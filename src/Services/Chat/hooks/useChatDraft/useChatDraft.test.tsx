@@ -1,4 +1,4 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider, onlineManager } from '@tanstack/react-query';
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -21,7 +21,7 @@ function deferred() {
   return { promise, resolve, reject };
 }
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); onlineManager.setOnline(true); });
 
 describe('Черновик сообщения', () => {
   it('ошибка сохраняет текст и вложения, повтор очищает их только после подтверждения', async () => {
@@ -83,6 +83,19 @@ describe('Черновик сообщения', () => {
     expect(result.current.text).toBe('Для Ивана');
     rerender({ key: 'a' });
     expect(result.current.text).toBe('');
+  });
+
+  it('ошибка оффлайн не откладывает отправку до возвращения сети', async () => {
+    onlineManager.setOnline(false);
+    const send = vi.fn().mockRejectedValue(new Error('offline'));
+    const { result } = renderHook(() => useChatDraft({ draftKey: 'a', onSendMessage: send }), { wrapper: createWrapper() });
+    act(() => result.current.setText('Оффлайн'));
+    act(() => result.current.submit());
+    await waitFor(() => expect(result.current.error).toContain('Не удалось отправить'));
+    expect(result.current.text).toBe('Оффлайн');
+    expect(result.current.isSending).toBe(false);
+    onlineManager.setOnline(true);
+    expect(send).toHaveBeenCalledTimes(1);
   });
 
   it('без соединения сохраняет редактируемый черновик и не отправляет', () => {

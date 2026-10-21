@@ -20,7 +20,7 @@ test('телефон: создание занятия, предыдущий де
   await expect(page.getByText(title, { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Предыдущий период', exact: true }).click();
   await expect(page.getByText(title, { exact: true })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Сегодня', exact: true }).click();
+  await page.getByRole('main').first().getByRole('button', { name: 'Сегодня', exact: true }).click();
   await expect(page.getByText(title, { exact: true })).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-schedule.png'), fullPage: true });
   expect((await page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${saved.id}`)).ok()).toBe(true);
