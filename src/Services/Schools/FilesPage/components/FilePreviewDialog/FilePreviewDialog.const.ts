@@ -10,5 +10,6 @@ export const FILE_PREVIEW_TEXT = {
 };
 export const FILE_PREVIEW_TYPES = ['image', 'text', 'pdf'];
 export const FILE_PREVIEW_SPINNER_SIZE = 32;
+export const FILE_PREVIEW_TITLE_ID = 'file-preview-title';
 export const PDF_SIGNATURE = '%PDF-';
 export const PDF_CONTENT_TYPE = 'application/pdf';

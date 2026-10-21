@@ -5,7 +5,7 @@ import { useFilePreview } from '../../hooks/useFilePreview';
 import ImagePreview from './ImagePreview';
 import PdfPreview from './PdfPreview';
 import FilePreviewLoading from './FilePreviewLoading';
-import { FILE_PREVIEW_TEXT } from './FilePreviewDialog.const';
+import { FILE_PREVIEW_TEXT, FILE_PREVIEW_TITLE_ID } from './FilePreviewDialog.const';
 import * as S from './FilePreviewDialog.styles';
 
 type Props = {
@@ -18,8 +18,8 @@ type Props = {
 export default function FilePreviewDialog({ schoolPublicId, file, onClose, onDownload }: Props) {
   const preview = useFilePreview(schoolPublicId, file);
   return (
-    <Dialog open onClose={onClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={S.title}>{FILE_PREVIEW_TEXT.title}: {file.fileName}</DialogTitle>
+    <Dialog open onClose={onClose} maxWidth="md" fullWidth aria-labelledby={FILE_PREVIEW_TITLE_ID}>
+      <DialogTitle id={FILE_PREVIEW_TITLE_ID} sx={S.title}>{FILE_PREVIEW_TEXT.title}: {file.fileName}</DialogTitle>
       <DialogContent dividers sx={S.content}>
         {!preview.supported ? (
           <Typography sx={S.feedback}>{FILE_PREVIEW_TEXT.unsupported}</Typography>

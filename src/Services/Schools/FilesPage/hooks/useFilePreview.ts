@@ -28,6 +28,7 @@ export function useFilePreview(schoolPublicId: string, file: ApiFile) {
       }
     },
     enabled: supported,
+    networkMode: 'always',
     gcTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
