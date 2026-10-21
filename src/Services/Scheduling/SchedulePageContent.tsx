@@ -1,81 +1,25 @@
-import { useMemo, useState } from 'react';
 import { Alert, Box, Button, Skeleton } from '@mui/material';
-import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
-import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
-import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
-import { useIsTeacherOrOwner } from '@/Services/Scheduling/hooks/useIsTeacherOrOwner/useIsTeacherOrOwner';
-import { useHandleEventIdParam } from '@/Services/Scheduling/hooks/useHandleEventIdParam/useHandleEventIdParam';
-import { formatLocalTimeInput } from '@/Services/Scheduling/utils/time.utils';
-import { ScheduleHeader } from '@/Services/Scheduling/components/ScheduleHeader/ScheduleHeader';
-import { ScheduleSidebar } from '@/Services/Scheduling/components/ScheduleSidebar/ScheduleSidebar';
-import { EventDetailModal } from '@/Services/Scheduling/components/EventDetailModal/EventDetailModal';
-import { WeekGrid } from '@/Services/Scheduling/components/ScheduleGrid/WeekGrid';
-import { DayGrid } from '@/Services/Scheduling/components/ScheduleGrid/DayGrid';
-import { AgendaList } from '@/Services/Scheduling/components/ScheduleGrid/AgendaList';
-import { CreateEventModal } from '@/Services/Scheduling/components/CreateEventModal/CreateEventModal';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import { ERROR_ALERT_TEXT, RETRY_BUTTON_TEXT } from './SchedulePage.const';
+import { ScheduleHeader } from './components/ScheduleHeader/ScheduleHeader';
+import { ScheduleSidebar } from './components/ScheduleSidebar/ScheduleSidebar';
+import { EventDetailModal } from './components/EventDetailModal/EventDetailModal';
+import { DeleteEventDialog } from './components/DeleteEventDialog/DeleteEventDialog';
+import { WeekGrid } from './components/ScheduleGrid/WeekGrid';
+import { DayGrid } from './components/ScheduleGrid/DayGrid';
+import { AgendaList } from './components/ScheduleGrid/AgendaList';
+import { CreateEventModal } from './components/CreateEventModal/CreateEventModal';
+import { useSchedulePage } from './hooks/useSchedulePage/useSchedulePage';
+import { ERROR_ALERT_TEXT, RETRY_BUTTON_TEXT, UNAVAILABLE_EVENT_TEXT } from './SchedulePage.const';
 import { styles } from './SchedulePage.styles';
 
 export function SchedulePageContent() {
-  const { events, isLoading, isError, refetch } = useScheduleEvents();
-  const { view, selectedEventId, setSelectedEventId, selectedDate } = useSchedulingContext();
-  const canManage = useIsTeacherOrOwner();
-  const { deleteEvent } = useScheduleMutations();
-  const [createOpen, setCreateOpen] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<ScheduleEvent | null>(null);
-  const [createInitialDate, setCreateInitialDate] = useState<Date | null>(null);
-  const [createStartTime, setCreateStartTime] = useState<string | undefined>(undefined);
-  const [createEndTime, setCreateEndTime] = useState<string | undefined>(undefined);
-
-  useHandleEventIdParam(events, isLoading);
-
-  const selectedEvent = useMemo(
-    () => events.find((e) => e.id === selectedEventId) ?? null,
-    [events, selectedEventId],
-  );
-
-  const closeModal = () => {
-    setCreateOpen(false);
-    setEditingEvent(null);
-    setCreateInitialDate(null);
-    setCreateStartTime(undefined);
-    setCreateEndTime(undefined);
-  };
-
-  const gridProps = {
-    events,
-    onSelectEvent: setSelectedEventId,
-    selectedEventId,
-    onSelectTimeSlot: canManage
-      ? (targetDate: Date) => {
-        const startStr = formatLocalTimeInput(targetDate);
-        const endTarget = new Date(targetDate.getTime() + 60 * 60 * 1000);
-        const endStr = formatLocalTimeInput(endTarget);
-        setCreateInitialDate(targetDate);
-        setCreateStartTime(startStr);
-        setCreateEndTime(endStr);
-        setCreateOpen(true);
-      }
-      : undefined,
-  };
-
+  const page = useSchedulePage();
   return (
     <Box sx={styles.root}>
-      <ScheduleHeader />
-
-      {isError ? (
-        <Alert
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => refetch()}>
-              {RETRY_BUTTON_TEXT}
-            </Button>
-          }
-        >
-          {ERROR_ALERT_TEXT}
-        </Alert>
-      ) : isLoading ? (
+      <ScheduleHeader canManage={page.canManage} onCreate={page.openCreate} />
+      {page.isLinkUnavailable && <Alert severity="info" onClose={page.dismissLink}>{UNAVAILABLE_EVENT_TEXT}</Alert>}
+      {page.isError ? (
+        <Alert severity="error" action={<Button color="inherit" size="small" onClick={page.refetch}>{RETRY_BUTTON_TEXT}</Button>}>{ERROR_ALERT_TEXT}</Alert>
+      ) : page.isLoading ? (
         <Box sx={styles.body}>
           <Skeleton variant="rounded" sx={styles.skeletonSidebar} />
           <Skeleton variant="rounded" sx={styles.skeletonMain} />
@@ -83,52 +27,17 @@ export function SchedulePageContent() {
       ) : (
         <Box sx={styles.body}>
           <Box component="aside" sx={styles.sidebarColumn}>
-            <ScheduleSidebar
-              events={events}
-              canManage={canManage}
-              onOpenCreateModal={() => {
-                setCreateInitialDate(selectedDate);
-                setCreateStartTime(undefined);
-                setCreateEndTime(undefined);
-                setCreateOpen(true);
-              }}
-            />
+            <ScheduleSidebar events={page.events} canManage={page.canManage} onOpenCreateModal={page.openCreate} />
           </Box>
-
           <Box component="main" sx={styles.mainColumn}>
-            {view === 'week' ? (
-              <WeekGrid {...gridProps} />
-            ) : view === 'day' ? (
-              <DayGrid {...gridProps} />
-            ) : (
-              <AgendaList {...gridProps} />
-            )}
+            {page.view === 'week' ? <WeekGrid {...page.gridProps} /> : page.view === 'day' ? <DayGrid {...page.gridProps} /> : <AgendaList {...page.gridProps} events={page.agendaEvents} dateLabel={page.agendaDateLabel} />}
           </Box>
-
-          <EventDetailModal
-            event={selectedEvent}
-            canManage={canManage}
-            isDeleting={deleteEvent.isPending}
-            onClose={() => setSelectedEventId(null)}
-            onEdit={(ev) => setEditingEvent(ev)}
-            onDelete={(id) =>
-              deleteEvent.mutate(id, {
-                onSuccess: () => setSelectedEventId(null),
-              })
-            }
-          />
+          <EventDetailModal event={page.selectedEvent} canManage={page.canManage} isDeleting={page.isDeleting} onClose={page.closeDetails} onEdit={page.openEdit} onDelete={page.requestDelete} />
         </Box>
       )}
-
-      {(createOpen || editingEvent) && (
-        <CreateEventModal
-          event={editingEvent}
-          initialDate={createInitialDate ?? selectedDate}
-          initialStartTime={createStartTime}
-          initialEndTime={createEndTime}
-          onClose={closeModal}
-        />
-      )}
+      {page.dialog?.type === 'create' && <CreateEventModal initialDate={page.dialog.date} initialStartTime={page.dialog.startTime} initialEndTime={page.dialog.endTime} onClose={page.closeDialog} />}
+      {page.dialog?.type === 'edit' && page.dialogEvent && <CreateEventModal event={page.dialogEvent} onClose={page.closeDialog} />}
+      {page.dialog?.type === 'delete' && page.dialogEvent && <DeleteEventDialog title={page.dialogEvent.title} dateLabel={page.deleteDateLabel} isPending={page.isDeleting} hasError={page.deleteFailed} onCancel={page.closeDialog} onConfirm={page.confirmDelete} />}
     </Box>
   );
 }

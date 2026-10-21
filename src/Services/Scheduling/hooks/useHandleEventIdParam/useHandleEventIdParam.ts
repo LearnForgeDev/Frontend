@@ -1,24 +1,35 @@
-import { useEffect, useRef, useState } from 'react';
-import { extractQueryParam } from '@/Assets/globalUtils';
-import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext';
+import type { ScheduleEvent } from '../../Scheduling.types';
+import { useSchoolId } from '../useSchoolId/useSchoolId';
 
-export function useHandleEventIdParam(events: ScheduleEvent[], isLoading: boolean) {
+export function useHandleEventIdParam(events: ScheduleEvent[], isSuccess: boolean) {
   const { setSelectedEventId, setSelectedDate } = useSchedulingContext();
-  const [targetEventId] = useState(() => extractQueryParam('eventId'));
-  const processedRef = useRef(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const schoolId = useSchoolId();
+  const targetEventId = searchParams.get('eventId');
+  const targetEvent = events.find(event => event.id === targetEventId);
+  const processedRef = useRef<string | null>(null);
+  const targetKey = targetEventId ? `${schoolId}:${targetEventId}` : null;
 
   useEffect(() => {
-    if (!targetEventId || processedRef.current || isLoading) {
+    if (!targetKey) {
+      processedRef.current = null;
       return;
     }
+    if (!isSuccess || processedRef.current === targetKey || !targetEvent) return;
+    processedRef.current = targetKey;
+    setSelectedEventId(targetEvent.id);
+    setSelectedDate(new Date(targetEvent.start));
+  }, [targetKey, targetEvent, isSuccess, setSelectedEventId, setSelectedDate]);
 
-    processedRef.current = true;
-    const targetEvent = events.find((e) => e.id === targetEventId);
-
-    if (targetEvent) {
-      setSelectedEventId(targetEvent.id);
-      setSelectedDate(new Date(targetEvent.start));
-    }
-  }, [targetEventId, events, isLoading, setSelectedEventId, setSelectedDate]);
+  return {
+    isUnavailable: Boolean(targetEventId && isSuccess && !targetEvent),
+    dismiss: () => {
+      const next = new URLSearchParams(searchParams);
+      next.delete('eventId');
+      setSearchParams(next, { replace: true });
+    },
+  };
 }

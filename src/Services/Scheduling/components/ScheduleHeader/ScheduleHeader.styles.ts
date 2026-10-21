@@ -41,6 +41,7 @@ export const styles = {
     color: 'text.primary',
     minWidth: { sm: 220 },
   },
+  mobileCreate: { display: { xs: 'inline-flex', md: 'none' } },
   rightGroup: {
     display: 'flex',
     alignItems: 'center',
