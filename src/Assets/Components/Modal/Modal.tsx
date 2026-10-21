@@ -4,13 +4,18 @@ import CloseIcon from '@mui/icons-material/Close';
 import type { ModalProps } from './Modal.types';
 import { styles } from './Modal.styles';
 
-export function Modal({ title, subtitle, icon, time, className, onClose, children, disableClose = false }: ModalProps) {
+export function Modal({ title, subtitle, icon, time, className, onClose, children, disableClose = false, onRequestClose }: ModalProps) {
   const [open, setOpen] = useState(true);
   const [timeLeft, setTimeLeft] = useState(time ?? 0);
 
   const handleClose = useCallback(() => {
-    if (!disableClose) setOpen(false);
-  }, [disableClose]);
+    if (disableClose) return;
+    if (onRequestClose) {
+      onRequestClose();
+      return;
+    }
+    setOpen(false);
+  }, [disableClose, onRequestClose]);
 
   const handleExited = useCallback(() => {
     onClose();
@@ -46,10 +51,7 @@ export function Modal({ title, subtitle, icon, time, className, onClose, childre
       slotProps={{
         transition: { onExited: handleExited },
         backdrop: {
-          sx: {
-            backgroundColor: 'rgba(0, 0, 0, 0.4)',
-            backdropFilter: 'blur(2px)',
-          },
+          sx: styles.backdrop,
         },
         paper: {
           sx: styles.dialogPaper,

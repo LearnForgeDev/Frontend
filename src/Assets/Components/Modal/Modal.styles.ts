@@ -1,5 +1,9 @@
 
 export const styles = {
+  backdrop: {
+    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    backdropFilter: 'blur(2px)',
+  },
   dialogPaper: {
     background: 'var(--bg, #fff)',
     color: 'var(--text, #000)',
