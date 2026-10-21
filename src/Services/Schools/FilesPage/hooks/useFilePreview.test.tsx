@@ -1,5 +1,5 @@
 import { act, cleanup, fireEvent, render, renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StrictMode, type ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { ApiFile } from '@/Endpoints';
@@ -42,7 +42,10 @@ beforeEach(() => {
   mocks.toast.mockReset();
 });
 
-afterEach(() => cleanup());
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+});
 
 describe('Запрос предпросмотра', () => {
   it('запоздалый ответ A не заменяет содержимое B', async () => {
@@ -94,6 +97,18 @@ describe('Запрос предпросмотра', () => {
     expect(result.current.supported).toBe(false);
     expect(result.current.isLoading).toBe(false);
     expect(mocks.getFileBlob).not.toHaveBeenCalled();
+  });
+
+  it('оффлайн завершает загрузку ошибкой и позволяет повторить', async () => {
+    onlineManager.setOnline(false);
+    mocks.getFileBlob.mockRejectedValueOnce(new Error('offline')).mockResolvedValueOnce(makeBlob('Текст'));
+    const { result } = renderHook(() => useFilePreview('school', makeFile('a')), { wrapper: makeWrapper() });
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.isLoading).toBe(false);
+    act(() => result.current.retry());
+    await waitFor(() => expect(result.current.data?.text).toBe('Текст'));
+    expect(result.current.isError).toBe(false);
+    expect(result.current.isLoading).toBe(false);
   });
 
   it('не открывает ответ с чужим содержимым как PDF', async () => {
