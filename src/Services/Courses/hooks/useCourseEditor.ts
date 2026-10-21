@@ -21,6 +21,7 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
   const toast = useToast();
   const options = useQuery({
     queryKey: ['course-editor-options', schoolPublicId],
+    networkMode: 'always',
     queryFn: async () => {
       try {
         const [lessons, students, groups] = await Promise.all([
@@ -41,6 +42,7 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
     void queryClient.invalidateQueries({ queryKey: ['course-roster', schoolPublicId] });
   };
   const mutation = useMutation({
+    networkMode: 'always',
     mutationFn: (input: CourseInput) => saveCourse({
       schoolPublicId, coursePublicId: draftPublicId.current, authorPublicId, input,
       lessons: lessonOptions, studentIds: studentOptions.map(student => student.userPublicId),
