@@ -1,5 +1,11 @@
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 import type { ApiFile } from '../files/types';
+import type { SerializedDocument } from '@lexical/file';
+
+export interface UpdateLessonRequest {
+  title: string;
+  content?: SerializedDocument;
+}
 
 export interface CreateLessonRequest {
   title: string;

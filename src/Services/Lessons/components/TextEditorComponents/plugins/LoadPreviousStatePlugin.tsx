@@ -1,14 +1,13 @@
 import { useEffect, type JSX } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { editorStateFromSerializedDocument, type SerializedDocument } from '@lexical/file';
-import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
-
-const logger = createDebugger('LoadPreviousStatePlugin');
 
 export default function LoadPreviousStatePlugin({
   editorState,
+  onError,
 }: {
   editorState?: SerializedDocument;
+  onError: (failed: boolean) => void;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
 
@@ -19,10 +18,10 @@ export default function LoadPreviousStatePlugin({
 
     try {
       editor.setEditorState(editorStateFromSerializedDocument(editor, editorState));
-    } catch (error) {
-      logger.logEventForDebug(DebugSeverity.DANGER, 'Error loading editor state:', error);
+    } catch {
+      onError(true);
     }
-  }, [editor, editorState]);
+  }, [editor, editorState, onError]);
 
   return null;
 }

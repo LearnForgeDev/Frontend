@@ -1,5 +1,6 @@
 import type { SerializedDocument } from '@lexical/file';
 import type { SerializedEditorState } from 'lexical';
+import type { LessonDraftScope } from './useLessonEditor.types';
 import {
   LESSON_DRAFT_STORAGE_PREFIX,
   LEXICAL_DOCUMENT_SOURCE,
@@ -37,13 +38,13 @@ export const normalizeLessonDocument = (value: unknown): SerializedDocument | un
   return undefined;
 };
 
-const getLessonDraftKey = (lessonId: string | number): string => (
-  `${LESSON_DRAFT_STORAGE_PREFIX}-${lessonId}`
+const getLessonDraftKey = (scope: LessonDraftScope): string => (
+  `${LESSON_DRAFT_STORAGE_PREFIX}:${scope.userPublicId}:${scope.schoolPublicId}:${scope.lessonId}`
 );
 
-export const readLessonDraft = (lessonId: string | number): SerializedDocument | undefined => {
+export const readLessonDraft = (scope: LessonDraftScope): SerializedDocument | undefined => {
   try {
-    const serializedDraft = localStorage.getItem(getLessonDraftKey(lessonId));
+    const serializedDraft = localStorage.getItem(getLessonDraftKey(scope));
     return serializedDraft ? normalizeLessonDocument(JSON.parse(serializedDraft)) : undefined;
   } catch {
     return undefined;
@@ -51,8 +52,23 @@ export const readLessonDraft = (lessonId: string | number): SerializedDocument |
 };
 
 export const writeLessonDraft = (
-  lessonId: string | number,
+  scope: LessonDraftScope,
   document: SerializedDocument,
 ): void => {
-  localStorage.setItem(getLessonDraftKey(lessonId), JSON.stringify(document));
+  localStorage.setItem(getLessonDraftKey(scope), JSON.stringify(document));
 };
+
+export const clearSavedLessonDraft = (scope: LessonDraftScope, document: SerializedDocument): void => {
+  const draft = readLessonDraft(scope);
+  if (draft && JSON.stringify(draft.editorState) === JSON.stringify(document.editorState)) {
+    localStorage.removeItem(getLessonDraftKey(scope));
+  }
+};
+
+export const isLessonDocumentEmpty = (document: SerializedDocument): boolean => (
+  document.editorState.root.children.every(node => {
+    if (node.type !== 'paragraph') return false;
+    const children = (node as { children?: { type: string; text?: string }[] }).children ?? [];
+    return children.every(child => child.type === 'text' && !child.text?.trim());
+  })
+);

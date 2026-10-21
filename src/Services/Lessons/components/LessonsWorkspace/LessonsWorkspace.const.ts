@@ -1,0 +1,2 @@
+export const LESSON_LOADING_CARD_COUNT = 8;
+export const LESSON_LOADING_CARD_HEIGHT = 140;

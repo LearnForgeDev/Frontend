@@ -1,5 +1,6 @@
 import { useQueries, useQuery } from '@tanstack/react-query';
 import { coursesEndpoints } from '@/Endpoints/courses';
+import { lessonsEndpoints } from '@/Endpoints/lessons';
 import { useToast } from '@/Storage/useToastStore';
 import { canRetainCourseData, isCourseAccessError } from '../utils/courseAccess';
 import { toCourseDetail, toCourseSummary } from '../utils/courseMapping';
@@ -53,11 +54,19 @@ export function useCourseQuery(schoolPublicId: string, coursePublicId: string) {
     },
     enabled: !!course?.canManage, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
   });
+  const lessonsQuery = useQuery({
+    queryKey: ['lessons', schoolPublicId],
+    queryFn: () => lessonsEndpoints.getLessons(schoolPublicId),
+    enabled: Boolean(course),
+    staleTime: COURSE_QUERY_STALE_TIME,
+    retry: false,
+  });
   return {
     ...query,
     data: course ? toCourseDetail(course,
       progressQuery.isError ? undefined : progressQuery.data,
-      course.canManage && !rosterQuery.isError ? rosterQuery.data : undefined) : undefined,
+      course.canManage && !rosterQuery.isError ? rosterQuery.data : undefined,
+      lessonsQuery.data) : undefined,
     progressQuery, rosterQuery, isBlocked, isAccessError: isCourseAccessError(query.error),
   };
 }
