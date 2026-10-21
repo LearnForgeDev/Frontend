@@ -1,0 +1,4 @@
+export const FILE_FEEDBACK_DURATION_MS = 3_000;
+export const FILE_FAILURE_DURATION_MS = 5_000;
+export const FILE_ERROR_DURATION_MS = 4_000;
+export const UPLOAD_COMPLETE_PERCENT = 100;

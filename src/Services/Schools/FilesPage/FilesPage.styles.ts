@@ -1,6 +1,14 @@
 import type { Theme } from '@mui/material/styles';
 
 export const styles = {
+  uploadActions: { display: 'flex', gap: 1, flexWrap: 'wrap' },
+  filterControl: { minWidth: 150 },
+  loading: { display: 'flex', justifyContent: 'center', p: 8 },
+  empty: { p: 6, textAlign: 'center', backgroundColor: 'background.paper' },
+  emptyIcon: { fontSize: 64, color: 'text.secondary', mb: 2 },
+  metadata: { display: 'block' },
+  fileCell: { fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+  fileRow: { display: 'flex', alignItems: 'center', gap: 1.5 },
   container: {
     padding: (theme: Theme) => theme.spacing(4),
     maxWidth: '1200px',
@@ -110,26 +118,5 @@ export const styles = {
     justifyContent: 'flex-end',
     borderTop: (theme: Theme) => `1px solid ${theme.palette.divider}`,
     padding: (theme: Theme) => theme.spacing(1),
-  },
-  previewDialogContent: {
-    minHeight: '200px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: (theme: Theme) => theme.spacing(2),
-  },
-  previewText: {
-    fontFamily: 'monospace',
-    whiteSpace: 'pre-wrap',
-    backgroundColor: (theme: Theme) => theme.palette.action.hover,
-    padding: (theme: Theme) => theme.spacing(2),
-    borderRadius: (theme: Theme) => theme.shape.borderRadius,
-    maxHeight: '400px',
-    overflowY: 'auto',
-  },
-  previewImage: {
-    maxWidth: '100%',
-    maxHeight: '450px',
-    objectFit: 'contain',
-    borderRadius: 0,
   },
 };
