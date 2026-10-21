@@ -1,63 +1,44 @@
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
-import { lessonsEndpoints } from '@/Endpoints';
 import { filesEndpoints } from '@/Endpoints';
-import type { UseLessonEditorProps, UseLessonEditorReturn } from './useLessonEditor.types';
-import type { SerializedDocument } from '@lexical/file';
-import {
-  normalizeLessonDocument,
-  readLessonDraft,
-  writeLessonDraft,
-} from './useLessonEditor.utils';
+import { useToast } from '@/Storage/useToastStore';
+import { useLessonQuery } from '../useLessonQuery';
+import type { UseLessonEditorProps } from './useLessonEditor.types';
+import { normalizeLessonDocument } from './useLessonEditor.utils';
 
-export const useLessonEditor = ({ lessonId }: UseLessonEditorProps): UseLessonEditorReturn => {
-  const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
-  const queryKey = ['lessonEditorState', lessonId, schoolPublicId];
-
-  // We need the lesson object to get the lessonJsonFilePublicId
-  const { data: lesson } = useQuery({
-    queryKey: ['lesson', schoolPublicId, lessonId],
-    queryFn: () => {
-      if (!schoolPublicId) throw new Error('Missing schoolPublicId');
-      return lessonsEndpoints.getLessonById(schoolPublicId, String(lessonId));
-    },
-    enabled: Boolean(schoolPublicId && lessonId)
-  });
-
-  const fileId = lesson?.lessonJsonFile?.publicId;
-
-  const {
-    data: editorState,
-    isLoading: isEditorLoading,
-    isError,
-  } = useQuery({
-    queryKey,
+export const useLessonEditor = ({ lessonId }: UseLessonEditorProps) => {
+  const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
+  const toast = useToast();
+  const lessonQuery = useLessonQuery(schoolPublicId, lessonId);
+  const lesson = lessonQuery.data;
+  const file = lesson?.lessonJsonFile;
+  const contentQuery = useQuery({
+    queryKey: ['lesson-content', schoolPublicId, String(lessonId), file?.storageKey],
     queryFn: async () => {
-      if (!schoolPublicId) throw new Error('Missing schoolPublicId');
-      const draft = readLessonDraft(lessonId);
-      if (draft) return draft;
-      if (!fileId) return undefined;
-      const content = await filesEndpoints.getFileContent(schoolPublicId, fileId);
-      const parsedContent = typeof content === 'string' ? JSON.parse(content) : content;
-      return normalizeLessonDocument(parsedContent);
+      try {
+        if (!file) throw new Error('Содержимое урока недоступно');
+        const content = await filesEndpoints.getFileContent(schoolPublicId, file.publicId);
+        const document = normalizeLessonDocument(typeof content === 'string' ? JSON.parse(content) : content);
+        if (!document) throw new Error('Не удалось прочитать урок');
+        return document;
+      } catch (error) {
+        toast.error('Не удалось загрузить содержимое урока.');
+        throw error;
+      }
     },
-    enabled: Boolean(lessonId && schoolPublicId && fileId),
-  });
-
-  const mutation = useMutation({
-    mutationFn: async (serializedState: SerializedDocument) => {
-      writeLessonDraft(lessonId, serializedState);
-      return serializedState;
-    },
+    enabled: Boolean(lesson && file),
+    networkMode: 'always',
+    retry: false,
   });
 
   return {
-    editorState,
-    isLoading: isEditorLoading,
-    isError,
-    saveEditorState: async (serializedState: SerializedDocument) => {
-      await mutation.mutateAsync(serializedState);
-    },
-    isSaving: mutation.isPending,
+    lesson,
+    schoolPublicId,
+    editorState: contentQuery.data,
+    isLoading: lessonQuery.isLoading || contentQuery.isLoading,
+    isError: lessonQuery.isError || contentQuery.isError,
+    isUnavailable: Boolean(lesson && !file),
+    isRetrying: lessonQuery.isFetching || contentQuery.isFetching,
+    retry: () => lessonQuery.isError ? lessonQuery.refetch() : contentQuery.refetch(),
   };
 };

@@ -12,7 +12,7 @@ export interface ContextMenuProps {
   onClose: () => void;
   onOpen: () => void;
   onRename: () => void;
-  onMove: () => void;
+  onMove?: () => void;
   onDelete: () => void;
 }
 
@@ -38,7 +38,7 @@ export default function ContextMenu({
   };
 
   const handleMoveClick = () => {
-    onMove();
+    onMove?.();
     onClose();
   };
 
@@ -60,7 +60,7 @@ export default function ContextMenu({
         onClose={onClose}
         slotProps={{
           paper: {
-            sx: { minWidth: 160 },
+            sx: styles.paper,
           },
         }}
       >
@@ -76,21 +76,20 @@ export default function ContextMenu({
           </ListItemIcon>
           <ListItemText>Переименовать</ListItemText>
         </MenuItem>
-        <MenuItem onClick={handleMoveClick}>
+        {onMove && <MenuItem onClick={handleMoveClick}>
           <ListItemIcon>
             <DriveFileMoveOutlinedIcon fontSize="small" sx={styles.menuItemIcon} />
           </ListItemIcon>
           <ListItemText>Переместить</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={handleDeleteClick} sx={{ color: 'error.main' }}>
+        </MenuItem>}
+        <MenuItem onClick={handleDeleteClick} sx={styles.deleteItem}>
           <ListItemIcon>
-            <DeleteIcon fontSize="small" sx={{ ...styles.menuItemIcon, color: 'error.main' }} />
+            <DeleteIcon fontSize="small" sx={styles.deleteIcon} />
           </ListItemIcon>
           <ListItemText>Удалить</ListItemText>
         </MenuItem>
       </Menu>
 
-      {/* Confirmation Modal */}
       {isDeleteConfirmOpen && (
         <Modal onClose={() => setIsDeleteConfirmOpen(false)}>
           <Box sx={styles.modalContent}>

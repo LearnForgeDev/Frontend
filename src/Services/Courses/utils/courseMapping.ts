@@ -2,6 +2,7 @@ import type { CourseDto, CourseProgressDto, CourseRosterDto } from '@/Endpoints/
 import type { CourseDetail, CourseSummary } from '../Courses.types';
 import { COURSE_ITEM_TYPES, COURSE_PROGRESS_STATUS } from './courseMapping.const';
 import { getCourseProgress } from './courseFormatting';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
 
 export function toCourseSummary(course: CourseDto, progress?: CourseProgressDto): CourseSummary {
   return {
@@ -16,7 +17,7 @@ export function toCourseSummary(course: CourseDto, progress?: CourseProgressDto)
   };
 }
 
-export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, roster?: CourseRosterDto): CourseDetail {
+export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, roster?: CourseRosterDto, lessons?: Lesson[]): CourseDetail {
   const completed = new Set(progress?.items.filter(item => item.status === COURSE_PROGRESS_STATUS.COMPLETED).map(item => item.itemPublicId));
   return {
     ...toCourseSummary(course, progress),
@@ -25,7 +26,7 @@ export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, 
     studentCount: roster?.students.length ?? null,
     lessons: course.items.filter(item => item.itemType === COURSE_ITEM_TYPES.LESSON && item.lessonId !== null)
       .sort((a, b) => a.position - b.position).map(item => ({
-        lessonId: item.lessonId!, itemPublicId: item.publicId, title: item.title, position: item.position,
+        lessonId: item.lessonId!, itemPublicId: item.publicId, title: lessons?.find(lesson => String(lesson.id) === String(item.lessonId))?.title ?? item.title, position: item.position,
         isRequired: item.isRequired, isCompleted: completed.has(item.publicId),
         availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
       })),

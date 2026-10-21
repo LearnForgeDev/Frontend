@@ -1,6 +1,6 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { CreateLessonRequest } from './types';
+import type { CreateLessonRequest, UpdateLessonRequest } from './types';
 
 const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();
@@ -30,6 +30,11 @@ export const lessonsEndpoints = {
       queryKey: [...queryKey, body],
       queryFn: () => queryFn.post<Lesson>(queryKey[0], body),
     });
+    return response.data;
+  },
+
+  async updateLesson(schoolPublicId: string, lessonId: string, body: UpdateLessonRequest): Promise<Lesson> {
+    const response = await queryFn.put<Lesson>(`/api/ApiLessons/${schoolPublicId}/${lessonId}`, body);
     return response.data;
   },
 

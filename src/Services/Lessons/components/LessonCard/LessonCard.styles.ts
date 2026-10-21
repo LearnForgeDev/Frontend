@@ -1,6 +1,7 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const styles: Record<string, SxProps<Theme>> = {
+  thumbnailIcon: { fontSize: '3rem', opacity: 0.7 },
   card: {
     display: 'flex',
     flexDirection: 'column',

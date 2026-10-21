@@ -1,4 +1,6 @@
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
+import { useState } from 'react';
+import { Alert } from '@mui/material';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
@@ -25,9 +27,15 @@ import { INITIAL_EDITOR_CONFIG } from './component.const';
 
 export default function TextEditor({
   isEditMode,
-  id,
   editorState,
+  isSaving = false,
+  isSaveBlocked = false,
+  saveStatus = 'saved',
+  onDraft,
+  onSave,
 }: TextEditorProps) {
+  const [hasLoadError, setHasLoadError] = useState(false);
+  if (hasLoadError) return <Alert severity="error">Не удалось прочитать содержимое урока. Обратитесь к преподавателю.</Alert>;
   return (
     <LexicalComposer initialConfig={{ ...INITIAL_EDITOR_CONFIG, editable: isEditMode }}>
       {isEditMode && <Toolbar />}
@@ -46,13 +54,15 @@ export default function TextEditor({
       <RutubePlugin />
       <EquationsPlugin />
       <FilesPlugin />
-      <ToggleIsEditable isEditable={isEditMode} />
+      <ToggleIsEditable isEditable={isEditMode && !isSaving} />
       <LoadPreviousStatePlugin
         editorState={editorState}
+        onError={setHasLoadError}
+        initializeOnce={isEditMode}
       />
-      {isEditMode && <AutoSavePlugin lessonId={id} />}
+      {isEditMode && onDraft && <AutoSavePlugin onDraft={onDraft} initialDocument={editorState} />}
 
-      {isEditMode && <ControlsPlugin lessonId={id} />}
+      {isEditMode && onSave && <ControlsPlugin onSave={onSave} isSaving={isSaving} isSaveBlocked={isSaveBlocked} status={saveStatus} />}
     </LexicalComposer>
   );
 }
