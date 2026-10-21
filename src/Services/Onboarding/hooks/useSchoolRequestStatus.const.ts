@@ -1,0 +1,1 @@
+export const SCHOOL_REQUEST_RETRY_COUNT = 2;

@@ -8,8 +8,8 @@ import config from 'src/config.ts';
 import { FILE_TRANSFER_TIMEOUT_MS, MAX_RETRY_DELAY_MS, REQUEST_TIMEOUT_MS, RETRY_DELAY_MS } from './factory.const';
 import { createUnauthenticatedError, getRequestErrorMessage, matchesRefreshedSession, shouldRetryRequest } from './factory.utils';
 
-export function createApiClient({ retryCount = 0, staleTime = 0 } = {}) {
-  return new QueryClient({
+export function createApiClient({ retryCount = 0, staleTime = 0, sessionScoped = true } = {}) {
+  const client = new QueryClient({
     defaultOptions: {
       queries: {
         retry: (failureCount, error) => shouldRetryRequest(failureCount, error, retryCount),
@@ -23,6 +23,12 @@ export function createApiClient({ retryCount = 0, staleTime = 0 } = {}) {
       },
     },
   });
+  if (sessionScoped) {
+    useGlobalContext.subscribe((state, previous) => {
+      if (state.auth.user?.userPublicId !== previous.auth.user?.userPublicId) client.clear();
+    });
+  }
+  return client;
 }
 
 export function createQueryFnWithRefresh() {

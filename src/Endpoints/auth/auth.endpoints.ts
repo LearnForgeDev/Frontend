@@ -30,7 +30,6 @@ export const authEndpoints = {
         const exp = Number(parsedJwtToken.exp) * 1000;
 
         const user = { ...response.data, exp };
-        useGlobalContext.getState().auth.setUser(user);
         return user;
     },
 
@@ -45,7 +44,6 @@ export const authEndpoints = {
         const exp = Number(parsedJwtToken.exp) * 1000;
 
         const user = { ...response.data, exp };
-        useGlobalContext.getState().auth.setUser(user);
         return user;
     },
 

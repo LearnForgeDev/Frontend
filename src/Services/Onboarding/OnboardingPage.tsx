@@ -2,17 +2,16 @@ import { Box, Paper, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
-import { useOnboardingSchools } from './hooks/useOnboardingSchools';
-import { readSchoolRequestPointer } from './utils/schoolRequestStorage.utils';
+import { useOnboarding } from './hooks/useOnboarding';
+import OnboardingAccount from './components/OnboardingAccount/OnboardingAccount';
 import * as S from './OnboardingPage.styles';
 
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite') ?? '';
-  const pointer = readSchoolRequestPointer();
-  const schoolsQuery = useOnboardingSchools();
+  const { pointer, knownSchoolPublicIds } = useOnboarding();
 
-  if (pointer) {
+  if (pointer && !inviteToken) {
     return (
       <Navigate
         to={`/onboarding/waiting/${pointer.requestPublicId}`}
@@ -21,12 +20,10 @@ export default function OnboardingPage() {
     );
   }
 
-  const knownSchoolPublicIds =
-    schoolsQuery.data?.map((school) => school.schoolPublicId) ?? [];
-
   return (
     <Box component="main" sx={S.page}>
       <Box sx={S.content}>
+        <OnboardingAccount />
         <Box component="header" sx={S.header}>
           <Typography variant="overline" sx={S.eyebrow}>
             Первый шаг

@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { SCHOOL_REQUEST_POLLING_INTERVAL_MS } from '../onboarding.const';
 import type { SchoolRequestStatus } from '../types/onboarding.types';
+import { isSchoolRequestUnavailable } from '../utils/schoolRequestError.utils';
+import { SCHOOL_REQUEST_RETRY_COUNT } from './useSchoolRequestStatus.const';
 import { shouldPollSchoolRequest } from '../utils/schoolRequestStatus.utils';
 
 export function useSchoolRequestStatus(requestPublicId?: string) {
@@ -13,11 +15,11 @@ export function useSchoolRequestStatus(requestPublicId?: string) {
     },
     enabled: Boolean(requestPublicId),
     refetchInterval: (query) =>
-      shouldPollSchoolRequest(query.state.data?.status)
+      !query.state.error && shouldPollSchoolRequest(query.state.data?.status)
         ? SCHOOL_REQUEST_POLLING_INTERVAL_MS
         : false,
     refetchIntervalInBackground: false,
     refetchOnWindowFocus: true,
-    retry: 2,
+    retry: (failureCount, error) => !isSchoolRequestUnavailable(error) && failureCount < SCHOOL_REQUEST_RETRY_COUNT,
   });
 }

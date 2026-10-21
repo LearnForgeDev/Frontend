@@ -1,14 +1,14 @@
-import { createElement, useMemo, type FormEvent } from 'react';
+import { createElement, useMemo } from 'react';
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
-import { useAuthFlow } from '../../contexts/AuthFlowContext';
+import { useAuthFlow } from '../../hooks/useAuthFlow';
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
 
 
-function LoginPageContent() {
-  const { name, password, error, isLoading, setField, handleSubmit } =
+export default function LoginPage() {
+  const { name, password, error, isLoading, setField, handleSubmit, alternatePath } =
     useAuthFlow();
 
   const loginSteps = useMemo(
@@ -25,15 +25,12 @@ function LoginPageContent() {
 
   const currentStep = loginSteps[0];
 
-  const handleFormSubmit = async (event: FormEvent) => {
-    await handleSubmit("login", event);
-  };
-
   return (
     <Box
       component="form"
-      onSubmit={handleFormSubmit}
-      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      onSubmit={handleSubmit}
+      noValidate
+      sx={S.form}
     >
       <Box sx={S.headingSx}>
         <Typography component="h1" sx={S.title}>С возвращением</Typography>
@@ -60,14 +57,10 @@ function LoginPageContent() {
 
       <Typography variant="body2" align="center" sx={S.linkText}>
         Нет аккаунта?{' '}
-        <MuiLink component={Link} to="/auth/register" underline="hover">
+        <MuiLink component={Link} to={alternatePath} underline="hover">
           Зарегистрироваться
         </MuiLink>
       </Typography>
     </Box>
   );
-}
-
-export default function LoginPage() {
-  return <LoginPageContent />;
 }

@@ -1,10 +1,9 @@
-import { useCallback } from 'react';
 import { Alert, Box, Paper, Typography } from '@mui/material';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import { ClipLoader } from 'react-spinners';
 import { useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import { useUser } from '@/Storage/UserContext/UserContext';
+import { useLogout } from '@/Services/Auth/hooks/useLogout';
 import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
 import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
 import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
@@ -17,20 +16,13 @@ import * as S from './ProfilePage.styles';
 export default function ProfilePage() {
   const navigate = useNavigate();
   const user = useGlobalContext((state) => state.auth.user);
-  const logout = useGlobalContext((state) => state.auth.logout);
-  const { clearUser } = useUser();
+  const handleLogout = useLogout();
   const schoolsQuery = useSchools();
   const schedule = useScheduleEvents();
   const activeSchool = schoolsQuery.data?.find(
     (school) => school.schoolPublicId === user?.activeSchoolPublicId,
   );
   const closestEvent = getClosestEvent(schedule.events);
-
-  const handleLogout = useCallback(() => {
-    logout();
-    clearUser();
-    navigate('/auth/login', { replace: true });
-  }, [clearUser, logout, navigate]);
 
   if (!user) {
     return (

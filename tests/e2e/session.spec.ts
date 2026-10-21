@@ -26,7 +26,7 @@ for (const { name, identity, requiresBackend } of INVALID_SESSION_CASES) {
 
       await page.goto(route);
 
-      await expect(page).toHaveURL(/\/auth\/login$/);
+      await expect(page).toHaveURL(/\/auth\/login(?:\?|$)/);
       await expect(page.getByLabel(/^Имя/i)).toBeVisible();
       await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
       await expect(page.locator(PROTECTED_UI_SELECTOR)).toHaveCount(0);

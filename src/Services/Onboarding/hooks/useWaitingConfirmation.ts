@@ -1,5 +1,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { isSchoolRequestUnavailable } from '../utils/schoolRequestError.utils';
 import { useApprovedSchool } from './useApprovedSchool';
 import { useOnboardingSchools } from './useOnboardingSchools';
 import { useSchoolRequestStatus } from './useSchoolRequestStatus';
@@ -9,7 +11,8 @@ import { getSchoolRequestViewState } from '../utils/schoolRequestStatus.utils';
 
 export function useWaitingConfirmation(requestPublicId?: string) {
   const navigate = useNavigate();
-  const storedPointer = readSchoolRequestPointer();
+  const userPublicId = useGlobalContext((state) => state.auth.user?.userPublicId);
+  const storedPointer = readSchoolRequestPointer(userPublicId);
   const pointer =
     storedPointer?.requestPublicId === requestPublicId ? storedPointer : null;
   const statusQuery = useSchoolRequestStatus(requestPublicId);
@@ -41,14 +44,21 @@ export function useWaitingConfirmation(requestPublicId?: string) {
     }
 
     const redirectTimer = window.setTimeout(() => {
-      clearSchoolRequestPointer(requestPublicId);
+      clearSchoolRequestPointer(userPublicId, requestPublicId);
       navigate(`/app/schools/${approvedSchool.schoolPublicId}/today`, {
         replace: true,
       });
     }, APPROVAL_REDIRECT_DELAY_MS);
 
     return () => window.clearTimeout(redirectTimer);
-  }, [approvedSchool, navigate, requestPublicId]);
+  }, [approvedSchool, navigate, requestPublicId, userPublicId]);
 
-  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName };
+  const returnToOnboarding = () => {
+    clearSchoolRequestPointer(userPublicId, requestPublicId);
+    navigate('/onboarding', { replace: true });
+  };
+
+  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName,
+    isUnavailable: isSchoolRequestUnavailable(statusQuery.error), returnToOnboarding };
+
 }

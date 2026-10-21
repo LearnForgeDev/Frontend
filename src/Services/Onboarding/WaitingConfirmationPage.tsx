@@ -7,12 +7,14 @@ import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm'
 import SchoolRequestStatus from './components/SchoolRequestStatus/SchoolRequestStatus';
 import DinosaurGame from './components/DinosaurGame/DinosaurGame';
 import { useWaitingConfirmation } from './hooks/useWaitingConfirmation';
+import OnboardingAccount from './components/OnboardingAccount/OnboardingAccount';
+import { WAITING_CONFIRMATION_TEXT } from './WaitingConfirmationPage.const';
 import * as S from './WaitingConfirmationPage.styles';
 
 export default function WaitingConfirmationPage() {
   const { requestPublicId } = useParams<{ requestPublicId: string }>();
   const [isGameVisible, setIsGameVisible] = useState(false);
-  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName } = useWaitingConfirmation(requestPublicId);
+  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, isUnavailable, returnToOnboarding } = useWaitingConfirmation(requestPublicId);
 
   if (!requestPublicId) {
     return <Navigate to="/onboarding" replace />;
@@ -21,11 +23,14 @@ export default function WaitingConfirmationPage() {
   if (statusQuery.isLoading) {
     return (
       <Box component="main" sx={S.page}>
-        <Paper sx={S.statusCard}>
-          <Box sx={S.loading} role="status" aria-label="Проверяем заявку">
-            <PulseLoader color="currentColor" />
-          </Box>
-        </Paper>
+        <Box sx={S.content}>
+          <OnboardingAccount />
+          <Paper sx={S.statusCard}>
+            <Box sx={S.loading} role="status" aria-label="Проверяем заявку">
+              <PulseLoader color="currentColor" />
+            </Box>
+          </Paper>
+        </Box>
       </Box>
     );
   }
@@ -34,17 +39,21 @@ export default function WaitingConfirmationPage() {
     return (
       <Box component="main" sx={S.page}>
         <Box sx={S.content}>
+          <OnboardingAccount />
           <Paper sx={S.statusCard}>
             <Box sx={S.retry}>
               <Typography component="h1" variant="h4" sx={S.retryTitle}>
-                Не удалось проверить заявку
+                {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableTitle : WAITING_CONFIRMATION_TEXT.errorTitle}
               </Typography>
               <Typography color="text.secondary">
-                Проверьте подключение и попробуйте ещё раз.
+                {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableDescription : WAITING_CONFIRMATION_TEXT.errorDescription}
               </Typography>
-              <Button variant="contained" onClick={() => statusQuery.refetch()}>
-                Повторить
-              </Button>
+              {!isUnavailable && (
+                <Button variant="contained" onClick={() => statusQuery.refetch()}>
+                  {WAITING_CONFIRMATION_TEXT.retry}
+                </Button>
+              )}
+              <Button onClick={returnToOnboarding}>{WAITING_CONFIRMATION_TEXT.returnToOnboarding}</Button>
             </Box>
           </Paper>
           <Paper component="section" sx={S.actionsCard}>
@@ -63,6 +72,7 @@ export default function WaitingConfirmationPage() {
   return (
     <Box component="main" sx={S.page}>
       <Box sx={S.content}>
+        <OnboardingAccount />
         <Paper sx={S.statusCard}>
           <SchoolRequestStatus
             schoolName={schoolName}

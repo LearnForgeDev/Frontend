@@ -2,20 +2,24 @@ import { Box, Paper, Typography } from '@mui/material';
 import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
-import { Navigate, Outlet } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { AuthFlowProvider } from '../../contexts/AuthFlowContext';
+import { getRedirectPath } from './AuthLayout.utils';
+import { AUTH_RETURN_PARAM } from './AuthLayout.const';
 import * as S from './AuthLayout.styles';
 
 export default function AuthLayout() {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   const isAuthenticated = useGlobalContext((state) => state.auth.isAuthenticated);
 
   if (isAuthenticated) {
-    return <Navigate to="/app" replace />;
+    return <Navigate to={getRedirectPath({ fromLocation: searchParams.get(AUTH_RETURN_PARAM) })} replace />;
   }
 
   return (
-    <AuthFlowProvider>
+    <AuthFlowProvider key={location.pathname}>
       <Box sx={S.pageSx}>
         <Box component="section" sx={S.introSx}>
           <Box sx={S.brandSx}>
