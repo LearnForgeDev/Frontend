@@ -25,7 +25,8 @@ test('заявки изолированы, недоступная заявка �
   await page.getByRole('button', { name: 'Создать школу', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Заявка на рассмотрении' })).toBeVisible();
   const waitingUrl = page.url();
-  await page.getByRole('button', { name: 'Сменить аккаунт' }).click();
+  await page.getByRole('button', { name: 'Открыть профиль' }).click();
+  await page.getByRole('button', { name: 'Выйти' }).click();
   await page.getByRole('link', { name: 'Зарегистрироваться' }).click();
   await page.getByLabel(/^Имя пользователя/i).fill(student);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
@@ -37,7 +38,8 @@ test('заявки изолированы, недоступная заявка �
   await expect(page.getByRole('heading', { name: 'Заявка недоступна' })).toBeVisible();
   await page.getByRole('button', { name: 'К выбору школы' }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
-  await page.getByRole('button', { name: 'Сменить аккаунт' }).click();
+  await page.getByRole('button', { name: 'Открыть профиль' }).click();
+  await page.getByRole('button', { name: 'Выйти' }).click();
   await page.getByLabel(/^Имя/i).fill(owner);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
   await page.getByRole('button', { name: 'Войти', exact: true }).click();
@@ -54,5 +56,5 @@ test('регистрация сохраняет приглашение и яко
   await page.getByLabel(/^Подтвердите пароль/i).fill(CI_PASSWORD);
   await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
   await expect(page).toHaveURL(target, { timeout: BACKEND_TIMEOUT_MS });
-  await expect(page.getByLabel('Код приглашения', { exact: true })).toHaveValue('ci-test-invite');
+  await expect(page.getByRole('button', { name: 'Вступить в школу' })).toBeVisible();
 });

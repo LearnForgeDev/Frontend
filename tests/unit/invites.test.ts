@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { getInviteReturnPath } from '../../src/Services/Onboarding/utils/inviteNavigation.utils';
+import { getRedirectPath } from '../../src/Services/Auth/Pages/AuthLayout/AuthLayout.utils';
 import { validateInviteUpdate } from '../../src/Services/Schools/StudentsPage/validation/invites.validation';
 
 afterEach(() => vi.useRealTimers());
@@ -7,12 +7,11 @@ afterEach(() => vi.useRealTimers());
 describe('Возврат к приглашению', () => {
   it('сохраняет токен, включая специальные символы', () => {
     const token = 'abc+/=';
-    expect(getInviteReturnPath({ from: { pathname: '/onboarding', search: `?invite=${encodeURIComponent(token)}` } }))
+    expect(getRedirectPath({ fromLocation: `/onboarding?invite=${encodeURIComponent(token)}` }))
       .toBe(`/onboarding?invite=${encodeURIComponent(token)}`);
   });
-  it.each([null, {}, { from: '//example.com' }, { from: { pathname: 'https://example.com', search: '?invite=abc' } },
-    { from: { pathname: '/onboarding', search: '?other=abc' } }])('отклоняет произвольный адрес %j', (state) => {
-    expect(getInviteReturnPath(state)).toBe('/app');
+  it.each([null, '', '//example.com', 'https://example.com/onboarding?invite=abc'])('отклоняет произвольный адрес %j', (fromLocation) => {
+    expect(getRedirectPath({ fromLocation })).toBe('/app');
   });
 });
 

@@ -17,9 +17,15 @@ function getStorageKey(userPublicId: string): string {
 export function readSchoolRequestPointer(userPublicId?: string): SchoolRequestPointer | null {
   if (!userPublicId) return null;
   try {
-    const stored = localStorage.getItem(getStorageKey(userPublicId));
+    const scopedPointer = localStorage.getItem(getStorageKey(userPublicId));
+    const stored = scopedPointer ?? localStorage.getItem(SCHOOL_REQUEST_STORAGE_KEY);
     const pointer: unknown = stored ? JSON.parse(stored) : null;
-    return isSchoolRequestPointer(pointer) ? pointer : null;
+    if (!isSchoolRequestPointer(pointer)) return null;
+    if (scopedPointer) return pointer;
+    if (pointer.userPublicId !== userPublicId) return null;
+    localStorage.setItem(getStorageKey(userPublicId), JSON.stringify(pointer));
+    localStorage.removeItem(SCHOOL_REQUEST_STORAGE_KEY);
+    return pointer;
   } catch {
     return null;
   }

@@ -5,7 +5,6 @@ import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import type { SchoolRequestPointer } from '../types/onboarding.types';
 import { saveSchoolRequestPointer } from '../utils/schoolRequestStorage.utils';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 
 export function useRequestSchool() {
   const navigate = useNavigate();

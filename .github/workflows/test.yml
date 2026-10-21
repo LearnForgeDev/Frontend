@@ -73,7 +73,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: LearnForgeDev/Backend-General
-          ref: 49414f4b586ad5ac63a450ffee6fa00212e18ad0
+          ref: 6484e3c65220910cc834148fae1544ebc9e49971
           path: .ci/backend
           token: ${{ secrets.CI_BACKEND_TOKEN }}
           persist-credentials: false

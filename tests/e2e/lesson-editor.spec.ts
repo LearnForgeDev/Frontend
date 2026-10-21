@@ -4,7 +4,7 @@ import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { createEditableLesson, createLessonDocument } from './lesson-editor.utils';
 import { INITIAL_LESSON_CONTENT, OFFLINE_LESSON_CONTENT, RENAMED_LESSON_TITLE, SAVED_LESSON_CONTENT } from './lesson-editor.const';
 
-test('сохранение и переименование урока видны ученику в отдельном браузере', async ({ page, browser }) => {
+test('сохранение и переименование урока видны ученику в отдельном браузере', async ({ page, browser }, testInfo) => {
   await login(page, 'teacher');
   const lesson = await createEditableLesson(page);
   const lessonPath = `${SCHOOL_PATH}/lessons/${lesson.id}`;
@@ -23,6 +23,7 @@ test('сохранение и переименование урока видны
   await page.reload();
   await expect(page.getByRole('heading', { name: RENAMED_LESSON_TITLE, exact: true })).toBeVisible();
   await expect(editor).toContainText(SAVED_LESSON_CONTENT);
+  await page.screenshot({ path: testInfo.outputPath('lesson-saved.png'), fullPage: true });
 
   const studentContext = await browser.newContext({ baseURL: new URL(page.url()).origin });
   try {
@@ -81,7 +82,7 @@ test('общий файл двух уроков нельзя перезапис�
   expect(await content.text()).toContain(INITIAL_LESSON_CONTENT);
 });
 
-test('старый черновик не затирает новое сохранение другого браузера', async ({ page, browser }) => {
+test('старый черновик не затирает новое сохранение другого браузера', async ({ page, browser }, testInfo) => {
   await login(page, 'teacher');
   const lesson = await createEditableLesson(page);
   await page.goto(`${SCHOOL_PATH}/lessons/${lesson.id}?edit=true`);
@@ -89,11 +90,9 @@ test('старый черновик не затирает новое сохра�
   await expect(editor).toContainText(INITIAL_LESSON_CONTENT);
   await editor.fill(OFFLINE_LESSON_CONTENT);
   await expect(page.getByRole('status').filter({ hasText: 'Есть несохранённые изменения' })).toBeVisible();
-  const otherContext = await browser.newContext({ baseURL: new URL(page.url()).origin });
+  const otherContext = await browser.newContext({ baseURL: new URL(page.url()).origin, storageState: await page.context().storageState() });
   try {
-    const other = await otherContext.newPage();
-    await login(other, 'teacher');
-    const changed = await other.request.put(`/api/ApiLessons/${SCHOOL_ID}/${lesson.id}`, {
+    const changed = await otherContext.request.put(`/api/ApiLessons/${SCHOOL_ID}/${lesson.id}`, {
       data: { title: lesson.title, content: createLessonDocument(SAVED_LESSON_CONTENT), expectedStorageKey: lesson.lessonJsonFile.storageKey },
     });
     expect(changed.ok()).toBe(true);
@@ -102,6 +101,7 @@ test('старый черновик не затирает новое сохра�
     expect((await rejected).status()).toBe(409);
     await expect(page.getByRole('alert').filter({ hasText: 'Урок изменён на сервере' })).toBeVisible();
     await expect(editor).toContainText(OFFLINE_LESSON_CONTENT);
+    await page.screenshot({ path: testInfo.outputPath('lesson-conflict.png'), fullPage: true });
     await page.reload();
     await expect(editor).toContainText(OFFLINE_LESSON_CONTENT);
     await expect(page.getByRole('button', { name: 'Сохранить', exact: true })).toBeDisabled();
