@@ -21,8 +21,14 @@ test.describe('Публичные страницы', { tag: '@public' }, () => {
     await page.getByLabel(/^Подтвердите пароль/i).fill('password-two');
     await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
     await expect(page.getByRole('alert')).toContainText('Пароли не совпадают');
+    await page.getByLabel(/^Подтвердите пароль/i).fill('password-one');
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    await page.getByLabel(/^Подтвердите пароль/i).fill('password-two');
+    await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
+    await expect(page.getByRole('alert')).toContainText('Пароли не совпадают');
     await page.getByRole('link', { name: 'Войти', exact: true }).click();
     await expect(page).toHaveURL(/\/auth\/login$/);
+    await expect(page.getByRole('alert')).toHaveCount(0);
   });
 
   test('переключение видимости пароля сохраняет ввод', async ({ page }) => {
@@ -40,7 +46,8 @@ test.describe('Публичные страницы', { tag: '@public' }, () => {
   for (const route of ['/app', '/app/profile', '/admin', '/profile']) {
     test(`гость перенаправляется со страницы ${route}`, async ({ page }) => {
       await page.goto(route);
-      await expect(page).toHaveURL(/\/auth\/login$/);
+      await expect(page).toHaveURL(/\/auth\/login(?:\?|$)/);
+      expect(new URL(page.url()).searchParams.get('returnTo')).toBe(route === '/app' ? null : route);
       await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
     });
   }
@@ -48,5 +55,7 @@ test.describe('Публичные страницы', { tag: '@public' }, () => {
   test('неизвестный маршрут показывает страницу 404', async ({ page }) => {
     await page.goto('/missing-route');
     await expect(page.getByText('Страница не найдена', { exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'На главную' }).click();
+    await expect(page).toHaveURL(/\/auth\/login$/);
   });
 });

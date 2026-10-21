@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { parseJwt } from '../../src/Endpoints/auth/utils';
-import { getRedirectPath } from '../../src/Services/Auth/Pages/AuthLayout/AuthLayout.utils';
+import { getAuthPath, getRedirectPath } from '../../src/Services/Auth/Pages/AuthLayout/AuthLayout.utils';
 import { useGlobalContext } from '../../src/Storage/useGlobalContext/useGlobalContext';
 import { AuthRole, type UserIdentity } from '../../src/Assets/Types/commonTypes';
 
@@ -21,11 +21,20 @@ describe('Авторизация и выбор школы', () => {
     expect(() => parseJwt('invalid')).toThrow();
   });
 
-  it('возвращает пользователя на исходный маршрут или в выбранную школу', () => {
-    expect(getRedirectPath({ fromLocation: '/profile', selectedSchool: 'school' })).toBe('/profile');
-    expect(getRedirectPath({ selectedSchool: 'school' })).toBe('/admin/schools/school');
-    expect(getRedirectPath({})).toBe('/admin');
+  it('сохраняет разрешённый путь, query и hash между формами', () => {
+    const target = '/app/schools/school/schedule?eventId=event#details';
+    expect(getRedirectPath({ fromLocation: target })).toBe(target);
+    for (const mode of ['login', 'register'] as const) {
+      const url = new URL(getAuthPath(mode, target), 'https://learnforge.invalid');
+      expect(url.searchParams.get('returnTo')).toBe(target);
+    }
+    expect(getRedirectPath({})).toBe('/app');
   });
+
+  it.each(['https://evil.invalid', '//evil.invalid/app', '/\\\\evil.invalid/app', '/auth/login', '/app/../../outside', 'javascript:alert(1)'])(
+    'не перенаправляет на внешний или неподходящий адрес %s',
+    (fromLocation) => expect(getRedirectPath({ fromLocation })).toBe('/app'),
+  );
 
   it('сохраняет пользователя и выбранную школу, очищает сессию при выходе', () => {
     useGlobalContext.getState().auth.setUser(identity);
