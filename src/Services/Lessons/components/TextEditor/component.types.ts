@@ -5,6 +5,7 @@ export interface TextEditorProps {
   id: number | string;
   editorState?: SerializedDocument;
   isSaving?: boolean;
+  isSaveBlocked?: boolean;
   saveStatus?: 'saved' | 'draft' | 'error';
   onDraft?: (document: SerializedDocument) => void;
   onSave?: (document: SerializedDocument) => Promise<void>;

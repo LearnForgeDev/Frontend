@@ -3,6 +3,7 @@ import { ClipLoader } from 'react-spinners';
 import type { Lesson } from '../FileManager/FileManager.types';
 import { useRenameLesson } from '../../hooks/useRenameLesson';
 import { styles } from './RenameLessonDialog.styles';
+import { RENAME_LOADER_SIZE } from './RenameLessonDialog.const';
 
 interface RenameLessonDialogProps {
   schoolPublicId: string;
@@ -21,7 +22,7 @@ export default function RenameLessonDialog({ schoolPublicId, lesson, onClose }: 
       </DialogContent>
       <DialogActions>
         <Button onClick={view.close} disabled={view.isSaving}>Отмена</Button>
-        <Button type="submit" variant="contained" disabled={view.isSaving} startIcon={view.isSaving ? <ClipLoader size={16} color="currentColor" /> : undefined}>Сохранить название</Button>
+        <Button type="submit" variant="contained" disabled={view.isSaving} startIcon={view.isSaving ? <ClipLoader size={RENAME_LOADER_SIZE} color="currentColor" /> : undefined}>Сохранить название</Button>
       </DialogActions>
     </form>
   </Dialog>;

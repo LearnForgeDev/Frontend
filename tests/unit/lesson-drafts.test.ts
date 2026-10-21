@@ -10,7 +10,7 @@ describe('Черновик урока', () => {
 
   it('изолирован по пользователю, школе и уроку', () => {
     writeLessonDraft(scope, document);
-    expect(readLessonDraft(scope)).toEqual(document);
+    expect(readLessonDraft(scope)?.document).toEqual(document);
     expect(readLessonDraft({ ...scope, userPublicId: 'student' })).toBeUndefined();
     expect(readLessonDraft({ ...scope, schoolPublicId: 'other' })).toBeUndefined();
     expect(readLessonDraft({ ...scope, lessonId: '2' })).toBeUndefined();
@@ -20,9 +20,14 @@ describe('Черновик урока', () => {
     const newer = normalizeLessonDocument({ root: { type: 'root', children: [{ type: 'paragraph', children: [] }], version: 1 } })!;
     writeLessonDraft(scope, newer);
     clearSavedLessonDraft(scope, document);
-    expect(readLessonDraft(scope)).toEqual(newer);
+    expect(readLessonDraft(scope)?.document).toEqual(newer);
     clearSavedLessonDraft(scope, newer);
     expect(readLessonDraft(scope)).toBeUndefined();
+  });
+
+  it('сохраняет версию, на основе которой началось редактирование', () => {
+    writeLessonDraft(scope, document, 'lessons:original');
+    expect(readLessonDraft(scope)?.storageKey).toBe('lessons:original');
   });
 
   it('отклоняет пустое и слишком длинное название', () => {

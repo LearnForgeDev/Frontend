@@ -1,5 +1,5 @@
 import { Suspense, lazy } from 'react';
-import { Alert } from '@mui/material';
+import { Alert, Button } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import type { SerializedDocument } from '@lexical/file';
 import type { Lesson } from '../FileManager/FileManager.types';
@@ -19,6 +19,9 @@ export default function LessonEditorContainer({ schoolPublicId, lesson, document
   const view = useLessonEditing(schoolPublicId, lesson, isEditMode);
   if (!isEditMode && isLessonDocumentEmpty(document)) return <Alert severity="info">В уроке пока нет материалов.</Alert>;
   return <>
+    {view.hasConflict && <Alert severity="warning" action={<Button color="inherit" onClick={view.loadCurrentVersion}>Загрузить версию с сервера</Button>}>
+      Урок изменён на сервере. Скопируйте нужные изменения: загрузка актуальной версии удалит этот черновик.
+    </Alert>}
     {view.storageFailed && <Alert severity="warning">Не удалось сохранить черновик на устройстве. Сохраните урок перед выходом.</Alert>}
     <Suspense fallback={<ClipLoader color="var(--app-primary)" aria-label="Загрузка редактора" />}>
       <TextEditor
@@ -26,6 +29,7 @@ export default function LessonEditorContainer({ schoolPublicId, lesson, document
         isEditMode={isEditMode}
         editorState={view.restoredDraft ?? document}
         isSaving={view.isSaving}
+        isSaveBlocked={view.hasConflict}
         saveStatus={view.status}
         onDraft={view.recordDraft}
         onSave={view.saveDocument}

@@ -25,6 +25,7 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
   const invalidateEvents = () => queryClient.invalidateQueries({ queryKey: ['schedule-events', schoolId] });
 
   const createEvent = useMutation<ScheduleEvent, AppError, CreateScheduleEventInput>({
+    networkMode: 'always',
     mutationFn: (input) =>
       scheduleEndpoints.createEvent(schoolId, {
         ...input,
@@ -35,6 +36,7 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
   });
 
   const updateEvent = useMutation<ScheduleEvent, AppError, UpdateScheduleEventVars>({
+    networkMode: 'always',
     mutationFn: ({ eventId, input }) =>
       scheduleEndpoints.updateEvent(schoolId, eventId, input).then(scheduleEventDtoToEvent),
     onError: () => toast.error(SCHEDULE_MUTATION_ERRORS.update),
@@ -42,6 +44,7 @@ export function useScheduleMutations(): UseScheduleMutationsReturn {
   });
 
   const deleteEvent = useMutation<void, AppError, string>({
+    networkMode: 'always',
     mutationFn: (eventId) => scheduleEndpoints.deleteEvent(schoolId, eventId),
     onError: () => toast.error(SCHEDULE_MUTATION_ERRORS.delete),
     onSettled: invalidateEvents,

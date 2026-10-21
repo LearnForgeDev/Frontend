@@ -1,7 +1,9 @@
 import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { lessonsEndpoints } from '@/Endpoints';
 import type { UpdateLessonRequest } from '@/Endpoints/lessons/types';
 import type { Lesson } from '../components/FileManager/FileManager.types';
+import { LESSON_CONFLICT_STATUS } from './useSaveLesson.const';
 
 export function useSaveLesson(schoolPublicId: string, lessonId: string | number) {
   const queryClient = useQueryClient();
@@ -12,6 +14,11 @@ export function useSaveLesson(schoolPublicId: string, lessonId: string | number)
     networkMode: 'always',
     scope: { id: mutationKey.join('/') },
     mutationFn: (request: UpdateLessonRequest) => lessonsEndpoints.updateLesson(schoolPublicId, String(lessonId), request),
+    onError: async error => {
+      if (isAxiosError(error) && error.response?.status === LESSON_CONFLICT_STATUS) {
+        await queryClient.invalidateQueries({ queryKey: ['lesson', schoolPublicId, String(lessonId)] });
+      }
+    },
     onSuccess: (lesson, request) => {
       if (request.content) {
         queryClient.setQueryData(['lesson-content', schoolPublicId, String(lessonId), lesson.lessonJsonFile?.storageKey], request.content);

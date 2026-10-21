@@ -29,6 +29,7 @@ export default function TextEditor({
   isEditMode,
   editorState,
   isSaving = false,
+  isSaveBlocked = false,
   saveStatus = 'saved',
   onDraft,
   onSave,
@@ -57,10 +58,11 @@ export default function TextEditor({
       <LoadPreviousStatePlugin
         editorState={editorState}
         onError={setHasLoadError}
+        initializeOnce={isEditMode}
       />
       {isEditMode && onDraft && <AutoSavePlugin onDraft={onDraft} initialDocument={editorState} />}
 
-      {isEditMode && onSave && <ControlsPlugin onSave={onSave} isSaving={isSaving} status={saveStatus} />}
+      {isEditMode && onSave && <ControlsPlugin onSave={onSave} isSaving={isSaving} isSaveBlocked={isSaveBlocked} status={saveStatus} />}
     </LexicalComposer>
   );
 }

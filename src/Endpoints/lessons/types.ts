@@ -5,6 +5,7 @@ import type { SerializedDocument } from '@lexical/file';
 export interface UpdateLessonRequest {
   title: string;
   content?: SerializedDocument;
+  expectedStorageKey?: string;
 }
 
 export interface CreateLessonRequest {
