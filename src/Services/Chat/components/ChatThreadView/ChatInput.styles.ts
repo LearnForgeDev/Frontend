@@ -19,7 +19,10 @@ export const styles = {
   attachIcon: {
     transform: 'rotate(45deg)',
   },
-  controls: {
+  inputArea: {
+    p: 1.5,
+    borderTop: (theme: Theme) => `1px solid ${theme.palette.divider}`,
+    bgcolor: 'background.paper',
     display: 'flex',
     gap: 1,
     width: '100%',
