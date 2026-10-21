@@ -10,6 +10,7 @@ export function useProvisioningRequests() {
   const requestsQuery = useQuery({
     queryKey: REQUESTS_QUERY_KEY,
     retry: false,
+    networkMode: 'always',
     queryFn: async () => {
       try {
         return normalizeProvisioningRequests(await schoolsEndpoints.getProvisioningRequests(true));
@@ -31,12 +32,14 @@ export function useProvisioningRequests() {
   };
 
   const approveRequest = useMutation({
+    networkMode: 'always',
     mutationFn: (publicId: string) => schoolsEndpoints.approveProvisioningRequest(publicId),
     onSuccess: refreshRequests,
     onError: onMutationError,
   });
 
   const rejectRequest = useMutation({
+    networkMode: 'always',
     mutationFn: (publicId: string) => schoolsEndpoints.rejectProvisioningRequest(publicId),
     onSuccess: refreshRequests,
     onError: onMutationError,
