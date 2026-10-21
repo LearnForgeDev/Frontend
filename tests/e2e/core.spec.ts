@@ -115,12 +115,14 @@ test('чат отправляет сообщение через SignalR и во�
   await login(page);
   await page.goto(`${SCHOOL_PATH}/chats`);
   await page.getByText('Общий чат CI', { exact: true }).first().click();
-  const input = page.getByPlaceholder('Напишите сообщение...');
+  const input = page.getByPlaceholder('Введите сообщение...');
   await expect(input).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   const message = `Сообщение CI ${Date.now()}`;
   await input.fill(message);
+  await expect(page.getByRole('button', { name: 'Отправить сообщение', exact: true })).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   await input.press('Enter');
   await expect(page.getByText(message, { exact: true })).toBeVisible();
+  await expect(input).toHaveValue('');
   await page.reload();
   await page.getByText('Общий чат CI', { exact: true }).first().click();
   await expect(page.getByText(message, { exact: true })).toBeVisible();

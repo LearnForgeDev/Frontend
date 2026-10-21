@@ -1,0 +1,4 @@
+export const MESSAGE_IMAGE_WIDTH = 240;
+export const MESSAGE_IMAGE_HEIGHT = 180;
+export const COMPACT_IMAGE_WIDTH = 180;
+export const COMPACT_IMAGE_HEIGHT = 130;

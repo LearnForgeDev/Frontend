@@ -1,148 +1,51 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useChatHubConnection, type ChatHubParams } from '@/Assets/Hooks/useSignalR/chatHub';
-import type { ChatMessage, ChatFileDto } from '@/Services/Chat/Chat.types';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
-import { chatEndpoints, filesEndpoints } from '@/Endpoints';
-import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
-const logger = createDebugger('useChatMessages');
-
-
-interface ApiFileItem {
-  publicId?: string;
-  PublicId?: string;
-  fileName?: string;
-  FileName?: string;
-  fileUrl?: string;
-  FileUrl?: string;
-}
-
-interface ApiHistoryItem {
-  publicId?: string;
-  PublicId?: string;
-  senderPublicId?: string;
-  SenderPublicId?: string;
-  senderName?: string;
-  SenderName?: string;
-  text?: string;
-  Text?: string;
-  files?: ApiFileItem[];
-  Files?: ApiFileItem[];
-  sentAt?: string;
-  SentAt?: string;
-}
-
-function mapFiles(raw: ApiFileItem[] | undefined, schoolPublicId: string): ChatFileDto[] {
-  if (!raw || raw.length === 0) return [];
-  return raw.map(f => {
-    const id = f.publicId ?? f.PublicId ?? '';
-    const name = f.fileName ?? f.FileName ?? '';
-    const url = id ? filesEndpoints.getFileUrl(schoolPublicId, id) : (f.fileUrl ?? f.FileUrl ?? '');
-    return { publicId: id, fileName: name, fileUrl: url };
-  });
-}
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { chatEndpoints } from '@/Endpoints';
+import { mapChatHistory, type ApiHistoryItem } from './useChatMessages.utils';
+import { CHAT_CONNECTION_ERROR } from './useChatMessages.const';
 
 export function useChatMessages(params: ChatHubParams) {
+  const { type, schoolPublicId, threadId } = params;
   const { connection, status } = useChatHubConnection(params);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [prevThreadId, setPrevThreadId] = useState(params.threadId);
-  const currentUserName = useGlobalContext((s) => s.auth.user?.userName);
-  const currentUserPublicId = useGlobalContext((s) => s.auth.user?.userPublicId);
-
-  if (params.threadId !== prevThreadId) {
-    setPrevThreadId(params.threadId);
-    setMessages([]);
-  }
-
-  useEffect(() => {
-    let isMounted = true;
-
-    if (!params.threadId || !params.schoolPublicId) return;
-
-    if (params.type === 'branch') {
-      chatEndpoints.getBranchHistory(params.schoolPublicId, params.threadId)
-        .then((history: ApiHistoryItem[]) => {
-          if (!isMounted) return;
-          setMessages(history.map(h => {
-            const timeStr = h.sentAt ?? h.SentAt;
-            return {
-              id: h.publicId ?? h.PublicId ?? crypto.randomUUID(),
-              senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-              senderName: h.senderName ?? h.SenderName ?? 'Unknown',
-              text: h.text ?? h.Text ?? '',
-              receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
-              sentAt: timeStr,
-              isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-              files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
-            };
-          }));
-        })
-        .catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
-    } else if (params.type === 'direct') {
-      chatEndpoints.getDirectHistory(params.schoolPublicId, params.threadId)
-        .then((history: ApiHistoryItem[]) => {
-          if (!isMounted) return;
-          setMessages(history.map(h => {
-            const timeStr = h.sentAt ?? h.SentAt;
-            return {
-              id: h.publicId ?? h.PublicId ?? crypto.randomUUID(),
-              senderPublicId: h.senderPublicId ?? h.SenderPublicId ?? '',
-              senderName: h.senderName ?? h.SenderName ?? 'Unknown',
-              text: h.text ?? h.Text ?? '',
-              receivedAt: timeStr ? new Date(timeStr).toISOString() : new Date().toISOString(),
-              sentAt: timeStr,
-              isOwn: (h.senderPublicId ?? h.SenderPublicId) === currentUserPublicId || (h.senderName ?? h.SenderName) === currentUserName,
-              files: mapFiles(h.files ?? h.Files, params.schoolPublicId),
-            };
-          }));
-        })
-        .catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
-    }
-
-    return () => {
-      isMounted = false;
-    };
-  }, [params.threadId, params.type, params.schoolPublicId, currentUserName, currentUserPublicId]);
+  const queryClient = useQueryClient();
+  const userName = useGlobalContext(state => state.auth.user?.userName);
+  const userPublicId = useGlobalContext(state => state.auth.user?.userPublicId);
+  const queryKey = ['chat-messages', schoolPublicId, type, threadId, userPublicId];
+  const history = useQuery({
+    queryKey,
+    queryFn: async () => {
+      const messages: ApiHistoryItem[] = await (type === 'branch'
+        ? chatEndpoints.getBranchHistory(schoolPublicId, threadId)
+        : chatEndpoints.getDirectHistory(schoolPublicId, threadId));
+      return mapChatHistory(messages, schoolPublicId, userPublicId, userName);
+    },
+    enabled: Boolean(schoolPublicId && threadId),
+  });
 
   useEffect(() => {
     if (!connection) return;
-
-    const handler = (senderPublicId: string, senderName: string, text: string, files?: ApiFileItem[], sentAt?: string) => {
-      const isOwn = senderPublicId === currentUserPublicId || senderName === currentUserName;
-      const timeStr = sentAt || new Date().toISOString();
-      const newMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        senderPublicId,
-        senderName,
-        text,
-        receivedAt: timeStr,
-        sentAt: timeStr,
-        isOwn,
-        files: mapFiles(files, params.schoolPublicId),
-      };
-      setMessages((prev) => [...prev, newMessage]);
+    const refreshHistory = () => {
+      void queryClient.invalidateQueries({ queryKey: ['chat-messages', schoolPublicId, type, threadId, userPublicId] });
     };
+    connection.on('ReceiveMessage', refreshHistory);
+    return () => connection.off('ReceiveMessage', refreshHistory);
+  }, [connection, queryClient, schoolPublicId, type, threadId, userPublicId]);
 
-    connection.on('ReceiveMessage', handler);
-
-    return () => {
-      connection.off('ReceiveMessage', handler);
-    };
-  }, [connection, currentUserName, currentUserPublicId, params.schoolPublicId]);
-
-  const sendMessage = useCallback((text: string, filePublicIds: string[] = []) => {
-    if (!connection || status !== 'connected') return;
-
-    if (params.type === 'branch') {
-      connection.invoke('SendMessageToBreanch', params.schoolPublicId, params.threadId, text, filePublicIds).catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
-    } else {
-      connection.invoke('SendMessageToDirect', params.schoolPublicId, params.threadId, text, filePublicIds).catch((err) => logger.logEventForDebug(DebugSeverity.DANGER, 'Caught error', err));
-    }
-  }, [connection, status, params]);
+  const send = useMutation({
+    mutationFn: async ({ text, filePublicIds }: { text: string; filePublicIds: string[] }) => {
+      if (!connection || status !== 'connected') throw new Error(CHAT_CONNECTION_ERROR);
+      await connection.invoke(type === 'branch' ? 'SendMessageToBreanch' : 'SendMessageToDirect', schoolPublicId, threadId, text, filePublicIds);
+    },
+    onSuccess: () => { void queryClient.invalidateQueries({ queryKey }); },
+  });
 
   return {
-    messages,
-    sendMessage,
+    messages: history.data ?? [],
+    sendMessage: (text: string, filePublicIds: string[] = []) => send.mutateAsync({ text, filePublicIds }),
     status,
+    isSending: send.isPending,
     isConnecting: status === 'connecting' || status === 'reconnecting',
   };
 }
