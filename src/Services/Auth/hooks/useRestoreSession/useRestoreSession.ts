@@ -12,6 +12,7 @@ export function useRestoreSession() {
   const queryClient = useQueryClient();
   const session = useQuery<UserIdentity | null>({
     queryKey: SESSION_QUERY_KEY,
+    networkMode: 'always',
     queryFn: async () => {
       const stored = getSessionStorageSnapshot();
       const clearInvalidSession = () => {

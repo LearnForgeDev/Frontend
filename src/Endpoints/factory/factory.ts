@@ -12,6 +12,7 @@ export function createApiClient({ retryCount = 0, staleTime = 0, sessionScoped =
   const client = new QueryClient({
     defaultOptions: {
       queries: {
+        networkMode: sessionScoped ? 'always' : 'online',
         retry: (failureCount, error) => shouldRetryRequest(failureCount, error, retryCount),
         staleTime,
         retryDelay: (attempt) => Math.min(RETRY_DELAY_MS * Math.pow(2, attempt), MAX_RETRY_DELAY_MS),
