@@ -1,3 +1,4 @@
+import { useTodayClock } from '../useTodayClock/useTodayClock';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
@@ -19,6 +20,7 @@ export const useTodayPage = () => {
   const userName = useGlobalContext((state) => state.auth.user?.userName);
   const { data: schools } = useSchools();
   const schedule = useScheduleEvents();
+  const now = useTodayClock(schedule.events);
   const lessonsQuery = useLessons();
   const currentSchool = schools?.find(
     (school) => school.schoolPublicId === schoolPublicId,
@@ -37,15 +39,15 @@ export const useTodayPage = () => {
 
   return {
     userName,
-    dateLabel: formatTodayDate(),
+    dateLabel: formatTodayDate(now),
     canTeach,
     canManageSchool,
     studentCount: studentsQuery.data?.length ?? 0,
     isSchoolSummaryLoading: studentsQuery.isLoading,
     isSchoolSummaryError: studentsQuery.isError,
     isCreatingLesson: isCreating,
-    upcomingEvent: getUpcomingEvent(schedule.events),
-    todayEvents: getTodayEvents(schedule.events),
+    upcomingEvent: getUpcomingEvent(schedule.events, now),
+    todayEvents: getTodayEvents(schedule.events, now),
     recentLessons: getRecentLessons(lessonsQuery.lessons),
     isScheduleLoading: schedule.isLoading,
     isScheduleError: schedule.isError,

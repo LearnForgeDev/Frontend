@@ -1,0 +1,1 @@
+export const DEFAULT_EVENT_DURATION_MS = 60 * 60 * 1000;

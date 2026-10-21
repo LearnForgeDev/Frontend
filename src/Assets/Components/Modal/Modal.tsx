@@ -4,13 +4,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import type { ModalProps } from './Modal.types';
 import { styles } from './Modal.styles';
 
-export function Modal({ title, subtitle, icon, time, className, onClose, children }: ModalProps) {
+export function Modal({ title, subtitle, icon, time, className, onClose, children, disableClose = false }: ModalProps) {
   const [open, setOpen] = useState(true);
   const [timeLeft, setTimeLeft] = useState(time ?? 0);
 
   const handleClose = useCallback(() => {
-    setOpen(false);
-  }, []);
+    if (!disableClose) setOpen(false);
+  }, [disableClose]);
 
   const handleExited = useCallback(() => {
     onClose();
@@ -58,6 +58,7 @@ export function Modal({ title, subtitle, icon, time, className, onClose, childre
     >
       <IconButton
         aria-label="закрыть"
+        disabled={disableClose}
         onClick={handleClose}
         sx={styles.closeBtn}
       >

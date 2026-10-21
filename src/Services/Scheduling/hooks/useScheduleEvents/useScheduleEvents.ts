@@ -11,7 +11,7 @@ import type { UseScheduleEventsReturn } from './useScheduleEvents.types';
 export function useScheduleEvents(): UseScheduleEventsReturn {
   const schoolId = useSchoolId();
 
-  const { data, isLoading, isError, error, refetch } = useQuery<ScheduleEvent[], AppError>({
+  const { data, isLoading, isError, isSuccess, error, refetch } = useQuery<ScheduleEvent[], AppError>({
     queryKey: ['schedule-events', schoolId],
     queryFn: () =>
       scheduleEndpoints.listEvents(schoolId).then((dtos: ScheduleEventDto[]) => dtos.map(scheduleEventDtoToEvent)),
@@ -23,6 +23,7 @@ export function useScheduleEvents(): UseScheduleEventsReturn {
     events: data ?? [],
     isLoading,
     isError,
+    isSuccess,
     error: error ?? null,
     refetch,
   };

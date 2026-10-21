@@ -5,6 +5,7 @@ export interface UseScheduleEventsReturn {
   events: ScheduleEvent[];
   isLoading: boolean;
   isError: boolean;
+  isSuccess: boolean;
   error: AppError | null;
   refetch: () => void;
 }
