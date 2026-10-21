@@ -27,7 +27,7 @@ x-backend-environment: &backend-environment
   Jitsi__AppSecret: ci-only-jitsi-key-at-least-32-characters
   Jitsi__Subject: meet.jitsi
   Jitsi__PublicUrl: https://meet.invalid
-  AdminTotp__SharedSecret: JBSWY3DPEHPK3PXP
+  AdminTotp__SharedSecret: ${CI_ADMIN_TOTP_SECRET:?Generate an isolated CI TOTP key before starting the backend}
   IsLocalMode: "false"
 
 services:

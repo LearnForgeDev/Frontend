@@ -79,6 +79,10 @@ export default defineConfig({
     preview: {
         proxy: process.env.CI_BACKEND_URL ? {
             '/api': process.env.CI_BACKEND_URL,
+            '/Admin': process.env.CI_BACKEND_URL,
+            '/SoftAdmin': process.env.CI_BACKEND_URL,
+            '/css/site.css': process.env.CI_BACKEND_URL,
+            '/lib/bootstrap/dist/css/bootstrap.min.css': process.env.CI_BACKEND_URL,
             '/health': process.env.CI_BACKEND_URL,
             '/chatHub': { target: process.env.CI_BACKEND_URL, ws: true },
             '/directChatHub': { target: process.env.CI_BACKEND_URL, ws: true },

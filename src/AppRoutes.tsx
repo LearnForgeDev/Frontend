@@ -47,6 +47,10 @@ export default function AppRoutes() {
       ],
     },
     {
+      path: '/developer',
+      element: <DeveloperRequestsPage />,
+    },
+    {
       element: <ProtectedRoute />,
       children: [
         {
@@ -81,7 +85,6 @@ export default function AppRoutes() {
         },
         { path: '/onboarding', element: <OnboardingPage /> },
         { path: '/onboarding/waiting/:requestPublicId', element: <WaitingConfirmationPage /> },
-        { path: '/developer', element: <DeveloperRequestsPage /> },
         { path: '/admin', element: <Navigate to="/app" replace /> },
         { path: '/admin/schools/:schoolPublicId/*', element: <LegacySchoolRedirect /> },
         { path: '/profile', element: <Navigate to="/app/profile" replace /> },

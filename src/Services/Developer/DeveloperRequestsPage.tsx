@@ -6,11 +6,12 @@ import { ClipLoader } from 'react-spinners';
 import { useNavigate } from 'react-router-dom';
 import { useProvisioningRequests } from './hooks/useProvisioningRequests';
 import * as S from './DeveloperRequestsPage.styles';
+import { formatRequestMeta, formatRequestStatus, getAdminLoginUrl } from './DeveloperRequestsPage.utils';
+import { ADMIN_LOADING_SIZE } from './DeveloperRequestsPage.const';
 
 export default function DeveloperRequestsPage() {
   const navigate = useNavigate();
-  const { requestsQuery, approveRequest, rejectRequest } = useProvisioningRequests();
-  const isMutating = approveRequest.isPending || rejectRequest.isPending;
+  const { requestsQuery, approveRequest, rejectRequest, isMutating, error, retryRequests } = useProvisioningRequests();
 
   return (
     <Box component="main" sx={S.pageSx}>
@@ -25,29 +26,30 @@ export default function DeveloperRequestsPage() {
           </Button>
         </Box>
 
-        {requestsQuery.isError ? (
+        {error ? (
           <Alert
             severity="error"
-            action={<Button color="inherit" onClick={() => requestsQuery.refetch()}>Повторить</Button>}
+            action={error.requiresLogin
+              ? <Button color="inherit" href={getAdminLoginUrl()}>Войти</Button>
+              : <Button color="inherit" disabled={requestsQuery.isFetching} onClick={retryRequests}>Повторить</Button>}
           >
-            Нет доступа или не удалось загрузить заявки.
+            {error.message}
           </Alert>
         ) : requestsQuery.isLoading ? (
-          <Box role="status" sx={{ minHeight: 320, display: 'grid', placeItems: 'center' }}>
-            <ClipLoader color="var(--app-primary)" size={32} />
+          <Box role="status" aria-label="Загрузка заявок" sx={S.loadingSx}>
+            <ClipLoader color="var(--app-primary)" size={ADMIN_LOADING_SIZE} />
           </Box>
         ) : requestsQuery.data?.length ? (
           <Box sx={S.listSx}>
             {requestsQuery.data.map((request) => (
               <Box key={request.publicId} sx={S.requestSx}>
                 <Box>
-                  <Typography component="h2" sx={{ fontWeight: 800 }}>{request.schoolName}</Typography>
+                  <Typography component="h2" sx={S.requestTitleSx}>{request.schoolName}</Typography>
                   <Typography sx={S.metaSx}>
-                    {request.requesterName ? `Автор: ${request.requesterName} · ` : ''}
-                    {request.requestedAt ? new Date(request.requestedAt).toLocaleString('ru-RU') : request.publicId}
+                    {formatRequestMeta(request)}
                   </Typography>
                 </Box>
-                <Chip label={request.status} size="small" />
+                <Chip label={formatRequestStatus(request.status)} size="small" />
                 <Box sx={S.actionsSx}>
                   <Button
                     variant="outlined"
