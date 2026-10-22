@@ -12,7 +12,7 @@ import * as S from './WaitingConfirmationPage.styles';
 export default function WaitingConfirmationPage() {
   const { requestPublicId } = useParams<{ requestPublicId: string }>();
   const [isGameVisible, setIsGameVisible] = useState(false);
-  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName } = useWaitingConfirmation(requestPublicId);
+  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, returnToSchools } = useWaitingConfirmation(requestPublicId);
 
   if (!requestPublicId) {
     return <Navigate to="/onboarding" replace />;
@@ -45,6 +45,7 @@ export default function WaitingConfirmationPage() {
               <Button variant="contained" onClick={() => statusQuery.refetch()}>
                 Повторить
               </Button>
+              <Button onClick={returnToSchools}>К моим школам</Button>
             </Box>
           </Paper>
           <Paper component="section" sx={S.actionsCard}>

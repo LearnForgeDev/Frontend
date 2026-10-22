@@ -6,10 +6,12 @@ import { useSchoolRequestStatus } from './useSchoolRequestStatus';
 import { APPROVAL_REDIRECT_DELAY_MS } from '../onboarding.const';
 import { clearSchoolRequestPointer, readSchoolRequestPointer } from '../utils/schoolRequestStorage.utils';
 import { getSchoolRequestViewState } from '../utils/schoolRequestStatus.utils';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 
 export function useWaitingConfirmation(requestPublicId?: string) {
   const navigate = useNavigate();
-  const storedPointer = readSchoolRequestPointer();
+  const userPublicId = useGlobalContext((state) => state.auth.user?.userPublicId);
+  const storedPointer = readSchoolRequestPointer(userPublicId);
   const pointer =
     storedPointer?.requestPublicId === requestPublicId ? storedPointer : null;
   const statusQuery = useSchoolRequestStatus(requestPublicId);
@@ -50,5 +52,10 @@ export function useWaitingConfirmation(requestPublicId?: string) {
     return () => window.clearTimeout(redirectTimer);
   }, [approvedSchool, navigate, requestPublicId]);
 
-  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName };
+  const returnToSchools = () => {
+    clearSchoolRequestPointer(requestPublicId);
+    navigate('/app', { replace: true });
+  };
+
+  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, returnToSchools };
 }
