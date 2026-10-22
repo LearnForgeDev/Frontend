@@ -1,6 +1,7 @@
 import type { UserSchoolInfo } from '@/Endpoints/schools/types';
 
 export type SchoolRequestPointer = {
+  userPublicId?: string;
   requestPublicId: string;
   schoolName: string;
   knownSchoolPublicIds: string[];

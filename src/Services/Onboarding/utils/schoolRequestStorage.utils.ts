@@ -18,18 +18,20 @@ function isSchoolRequestPointer(value: unknown): value is SchoolRequestPointer {
   );
 }
 
-export function readSchoolRequestPointer(): SchoolRequestPointer | null {
+export function readSchoolRequestPointer(userPublicId?: string): SchoolRequestPointer | null {
   try {
     const storedPointer = localStorage.getItem(SCHOOL_REQUEST_STORAGE_KEY);
     if (storedPointer) {
       const parsedPointer: unknown = JSON.parse(storedPointer);
-      return isSchoolRequestPointer(parsedPointer) ? parsedPointer : null;
+      if (!isSchoolRequestPointer(parsedPointer)) return null;
+      if (userPublicId && parsedPointer.userPublicId !== userPublicId) return null;
+      return parsedPointer;
     }
 
     const legacyPointer = localStorage.getItem(
       LEGACY_SCHOOL_REQUEST_STORAGE_KEY,
     );
-    if (!legacyPointer) {
+    if (!legacyPointer || userPublicId) {
       return null;
     }
 

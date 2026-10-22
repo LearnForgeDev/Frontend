@@ -4,6 +4,7 @@ import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
 import type { SchoolRequestPointer } from '../types/onboarding.types';
 import { saveSchoolRequestPointer } from '../utils/schoolRequestStorage.utils';
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 
 export function useRequestSchool() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export function useRequestSchool() {
       }
 
       const pointer: SchoolRequestPointer = {
+        userPublicId: useGlobalContext.getState().auth.user?.userPublicId,
         requestPublicId: request.requestPublicId,
         schoolName,
         knownSchoolPublicIds: schoolsBeforeRequest.map(

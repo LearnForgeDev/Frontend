@@ -12,9 +12,8 @@ import { useNavigate } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints';
 import { getAuthErrorMessage } from './AuthFlowContext.utils';
 import { useToast } from '@/Storage/useToastStore';
-import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { useUser } from '@/Storage/UserContext/UserContext.tsx';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
+import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
 
 type AuthFormState = {
   name: string;
@@ -43,26 +42,6 @@ function getInitialAuthState(): AuthFormState {
     name: "",
     password: "",
     confirmPassword: "",
-  };
-}
-
-function toUserIdentity(result: Partial<UserIdentity>): UserIdentity | null {
-  if (
-    !result.jwtToken ||
-    !result.refreshToken ||
-    !result.userName ||
-    !result.userPublicId
-  ) {
-    return null;
-  }
-
-  return {
-    jwtToken: result.jwtToken,
-    refreshToken: result.refreshToken,
-    userName: result.userName,
-    userPublicId: result.userPublicId,
-    userRoles: result.userRoles ?? [],
-    exp: result.exp ?? 0,
   };
 }
 
@@ -104,14 +83,13 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
             name: authState.name,
             password: authState.password,
           });
-          const userIdentity = toUserIdentity(result);
+          const userIdentity = normalizeRestoredSession(result);
 
           if (!userIdentity) {
             setError("Ошибка входа. Пожалуйста, проверьте ваши данные.");
             return;
           }
 
-          useGlobalContext.getState().auth.setUser(result);
           setUser(userIdentity);
           navigate('/app');
           return;
@@ -123,9 +101,8 @@ export function AuthFlowProvider({ children }: { children: ReactNode }) {
           confirmPassword: authState.confirmPassword,
         });
 
-        const userIdentity = toUserIdentity(result);
+        const userIdentity = normalizeRestoredSession(result);
         if (userIdentity) {
-          useGlobalContext.getState().auth.setUser(result);
           setUser(userIdentity);
         }
 

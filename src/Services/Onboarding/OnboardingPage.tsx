@@ -2,15 +2,13 @@ import { Box, Paper, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
-import { useOnboardingSchools } from './hooks/useOnboardingSchools';
-import { readSchoolRequestPointer } from './utils/schoolRequestStorage.utils';
+import { useOnboardingEntry } from './hooks/useOnboardingEntry';
 import * as S from './OnboardingPage.styles';
 
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite') ?? '';
-  const pointer = readSchoolRequestPointer();
-  const schoolsQuery = useOnboardingSchools();
+  const { pointer, knownSchoolPublicIds } = useOnboardingEntry();
 
   if (pointer) {
     return (
@@ -20,9 +18,6 @@ export default function OnboardingPage() {
       />
     );
   }
-
-  const knownSchoolPublicIds =
-    schoolsQuery.data?.map((school) => school.schoolPublicId) ?? [];
 
   return (
     <Box component="main" sx={S.page}>
