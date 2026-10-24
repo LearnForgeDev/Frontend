@@ -3,30 +3,47 @@ import type { SxProps, Theme } from '@mui/material';
 export const form: SxProps<Theme> = {
   display: 'flex',
   flexDirection: 'column',
-  gap: 2,
-};
-
-export const fieldRow: SxProps<Theme> = {
-  display: 'flex',
-  gap: 1,
-  alignItems: 'flex-start',
+  gap: 0,
 };
 
 export const submitButton: SxProps<Theme> = {
   minHeight: 48,
-  borderRadius: 3,
-  px: 3,
   textTransform: 'none',
-  whiteSpace: 'nowrap',
   boxShadow: 'none',
 };
 
-export const input = {
+export const helperText: SxProps<Theme> = {
+  color: 'text.primary',
+};
+
+export const instructions: SxProps<Theme> = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 1,
+};
+
+export const instructionTitle: SxProps<Theme> = {
+  fontSize: '1.25rem',
+  lineHeight: 1.4,
+  fontWeight: 750,
+  color: 'text.primary',
+};
+
+export const instructionDescription: SxProps<Theme> = {
+  color: 'text.primary',
+};
+
+export const input: SxProps<Theme> = {
   '& .MuiOutlinedInput-root': {
-    borderRadius: 3,
+    borderRadius: '14px',
   },
 };
 
-export const helperText: SxProps<Theme> = {
-  color: 'text.secondary',
+export const confirmationText: SxProps<Theme> = {
+  color: 'text.primary',
+  mb: 2,
+};
+
+export const error: SxProps<Theme> = {
+  mb: 2,
 };

@@ -44,7 +44,8 @@ test('заявка, адаптивная карточка и готовая иг
   expect(field).not.toBeNull();
   await page.touchscreen.tap(field!.x + field!.width / 2, field!.y + field!.height / 2);
   await expect(page.getByLabel('Код приглашения')).toHaveCount(0);
-  await expect(page.getByText('Откройте ссылку приглашения от преподавателя или владельца школы.')).toBeVisible();
+  await expect(page.getByText('Откройте ссылку-приглашение')).toBeVisible();
+  await expect(page.getByText('Нет ссылки? Попросите её у преподавателя или владельца школы.')).toBeVisible();
   await page.getByRole('button', { name: 'Ещё раз', exact: true }).waitFor({ timeout: GAME_OVER_TIMEOUT_MS });
   await page.getByRole('button', { name: 'Ещё раз', exact: true }).click();
   await expect(canvas).toBeFocused();

@@ -26,12 +26,18 @@ export const progress: SxProps<Theme> = {
   maxWidth: 600,
 };
 
-export const content: SxProps<Theme> = {
+export const content = {
   width: '100%',
   display: 'flex',
   justifyContent: 'center',
   my: 'auto',
   py: { xs: 1, sm: 3 },
+};
+
+export const selectionContent: SxProps<Theme> = {
+  ...content,
+  my: 0,
+  py: { xs: 2, sm: 4 },
 };
 
 export const brand: SxProps<Theme> = {

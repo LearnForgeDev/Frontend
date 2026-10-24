@@ -26,7 +26,7 @@ export default function OnboardingFrame({ children, stage }: OnboardingFrameProp
           </Step>
         ))}
       </Stepper>
-      <Box component="main" sx={S.content}>{children}</Box>
+      <Box component="main" sx={stage === 'selection' ? S.selectionContent : S.content}>{children}</Box>
     </Box>
   );
 }

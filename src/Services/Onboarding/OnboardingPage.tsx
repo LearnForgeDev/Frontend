@@ -1,15 +1,14 @@
-import { Alert, Box, Button, Paper, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
-import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
-import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
+import SchoolSetup from './components/SchoolSetup/SchoolSetup';
 import { useOnboardingEntry } from './hooks/useOnboardingEntry';
 import * as S from './OnboardingPage.styles';
 
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite') ?? '';
-  const { pointer, knownSchoolPublicIds, schoolsQuery } = useOnboardingEntry();
+  const { pointer } = useOnboardingEntry();
 
   if (pointer && !inviteToken) {
     return (
@@ -20,49 +19,19 @@ export default function OnboardingPage() {
     );
   }
 
-
   return (
     <OnboardingFrame stage="selection">
       <Box sx={S.content}>
         <Box component="header" sx={S.header}>
           <Typography component="h1" variant="h3" sx={S.title}>
-            Найдите свою школу
+            Подключитесь к школе
           </Typography>
-          <Typography variant="h6" sx={S.subtitle}>
-            Присоединитесь по приглашению или создайте новое пространство.
+          <Typography component="p" sx={S.subtitle}>
+            Вступите по приглашению или создайте свою.
           </Typography>
         </Box>
 
-        <Box sx={S.scenarios}>
-          <Paper component="section" sx={S.primaryCard}>
-            <Box sx={S.cardHeader}>
-              <Typography component="h2" variant="h5" sx={S.cardTitle}>
-                У меня есть приглашение
-              </Typography>
-              <Typography color="text.secondary">
-                Самый быстрый способ начать работу.
-              </Typography>
-            </Box>
-            {schoolsQuery.isError && <Alert severity="error">Не удалось загрузить школы. <Button onClick={() => void schoolsQuery.refetch()}>Повторить</Button></Alert>}
-            <JoinSchoolForm
-              knownSchoolPublicIds={knownSchoolPublicIds}
-              initialInviteToken={inviteToken}
-              disabled={!schoolsQuery.isSuccess}
-            />
-          </Paper>
-
-          <Paper component="section" sx={S.secondaryCard}>
-            <Box sx={S.cardHeader}>
-              <Typography component="h2" variant="h5" sx={S.cardTitle}>
-                Нужна новая школа
-              </Typography>
-              <Typography color="text.secondary">
-                Пространство появится после подтверждения заявки.
-              </Typography>
-            </Box>
-            <RequestSchoolForm />
-          </Paper>
-        </Box>
+        <SchoolSetup inviteToken={inviteToken} />
       </Box>
     </OnboardingFrame>
   );
