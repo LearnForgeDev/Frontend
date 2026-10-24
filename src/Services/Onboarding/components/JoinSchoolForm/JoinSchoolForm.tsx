@@ -1,71 +1,17 @@
-import { useState, type FormEvent } from 'react';
-import { Button, TextField, Typography } from '@mui/material';
-import { useJoinSchool } from '../../hooks/useJoinSchool';
-import { validateInviteToken } from '../../validation/onboarding.validation';
+import { Button, Typography } from '@mui/material';
+import { useAcceptInvite } from '../../hooks/useAcceptInvite';
 import * as S from './JoinSchoolForm.styles';
 
-type JoinSchoolFormProps = {
-  knownSchoolPublicIds: string[];
-  initialInviteToken?: string;
-};
+type JoinSchoolFormProps = { knownSchoolPublicIds: string[]; initialInviteToken?: string; disabled?: boolean };
 
-export default function JoinSchoolForm({
-  knownSchoolPublicIds,
-  initialInviteToken = '',
-}: JoinSchoolFormProps) {
-  const [inviteToken, setInviteToken] = useState(initialInviteToken);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const joinSchool = useJoinSchool();
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const validation = validateInviteToken(inviteToken);
-    setValidationError(validation.error);
-
-    if (validation.error) {
-      return;
-    }
-
-    joinSchool.mutate({
-      inviteToken: validation.value,
-      knownSchoolPublicIds,
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} noValidate>
-      <Typography sx={S.helperText}>
-        Введите код, который прислал преподаватель или владелец школы.
-      </Typography>
-      <TextField
-        fullWidth
-        label="Код приглашения"
-        value={inviteToken}
-        onChange={(event) => {
-          setInviteToken(event.target.value);
-          setValidationError(null);
-        }}
-        error={Boolean(validationError)}
-        helperText={validationError}
-        disabled={joinSchool.isPending}
-        autoComplete="off"
-        sx={S.input}
-        margin="normal"
-      />
-      {joinSchool.isError && (
-        <Typography color="error" role="alert">
-          Не удалось присоединиться к школе. Проверьте код и попробуйте снова.
-        </Typography>
-      )}
-      <Button
-        type="submit"
-        variant="contained"
-        fullWidth
-        disabled={joinSchool.isPending}
-        sx={S.submitButton}
-      >
-        {joinSchool.isPending ? 'Присоединяем…' : 'Присоединиться'}
-      </Button>
-    </form>
-  );
+export default function JoinSchoolForm({ knownSchoolPublicIds, initialInviteToken = '', disabled = false }: JoinSchoolFormProps) {
+  const join = useAcceptInvite(initialInviteToken, knownSchoolPublicIds);
+  if (!initialInviteToken) return <Typography sx={S.helperText}>Откройте ссылку приглашения от преподавателя или владельца школы.</Typography>;
+  return <form onSubmit={join.submit}>
+    <Typography sx={S.helperText}>Вас пригласили в школу.</Typography>
+    {join.isError && <Typography color="error" role="alert">Не удалось вступить. Ссылка могла истечь, быть удалена или исчерпать лимит.</Typography>}
+    <Button type="submit" variant="contained" fullWidth disabled={disabled || join.isPending} sx={S.submitButton}>
+      {join.isPending ? 'Присоединяем…' : 'Вступить в школу'}
+    </Button>
+  </form>;
 }

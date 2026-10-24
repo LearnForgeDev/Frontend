@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
 import { useUser } from '@/Storage/UserContext/UserContext';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
 import type { JoinSchoolResult } from '../types/onboarding.types';
 
 type JoinSchoolVariables = {
@@ -18,11 +18,12 @@ export function useJoinSchool() {
 
   return useMutation<JoinSchoolResult, Error, JoinSchoolVariables>({
     mutationFn: async ({ inviteToken, knownSchoolPublicIds }) => {
-      const identity = await authEndpoints.joinSchool({ inviteToken });
-      useGlobalContext.getState().auth.setUser(identity);
+      const identity = normalizeRestoredSession(await authEndpoints.joinSchool({ inviteToken }));
+      if (!identity) throw new Error('Не удалось обновить сессию');
       setUser(identity);
 
-      const schools = await schoolsEndpoints.getMySchools();
+      const schools = await schoolsEndpoints.getMySchools().catch(() => null);
+      if (!schools) return { school: null };
       const joinedSchool =
         schools.find(
           (school) => !knownSchoolPublicIds.includes(school.schoolPublicId),
@@ -34,7 +35,7 @@ export function useJoinSchool() {
       await queryClient.invalidateQueries({ queryKey: ['my-schools'] });
 
       navigate(
-        school ? `/app/schools/${school.schoolPublicId}/today` : '/onboarding',
+        school ? `/app/schools/${school.schoolPublicId}/today` : '/app/schools',
         { replace: true },
       );
     },

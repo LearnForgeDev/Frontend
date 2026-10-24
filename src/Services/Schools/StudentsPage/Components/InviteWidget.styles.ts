@@ -86,3 +86,8 @@ export const resultTitleSx: SxProps<Theme> = {
 };
 
 export const copyButtonSx: SxProps<Theme> = { mt: 1.5 };
+
+export const listSx: SxProps<Theme> = { display: 'grid', gap: 2, width: '100%' };
+export const actionsSx: SxProps<Theme> = { display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center' };
+export const editorSx: SxProps<Theme> = { display: 'grid', gap: 2, mt: 2 };
+export const historySx: SxProps<Theme> = { mt: 2 };

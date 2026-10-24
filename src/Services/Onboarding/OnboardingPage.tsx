@@ -1,4 +1,4 @@
-import { Box, Paper, Typography } from '@mui/material';
+import { Alert, Box, Button, Paper, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
@@ -9,9 +9,9 @@ import * as S from './OnboardingPage.styles';
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite') ?? '';
-  const { pointer, knownSchoolPublicIds } = useOnboardingEntry();
+  const { pointer, knownSchoolPublicIds, schoolsQuery } = useOnboardingEntry();
 
-  if (pointer) {
+  if (pointer && !inviteToken) {
     return (
       <Navigate
         to={`/onboarding/waiting/${pointer.requestPublicId}`}
@@ -19,6 +19,7 @@ export default function OnboardingPage() {
       />
     );
   }
+
 
   return (
     <OnboardingFrame stage="selection">
@@ -42,9 +43,11 @@ export default function OnboardingPage() {
                 Самый быстрый способ начать работу.
               </Typography>
             </Box>
+            {schoolsQuery.isError && <Alert severity="error">Не удалось загрузить школы. <Button onClick={() => void schoolsQuery.refetch()}>Повторить</Button></Alert>}
             <JoinSchoolForm
               knownSchoolPublicIds={knownSchoolPublicIds}
               initialInviteToken={inviteToken}
+              disabled={!schoolsQuery.isSuccess}
             />
           </Paper>
 

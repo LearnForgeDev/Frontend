@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { getSchoolCapabilities } from '../../src/Services/AppShell/utils/getSchoolCapabilities';
 import { getVisibleNavigationItems } from '../../src/Services/AppShell/utils/getVisibleNavigationItems';
 import { validateScheduleEventForm } from '../../src/Services/Scheduling/components/CreateEventModal/CreateEventModal.validation';
-import { validateInviteToken, validateSchoolName } from '../../src/Services/Onboarding/validation/onboarding.validation';
+import { validateSchoolName } from '../../src/Services/Onboarding/validation/onboarding.validation';
 import { splitChatMessageText, parseChatCallInvite } from '../../src/Services/Chat/components/ChatThreadView/ChatThreadView.utils';
 import { haveSameNonEmptyIds } from '../../src/Services/Scheduling/utils/audience.utils';
 import { persistActiveSchool } from '../../src/Storage/useGlobalContext/useGlobalContext.utils';
@@ -37,11 +37,9 @@ describe('Права доступа и формы', () => {
     expect(new Date(result.endUtc!).getTime() - new Date(result.startUtc!).getTime()).toBe(3_600_000);
   });
 
-  it('проверяет название школы и код приглашения', () => {
+  it('проверяет название школы', () => {
     expect(validateSchoolName('  Школа  ')).toEqual({ value: 'Школа', error: null });
     expect(validateSchoolName(' ').error).toBeTruthy();
-    expect(validateInviteToken(' token ').value).toBe('token');
-    expect(validateInviteToken('').error).toBeTruthy();
   });
 
   it('изменение школы сохраняет токены сессии', () => {

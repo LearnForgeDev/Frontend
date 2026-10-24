@@ -1,13 +1,14 @@
 import { createElement, useMemo, type FormEvent } from 'react';
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
 import { getLoginSteps } from '../../AuthSteps';
 import * as S from './LoginPage.styles';
 
 
-function LoginPageContent() {
+export default function LoginPage() {
+  const location = useLocation();
   const { name, password, error, isLoading, setField, handleSubmit } =
     useAuthFlow();
 
@@ -33,7 +34,7 @@ function LoginPageContent() {
     <Box
       component="form"
       onSubmit={handleFormSubmit}
-      sx={{ display: "flex", flexDirection: "column", gap: 2 }}
+      sx={S.formSx}
     >
       <Box sx={S.headingSx}>
         <Typography component="h1" sx={S.title}>С возвращением</Typography>
@@ -60,14 +61,10 @@ function LoginPageContent() {
 
       <Typography variant="body2" align="center" sx={S.linkText}>
         Нет аккаунта?{' '}
-        <MuiLink component={Link} to="/auth/register" underline="hover">
+        <MuiLink component={Link} to="/auth/register" state={location.state} underline="hover">
           Зарегистрироваться
         </MuiLink>
       </Typography>
     </Box>
   );
-}
-
-export default function LoginPage() {
-  return <LoginPageContent />;
 }

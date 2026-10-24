@@ -1,5 +1,5 @@
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { createElement, useMemo, type FormEvent } from 'react';
 
 import * as S from './RegisterPage.styles';
@@ -7,7 +7,8 @@ import * as S from './RegisterPage.styles';
 import { getRegisterSteps } from '../../AuthSteps';
 import { useAuthFlow } from '../../contexts/AuthFlowContext';
 
-function RegisterPageContent() {
+export default function RegisterPage() {
+  const location = useLocation();
   const {
     name,
     password,
@@ -77,14 +78,10 @@ function RegisterPageContent() {
 
       <Typography variant="body2" align="center" sx={S.linkText}>
         Уже есть аккаунт?{' '}
-        <MuiLink component={Link} to="/auth/login" underline="hover">
+        <MuiLink component={Link} to="/auth/login" state={location.state} underline="hover">
           Войти
         </MuiLink>
       </Typography>
     </Box>
   );
-}
-
-export default function RegisterPage() {
-  return <RegisterPageContent />;
 }
