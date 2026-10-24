@@ -52,11 +52,10 @@ export const filesEndpoints = {
     return response.data;
   },
 
-  async getFileBlob(schoolPublicId: string, filePublicId: string): Promise<Blob> {
-    const queryKey = [`/api/ApiFiles/${schoolPublicId}/${filePublicId}/content`, 'blob'];
-    const response = await apiClient.fetchQuery({
-      queryKey,
-      queryFn: () => queryFn.get<ArrayBuffer>(queryKey[0], { responseType: 'arraybuffer' }),
+  async getFileBlob(schoolPublicId: string, filePublicId: string, signal?: AbortSignal): Promise<Blob> {
+    const response = await queryFn.get<ArrayBuffer>(`/api/ApiFiles/${schoolPublicId}/${filePublicId}/content`, {
+      responseType: 'arraybuffer',
+      signal,
     });
     const contentType = (response.headers['content-type'] as string) || 'application/octet-stream';
     return new Blob([response.data], { type: contentType });

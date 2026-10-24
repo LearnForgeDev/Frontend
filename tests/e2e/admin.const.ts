@@ -1,0 +1,10 @@
+export const TOTP_PERIOD_SECONDS = 30;
+export const MILLISECONDS_PER_SECOND = 1000;
+export const TOTP_DIGITS = 6;
+export const BASE32_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+export const TOTP_COUNTER_BYTES = 8;
+export const BASE32_BITS = 5;
+export const BYTE_BITS = 8;
+export const TOTP_OFFSET_MASK = 0x0f;
+export const TOTP_VALUE_MASK = 0x7fffffff;
+export const ADMIN_REQUESTS_PATH = '/api/ApiSchool/provisioning-requests?includeRejected=true';

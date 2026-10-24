@@ -9,5 +9,6 @@ export default mergeConfig(viteConfig, defineConfig({
     maxWorkers: 1,
     clearMocks: true,
     restoreMocks: true,
+    server: { deps: { inline: ['@mui/material', '@mui/system', '@mui/icons-material', 'react-transition-group'] } },
   },
 }));

@@ -73,10 +73,20 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: LearnForgeDev/Backend-General
-          ref: b9900bddfb2d27fde7fa75836d54c25fb94e96f8
+          ref: 6484e3c65220910cc834148fae1544ebc9e49971
           path: .ci/backend
           token: ${{ secrets.CI_BACKEND_TOKEN }}
           persist-credentials: false
+      - name: Создать временный ключ административного входа для CI
+        run: |
+          python3 - <<'PY'
+          import base64
+          import os
+          key = base64.b32encode(os.urandom(20)).decode()
+          print(f'::add-mask::{key}')
+          with open(os.environ['GITHUB_ENV'], 'a') as environment:
+              environment.write(f'CI_ADMIN_TOTP_SECRET={key}\n')
+          PY
       - name: Поднять тестовый backend
         run: docker compose -f tests/backend/compose.yml up -d api
       - name: Дождаться готовности API и хранилища

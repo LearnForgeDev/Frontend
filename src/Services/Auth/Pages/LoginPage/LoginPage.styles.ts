@@ -18,4 +18,4 @@ export const linkText: SxProps<Theme> = {
   '& a': { fontWeight: 750 },
 };
 
-export const formSx = { display: 'flex', flexDirection: 'column', gap: 2 };
+export const form: SxProps<Theme> = { display: 'flex', flexDirection: 'column', gap: 2 };

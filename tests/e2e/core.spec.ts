@@ -115,12 +115,14 @@ test('чат отправляет сообщение через SignalR и во�
   await login(page);
   await page.goto(`${SCHOOL_PATH}/chats`);
   await page.getByText('Общий чат CI', { exact: true }).first().click();
-  const input = page.getByPlaceholder('Напишите сообщение...');
+  const input = page.getByPlaceholder('Введите сообщение...');
   await expect(input).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   const message = `Сообщение CI ${Date.now()}`;
   await input.fill(message);
+  await expect(page.getByRole('button', { name: 'Отправить сообщение', exact: true })).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   await input.press('Enter');
   await expect(page.getByText(message, { exact: true })).toBeVisible();
+  await expect(input).toHaveValue('');
   await page.reload();
   await page.getByText('Общий чат CI', { exact: true }).first().click();
   await expect(page.getByText(message, { exact: true })).toBeVisible();
@@ -155,6 +157,7 @@ test('создание занятия сохраняет расписание и
   await page.getByLabel(/^Название/i).fill(title);
   await page.getByLabel(/^Время начала/i).fill('10:00');
   await page.getByLabel(/^Время окончания/i).fill('11:00');
+  await page.getByRole('button', { name: 'Все ученики школы', exact: true }).click();
   const created = page.waitForResponse((response) =>
     response.url().includes(`/api/ApiSchedule/${SCHOOL_ID}/events`) && response.request().method() === 'POST');
   await page.getByRole('button', { name: 'Создать', exact: true }).click();
@@ -167,5 +170,16 @@ test('создание занятия сохраняет расписание и
   expect(saved.attendees.length).toBeGreaterThan(0);
   await page.reload();
   await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
-  expect((await page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${saved.id}`)).ok()).toBe(true);
+  await page.goto(`${SCHOOL_PATH}/schedule?eventId=${saved.id}`);
+  await page.getByRole('dialog', { name: 'Детали занятия' }).getByRole('button', { name: 'Удалить', exact: true }).click();
+  const confirmation = page.getByRole('dialog', { name: 'Удалить занятие?' });
+  await expect(confirmation).toContainText(title);
+  await confirmation.getByRole('button', { name: 'Отмена', exact: true }).click();
+  const afterCancel = await page.request.get(`/api/ApiSchedule/${SCHOOL_ID}/events`);
+  expect((await afterCancel.json()).some((item: { id: string }) => item.id === saved.id)).toBe(true);
+  await page.reload();
+  await page.getByRole('dialog', { name: 'Детали занятия' }).getByRole('button', { name: 'Удалить', exact: true }).click();
+  const deleted = page.waitForResponse(response => response.request().method() === 'DELETE' && response.url().endsWith(`/events/${saved.id}`));
+  await confirmation.getByRole('button', { name: 'Удалить', exact: true }).click();
+  expect((await deleted).ok()).toBe(true);
 });

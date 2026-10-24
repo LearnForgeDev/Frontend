@@ -1,0 +1,1 @@
+export const LESSON_CONFLICT_STATUS = 409;

@@ -10,7 +10,7 @@ export const getUpcomingEvent = (
   const nowTime = now.getTime();
 
   return [...events]
-    .filter((event) => new Date(event.end).getTime() >= nowTime)
+    .filter((event) => new Date(event.end).getTime() > nowTime)
     .sort((first, second) => {
       const firstStart = new Date(first.start).getTime();
       const secondStart = new Date(second.start).getTime();

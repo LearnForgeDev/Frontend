@@ -12,7 +12,7 @@ export interface LessonCardProps {
   onClick: (e: React.MouseEvent) => void;
   onOpen: () => void;
   onRename: () => void;
-  onMove: () => void;
+  onMove?: () => void;
   onDelete: () => void;
   canManage?: boolean;
 }
@@ -44,7 +44,8 @@ export default function LessonCard({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
       onOpen();
     }
   };
@@ -66,7 +67,7 @@ export default function LessonCard({
         onKeyDown={handleKeyDown}
       >
         <Box sx={styles.thumbnail}>
-          <ArticleIcon sx={{ fontSize: '3rem', opacity: 0.7 }} />
+          <ArticleIcon sx={styles.thumbnailIcon} />
           {canManage && (
             <IconButton
               aria-label="Опции урока"

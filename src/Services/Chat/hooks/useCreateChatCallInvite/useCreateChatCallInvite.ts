@@ -1,4 +1,5 @@
-import { useCallback } from 'react';
+import { useMutation } from '@tanstack/react-query';
+import { useToast } from '@/Storage/useToastStore';
 import type { ChatThread } from '@/Services/Chat/Chat.types';
 import { useCreateCall } from '@/Services/Schools/CallsPage/hooks/useCreateCall';
 import {
@@ -14,7 +15,7 @@ import {
 
 interface UseCreateChatCallInviteParams {
   thread: ChatThread | null;
-  sendMessage: (text: string, filePublicIds?: string[]) => void;
+  sendMessage: (text: string, filePublicIds?: string[]) => Promise<void>;
 }
 
 export function useCreateChatCallInvite({ thread, sendMessage }: UseCreateChatCallInviteParams) {
@@ -23,7 +24,8 @@ export function useCreateChatCallInvite({ thread, sendMessage }: UseCreateChatCa
     errorSubtitle: CHAT_CALL_CREATE_ERROR_SUBTITLE,
   });
 
-  const createCallInvite = useCallback(async () => {
+  const toast = useToast();
+  const invite = useMutation({ networkMode: 'always', mutationFn: async () => {
     if (!thread) return;
 
     const room = createChatCallRoomName(thread);
@@ -31,11 +33,11 @@ export function useCreateChatCallInvite({ thread, sendMessage }: UseCreateChatCa
     const inviteUrl = createChatCallInviteUrl(thread.schoolPublicId, room, title);
 
     await createCall.mutateAsync({ schoolPublicId: thread.schoolPublicId, room });
-    sendMessage(createChatCallInviteMessage(title, inviteUrl));
-  }, [createCall, sendMessage, thread]);
+    await sendMessage(createChatCallInviteMessage(title, inviteUrl));
+  }, onError: () => toast.error(CHAT_CALL_CREATE_ERROR_SUBTITLE) });
 
   return {
-    createCallInvite,
-    isPending: createCall.isPending,
+    createCallInvite: () => invite.mutate(),
+    isPending: invite.isPending,
   };
 }

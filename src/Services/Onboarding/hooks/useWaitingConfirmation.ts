@@ -1,12 +1,13 @@
+import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { isSchoolRequestUnavailable } from '../utils/schoolRequestError.utils';
 import { useApprovedSchool } from './useApprovedSchool';
 import { useOnboardingSchools } from './useOnboardingSchools';
 import { useSchoolRequestStatus } from './useSchoolRequestStatus';
 import { APPROVAL_REDIRECT_DELAY_MS } from '../onboarding.const';
 import { clearSchoolRequestPointer, readSchoolRequestPointer } from '../utils/schoolRequestStorage.utils';
 import { getSchoolRequestViewState } from '../utils/schoolRequestStatus.utils';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 
 export function useWaitingConfirmation(requestPublicId?: string) {
   const navigate = useNavigate();
@@ -43,19 +44,22 @@ export function useWaitingConfirmation(requestPublicId?: string) {
     }
 
     const redirectTimer = window.setTimeout(() => {
-      clearSchoolRequestPointer(requestPublicId);
+      clearSchoolRequestPointer(userPublicId, requestPublicId);
       navigate(`/app/schools/${approvedSchool.schoolPublicId}/today`, {
         replace: true,
       });
     }, APPROVAL_REDIRECT_DELAY_MS);
 
     return () => window.clearTimeout(redirectTimer);
-  }, [approvedSchool, navigate, requestPublicId]);
+  }, [approvedSchool, navigate, requestPublicId, userPublicId]);
 
-  const returnToSchools = () => {
-    clearSchoolRequestPointer(requestPublicId);
-    navigate('/app', { replace: true });
+  const returnToOnboarding = () => {
+    clearSchoolRequestPointer(userPublicId, requestPublicId);
+    navigate('/onboarding', { replace: true });
   };
 
-  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, returnToSchools };
+  return { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName,
+    isUnavailable: isSchoolRequestUnavailable(statusQuery.error), returnToOnboarding };
+
+
 }

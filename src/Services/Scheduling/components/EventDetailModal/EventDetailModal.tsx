@@ -38,8 +38,7 @@ export function EventDetailModal({
     <Dialog
       open={open}
       onClose={onClose}
-      aria-label={DIALOG_ARIA_LABEL}
-      slotProps={{ paper: { sx: styles.dialogPaper } }}
+      slotProps={{ paper: { sx: styles.dialogPaper, 'aria-label': DIALOG_ARIA_LABEL } }}
     >
       <Box sx={styles.header}>
         {event && canManage && onEdit && (

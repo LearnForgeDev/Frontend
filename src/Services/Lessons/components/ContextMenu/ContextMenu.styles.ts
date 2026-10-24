@@ -1,6 +1,9 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const styles: Record<string, SxProps<Theme>> = {
+  paper: { minWidth: 160 },
+  deleteItem: { color: 'error.main' },
+  deleteIcon: { marginRight: 1.5, fontSize: '1.25rem', color: 'error.main' },
   menuItemIcon: {
     marginRight: 1.5,
     fontSize: '1.25rem',

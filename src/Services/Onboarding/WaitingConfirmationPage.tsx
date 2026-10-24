@@ -2,18 +2,19 @@ import { useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
-import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
 import SchoolRequestStatus from './components/SchoolRequestStatus/SchoolRequestStatus';
 import DinosaurGame from './components/DinosaurGame/DinosaurGame';
 import { useWaitingConfirmation } from './hooks/useWaitingConfirmation';
+import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
+import { WAITING_CONFIRMATION_TEXT } from './WaitingConfirmationPage.const';
 import * as S from './WaitingConfirmationPage.styles';
 
 export default function WaitingConfirmationPage() {
   const { requestPublicId } = useParams<{ requestPublicId: string }>();
   const [isGameVisible, setIsGameVisible] = useState(false);
-  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, returnToSchools } = useWaitingConfirmation(requestPublicId);
+  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, isUnavailable, returnToOnboarding } = useWaitingConfirmation(requestPublicId);
 
   if (!requestPublicId) {
     return <Navigate to="/onboarding" replace />;
@@ -40,15 +41,17 @@ export default function WaitingConfirmationPage() {
           <Paper sx={S.statusCard}>
             <Box sx={S.retry}>
               <Typography component="h1" variant="h4" sx={S.retryTitle}>
-                Не удалось проверить заявку
+                {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableTitle : WAITING_CONFIRMATION_TEXT.errorTitle}
               </Typography>
               <Typography color="text.secondary">
-                Проверьте подключение и попробуйте ещё раз.
+                {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableDescription : WAITING_CONFIRMATION_TEXT.errorDescription}
               </Typography>
-              <Button variant="contained" onClick={() => statusQuery.refetch()}>
-                Повторить
-              </Button>
-              <Button onClick={returnToSchools}>К моим школам</Button>
+              {!isUnavailable && (
+                <Button variant="contained" onClick={() => statusQuery.refetch()}>
+                  {WAITING_CONFIRMATION_TEXT.retry}
+                </Button>
+              )}
+              <Button onClick={returnToOnboarding}>{WAITING_CONFIRMATION_TEXT.returnToOnboarding}</Button>
             </Box>
           </Paper>
           <Paper component="section" sx={S.actionsCard}>
