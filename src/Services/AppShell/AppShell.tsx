@@ -1,6 +1,7 @@
-import { Avatar, Box, Button, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import ProfileButton from '@/Services/Profile/components/ProfileButton/ProfileButton';
 import DesktopNavigation from './components/DesktopNavigation/DesktopNavigation';
 import MobileNavigation from './components/MobileNavigation/MobileNavigation';
 import SchoolSwitcher from './components/SchoolSwitcher/SchoolSwitcher';
@@ -12,7 +13,6 @@ import * as S from './AppShell.styles';
 export default function AppShell() {
   const navigate = useNavigate();
   const location = useLocation();
-  const user = useGlobalContext((state) => state.auth.user);
   const setActiveSchoolPublicId = useGlobalContext((state) => state.auth.setActiveSchoolPublicId);
   const { schoolPublicId, school, capabilities, schoolsQuery } = useCurrentSchool();
   const navigationItems = schoolPublicId ? getVisibleNavigationItems(capabilities) : [];
@@ -36,8 +36,6 @@ export default function AppShell() {
     ?? (location.pathname === '/app/profile' ? 'Профиль' : undefined)
     ?? school?.schoolName
     ?? 'LearnForge';
-
-  const userInitials = user?.userName.slice(0, 2).toUpperCase() ?? 'LF';
 
   return (
     <Box sx={S.rootSx}>
@@ -81,19 +79,7 @@ export default function AppShell() {
           />
         </Box>
         <Typography component="h1" sx={S.titleSx}>{pageTitle}</Typography>
-        <Button
-          aria-label="Открыть профиль"
-          onClick={() => navigate('/app/profile')}
-          sx={S.topbarProfileButtonSx}
-        >
-          <Avatar sx={S.avatarSx}>{userInitials}</Avatar>
-          <Box sx={S.topbarProfileTextSx}>
-            <Typography sx={S.profileNameSx} noWrap>
-              {user?.userName ?? 'Профиль'}
-            </Typography>
-            <Typography sx={S.profileHintSx}>Профиль</Typography>
-          </Box>
-        </Button>
+        <ProfileButton />
       </Box>
 
       <Box component="main" sx={S.mainSx}>

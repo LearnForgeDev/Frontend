@@ -1,5 +1,6 @@
 import { Box, Paper, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
+import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
 import { useOnboardingEntry } from './hooks/useOnboardingEntry';
@@ -20,12 +21,9 @@ export default function OnboardingPage() {
   }
 
   return (
-    <Box component="main" sx={S.page}>
+    <OnboardingFrame stage="selection">
       <Box sx={S.content}>
         <Box component="header" sx={S.header}>
-          <Typography variant="overline" sx={S.eyebrow}>
-            Первый шаг
-          </Typography>
           <Typography component="h1" variant="h3" sx={S.title}>
             Найдите свою школу
           </Typography>
@@ -63,6 +61,6 @@ export default function OnboardingPage() {
           </Paper>
         </Box>
       </Box>
-    </Box>
+    </OnboardingFrame>
   );
 }

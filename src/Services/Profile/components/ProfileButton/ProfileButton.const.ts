@@ -1,0 +1,2 @@
+export const PROFILE_INITIALS_LENGTH = 2;
+export const PROFILE_FALLBACK_INITIALS = 'LF';

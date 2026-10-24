@@ -1,15 +1,5 @@
 import type { SxProps, Theme } from '@mui/material';
 
-export const page: SxProps<Theme> = {
-  minHeight: '100vh',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  px: { xs: 2, sm: 4 },
-  py: 5,
-  bgcolor: 'background.default',
-};
-
 export const content: SxProps<Theme> = {
   width: '100%',
   maxWidth: 760,

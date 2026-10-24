@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
+import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
 import SchoolRequestStatus from './components/SchoolRequestStatus/SchoolRequestStatus';
@@ -20,19 +21,21 @@ export default function WaitingConfirmationPage() {
 
   if (statusQuery.isLoading) {
     return (
-      <Box component="main" sx={S.page}>
-        <Paper sx={S.statusCard}>
-          <Box sx={S.loading} role="status" aria-label="Проверяем заявку">
-            <PulseLoader color="currentColor" />
-          </Box>
-        </Paper>
-      </Box>
+      <OnboardingFrame stage="pending">
+        <Box sx={S.content}>
+          <Paper sx={S.statusCard}>
+            <Box sx={S.loading} role="status" aria-label="Проверяем заявку">
+              <PulseLoader color="currentColor" />
+            </Box>
+          </Paper>
+        </Box>
+      </OnboardingFrame>
     );
   }
 
   if (statusQuery.isError) {
     return (
-      <Box component="main" sx={S.page}>
+      <OnboardingFrame stage="pending">
         <Box sx={S.content}>
           <Paper sx={S.statusCard}>
             <Box sx={S.retry}>
@@ -57,12 +60,12 @@ export default function WaitingConfirmationPage() {
             <JoinSchoolForm knownSchoolPublicIds={knownSchoolPublicIds} />
           </Paper>
         </Box>
-      </Box>
+      </OnboardingFrame>
     );
   }
 
   return (
-    <Box component="main" sx={S.page}>
+    <OnboardingFrame stage={visibleViewState}>
       <Box sx={S.content}>
         <Paper sx={S.statusCard}>
           <SchoolRequestStatus
@@ -112,6 +115,6 @@ export default function WaitingConfirmationPage() {
 
         {requestViewState === 'pending' && isGameVisible && <DinosaurGame />}
       </Box>
-    </Box>
+    </OnboardingFrame>
   );
 }
