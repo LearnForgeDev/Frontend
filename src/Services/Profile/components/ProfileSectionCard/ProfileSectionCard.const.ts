@@ -1,0 +1,1 @@
+export const PROFILE_SECTION_LOADER_SIZE = 28;

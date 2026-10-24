@@ -1,28 +1,17 @@
-import { Alert, Box, Paper, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
-import { ClipLoader } from 'react-spinners';
-import { useNavigate } from 'react-router-dom';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import { useLogout } from '@/Services/Auth/hooks/useLogout/useLogout';
-import { useSchools } from '@/Services/AdminPanel/SchoolsPage/hooks/useSchools';
-import { useScheduleEvents } from '@/Services/Scheduling/hooks/useScheduleEvents/useScheduleEvents';
-import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
+import EventNoteIcon from '@mui/icons-material/EventNote';
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import { CreateEventModal } from '@/Services/Scheduling/components/CreateEventModal/CreateEventModal';
+import { useProfilePage } from './hooks/useProfilePage';
+import { ProfileSectionCard } from './components/ProfileSectionCard/ProfileSectionCard';
 import { ProfileCard } from './components/ProfileCard/ProfileCard';
-import { LessonCard } from './components/LessonCard/LessonCard';
 import { PROFILE_PAGE_TEXT } from './ProfilePage.const';
-import { formatSchoolRoles, getClosestEvent } from './ProfilePage.utils';
 import * as S from './ProfilePage.styles';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
-  const user = useGlobalContext((state) => state.auth.user);
-  const handleLogout = useLogout();
-  const schoolsQuery = useSchools();
-  const schedule = useScheduleEvents();
-  const activeSchool = schoolsQuery.data?.find(
-    (school) => school.schoolPublicId === user?.activeSchoolPublicId,
-  );
-  const closestEvent = getClosestEvent(schedule.events);
+  const profile = useProfilePage();
+  const { user, schoolsQuery, schedule } = profile;
 
   if (!user) {
     return (
@@ -35,78 +24,38 @@ export default function ProfilePage() {
   return (
     <Box sx={S.pageRootSx}>
       <Box component="header" sx={S.headerSx}>
-        <Typography component="h1" sx={S.pageTitleSx}>
-          {PROFILE_PAGE_TEXT.title}
-        </Typography>
+        <Typography component="h1" sx={S.pageTitleSx}>{PROFILE_PAGE_TEXT.title}</Typography>
         <Typography sx={S.subtitleSx}>{PROFILE_PAGE_TEXT.subtitle}</Typography>
       </Box>
-
-      <ProfileCard user={user} onLogout={handleLogout} />
-
+      <ProfileCard user={user} onLogout={profile.logout} />
       <Box sx={S.contentGridSx}>
-        <Paper component="section" elevation={0} sx={S.sectionSx}>
-          <Typography component="h2" sx={S.sectionTitleSx}>
-            {PROFILE_PAGE_TEXT.schoolsTitle}
-          </Typography>
-
-          {schoolsQuery.isError ? (
-            <Alert severity="error">{PROFILE_PAGE_TEXT.schoolsError}</Alert>
-          ) : schoolsQuery.isLoading ? (
-            <Box sx={S.eventEmptySx}>
-              <ClipLoader size={28} color="var(--admin-primary)" />
-            </Box>
-          ) : !schoolsQuery.data?.length ? (
-            <Typography sx={S.eventEmptySx}>{PROFILE_PAGE_TEXT.schoolsEmpty}</Typography>
-          ) : (
-            <Box sx={S.schoolsListSx}>
-              {schoolsQuery.data.map((school) => (
-                <Box key={school.schoolPublicId} sx={S.schoolRowSx}>
-                  <Box sx={S.schoolIconSx}>
-                    <SchoolOutlinedIcon />
-                  </Box>
-                  <Box>
-                    <Typography sx={S.schoolNameSx}>{school.schoolName}</Typography>
-                    <Typography sx={S.schoolRolesSx}>
-                      {PROFILE_PAGE_TEXT.rolePrefix} {formatSchoolRoles(school.roles)}
-                    </Typography>
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          )}
-        </Paper>
-
-        <Paper component="section" elevation={0} sx={S.sectionSx}>
-          {schedule.isError ? (
-            <Alert severity="error">{PROFILE_PAGE_TEXT.scheduleError}</Alert>
-          ) : schedule.isLoading ? (
-            <Box sx={S.eventEmptySx}>
-              <ClipLoader size={28} color="var(--admin-primary)" />
-            </Box>
-          ) : closestEvent && activeSchool ? (
-            <LessonCard
-              title={PROFILE_PAGE_TEXT.upcomingLessonTitle}
-              lessonName={closestEvent.title}
-              details={formatEventFullDateTime(closestEvent.start, closestEvent.end)}
-              actionText={PROFILE_PAGE_TEXT.openCalendar}
-              onActionClick={() =>
-                navigate(
-                  `/app/schools/${encodeURIComponent(activeSchool.schoolPublicId)}/schedule?eventId=${encodeURIComponent(closestEvent.id)}`,
-                )
-              }
-            />
-          ) : (
-            <Box>
-              <Typography component="h2" sx={S.sectionTitleSx}>
-                {PROFILE_PAGE_TEXT.upcomingLessonTitle}
-              </Typography>
-              <Typography sx={S.eventEmptySx}>
-                {PROFILE_PAGE_TEXT.upcomingLessonEmpty}
-              </Typography>
-            </Box>
-          )}
-        </Paper>
+        <ProfileSectionCard
+          title={PROFILE_PAGE_TEXT.schoolsTitle}
+          actionLabel={PROFILE_PAGE_TEXT.addSchool}
+          actionIcon={<EditRoundedIcon />}
+          onAction={profile.addSchool}
+          itemIcon={<SchoolOutlinedIcon />}
+          items={profile.schoolItems}
+          isLoading={schoolsQuery.isLoading}
+          isError={schoolsQuery.isError}
+          errorText={PROFILE_PAGE_TEXT.schoolsError}
+          emptyText={PROFILE_PAGE_TEXT.schoolsEmpty}
+        />
+        <ProfileSectionCard
+          title={PROFILE_PAGE_TEXT.upcomingLessonTitle}
+          actionLabel={PROFILE_PAGE_TEXT.createLesson}
+          onAction={profile.canCreateLesson ? profile.openCreateLesson : undefined}
+          itemIcon={<EventNoteIcon />}
+          items={profile.lessonItems}
+          isLoading={schedule.isLoading}
+          isError={schedule.isError}
+          errorText={PROFILE_PAGE_TEXT.scheduleError}
+          emptyText={PROFILE_PAGE_TEXT.upcomingLessonEmpty}
+        />
       </Box>
+      {profile.canCreateLesson && profile.isCreateLessonOpen && (
+        <CreateEventModal onClose={profile.closeCreateLesson} />
+      )}
     </Box>
   );
 }
