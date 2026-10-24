@@ -42,7 +42,7 @@ export default function DeveloperRequestsPage() {
         ) : requestsQuery.data?.length ? (
           <Box sx={S.listSx}>
             {requestsQuery.data.map((request) => (
-              <Box key={request.publicId} sx={S.requestSx}>
+              <Box key={request.publicId} data-testid={`school-request-${request.publicId}`} sx={S.requestSx}>
                 <Box>
                   <Typography component="h2" sx={S.requestTitleSx}>{request.schoolName}</Typography>
                   <Typography sx={S.metaSx}>
@@ -56,7 +56,7 @@ export default function DeveloperRequestsPage() {
                     color="error"
                     startIcon={<CloseRoundedIcon />}
                     disabled={isMutating}
-                    onClick={() => rejectRequest.mutate(request.publicId)}
+                    data-testid="school-request-reject" onClick={() => rejectRequest.mutate(request.publicId)}
                   >
                     Отклонить
                   </Button>
@@ -64,7 +64,7 @@ export default function DeveloperRequestsPage() {
                     variant="contained"
                     startIcon={<CheckRoundedIcon />}
                     disabled={isMutating}
-                    onClick={() => approveRequest.mutate(request.publicId)}
+                    data-testid="school-request-approve" onClick={() => approveRequest.mutate(request.publicId)}
                   >
                     Одобрить
                   </Button>

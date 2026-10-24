@@ -4,7 +4,7 @@ import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { createEditableLesson, createLessonDocument } from './lesson-editor.utils';
 import { INITIAL_LESSON_CONTENT, OFFLINE_LESSON_CONTENT, RENAMED_LESSON_TITLE, SAVED_LESSON_CONTENT } from './lesson-editor.const';
 
-test('сохранение и переименование урока видны ученику в отдельном браузере', async ({ page, browser }, testInfo) => {
+test('EDITOR-02 EDITOR-11: сохранение и переименование урока видны ученику в отдельном браузере', async ({ page, browser }, testInfo) => {
   await login(page, 'teacher');
   const lesson = await createEditableLesson(page);
   const lessonPath = `${SCHOOL_PATH}/lessons/${lesson.id}`;
@@ -41,7 +41,7 @@ test('сохранение и переименование урока видны
   }
 });
 
-test('потеря сети сохраняет черновик и позволяет повторить публикацию', async ({ page, context }) => {
+test('EDITOR-03 COMMON-06: потеря сети сохраняет черновик и позволяет повторить публикацию', async ({ page, context }) => {
   await login(page, 'teacher');
   const lesson = await createEditableLesson(page);
   await page.goto(`${SCHOOL_PATH}/lessons/${lesson.id}?edit=true`);

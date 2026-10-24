@@ -8,7 +8,7 @@ test.use({ ...devices['Pixel 5'] });
 test('телефон: создание занятия, предыдущий день и возврат к сегодня', async ({ page }, testInfo) => {
   await login(page, 'teacher');
   await page.goto(`${SCHOOL_PATH}/schedule`);
-  await page.getByRole('button', { name: 'Новое занятие', exact: true }).click();
+  await page.getByTestId('schedule-create-mobile').click();
   const title = `Мобильное занятие ${Date.now()}`;
   await page.getByLabel(/^Название/i).fill(title);
   await page.getByRole('checkbox', { name: 'Занятие без учеников' }).check();

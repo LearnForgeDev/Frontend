@@ -8,7 +8,7 @@ import {
 
 for (const { name, identity, requiresBackend } of INVALID_SESSION_CASES) {
   for (const route of SESSION_ENTRY_ROUTES) {
-    test(`${name}: вход через ${route} возвращает на страницу входа`, { tag: requiresBackend ? '@backend' : '@public' }, async ({ page }) => {
+    test(`${requiresBackend ? 'SESSION-04' : 'SESSION-03'} ${name}: вход через ${route} возвращает на страницу входа`, { tag: requiresBackend ? '@backend' : '@public' }, async ({ page }) => {
       await page.addInitScript(({ identity, selector, marker }) => {
         localStorage.clear();
         localStorage.setItem('user_identity', identity);
@@ -28,7 +28,7 @@ for (const { name, identity, requiresBackend } of INVALID_SESSION_CASES) {
 
       await expect(page).toHaveURL(/\/auth\/login(?:\?|$)/);
       await expect(page.getByLabel(/^Имя/i)).toBeVisible();
-      await expect(page.getByRole('button', { name: 'Войти', exact: true })).toBeVisible();
+      await expect(page.getByTestId('auth-login-submit')).toBeVisible();
       await expect(page.locator(PROTECTED_UI_SELECTOR)).toHaveCount(0);
       expect(await page.evaluate(() => localStorage.getItem('user_identity'))).toBeNull();
       expect(await page.evaluate((marker) => sessionStorage.getItem(marker), PROTECTED_UI_MARKER)).toBeNull();

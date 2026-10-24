@@ -18,6 +18,7 @@ export default function ChatCallInviteMessage({ invite }: ChatCallInviteMessageP
         {invite.title || CHAT_CALL_INVITE_FALLBACK_TITLE}
       </Typography>
       <Button
+        data-testid="chat-call-join"
         href={invite.url}
         variant="contained"
         size="small"

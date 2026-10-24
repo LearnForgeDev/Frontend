@@ -52,7 +52,7 @@ export default function TodayPageContent() {
             <Button
               variant="outlined"
               startIcon={<CalendarMonthIcon />}
-              onClick={scheduleLesson}
+              data-testid="today-schedule-create" onClick={scheduleLesson}
               sx={S.secondaryActionSx}
             >
               {TODAY_PAGE_TEXT.scheduleLesson}
@@ -61,7 +61,7 @@ export default function TodayPageContent() {
               variant="contained"
               startIcon={<AddIcon />}
               disabled={isCreatingLesson}
-              onClick={createLesson}
+              data-testid="today-lesson-create" onClick={createLesson}
               sx={S.primaryActionSx}
             >
               {isCreatingLesson ? (
@@ -200,7 +200,7 @@ export default function TodayPageContent() {
             <Box sx={S.listSx}>
               {recentLessons.map((lesson) => (
                 <Button
-                  key={lesson.id}
+                  key={lesson.id} data-testid={`today-lesson-${lesson.id}`}
                   endIcon={<ArrowForwardIcon />}
                   onClick={() => openLesson(lesson.id, lesson.title)}
                   sx={S.lessonButtonSx}

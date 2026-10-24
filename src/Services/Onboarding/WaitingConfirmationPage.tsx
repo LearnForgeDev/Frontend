@@ -47,7 +47,7 @@ export default function WaitingConfirmationPage() {
                 {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableDescription : WAITING_CONFIRMATION_TEXT.errorDescription}
               </Typography>
               {!isUnavailable && (
-                <Button variant="contained" onClick={() => statusQuery.refetch()}>
+                <Button data-testid="onboarding-status-retry" variant="contained" onClick={() => statusQuery.refetch()}>
                   {WAITING_CONFIRMATION_TEXT.retry}
                 </Button>
               )}

@@ -5,6 +5,7 @@ import { useState, type ReactNode } from 'react';
 
 type PasswordFieldProps = Omit<TextFieldProps, 'type'> & {
     showToggle?: boolean;
+    toggleTestId?: string;
 };
 
 type InputSlotProps = NonNullable<TextFieldProps['slotProps']>['input'];
@@ -13,7 +14,7 @@ type InputSlotOwnerState = InputSlotPropsFunction extends (ownerState: infer TOw
     ? TOwnerState
     : unknown;
 
-export default function PasswordField({ showToggle = true, slotProps, ...props }: PasswordFieldProps) {
+export default function PasswordField({ showToggle = true, toggleTestId = 'auth-password-toggle', slotProps, ...props }: PasswordFieldProps) {
     const [isVisible, setIsVisible] = useState(false);
 
     const inputSlotProps = slotProps?.input;
@@ -28,6 +29,7 @@ export default function PasswordField({ showToggle = true, slotProps, ...props }
                 endAdornment: showToggle ? (
                     <InputAdornment position="end">
                         <IconButton
+                            data-testid={toggleTestId}
                             aria-label={isVisible ? 'Скрыть пароль' : 'Показать пароль'}
                             edge="end"
                             onClick={() => setIsVisible((value) => !value)}
@@ -44,7 +46,8 @@ export default function PasswordField({ showToggle = true, slotProps, ...props }
             endAdornment: showToggle ? (
                 <InputAdornment position="end">
                     <IconButton
-                        aria-label={isVisible ? 'Скрыть пароль' : 'Показать пароль'}
+                        data-testid={toggleTestId}
+                            aria-label={isVisible ? 'Скрыть пароль' : 'Показать пароль'}
                         edge="end"
                         onClick={() => setIsVisible((value) => !value)}
                     >

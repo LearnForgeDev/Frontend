@@ -30,6 +30,7 @@ export default function MobileNavigation({ items, activeItemId, onSelect }: Mobi
           return (
             <BottomNavigationAction
               key={item.id}
+              data-testid={`nav-mobile-${item.id}`}
               value={item.id}
               label={item.label}
               icon={<Icon fontSize="small" />}
@@ -38,6 +39,7 @@ export default function MobileNavigation({ items, activeItemId, onSelect }: Mobi
           );
         })}
         <BottomNavigationAction
+          data-testid="nav-mobile-more"
           value="more"
           label={MORE_NAVIGATION_LABEL}
           icon={<MoreHorizRoundedIcon fontSize="small" />}
@@ -60,6 +62,7 @@ export default function MobileNavigation({ items, activeItemId, onSelect }: Mobi
             return (
               <ListItemButton
                 key={item.id}
+                data-testid={`nav-more-${item.id}`}
                 selected={activeItemId === item.id}
                 onClick={() => handleSelect(item)}
                 sx={S.navigationItemSx}

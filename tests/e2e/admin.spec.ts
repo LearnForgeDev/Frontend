@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import { ADMIN_REQUESTS_PATH } from './admin.const';
 import { createAdminCode } from './admin.utils';
 
-test('админка требует отдельный вход и восстанавливается после истечения сессии', async ({ page, context }) => {
+test('DEV-01 DEV-04: админка требует отдельный вход и восстанавливается после истечения сессии', async ({ page, context }) => {
   const anonymous = await page.request.get(ADMIN_REQUESTS_PATH, { maxRedirects: 0 });
   expect(anonymous.status()).toBe(401);
   expect(anonymous.headers().location).toBeUndefined();

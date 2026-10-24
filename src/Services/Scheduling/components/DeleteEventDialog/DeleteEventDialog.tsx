@@ -21,8 +21,8 @@ export function DeleteEventDialog({ title, dateLabel, isPending, hasError, onCan
       {hasError && <Alert severity="error" sx={styles.error}>{text.error}</Alert>}
     </DialogContent>
     <DialogActions>
-      <Button onClick={onCancel} disabled={isPending} autoFocus>{text.cancel}</Button>
-      <Button onClick={onConfirm} disabled={isPending} color="error" variant="contained">{isPending ? text.pending : text.confirm}</Button>
+      <Button data-testid="schedule-delete-cancel" onClick={onCancel} disabled={isPending} autoFocus>{text.cancel}</Button>
+      <Button data-testid="schedule-delete-confirm" onClick={onConfirm} disabled={isPending} color="error" variant="contained">{isPending ? text.pending : text.confirm}</Button>
     </DialogActions>
   </Dialog>;
 }

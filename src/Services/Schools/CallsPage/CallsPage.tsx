@@ -41,13 +41,13 @@ export default function CallsPage() {
           <Box sx={styles.errorActions}>
             <Button
               variant="contained"
-              onClick={retry}
+              data-testid="call-retry" onClick={retry}
             >
               Попробовать снова
             </Button>
             <Button
               variant="outlined"
-              onClick={close}
+              data-testid="call-close" onClick={close}
             >
               Закрыть
             </Button>
@@ -77,7 +77,7 @@ export default function CallsPage() {
                 variant="outlined"
                 size="small"
                 startIcon={isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                onClick={toggleFullscreen}
+                data-testid="call-fullscreen" onClick={toggleFullscreen}
               >
                 {isFullscreen ? 'Свернуть' : 'На весь экран'}
               </Button>
@@ -86,7 +86,7 @@ export default function CallsPage() {
                 size="small"
                 startIcon={invites.isPending ? <ClipLoader size={CALL_INVITE_LOADER_SIZE} color="var(--app-primary)" /> : <PersonAddIcon />}
                 disabled={invites.isDisabled || !activeRoom}
-                onClick={openInvite}
+                data-testid="call-invite-open" onClick={openInvite}
               >
                 Пригласить
               </Button>

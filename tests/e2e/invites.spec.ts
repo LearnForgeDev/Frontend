@@ -43,7 +43,7 @@ async function findInvite(api: APIRequestContext, token: string) {
   } finally { await member.api.dispose(); }
 }
 
-test('Ссылка сохраняет историю, меняет лимит, заменяется и удаляется', async () => {
+test('INV-08 INV-09 INV-10 INV-11 INV-12: Ссылка сохраняет историю, меняет лимит, заменяется и удаляется', async () => {
   const owner = await ownerContext();
   const member = await newMember();
   try {
@@ -65,7 +65,7 @@ test('Ссылка сохраняет историю, меняет лимит, �
   } finally { await owner.dispose(); await member.api.dispose(); }
 });
 
-test('Последнее использование ссылки доступно одному участнику при одновременном вступлении', async () => {
+test('INV-06: Последнее использование ссылки доступно одному участнику при одновременном вступлении', async () => {
   const owner = await ownerContext();
   const first = await newMember();
   const second = await newMember();
@@ -81,7 +81,7 @@ test('Последнее использование ссылки доступн�
   } finally { await owner.dispose(); await first.api.dispose(); await second.api.dispose(); }
 });
 
-test('Приглашение сохраняется при переходе с входа на регистрацию', async ({ page }) => {
+test('INV-04: Приглашение сохраняется при переходе с входа на регистрацию', async ({ page }) => {
   const owner = await ownerContext();
   const token = await createInvite(owner);
   await owner.dispose();
@@ -92,13 +92,13 @@ test('Приглашение сохраняется при переходе с �
   await page.getByLabel(/^Имя пользователя/).fill(`invite-ui-${crypto.randomUUID()}`);
   await page.getByLabel(/^Пароль/).fill(CI_PASSWORD);
   await page.getByLabel(/^Подтвердите пароль/).fill(CI_PASSWORD);
-  await page.getByRole('button', { name: 'Зарегистрироваться' }).click();
+  await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(`/onboarding?invite=${token}`);
-  await page.getByRole('button', { name: 'Вступить в школу' }).click();
+  await page.getByTestId('onboarding-join-submit').click();
   await expect(page).toHaveURL(`/app/schools/${SCHOOL_ID}/today`);
 });
 
-test('Истёкшее приглашение можно продлить, преподаватель не управляет приглашением преподавателя', async () => {
+test('INV-05 INV-09 INV-12: Истёкшее приглашение можно продлить, преподаватель не управляет приглашением преподавателя', async () => {
   const owner = await ownerContext();
   const teacher = await request.newContext({ baseURL });
   const member = await newMember();
@@ -119,21 +119,37 @@ test('Истёкшее приглашение можно продлить, пр�
   } finally { await owner.dispose(); await teacher.dispose(); await member.api.dispose(); }
 });
 
-test('Управление приглашениями открывается в школе', async ({ page }) => {
+test('INV-01 INV-07: Управление приглашениями открывается в школе', async ({ page, context }) => {
+  await context.grantPermissions(['clipboard-read', 'clipboard-write']);
   await login(page);
   await page.goto(`/app/schools/${SCHOOL_ID}/students`);
   await expect(page.getByRole('heading', { name: 'Приглашения', exact: true })).toBeVisible();
-  await page.getByRole('button', { name: 'Пригласить в школу' }).click();
+  const existing = await page.request.get(invitesUrl);
+  expect(existing.ok()).toBe(true);
+  const existingIds = new Set((await existing.json() as Array<{ id: number }>).map(invite => invite.id));
+  await page.getByTestId('invite-open').click();
   const dialog = page.getByRole('dialog');
   await dialog.getByLabel('Лимит использований').fill('5');
   await dialog.getByLabel('Срок, часов').fill('2');
-  await page.getByRole('button', { name: 'Создать приглашение' }).click();
+  await page.getByTestId('invite-create').click();
   await expect(page.getByText('Приглашение готово', { exact: true })).toBeVisible();
-  await expect(page.getByText(/http.*onboarding\?invite=/)).toBeVisible();
+  const visibleUrl = page.getByText(/http.*onboarding\?invite=/);
+  await expect(visibleUrl).toBeVisible();
+  await page.getByTestId('invite-copy').click();
+  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(await visibleUrl.textContent());
+  await expect(page.getByTestId('invite-qr')).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByText('Использовано 0 из 5', { exact: true })).toBeVisible();
-  await test.info().attach('Управление приглашениями', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
+  const updated = await page.request.get(invitesUrl);
+  expect(updated.ok()).toBe(true);
+  const created = (await updated.json() as Array<{ id: number }>).filter(invite => !existingIds.has(invite.id));
+  expect(created).toHaveLength(1);
+  try {
+    await expect(page.getByTestId(`invite-${created[0].id}`).getByText('Использовано 0 из 5', { exact: true })).toBeVisible();
+    await test.info().attach('Управление приглашениями', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
+  } finally {
+    expect((await page.request.delete(`${invitesUrl}/${created[0].id}`)).ok()).toBe(true);
+  }
 });
 
 test('Вступление по вставленной ссылке проверяет адрес и открывает школу', async ({ page }) => {
@@ -152,10 +168,10 @@ test('Вступление по вставленной ссылке провер
   await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByLabel('Ссылка-приглашение').fill('не ссылка');
-  await page.getByRole('button', { name: 'Вступить в школу', exact: true }).click();
+  await page.getByTestId('onboarding-join-submit').click();
   await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).toBeVisible();
-  await page.getByLabel('Ссылка-приглашение').fill(`${baseURL}/onboarding?invite=${token}`);
+  await page.getByTestId('onboarding-invite-link').fill(`${baseURL}/onboarding?invite=${token}`);
   await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).not.toBeVisible();
-  await page.getByRole('button', { name: 'Вступить в школу', exact: true }).click();
+  await page.getByTestId('onboarding-join-submit').click();
   await expect(page).toHaveURL(`/app/schools/${SCHOOL_ID}/today`);
 });

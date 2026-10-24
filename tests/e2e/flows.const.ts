@@ -1,0 +1,12 @@
+export const BASE_URL = 'http://127.0.0.1:4173';
+export const API_URL = 'http://127.0.0.1:8080';
+export const OTHER_SCHOOL_ID = '33333333-3333-4333-8333-333333333333';
+export const OTHER_SCHOOL_PATH = `/app/schools/${OTHER_SCHOOL_ID}`;
+export const MINUTE_MS = 60_000;
+export const HOUR_MS = 60 * MINUTE_MS;
+export const EVENT_DURATION_MS = 30 * MINUTE_MS;
+export const VIEWPORTS = [{ width: 1440, height: 1000 }, { width: 390, height: 844 }];
+export const MOBILE_USER_AGENT = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 Mobile/15E148';
+export const PNG_BYTES = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg==', 'base64');
+export const ERROR_RESPONSE = { status: 503, contentType: 'application/json', body: '{}' };
+export const HTTP_DENIED = [401, 403, 404];

@@ -18,6 +18,7 @@ export function JoinButton({ event, size = 'small' }: JoinButtonProps) {
 
   return (
     <Button
+      data-testid="schedule-join"
       variant="contained"
       size={size}
       color="primary"

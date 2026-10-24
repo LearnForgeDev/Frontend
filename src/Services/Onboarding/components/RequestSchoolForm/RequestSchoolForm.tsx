@@ -35,6 +35,7 @@ export default function RequestSchoolForm({
         </Typography>
       )}
       <Button
+        data-testid="onboarding-school-submit"
         type="submit"
         variant="contained"
         fullWidth

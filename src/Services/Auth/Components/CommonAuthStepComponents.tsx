@@ -34,18 +34,20 @@ export function AuthCredentialsStep({
 
             <PasswordField
                 label="Пароль"
+                toggleTestId="auth-register-password-toggle"
                 value={password}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onPasswordChange(event.target.value)}
             />
 
             <PasswordField
                 label="Подтвердите пароль"
+                toggleTestId="auth-register-confirmation-toggle"
                 value={confirmPassword}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onConfirmPasswordChange(event.target.value)}
             />
 
             <Button
-                type="submit"
+                data-testid="auth-register-submit" type="submit"
                 variant="contained"
                 color="primary"
                 size="large"

@@ -28,7 +28,7 @@ export default function FilePreviewDialog({ schoolPublicId, file, onClose, onDow
         ) : preview.isError ? (
           <Box sx={S.feedback}>
             <Alert severity="error">{FILE_PREVIEW_TEXT.error}</Alert>
-            <Button onClick={preview.retry}>{FILE_PREVIEW_TEXT.retry}</Button>
+            <Button data-testid="file-preview-retry" onClick={preview.retry}>{FILE_PREVIEW_TEXT.retry}</Button>
           </Box>
         ) : preview.data && (
           <>
@@ -45,8 +45,8 @@ export default function FilePreviewDialog({ schoolPublicId, file, onClose, onDow
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={() => onDownload(file)} variant="contained" startIcon={<DownloadIcon />}>{FILE_PREVIEW_TEXT.download}</Button>
-        <Button onClick={onClose}>{FILE_PREVIEW_TEXT.close}</Button>
+        <Button data-testid="file-preview-download" onClick={() => onDownload(file)} variant="contained" startIcon={<DownloadIcon />}>{FILE_PREVIEW_TEXT.download}</Button>
+        <Button data-testid="file-preview-close" onClick={onClose}>{FILE_PREVIEW_TEXT.close}</Button>
       </DialogActions>
     </Dialog>
   );

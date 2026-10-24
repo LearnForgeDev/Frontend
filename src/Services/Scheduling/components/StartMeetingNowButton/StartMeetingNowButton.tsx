@@ -36,6 +36,7 @@ export function StartMeetingNowButton({ event }: StartMeetingNowButtonProps) {
   return (
     <>
       <Button
+        data-testid="schedule-start-now"
         variant="outlined"
         startIcon={<PlayArrowIcon />}
         onClick={handleOpenConfirmation}

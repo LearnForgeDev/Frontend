@@ -22,6 +22,7 @@ export default function ChatCallInviteButton({
           color="inherit"
           onClick={onClick}
           disabled={disabled || isPending}
+          data-testid="chat-call-create"
           aria-label={CREATE_CALL_INVITE_LABEL}
           sx={styles.button}
         >

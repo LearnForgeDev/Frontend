@@ -46,6 +46,7 @@ export function EventDetailModal({
             <IconButton
               size="small"
               onClick={() => onEdit(event)}
+              data-testid="schedule-event-edit"
               aria-label={EDIT_TOOLTIP}
               sx={styles.actionButton}
             >
@@ -59,6 +60,7 @@ export function EventDetailModal({
               size="small"
               onClick={() => onDelete(event.id)}
               disabled={isDeleting}
+              data-testid="schedule-event-delete"
               aria-label={DELETE_TOOLTIP}
               sx={styles.deleteButton}
             >
@@ -71,6 +73,7 @@ export function EventDetailModal({
             <IconButton
               size="small"
               component="a"
+              data-testid="schedule-google-calendar"
               href={buildGoogleCalendarUrl(event)}
               target="_blank"
               rel="noopener noreferrer"
@@ -84,6 +87,7 @@ export function EventDetailModal({
         <Tooltip title={CLOSE_ARIA_LABEL}>
           <IconButton
             size="small"
+            data-testid="schedule-event-close"
             aria-label={CLOSE_ARIA_LABEL}
             onClick={onClose}
             sx={styles.actionButton}

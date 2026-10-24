@@ -24,6 +24,7 @@ export function ScheduleSidebar({ events, canManage, onOpenCreateModal }: Schedu
             color="primary"
             startIcon={<AddIcon />}
             sx={styles.createButton}
+            data-testid="schedule-create"
             onClick={onOpenCreateModal}
           >
             Новое занятие

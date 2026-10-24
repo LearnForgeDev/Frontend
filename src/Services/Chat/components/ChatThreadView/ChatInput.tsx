@@ -19,16 +19,16 @@ export default function ChatInput({ onSendMessage, disabled, schoolPublicId, dra
   const draft = useChatDraft({ onSendMessage, disabled, draftKey });
   return (
     <Box sx={styles.root} className={CSS.inputBar}>
-      {draft.error && <Alert severity="error" action={<Button disabled={!draft.canSend} onClick={draft.submit}>{RETRY_MESSAGE_LABEL}</Button>}>{draft.error}</Alert>}
+      {draft.error && <Alert severity="error" action={<Button data-testid="chat-send-retry" disabled={!draft.canSend} onClick={draft.submit}>{RETRY_MESSAGE_LABEL}</Button>}>{draft.error}</Alert>}
       {draft.files.length > 0 && <Box sx={styles.attachedFiles}>
         {draft.files.map(file => <Chip key={file.selectionId} label={file.fileName} onDelete={() => draft.removeFile(file.selectionId)} size="small" sx={styles.attachedFileChip} />)}
       </Box>}
       <Box sx={styles.inputArea}>
-        <IconButton color="primary" onClick={draft.openFileModal} aria-label={ATTACH_FILE_LABEL}><AttachFileIcon sx={styles.attachIcon} /></IconButton>
+        <IconButton color="primary" onClick={draft.openFileModal} data-testid="chat-attach" aria-label={ATTACH_FILE_LABEL}><AttachFileIcon sx={styles.attachIcon} /></IconButton>
         <TextField fullWidth size="small" placeholder={CHAT_INPUT_PLACEHOLDER} value={draft.text} onChange={event => draft.setText(event.target.value)}
           onKeyDown={event => { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); draft.submit(); } }}
-          multiline maxRows={CHAT_INPUT_MAX_ROWS} slotProps={{ htmlInput: { maxLength: MESSAGE_MAX_LENGTH } }} />
-        <IconButton color="primary" onClick={draft.submit} disabled={!draft.canSend} sx={styles.sendButton} aria-label={SEND_MESSAGE_LABEL}>
+          multiline maxRows={CHAT_INPUT_MAX_ROWS} slotProps={{ htmlInput: { maxLength: MESSAGE_MAX_LENGTH, 'data-testid': 'chat-message-input' } }} />
+        <IconButton color="primary" onClick={draft.submit} disabled={!draft.canSend} sx={styles.sendButton} data-testid="chat-send" aria-label={SEND_MESSAGE_LABEL}>
           {draft.isSending ? <ClipLoader size={SEND_LOADER_SIZE} color="currentColor" /> : <SendIcon />}
         </IconButton>
       </Box>

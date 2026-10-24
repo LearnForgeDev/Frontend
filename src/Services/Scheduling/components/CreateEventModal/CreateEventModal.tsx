@@ -18,12 +18,12 @@ export function CreateEventModal(props: CreateEventModalProps) {
   return (
     <Modal title={editor.isEdit ? MODAL_TITLE_EDIT : MODAL_TITLE_CREATE} onClose={props.onClose} disableClose={editor.isSaving}>
       <Box component="form" sx={styles.form} onSubmit={event => { event.preventDefault(); editor.submit(); }} noValidate>
-        <TextField label={LABEL_TITLE} value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} required fullWidth disabled={editor.isSaving} autoFocus />
-        <TextField label={LABEL_DESCRIPTION} value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} multiline minRows={2} fullWidth disabled={editor.isSaving} />
-        <TextField label={LABEL_DATE} type="date" value={editor.form.date} onChange={event => editor.setField('date', event.target.value)} slotProps={{ inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
+        <TextField label={LABEL_TITLE} value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-title' } }} required fullWidth disabled={editor.isSaving} autoFocus />
+        <TextField label={LABEL_DESCRIPTION} value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-description' } }} multiline minRows={2} fullWidth disabled={editor.isSaving} />
+        <TextField label={LABEL_DATE} type="date" value={editor.form.date} onChange={event => editor.setField('date', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-date' }, inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
         <Box sx={styles.row}>
-          <TextField label={LABEL_START_TIME} type="time" value={editor.form.startTime} onChange={event => editor.setField('startTime', event.target.value)} slotProps={{ inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
-          <TextField label={LABEL_END_TIME} type="time" value={editor.form.endTime} onChange={event => editor.setField('endTime', event.target.value)} slotProps={{ inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
+          <TextField label={LABEL_START_TIME} type="time" value={editor.form.startTime} onChange={event => editor.setField('startTime', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-start-time' }, inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
+          <TextField label={LABEL_END_TIME} type="time" value={editor.form.endTime} onChange={event => editor.setField('endTime', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-end-time' }, inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />
         </Box>
         {editor.studentsLoading && <Box sx={styles.studentsStatus} role="status"><ClipLoader size={STUDENTS_LOADER_SIZE} /><Typography variant="body2" color="text.secondary">{STUDENTS_LOADING_TEXT}</Typography></Box>}
         {editor.studentsError && <Alert severity="error" action={<Button onClick={editor.retryStudents}>{STUDENTS_RETRY_TEXT}</Button>}>{STUDENTS_ERROR_TEXT}</Alert>}
@@ -33,8 +33,8 @@ export function CreateEventModal(props: CreateEventModalProps) {
           onSelectAll={editor.selectAllStudents} onWithoutAttendeesChange={editor.setWithoutAttendees} />
         {editor.form.error && <Typography color="error" variant="body2" role="alert">{editor.form.error}</Typography>}
         <Box sx={styles.actions}>
-          <Button onClick={props.onClose} disabled={editor.isSaving}>{BUTTON_CANCEL}</Button>
-          <Button type="submit" variant="contained" disabled={editor.isSaving || editor.isAudienceUnavailable}>{editor.isSaving ? SAVING_TEXT : editor.isEdit ? BUTTON_SUBMIT_EDIT : BUTTON_SUBMIT_CREATE}</Button>
+          <Button data-testid="schedule-form-cancel" onClick={props.onClose} disabled={editor.isSaving}>{BUTTON_CANCEL}</Button>
+          <Button data-testid="schedule-form-submit" type="submit" variant="contained" disabled={editor.isSaving || editor.isAudienceUnavailable}>{editor.isSaving ? SAVING_TEXT : editor.isEdit ? BUTTON_SUBMIT_EDIT : BUTTON_SUBMIT_CREATE}</Button>
         </Box>
       </Box>
     </Modal>

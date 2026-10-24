@@ -2,41 +2,41 @@ import { test, expect } from './fixtures';
 import { login } from './auth.utils';
 import { BACKEND_TIMEOUT_MS, CI_PASSWORD, SCHOOL_ID, SCHOOL_PATH } from './core.const';
 
-test('вход через форму и восстановление сессии после перезагрузки', async ({ page }) => {
+test('AUTH-03 SESSION-01 SESSION-07 PROFILE-04: вход через форму и восстановление сессии после перезагрузки', async ({ page }) => {
   await page.goto('/auth/login');
   await page.getByLabel(/^Имя/i).fill('ci-owner');
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
-  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.getByTestId('auth-login-submit').click();
   await expect(page).toHaveURL(`${SCHOOL_PATH}/today`, { timeout: BACKEND_TIMEOUT_MS });
   await page.reload();
   await expect(page.getByRole('navigation', { name: 'Разделы школы' })).toBeVisible();
   await page.goto('/app/profile');
-  await page.getByRole('button', { name: 'Выйти', exact: true }).click();
+  await page.getByTestId('profile-logout').click();
   await expect(page).toHaveURL(/\/auth\/login$/);
   await page.goto('/app');
   await expect(page).toHaveURL(/\/auth\/login$/);
 });
 
-test('ошибка входа показывает понятное сообщение', async ({ page }) => {
+test('AUTH-04: ошибка входа показывает понятное сообщение', async ({ page }) => {
   await page.goto('/auth/login');
   await page.getByLabel(/^Имя/i).fill('ci-owner');
   await page.getByLabel(/^Пароль/i).fill('incorrect-password');
-  await page.getByRole('button', { name: 'Войти', exact: true }).click();
+  await page.getByTestId('auth-login-submit').click();
   await expect(page.getByRole('alert')).toContainText('Не удалось войти');
   await expect(page).toHaveURL(/\/auth\/login$/);
 });
 
-test('регистрация нового пользователя приводит к подключению школы', async ({ page }) => {
+test('AUTH-07 ONB-01: регистрация нового пользователя приводит к подключению школы', async ({ page }) => {
   await page.goto('/auth/register');
   await page.getByLabel(/^Имя пользователя/i).fill(`ci-new-${Date.now()}`);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
   await page.getByLabel(/^Подтвердите пароль/i).fill(CI_PASSWORD);
-  await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
+  await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(/\/onboarding$/, { timeout: BACKEND_TIMEOUT_MS });
 });
 
 for (const role of ['owner', 'teacher', 'student']) {
-  test(`права роли ${role} определяют действия с уроками и студентами`, async ({ page }) => {
+  test(`ACCESS-02: права роли ${role} определяют действия с уроками и студентами`, async ({ page }) => {
     await login(page, role);
     await page.goto(`${SCHOOL_PATH}/lessons`);
     await expect(page.getByRole('heading', { name: 'Мои уроки' })).toBeVisible();
@@ -59,7 +59,7 @@ for (const [route, endpoint, title] of [
   ['files', `/api/ApiFiles/${SCHOOL_ID}`, 'Материалы'],
   ['schedule', `/api/ApiSchedule/${SCHOOL_ID}/events`, ''],
 ]) {
-  test(`раздел ${route} загружает данные настоящего backend`, async ({ page }) => {
+  test(`COMMON-01: раздел ${route} загружает данные настоящего backend`, async ({ page }) => {
     await login(page);
     const response = page.waitForResponse((response) =>
       new URL(response.url()).pathname === endpoint && response.request().method() === 'GET');
@@ -67,11 +67,11 @@ for (const [route, endpoint, title] of [
     expect((await response).ok()).toBe(true);
     await expect(page.getByRole('main').first()).toBeVisible();
     if (title) await expect(page.getByRole('main').first().getByRole('heading', { name: new RegExp(`^${title}`) })).toBeVisible();
-    else await expect(page.getByRole('button', { name: 'Новое занятие', exact: true })).toBeVisible();
+    else await expect(page.getByTestId('schedule-create')).toBeVisible();
   });
 }
 
-test('создание урока открывает редактор и сохраняет урок на сервере', async ({ page }) => {
+test('LESSON-02: создание урока открывает редактор и сохраняет урок на сервере', async ({ page }) => {
   await login(page);
   await page.goto(`${SCHOOL_PATH}/lessons`);
   await page.getByRole('button', { name: 'Создать урок', exact: true }).click();
@@ -83,17 +83,17 @@ test('создание урока открывает редактор и сох�
   const response = await page.request.get(`/api/ApiLessons/${SCHOOL_ID}/${id}`);
   expect(response.ok()).toBe(true);
   await page.reload();
-  await expect(page.getByRole('button', { name: 'К урокам' })).toBeVisible();
+  await expect(page.getByTestId('lesson-back')).toBeVisible();
   await expect(page.locator('.editor-input[contenteditable="true"]')).toBeVisible();
 });
 
-test('загрузка, скачивание и удаление файла работают через MinIO', async ({ page }) => {
+test('FILE-02: загрузка, скачивание и удаление файла работают через MinIO', async ({ page }) => {
   await login(page);
   const fileName = `ci-file-${Date.now()}.txt`;
   await page.goto(`${SCHOOL_PATH}/files`);
   const completed = page.waitForResponse((response) =>
     response.url().includes(`/api/ApiFiles/${SCHOOL_ID}/direct-upload/complete`) && response.request().method() === 'POST');
-  await page.locator('input[type=file][multiple]').setInputFiles({
+  await page.getByTestId('files-input').setInputFiles({
     name: fileName, mimeType: 'text/plain', buffer: Buffer.from('Проверка файла CI'),
   });
   expect((await completed).ok()).toBe(true);
@@ -111,15 +111,15 @@ test('загрузка, скачивание и удаление файла ра
   await expect(page.getByText(fileName, { exact: true })).toHaveCount(0);
 });
 
-test('чат отправляет сообщение через SignalR и восстанавливает историю', async ({ page }) => {
+test('CHAT-02: чат отправляет сообщение через SignalR и восстанавливает историю', async ({ page }) => {
   await login(page);
   await page.goto(`${SCHOOL_PATH}/chats`);
   await page.getByText('Общий чат CI', { exact: true }).first().click();
-  const input = page.getByPlaceholder('Введите сообщение...');
+  const input = page.getByTestId('chat-message-input');
   await expect(input).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   const message = `Сообщение CI ${Date.now()}`;
   await input.fill(message);
-  await expect(page.getByRole('button', { name: 'Отправить сообщение', exact: true })).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
+  await expect(page.getByTestId('chat-send')).toBeEnabled({ timeout: BACKEND_TIMEOUT_MS });
   await input.press('Enter');
   await expect(page.getByText(message, { exact: true })).toBeVisible();
   await expect(input).toHaveValue('');
@@ -128,7 +128,7 @@ test('чат отправляет сообщение через SignalR и во�
   await expect(page.getByText(message, { exact: true })).toBeVisible();
 });
 
-test('звонки выдают токен комнаты только участникам школы', async ({ page }) => {
+test('CALL-03: звонки выдают токен комнаты только участникам школы', async ({ page }) => {
   await login(page);
   await page.goto(`${SCHOOL_PATH}/calls`);
   const response = await page.request.post('/api/ApiMeet/token', {
@@ -140,7 +140,7 @@ test('звонки выдают токен комнаты только учас�
   expect(room.token).toBeTruthy();
 });
 
-test('чужая школа недоступна', async ({ page }) => {
+test('ACCESS-01: чужая школа недоступна', async ({ page }) => {
   await login(page, 'student');
   const foreignSchool = '99999999-9999-4999-8999-999999999999';
   await page.goto(`/app/schools/${foreignSchool}/lessons`);
@@ -149,10 +149,10 @@ test('чужая школа недоступна', async ({ page }) => {
   expect([403, 404]).toContain(response.status());
 });
 
-test('создание занятия сохраняет расписание и состав участников', async ({ page }) => {
+test('SCHEDULE-03: создание занятия сохраняет расписание и состав участников', async ({ page }) => {
   await login(page, 'teacher');
   await page.goto(`${SCHOOL_PATH}/schedule`);
-  await page.getByRole('button', { name: 'Новое занятие', exact: true }).click();
+  await page.getByTestId('schedule-create').click();
   const title = `Занятие CI ${Date.now()}`;
   await page.getByLabel(/^Название/i).fill(title);
   await page.getByLabel(/^Время начала/i).fill('10:00');

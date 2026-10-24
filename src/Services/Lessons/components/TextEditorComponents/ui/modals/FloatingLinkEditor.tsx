@@ -153,7 +153,7 @@ export default function FloatingLinkEditor({ editor }: FloatingLinkEditorProps) 
         {isEditMode ? (
           <input
             ref={inputRef}
-            className="floating-link-input"
+            data-testid="editor-link-input" className="floating-link-input"
             value={linkUrl}
             onChange={(event) => {
               setLinkUrl(event.target.value);
@@ -180,7 +180,7 @@ export default function FloatingLinkEditor({ editor }: FloatingLinkEditorProps) 
           </a>
         )}
         <button
-          className="floating-link-edit-btn"
+          data-testid="editor-link-edit" className="floating-link-edit-btn"
           type="button"
           tabIndex={0}
           onMouseDown={(event) => event.preventDefault()}

@@ -47,6 +47,7 @@ export default function JoinSchoolForm({
           helperText={validationError}
           disabled={join.isPending}
           autoComplete="off"
+          slotProps={{ htmlInput: { 'data-testid': 'onboarding-invite-link' } }}
           sx={S.input}
           margin="normal"
         />
@@ -57,6 +58,7 @@ export default function JoinSchoolForm({
         </Typography>
       )}
       <Button
+        data-testid="onboarding-join-submit"
         type="submit"
         variant="contained"
         fullWidth

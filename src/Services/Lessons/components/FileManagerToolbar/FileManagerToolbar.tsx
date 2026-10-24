@@ -199,6 +199,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
         <IconButton
           aria-label="Создать новый урок"
           color="primary"
+          data-testid="lesson-create"
           onClick={onNewLesson}
         >
           <NoteAddIcon />
