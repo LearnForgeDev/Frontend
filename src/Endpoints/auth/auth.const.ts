@@ -1,1 +1,3 @@
 export const MILLISECONDS_PER_SECOND = 1000;
+export const REFRESH_RETRY_COUNT = 2;
+export const REFRESH_RETRY_DELAY_MS = 60_000;

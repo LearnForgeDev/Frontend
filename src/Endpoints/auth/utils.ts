@@ -1,5 +1,6 @@
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
-import { MILLISECONDS_PER_SECOND } from './auth.const';
+import { isAxiosError } from 'axios';
+import { MILLISECONDS_PER_SECOND, REFRESH_RETRY_DELAY_MS } from './auth.const';
 
 export function parseJwt (token: string): {
     "userId": string,
@@ -48,4 +49,14 @@ export function normalizeRestoredSession(value: unknown): UserIdentity | null {
   } catch {
     return null;
   }
+}
+
+export function getRefreshRetryDelay(error: unknown): number {
+  if (!isAxiosError(error)) return REFRESH_RETRY_DELAY_MS;
+  const retryAfter: unknown = error.response?.headers['retry-after'];
+  if (typeof retryAfter !== 'string' && typeof retryAfter !== 'number') return REFRESH_RETRY_DELAY_MS;
+  const seconds = Number(retryAfter);
+  if (Number.isFinite(seconds) && seconds >= 0) return seconds * MILLISECONDS_PER_SECOND;
+  const retryAt = Date.parse(String(retryAfter));
+  return Number.isFinite(retryAt) ? Math.max(0, retryAt - Date.now()) : REFRESH_RETRY_DELAY_MS;
 }

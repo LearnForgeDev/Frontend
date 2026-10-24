@@ -1,5 +1,8 @@
-import { createApiClient, createQueryFn } from '../factory/factory';
-import { parseJwt } from "@/Endpoints/auth/utils.ts";
+import { isAxiosError } from 'axios';
+import { HTTP_STATUS } from '../factory/factory.const';
+import { REFRESH_RETRY_COUNT } from './auth.const';
+import { getRefreshRetryDelay, parseJwt } from './utils';
+import { createApiClient, createQueryFn, createQueryFnWithRefresh } from '../factory/factory';
 import { useGlobalContext } from "@/Storage/useGlobalContext/useGlobalContext.ts";
 import type {
     LoginParams,
@@ -16,6 +19,7 @@ export * from './types';
 
 const apiClient = createApiClient({ staleTime: 0 });
 const queryFn = createQueryFn();
+const protectedQueryFn = createQueryFnWithRefresh();
 
 export const authEndpoints = {
     async register(dto: RegisterParams): Promise<UserIdentity> {
@@ -48,10 +52,14 @@ export const authEndpoints = {
     },
 
     async refreshToken(dto?: RefreshTokenParams): Promise<UserIdentity> {
-        const queryKey = ['/api/ApiAuth/refreshToken'];
+        const path = '/api/ApiAuth/refreshToken';
         const response = await apiClient.fetchQuery({
-            queryKey,
-            queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto || {})
+            queryKey: [path, dto?.refreshToken],
+            networkMode: 'always',
+            queryFn: ({ signal }) => queryFn.post<UserIdentity>(path, dto || {}, { signal }),
+            retry: (failureCount, error) => failureCount < REFRESH_RETRY_COUNT
+                && isAxiosError(error) && error.response?.status === HTTP_STATUS.TOO_MANY_REQUESTS,
+            retryDelay: (_attempt, error) => getRefreshRetryDelay(error),
         });
         return response.data;
     },
@@ -60,7 +68,7 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/create-school'];
         const response = await apiClient.fetchQuery({
             queryKey: [...queryKey, dto],
-            queryFn: () => queryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
+            queryFn: () => protectedQueryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
         });
         return response.data;
     },
@@ -69,7 +77,7 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/request-school'];
         const response = await apiClient.fetchQuery({
             queryKey: [...queryKey, dto],
-            queryFn: () => queryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
+            queryFn: () => protectedQueryFn.post<SchoolRequestStatusDto>(queryKey[0], dto)
         });
         return response.data;
     },
@@ -78,7 +86,7 @@ export const authEndpoints = {
         const queryKey = [`/api/ApiAuth/request-school/${publicId}/status`];
         const response = await apiClient.fetchQuery({
             queryKey,
-            queryFn: () => queryFn.get<SchoolRequestStatusDto>(queryKey[0])
+            queryFn: () => protectedQueryFn.get<SchoolRequestStatusDto>(queryKey[0])
         });
         return response.data;
     },
@@ -87,7 +95,7 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/request-school/all'];
         const response = await apiClient.fetchQuery({
             queryKey,
-            queryFn: () => queryFn.get<SchoolRequestStatusDto[]>(queryKey[0])
+            queryFn: () => protectedQueryFn.get<SchoolRequestStatusDto[]>(queryKey[0])
         });
         return response.data;
     },
@@ -96,7 +104,7 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/join-school'];
         const response = await apiClient.fetchQuery({
             queryKey: [...queryKey, dto],
-            queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto)
+            queryFn: () => protectedQueryFn.post<UserIdentity>(queryKey[0], dto)
         });
         useGlobalContext.getState().auth.setUser(response.data);
         return response.data;
@@ -106,7 +114,7 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/invite'];
         const response = await apiClient.fetchQuery({
             queryKey: [...queryKey, dto],
-            queryFn: () => queryFn.post(queryKey[0], dto)
+            queryFn: () => protectedQueryFn.post(queryKey[0], dto)
         });
         return response.data;
     }

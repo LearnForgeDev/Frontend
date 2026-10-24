@@ -1,11 +1,11 @@
 import { QueryClient } from '@tanstack/react-query';
-import axios, { isAxiosError } from 'axios';
+import axios, { isAxiosError, type InternalAxiosRequestConfig } from 'axios';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
 import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import config from 'src/config.ts';
-import { FILE_TRANSFER_TIMEOUT_MS, MAX_RETRY_DELAY_MS, REQUEST_TIMEOUT_MS, RETRY_DELAY_MS } from './factory.const';
+import { FILE_TRANSFER_TIMEOUT_MS, HTTP_STATUS, MAX_RETRY_DELAY_MS, REQUEST_TIMEOUT_MS, RETRY_DELAY_MS } from './factory.const';
 import { createUnauthenticatedError, getRequestErrorMessage, matchesRefreshedSession, shouldRetryRequest } from './factory.utils';
 
 export function createApiClient({ retryCount = 0, staleTime = 0, sessionScoped = true } = {}) {
@@ -32,31 +32,76 @@ export function createApiClient({ retryCount = 0, staleTime = 0, sessionScoped =
   return client;
 }
 
+type SessionRequestConfig = InternalAxiosRequestConfig & {
+  sessionIdentity?: UserIdentity;
+  sessionRetried?: boolean;
+};
+
+function readRequestSession(): UserIdentity {
+  try {
+    const stored = localStorage.getItem(USER_STORAGE_KEY);
+    const user = stored ? JSON.parse(stored) as UserIdentity : null;
+    const auth = useGlobalContext.getState().auth;
+    if (user?.refreshToken && auth.isAuthenticated && auth.user?.userPublicId === user.userPublicId) return user;
+  } catch {
+    throw createUnauthenticatedError();
+  }
+  throw createUnauthenticatedError();
+}
+
+let pendingSessionRefresh: { refreshToken: string; promise: Promise<void> } | undefined;
+
+function refreshRequestSession(identity: UserIdentity): Promise<void> {
+  if (pendingSessionRefresh?.refreshToken === identity.refreshToken) return pendingSessionRefresh.promise;
+  const promise = applyRefreshedSession(identity).finally(() => {
+    if (pendingSessionRefresh?.promise === promise) pendingSessionRefresh = undefined;
+  });
+  pendingSessionRefresh = { refreshToken: identity.refreshToken, promise };
+  return promise;
+}
+
+async function applyRefreshedSession(identity: UserIdentity) {
+  const { authEndpoints } = await import('../auth/auth.endpoints');
+  const refreshed = await authEndpoints.refreshToken({ refreshToken: identity.refreshToken });
+  const user = normalizeRestoredSession(refreshed);
+  if (!user || user.userPublicId !== identity.userPublicId) throw createUnauthenticatedError();
+  const current = readRequestSession();
+  if (current.userPublicId !== identity.userPublicId) throw createUnauthenticatedError();
+  if (current.jwtToken !== identity.jwtToken || current.refreshToken !== identity.refreshToken) {
+    if (matchesRefreshedSession(localStorage.getItem(USER_STORAGE_KEY), user, current.userPublicId)) return;
+    throw createUnauthenticatedError();
+  }
+  useGlobalContext.getState().auth.setUser({ ...user, activeSchoolPublicId: current.activeSchoolPublicId });
+}
+
 export function createQueryFnWithRefresh() {
   const instance = createQueryFn();
 
-  instance.interceptors.request.use(async (requestConfig) => {
-    const userData = localStorage.getItem(USER_STORAGE_KEY);
-    if (!userData) throw createUnauthenticatedError();
-    const parsedUserData = JSON.parse(userData) as UserIdentity;
-
-    if (Date.now() >= parsedUserData.exp) {
-      const { authEndpoints } = await import('../auth/auth.endpoints');
-      const refreshed = await authEndpoints.refreshToken({ refreshToken: parsedUserData.refreshToken });
-      const user = normalizeRestoredSession(refreshed);
-      if (!user) throw createUnauthenticatedError();
-      const stored = localStorage.getItem(USER_STORAGE_KEY);
-      const auth = useGlobalContext.getState().auth;
-      if (!auth.isAuthenticated || auth.user?.userPublicId !== parsedUserData.userPublicId) {
-        throw createUnauthenticatedError();
-      }
-      if (stored !== userData) {
-        if (matchesRefreshedSession(stored, user, auth.user.userPublicId)) return requestConfig;
-        throw createUnauthenticatedError();
-      }
-      auth.setUser({ ...user, activeSchoolPublicId: parsedUserData.activeSchoolPublicId });
+  instance.interceptors.request.use(async (requestConfig: SessionRequestConfig) => {
+    let identity = readRequestSession();
+    if (requestConfig.sessionIdentity && requestConfig.sessionIdentity.userPublicId !== identity.userPublicId) {
+      throw createUnauthenticatedError();
     }
+    if (Date.now() >= identity.exp) {
+      await refreshRequestSession(identity);
+      identity = readRequestSession();
+    }
+    requestConfig.sessionIdentity = identity;
     return requestConfig;
+  });
+
+  instance.interceptors.response.use(undefined, async (error: unknown) => {
+    if (!isAxiosError(error) || error.response?.status !== HTTP_STATUS.UNAUTHORIZED) throw error;
+    const requestConfig = error.config as SessionRequestConfig | undefined;
+    if (!requestConfig?.sessionIdentity || requestConfig.sessionRetried) throw error;
+    const identity = readRequestSession();
+    const requestedIdentity = requestConfig.sessionIdentity;
+    if (identity.userPublicId !== requestedIdentity.userPublicId) throw createUnauthenticatedError();
+    requestConfig.sessionRetried = true;
+    if (identity.jwtToken === requestedIdentity.jwtToken && identity.refreshToken === requestedIdentity.refreshToken) {
+      await refreshRequestSession(identity);
+    }
+    return instance.request(requestConfig);
   });
 
   return instance;
