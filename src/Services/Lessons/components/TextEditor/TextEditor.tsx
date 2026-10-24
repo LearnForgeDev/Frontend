@@ -41,7 +41,7 @@ export default function TextEditor({
       {isEditMode && <Toolbar />}
 
       <RichTextPlugin
-        contentEditable={<ContentEditable className="editor-input" />}
+        contentEditable={<ContentEditable data-testid="lesson-editor" className="editor-input" />}
         ErrorBoundary={LexicalErrorBoundary}
       />
       {isEditMode && <AutoFocusPlugin />}

@@ -23,14 +23,14 @@ export default function ActiveChatView({ activeThread, isMobile, onBack }: Activ
   const { messages, status, call, downloadFile, messagesEndRef, previewImage, previewImageFileId, closePreview, sendMessage } = useActiveChat(activeThread);
   return <Box sx={styles.root}>
     <Box sx={pageStyles.chatHeader}>
-      {isMobile && <IconButton onClick={onBack} size="small" sx={styles.back} aria-label="К списку чатов"><ArrowBackIcon /></IconButton>}
+      {isMobile && <IconButton data-testid="chat-back" onClick={onBack} size="small" sx={styles.back} aria-label="К списку чатов"><ArrowBackIcon /></IconButton>}
       <Avatar sx={styles.avatar}>{activeThread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}</Avatar>
       <Box sx={pageStyles.chatHeaderIdentity}>
         <Typography variant="subtitle1" sx={pageStyles.chatHeaderTitle} noWrap>{activeThread.name}</Typography>
         <Typography variant="caption" color="text.secondary" sx={styles.subtitle}>{activeThread.type === 'branch' ? 'Групповой чат' : 'Личный чат'}</Typography>
       </Box>
       <ChatCallInviteButton onClick={call.createCallInvite} disabled={status !== 'connected'} isPending={call.isPending} />
-      <Chip label={getChatStatusLabel(status)} color={getChatStatusColor(status)} size="small" sx={styles.status} />
+      <Chip data-testid="chat-status" label={getChatStatusLabel(status)} color={getChatStatusColor(status)} size="small" sx={styles.status} />
     </Box>
     <Box sx={pageStyles.messagesArea}>
       {messages.length === 0 && <Box sx={styles.empty}><Typography variant="body2">Сообщений пока нет. Начните диалог первым!</Typography></Box>}

@@ -85,11 +85,13 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
               variant="standard"
               slotProps={{
                 input: { sx: styles.titleInput },
+                htmlInput: { 'data-testid': 'schedule-event-title-input' },
               }}
               aria-label={EVENT_DETAIL_TITLE_ARIA}
             />
           ) : (
             <Box
+              data-testid="schedule-event-title"
               sx={[styles.titleContainer, canManage && styles.editableTitle]}
               onClick={startEditing}
               title={canManage ? EVENT_DETAIL_EDIT_TITLE_HINT : undefined}

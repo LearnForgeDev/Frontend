@@ -50,6 +50,7 @@ export const ProfileCard = ({ user, onLogout }: ProfileCardProps) => {
       </Box>
 
       <Button
+        data-testid="profile-logout"
         variant="outlined"
         startIcon={<LogoutIcon />}
         onClick={onLogout}

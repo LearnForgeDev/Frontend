@@ -12,7 +12,7 @@ export default function ChatsSidebar({ view }: { view: ChatsWorkspaceState }) {
   return <>
     <Box sx={pageStyles.sidebarHeader}>
       <Typography variant="h5" sx={pageStyles.sidebarTitle}>Чаты</Typography>
-      <Button size="small" variant="outlined" startIcon={<AddIcon />} onClick={view.openDialog}>{view.activeTab === 'branch' ? 'Создать' : 'Написать'}</Button>
+      <Button data-testid="chat-create" size="small" variant="outlined" startIcon={<AddIcon />} onClick={view.openDialog}>{view.activeTab === 'branch' ? 'Создать' : 'Написать'}</Button>
     </Box>
     <Box sx={pageStyles.tabsContainer}>
       <Tabs value={view.activeTab} onChange={(_, value) => view.setActiveTab(value)} variant="fullWidth" aria-label="Тип чата">
@@ -25,7 +25,7 @@ export default function ChatsSidebar({ view }: { view: ChatsWorkspaceState }) {
     <List sx={pageStyles.chatList}>
       {view.currentThreads.map(thread => {
         const selected = view.activeThread?.id === thread.id && view.activeThread?.type === thread.type;
-        return <ListItemButton key={`${thread.type}-${thread.id}`} onClick={() => view.openThread(thread)} selected={selected} sx={pageStyles.chatItem}>
+        return <ListItemButton key={`${thread.type}-${thread.id}`} data-testid={`chat-${thread.type}-${thread.id}`} onClick={() => view.openThread(thread)} selected={selected} sx={pageStyles.chatItem}>
           <ListItemAvatar><Avatar sx={styles.avatar(selected)}>{thread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}</Avatar></ListItemAvatar>
           <ListItemText primary={<Typography sx={styles.name(selected)} noWrap>{thread.name}</Typography>} secondary={thread.type === 'branch' ? 'Групповой чат' : 'Личная переписка'} />
         </ListItemButton>;

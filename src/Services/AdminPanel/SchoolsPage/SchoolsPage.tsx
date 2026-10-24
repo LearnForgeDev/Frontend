@@ -27,7 +27,7 @@ export default function SchoolsPage() {
             Выберите рабочее пространство или присоединитесь к новой школе.
           </Typography>
         </Box>
-        <Button variant="contained" startIcon={<AddRoundedIcon />} onClick={() => navigate('/onboarding')}>
+        <Button data-testid="school-add" variant="contained" startIcon={<AddRoundedIcon />} onClick={() => navigate('/onboarding')}>
           Добавить школу
         </Button>
       </Box>

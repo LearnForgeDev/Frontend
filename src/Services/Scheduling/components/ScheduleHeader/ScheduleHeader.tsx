@@ -19,14 +19,14 @@ export function ScheduleHeader({ canManage, onCreate }: ScheduleHeaderProps) {
       <Box sx={styles.leftGroup}>
         <Typography variant="h5" component="h1" sx={styles.heading}>{HEADER_TITLE_TEXT}</Typography>
         <Box sx={styles.navControls}>
-          <Button variant="outlined" size="small" color="inherit" sx={styles.todayButton} onClick={navigation.goToday}>{TODAY_BUTTON_TEXT}</Button>
-          <IconButton aria-label={PREVIOUS_PERIOD_TEXT} onClick={navigation.goPrevious} size="small"><ChevronLeftIcon /></IconButton>
-          <IconButton aria-label={NEXT_PERIOD_TEXT} onClick={navigation.goNext} size="small"><ChevronRightIcon /></IconButton>
+          <Button variant="outlined" size="small" color="inherit" sx={styles.todayButton} data-testid="schedule-today" onClick={navigation.goToday}>{TODAY_BUTTON_TEXT}</Button>
+          <IconButton data-testid="schedule-previous" aria-label={PREVIOUS_PERIOD_TEXT} onClick={navigation.goPrevious} size="small"><ChevronLeftIcon /></IconButton>
+          <IconButton data-testid="schedule-next" aria-label={NEXT_PERIOD_TEXT} onClick={navigation.goNext} size="small"><ChevronRightIcon /></IconButton>
         </Box>
         <Typography component="h2" sx={styles.monthYearTitle}>{navigation.title}</Typography>
       </Box>
       <Box sx={styles.rightGroup}>
-        {canManage && <Button variant="contained" startIcon={<AddIcon />} onClick={onCreate} sx={styles.mobileCreate}>{NEW_EVENT_TEXT}</Button>}
+        {canManage && <Button variant="contained" startIcon={<AddIcon />} data-testid="schedule-create-mobile" onClick={onCreate} sx={styles.mobileCreate}>{NEW_EVENT_TEXT}</Button>}
         <ViewToggle />
       </Box>
     </Box>

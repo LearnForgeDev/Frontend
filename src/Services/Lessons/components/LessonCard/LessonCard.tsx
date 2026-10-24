@@ -61,6 +61,7 @@ export default function LessonCard({
         tabIndex={0}
         aria-label={`Урок: ${lesson.title}`}
         sx={cardStyle}
+        data-testid={`lesson-${lesson.id}`}
         onClick={onClick}
         onDoubleClick={onOpen}
         onContextMenu={canManage ? handleContextMenu : undefined}
@@ -73,6 +74,7 @@ export default function LessonCard({
               aria-label="Опции урока"
               size="small"
               sx={styles.kebabButton}
+              data-testid="lesson-options"
               onClick={handleKebabClick}
             >
               <MoreVertIcon fontSize="small" />

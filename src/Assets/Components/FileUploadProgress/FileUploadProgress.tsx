@@ -53,6 +53,7 @@ export default function FileUploadProgress({
                 <Button
                   size="small"
                   startIcon={<CancelRoundedIcon />}
+                  data-testid="upload-cancel"
                   onClick={() => onCancel(item.id)}
                   sx={S.cancelButtonSx}
                 >

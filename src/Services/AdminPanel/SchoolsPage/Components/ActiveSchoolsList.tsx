@@ -50,6 +50,7 @@ export default function ActiveSchoolsList({
               <Typography sx={S.cardRoleSx}>{formatRoles(school.roles)}</Typography>
             </Box>
             <Button
+              data-testid={`school-open-${school.schoolPublicId}`}
               onClick={() => onNavigateToSchool(school)}
               endIcon={<ArrowForwardRoundedIcon />}
               variant={isActive ? 'contained' : 'outlined'}

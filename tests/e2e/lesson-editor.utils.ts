@@ -15,7 +15,7 @@ export function createLessonDocument(text = INITIAL_LESSON_CONTENT) {
   };
 }
 
-export async function createEditableLesson(page: Page, allowedUserPublicIds?: string[]) {
+export async function createEditableLesson(page: Page, allowedUserPublicIds?: string[], title = `Урок проверки ${Date.now()}`) {
   const document = createLessonDocument().editorState;
   const fileResponse = await page.request.post(`/api/ApiFiles/${SCHOOL_ID}`, {
     multipart: {
@@ -27,7 +27,7 @@ export async function createEditableLesson(page: Page, allowedUserPublicIds?: st
   expect(fileResponse.ok(), await fileResponse.text()).toBe(true);
   const file = await fileResponse.json();
   const lessonResponse = await page.request.post(`/api/ApiLessons/${SCHOOL_ID}`, {
-    data: { title: `Урок проверки ${Date.now()}`, description: '', lessonJsonFilePublicId: file.publicId, allowedUserPublicIds },
+    data: { title, description: '', lessonJsonFilePublicId: file.publicId, allowedUserPublicIds },
   });
   expect(lessonResponse.ok(), await lessonResponse.text()).toBe(true);
   return lessonResponse.json();

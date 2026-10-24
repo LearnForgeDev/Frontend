@@ -44,7 +44,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
             {filteredFiles.map((file: ApiFile) => {
               const fileKey = file.publicId;
               return (
-                <Card key={fileKey} sx={styles.fileCard} variant="outlined">
+                <Card key={fileKey} data-testid={`file-${file.publicId}`} sx={styles.fileCard} variant="outlined">
                   <Box sx={styles.fileCardHeader}>
                     <Box sx={styles.iconWrapper}>
                       <FileIcon filename={file.fileName} />
@@ -65,14 +65,14 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
                     <IconButton
                       size="small"
                       onClick={() => handleOpenPreview(file)}
-                      title="Просмотреть"
+                      data-testid="file-preview" title="Просмотреть"
                     >
                       <VisibilityIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                       size="small"
                       onClick={() => handleDownloadFile(file)}
-                      title="Скачать"
+                      data-testid="file-download" title="Скачать"
                     >
                       <DownloadIcon fontSize="small" />
                     </IconButton>
@@ -80,7 +80,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
                       size="small"
                       color="error"
                       onClick={() => setDeleteConfirmFile(file)}
-                      title="Удалить"
+                      data-testid="file-delete" title="Удалить"
                     >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
@@ -105,7 +105,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
                 {filteredFiles.map((file: ApiFile) => {
                   const fileKey = file.publicId;
                   return (
-                    <TableRow key={fileKey} hover>
+                    <TableRow key={fileKey} data-testid={`file-${file.publicId}`} hover>
                       <TableCell sx={styles.fileCell}>
                         <Box sx={styles.fileRow}>
                           <FileIcon filename={file.fileName} />
@@ -119,14 +119,14 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
                         <IconButton
                           size="small"
                           onClick={() => handleOpenPreview(file)}
-                          title="Просмотреть"
+                          data-testid="file-preview" title="Просмотреть"
                         >
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                         <IconButton
                           size="small"
                           onClick={() => handleDownloadFile(file)}
-                          title="Скачать"
+                          data-testid="file-download" title="Скачать"
                         >
                           <DownloadIcon fontSize="small" />
                         </IconButton>
@@ -134,7 +134,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
                           size="small"
                           color="error"
                           onClick={() => setDeleteConfirmFile(file)}
-                          title="Удалить"
+                          data-testid="file-delete" title="Удалить"
                         >
                           <DeleteIcon fontSize="small" />
                         </IconButton>

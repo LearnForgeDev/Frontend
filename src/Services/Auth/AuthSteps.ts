@@ -96,6 +96,7 @@ export function getLoginSteps({
           component: Button,
           props: {
             type: "submit",
+            "data-testid": "auth-login-submit",
             variant: "contained",
             color: "primary",
             size: "large",

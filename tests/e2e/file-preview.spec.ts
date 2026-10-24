@@ -9,7 +9,7 @@ for (const extension of ['txt', 'png', 'pdf']) {
     await page.goto(`${SCHOOL_PATH}/files`);
     const completed = page.waitForResponse((response) =>
       response.url().includes(`/api/ApiFiles/${SCHOOL_ID}/direct-upload/complete`) && response.request().method() === 'POST');
-    await page.locator('input[type=file][multiple]').setInputFiles({
+    await page.getByTestId('files-input').setInputFiles({
       name: fileName, mimeType: 'application/octet-stream', buffer: Buffer.from('Текст для предпросмотра'),
     });
     expect((await completed).ok()).toBe(true);
@@ -19,13 +19,13 @@ for (const extension of ['txt', 'png', 'pdf']) {
     const uploaded = (await list.json()).find((file: { fileName: string }) => file.fileName === fileName);
     expect(uploaded).toBeTruthy();
     try {
-      await page.getByTitle('Просмотреть', { exact: true }).click();
+      await page.getByTestId('file-preview').click();
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible();
       if (extension === 'txt') {
         await expect(dialog.getByText('Текст для предпросмотра', { exact: true })).toBeVisible();
         await dialog.getByRole('button', { name: 'Закрыть', exact: true }).click();
-        await page.getByTitle('Просмотреть', { exact: true }).click();
+        await page.getByTestId('file-preview').click();
         await expect(dialog.getByText('Текст для предпросмотра', { exact: true })).toBeVisible();
       } else {
         await expect(dialog.getByRole('alert')).toHaveText('Не удалось открыть файл.');

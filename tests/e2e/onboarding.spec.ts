@@ -4,7 +4,7 @@ import { GAME_OVER_TIMEOUT_MS, WAITING_SCHOOL_NAME, WAITING_VIEWPORT_HEIGHT, WAI
 
 test.use({ hasTouch: true });
 
-test('заявка, адаптивная карточка и готовая игра работают с настоящим backend', async ({ page }, testInfo) => {
+test('ONB-03 ONB-04 ONB-09 ONB-10: заявка, адаптивная карточка и готовая игра работают с настоящим backend', async ({ page }, testInfo) => {
   const gameRequests: string[] = [];
   page.on('request', (request) => {
     if (/404game.*\.js/.test(request.url())) gameRequests.push(request.url());
@@ -13,10 +13,10 @@ test('заявка, адаптивная карточка и готовая иг
   await page.getByLabel(/^Имя пользователя/i).fill(`ci-waiting-${Date.now()}`);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
   await page.getByLabel(/^Подтвердите пароль/i).fill(CI_PASSWORD);
-  await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
+  await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(/\/onboarding$/, { timeout: BACKEND_TIMEOUT_MS });
   await page.getByLabel('Название школы').fill(WAITING_SCHOOL_NAME);
-  await page.getByRole('button', { name: 'Создать школу', exact: true }).click();
+  await page.getByTestId('onboarding-school-submit').click();
   await expect(page).toHaveURL(/\/onboarding\/waiting\/[^/]+$/, { timeout: BACKEND_TIMEOUT_MS });
   await expect(page.getByRole('heading', { name: 'Заявка на рассмотрении' })).toBeVisible();
   await expect(page.getByText(/текущая заявка останется активной/)).toHaveCount(1);

@@ -13,6 +13,7 @@ export default function DefaultButton({
 }) {
   return (
     <button
+      data-testid={`editor-${button.event}`}
       onClick={() => action(button.event)}
       aria-label={button.label}
       title={button.label}

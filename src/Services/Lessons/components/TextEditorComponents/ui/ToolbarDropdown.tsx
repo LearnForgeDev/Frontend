@@ -51,6 +51,7 @@ export default function Dropdown({
   return (
     <div className='toolbar-dropdown' ref={dropdownRef}>
       <button
+        data-testid={`editor-select-${buttons[0].event}`}
         onClick={() => setIsOpen(!isOpen)}
         aria-label={selected.label}
         aria-expanded={isOpen}
@@ -65,6 +66,7 @@ export default function Dropdown({
           {buttons.map((button) => (
             <button
               key={button.event}
+              data-testid={`editor-${button.event}`}
               onClick={() => handleSelect(button)}
               className={`dropdown-item ${selected.event === button.event ? 'selected' : ''}`}
               aria-label={button.label}

@@ -18,7 +18,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
         </Typography>
         <Box sx={styles.uploadActions}>
           <input
-            type="file"
+            data-testid="files-input" type="file"
             multiple
             hidden
             ref={fileInputRef}
@@ -27,7 +27,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
           <input
             type="file"
             accept="image/*"
-            capture="environment"
+            data-testid="files-camera-input" capture="environment"
             hidden
             ref={cameraInputRef}
             onChange={(event) => handleUploadFiles(event.target.files)}
@@ -36,7 +36,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
             <Button
               variant="outlined"
               startIcon={<PhotoCameraRoundedIcon />}
-              onClick={() => cameraInputRef.current?.click()}
+              data-testid="files-camera" onClick={() => cameraInputRef.current?.click()}
               disabled={isUploading}
             >
               Снять
@@ -46,7 +46,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
             variant="contained"
             color="primary"
             startIcon={isUploading ? <CircularProgress size={20} color="inherit" /> : <CloudUploadIcon />}
-            onClick={() => fileInputRef.current?.click()}
+            data-testid="files-upload" onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
           >
             {isUploading ? 'Загрузка...' : 'Загрузить файл'}
@@ -98,10 +98,10 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
           size="small"
           aria-label="Режим отображения"
         >
-          <ToggleButton value="grid" aria-label="Сетка">
+          <ToggleButton data-testid="files-view-grid" value="grid" aria-label="Сетка">
             <GridViewIcon />
           </ToggleButton>
-          <ToggleButton value="list" aria-label="Список">
+          <ToggleButton data-testid="files-view-list" value="list" aria-label="Список">
             <ViewListIcon />
           </ToggleButton>
         </ToggleButtonGroup>

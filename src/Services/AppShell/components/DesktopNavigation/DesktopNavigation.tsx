@@ -16,6 +16,7 @@ export default function DesktopNavigation({ items, activeItemId, onSelect }: Des
         return (
           <ListItemButton
             key={item.id}
+            data-testid={`nav-desktop-${item.id}`}
             selected={activeItemId === item.id}
             onClick={() => onSelect(item)}
             sx={S.navigationItemSx}

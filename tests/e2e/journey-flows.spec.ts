@@ -1,0 +1,92 @@
+import { test, expect } from './fixtures';
+import { CI_PASSWORD, SCHOOL_ID, SCHOOL_PATH } from './core.const';
+import { createLesson, openLessonEditor, uniqueName, readJson } from './flows.utils';
+import { createInvite, acceptInvite } from './invite-flows.utils';
+import { openGroup } from './chat-flows.utils';
+import { MOBILE_USER_AGENT } from './flows.const';
+import { INITIAL_LESSON_CONTENT } from './lesson-editor.const';
+import { SCHOOL_REQUEST_STORAGE_KEY } from '../../src/Services/Onboarding/onboarding.const';
+import type { TestEvent } from './flows.types';
+
+test('COMMON-05 JOURNEY-06: смена аккаунта изолирует черновик урока', async ({ actors }) => {
+  const owner = await actors();
+  const teacher = await actors('teacher');
+  const lesson = await createLesson(owner);
+  const draft = uniqueName('Личный черновик преподавателя');
+  await openLessonEditor(teacher.page, lesson);
+  await teacher.page.getByTestId('lesson-editor').fill(draft);
+  await expect(teacher.page.getByRole('status').filter({ hasText: 'Есть несохранённые изменения' })).toBeVisible();
+  await teacher.page.goto('/app/profile');
+  await teacher.page.getByTestId('profile-logout').click();
+  await teacher.page.getByLabel(/^Имя/).fill('ci-student');
+  await teacher.page.getByLabel(/^Пароль/).fill(CI_PASSWORD);
+  await teacher.page.getByTestId('auth-login-submit').click();
+  await expect(teacher.page).toHaveURL(`${SCHOOL_PATH}/today`);
+  await teacher.page.goto(`${SCHOOL_PATH}/lessons/${lesson.id}?edit=true`);
+  await expect(teacher.page.getByTestId('lesson-editor')).toContainText(INITIAL_LESSON_CONTENT);
+  await expect(teacher.page.getByTestId('lesson-editor')).not.toContainText(draft);
+  await expect(teacher.page.getByTestId('editor-save')).toHaveCount(0);
+  await teacher.page.reload();
+  await expect(teacher.page.getByTestId('lesson-editor')).not.toContainText(draft);
+});
+
+test('INV-04 INV-06: login по приглашению сохраняет незавершённую заявку', async ({ actors }) => {
+  const owner = await actors();
+  const applicant = await actors('new');
+  const invite = await createInvite(owner);
+  await applicant.page.goto('/onboarding');
+  await applicant.page.getByLabel('Название школы').fill(uniqueName('Ожидающая школа'));
+  await applicant.page.getByTestId('onboarding-school-submit').click();
+  await expect(applicant.page).toHaveURL(/\/onboarding\/waiting\//);
+  const key = `${SCHOOL_REQUEST_STORAGE_KEY}:${applicant.identity.userPublicId}`;
+  const pointer = await applicant.page.evaluate(key => localStorage.getItem(key), key);
+  expect(pointer).toBeTruthy();
+  await applicant.page.getByTestId('profile-open').click();
+  await applicant.page.getByTestId('profile-logout').click();
+  await applicant.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
+  await applicant.page.getByLabel(/^Имя/).fill(applicant.identity.userName);
+  await applicant.page.getByLabel(/^Пароль/).fill(CI_PASSWORD);
+  await applicant.page.getByTestId('auth-login-submit').click();
+  await expect(applicant.page).toHaveURL(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
+  await acceptInvite(applicant, invite.token);
+  expect(await applicant.page.evaluate(key => localStorage.getItem(key), key)).toBe(pointer);
+});
+
+test('SCHEDULE-03 JOURNEY-04: UI сохраняет выбранного ученика и показывает ему занятие', async ({ actors }) => {
+  const teacher = await actors('teacher');
+  const student = await actors('student');
+  await teacher.page.goto(`${SCHOOL_PATH}/schedule`);
+  await teacher.page.getByTestId('schedule-create').click();
+  const dialog = teacher.page.getByRole('dialog');
+  const title = uniqueName('Занятие выбранному ученику');
+  await dialog.getByTestId('schedule-form-title').fill(title);
+  await dialog.getByTestId('schedule-form-start-time').fill('10:00');
+  await dialog.getByTestId('schedule-form-end-time').fill('11:00');
+  await dialog.getByRole('combobox', { name: 'Участники' }).click();
+  await teacher.page.getByRole('option', { name: student.identity.userName, exact: true }).click();
+  await dialog.getByTestId('schedule-form-title').click();
+  const created = teacher.page.waitForResponse(response => response.url().endsWith(`/ApiSchedule/${SCHOOL_ID}/events`) && response.request().method() === 'POST');
+  await dialog.getByTestId('schedule-form-submit').click();
+  const response = await created;
+  expect(response.ok()).toBe(true);
+  const event = await response.json() as TestEvent;
+  teacher.cleanup.push(async () => { expect((await teacher.page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}`)).ok()).toBe(true); });
+  const events = await readJson<TestEvent[]>(await teacher.page.request.get(`/api/ApiSchedule/${SCHOOL_ID}/events`));
+  expect(events.find(item => item.id === event.id)?.attendees.map(item => item.userPublicId)).toEqual([student.identity.userPublicId]);
+  await student.page.goto(`${SCHOOL_PATH}/schedule?eventId=${event.id}`);
+  await expect(student.page.getByRole('dialog')).toContainText(title);
+  await expect(student.page.getByTestId('schedule-event-edit')).toHaveCount(0);
+});
+
+test('CHAT-12: мобильный чат возвращается к списку и сохраняет историю', async ({ actors }) => {
+  const actor = await actors('teacher', { viewport: { width: 390, height: 844 }, userAgent: MOBILE_USER_AGENT, isMobile: true, hasTouch: true });
+  await openGroup(actor);
+  const message = uniqueName('Сообщение с телефона');
+  await actor.page.getByTestId('chat-message-input').fill(message);
+  await actor.page.getByTestId('chat-send').click();
+  await expect(actor.page.getByText(message, { exact: true })).toBeVisible();
+  await actor.page.getByTestId('chat-back').click();
+  await expect(actor.page.getByText('Общий чат CI', { exact: true })).toBeVisible();
+  await actor.page.getByText('Общий чат CI', { exact: true }).click();
+  await expect(actor.page.getByText(message, { exact: true })).toBeVisible();
+});

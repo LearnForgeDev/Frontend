@@ -12,7 +12,7 @@ export default function ChatCreationDialogs({ view }: { view: ChatsWorkspaceStat
           <TextField label="Название чата" fullWidth required value={view.groupName} onChange={event => view.setGroupName(event.target.value)} placeholder="Например: Обсуждение ДЗ" disabled={view.isCreatingBranch} />
           <TextField label="Описание чата" fullWidth multiline rows={DESCRIPTION_ROWS} value={view.groupDesc} onChange={event => view.setGroupDesc(event.target.value)} placeholder="Краткое описание темы общения" disabled={view.isCreatingBranch} />
         </DialogContent>
-        <DialogActions><Button onClick={view.closeDialog} disabled={view.isCreatingBranch}>Отмена</Button><Button type="submit" variant="contained" disabled={!view.canCreateGroup}>Создать</Button></DialogActions>
+        <DialogActions><Button onClick={view.closeDialog} data-testid="chat-group-cancel" disabled={view.isCreatingBranch}>Отмена</Button><Button data-testid="chat-group-submit" type="submit" variant="contained" disabled={!view.canCreateGroup}>Создать</Button></DialogActions>
       </Box>
     </Dialog>
     <Dialog open={view.dialog === 'direct'} onClose={view.closeDialog} maxWidth="sm" fullWidth>
@@ -24,7 +24,7 @@ export default function ChatCreationDialogs({ view }: { view: ChatsWorkspaceStat
             loading={view.isMembersLoading} value={view.selectedMember} onChange={(_, selected) => view.setSelectedMember(selected)}
             renderInput={params => <TextField {...params} label="Собеседник" placeholder="Поиск по имени участника..." />} />
         </DialogContent>
-        <DialogActions><Button onClick={view.closeDialog}>Отмена</Button><Button type="submit" variant="contained" disabled={!view.selectedMember}>Написать</Button></DialogActions>
+        <DialogActions><Button data-testid="chat-direct-cancel" onClick={view.closeDialog}>Отмена</Button><Button data-testid="chat-direct-submit" type="submit" variant="contained" disabled={!view.selectedMember}>Написать</Button></DialogActions>
       </Box>
     </Dialog>
   </>;

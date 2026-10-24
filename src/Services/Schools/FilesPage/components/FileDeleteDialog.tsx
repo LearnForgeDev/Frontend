@@ -17,8 +17,8 @@ export default function FileDeleteDialog({ deleteConfirmFile, setDeleteConfirmFi
           </Typography>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setDeleteConfirmFile(null)}>Отмена</Button>
-          <Button onClick={handleDeleteConfirm} color="error" variant="contained">
+          <Button data-testid="file-delete-cancel" onClick={() => setDeleteConfirmFile(null)}>Отмена</Button>
+          <Button data-testid="file-delete-confirm" onClick={handleDeleteConfirm} color="error" variant="contained">
             Удалить
           </Button>
         </DialogActions>

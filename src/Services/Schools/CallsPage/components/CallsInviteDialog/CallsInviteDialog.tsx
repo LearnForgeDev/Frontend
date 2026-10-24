@@ -67,14 +67,14 @@ export default function CallsInviteDialog({
           </Typography>
         ) : (
           <List sx={styles.list} disablePadding>
-            <ListItemButton onClick={toggleAll} disabled={isPending}>
+            <ListItemButton data-testid="call-recipients-all" onClick={toggleAll} disabled={isPending}>
               <ListItemIcon>
                 <Checkbox edge="start" checked={isAllSelected} indeterminate={selectedIds.length > 0 && !isAllSelected} tabIndex={-1} />
               </ListItemIcon>
               <ListItemText primary={CALLS_INVITE_DIALOG_ALL_TEXT} />
             </ListItemButton>
             {recipients.map((recipient) => (
-              <ListItemButton key={recipient.userPublicId} onClick={() => toggleRecipient(recipient.userPublicId)} disabled={isPending}>
+              <ListItemButton key={recipient.userPublicId} data-testid={`call-recipient-${recipient.userPublicId}`} onClick={() => toggleRecipient(recipient.userPublicId)} disabled={isPending}>
                 <ListItemIcon>
                   <Checkbox edge="start" checked={selectedIds.includes(recipient.userPublicId)} tabIndex={-1} />
                 </ListItemIcon>
@@ -85,12 +85,12 @@ export default function CallsInviteDialog({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={isPending}>
+        <Button data-testid="call-invite-cancel" onClick={onClose} disabled={isPending}>
           {CALLS_INVITE_DIALOG_CANCEL_TEXT}
         </Button>
         <Button
           variant="contained"
-          onClick={handleInvite}
+          data-testid="call-invite-submit" onClick={handleInvite}
           disabled={isPending || selectedIds.length === 0}
           startIcon={isPending ? <CircularProgress size={16} color="inherit" /> : undefined}
         >

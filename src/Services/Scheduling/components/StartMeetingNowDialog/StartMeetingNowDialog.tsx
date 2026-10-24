@@ -42,10 +42,10 @@ export function StartMeetingNowDialog({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={onCancel} disabled={isPending}>
+        <Button data-testid="schedule-start-now-cancel" onClick={onCancel} disabled={isPending}>
           {CANCEL_BUTTON_TEXT}
         </Button>
-        <Button variant="contained" onClick={onConfirm} disabled={isPending}>
+        <Button data-testid="schedule-start-now-confirm" variant="contained" onClick={onConfirm} disabled={isPending}>
           {CONFIRM_BUTTON_TEXT}
         </Button>
       </DialogActions>

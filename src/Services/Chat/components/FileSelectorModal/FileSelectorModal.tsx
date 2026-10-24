@@ -360,9 +360,10 @@ export default function FileSelectorModal({
         )}
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose}>Отмена</Button>
+        <Button data-testid="chat-files-cancel" onClick={handleClose}>Отмена</Button>
         <Button
           variant="contained"
+          data-testid="chat-files-confirm"
           onClick={handleConfirm}
           disabled={selectedIds.length === 0 || showLoading}
         >

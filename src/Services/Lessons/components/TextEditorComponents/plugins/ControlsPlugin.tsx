@@ -18,7 +18,7 @@ export default function ControlsPlugin({ onSave, isSaving, isSaveBlocked, status
     <Typography role={status === 'error' ? 'alert' : 'status'} color={status === 'error' ? 'error' : 'text.secondary'}>
       {isSaving ? 'Сохраняем на сервере…' : status === 'error' ? 'Не удалось сохранить. Черновик остаётся в редакторе.' : status === 'draft' ? 'Есть несохранённые изменения' : 'Сохранено на сервере'}
     </Typography>
-    <Button variant="contained" onClick={() => void onSave(serializedDocumentFromEditorState(editor.getEditorState()))} disabled={isSaving || isSaveBlocked} startIcon={isSaving ? <ClipLoader size={SAVE_LOADER_SIZE} color="currentColor" /> : undefined}>
+    <Button data-testid="editor-save" variant="contained" onClick={() => void onSave(serializedDocumentFromEditorState(editor.getEditorState()))} disabled={isSaving || isSaveBlocked} startIcon={isSaving ? <ClipLoader size={SAVE_LOADER_SIZE} color="currentColor" /> : undefined}>
       {status === 'error' ? 'Повторить сохранение' : 'Сохранить'}
     </Button>
   </div>;

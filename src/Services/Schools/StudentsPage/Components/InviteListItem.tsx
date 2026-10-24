@@ -18,7 +18,7 @@ export default function InviteListItem({ invite, pending, onSave, onDelete, onRo
   const editor = useInviteEditor(invite, onSave);
   const [confirm, setConfirm] = useState<'delete' | 'rotate' | null>(null);
   return (
-    <Box component="article" sx={S.cardSx}>
+    <Box component="article" data-testid={`invite-${invite.id}`} sx={S.cardSx}>
       <Box sx={S.actionsSx}>
         <Typography component="h3" sx={S.titleSx}>{getInviteRole(invite.role)}</Typography>
         <Chip label={getInviteStatus(invite)} size="small" />
@@ -32,9 +32,9 @@ export default function InviteListItem({ invite, pending, onSave, onDelete, onRo
         <TextField label="Действует до" type="datetime-local" value={editor.expiresAt}
           onChange={(event) => editor.setExpiresAt(event.target.value)} slotProps={{ inputLabel: { shrink: true } }} required />
         <Box sx={S.actionsSx}>
-          <Button type="submit" disabled={pending}>Сохранить</Button>
-          <Button onClick={() => setConfirm('rotate')} disabled={pending}>Заменить ссылку</Button>
-          <Button color="error" onClick={() => setConfirm('delete')} disabled={pending}>Удалить</Button>
+          <Button data-testid="invite-save" type="submit" disabled={pending}>Сохранить</Button>
+          <Button data-testid="invite-rotate" onClick={() => setConfirm('rotate')} disabled={pending}>Заменить ссылку</Button>
+          <Button data-testid="invite-revoke" color="error" onClick={() => setConfirm('delete')} disabled={pending}>Удалить</Button>
         </Box>
       </Box>}
       <Box component="details" sx={S.historySx}>
@@ -49,8 +49,8 @@ export default function InviteListItem({ invite, pending, onSave, onDelete, onRo
       <Dialog open={confirm !== null} onClose={() => setConfirm(null)}>
         <DialogTitle>{confirm === 'delete' ? 'Удалить приглашение?' : 'Заменить ссылку? Старая перестанет работать.'}</DialogTitle>
         <DialogActions>
-          <Button onClick={() => setConfirm(null)}>Отмена</Button>
-          <Button onClick={() => { if (confirm === 'delete') onDelete(); else onRotate(); setConfirm(null); }}>Подтвердить</Button>
+          <Button data-testid="invite-action-cancel" onClick={() => setConfirm(null)}>Отмена</Button>
+          <Button data-testid="invite-action-confirm" onClick={() => { if (confirm === 'delete') onDelete(); else onRotate(); setConfirm(null); }}>Подтвердить</Button>
         </DialogActions>
       </Dialog>
     </Box>

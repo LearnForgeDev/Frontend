@@ -32,6 +32,7 @@ export function DayColumn({ date, events, onSelectEvent, selectedEventId, onSele
         {hours.map((h) => (
           <Box
             key={h}
+            data-testid={`schedule-slot-${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}-${h}`}
             sx={styles.slotLine(Boolean(onSelectTimeSlot))}
             onClick={() => {
               if (onSelectTimeSlot) {

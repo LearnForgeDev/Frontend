@@ -15,43 +15,62 @@ concurrency:
   group: verify-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+env:
+  TZ: Europe/Moscow
+  VITE_SERVER_LINK: ""
+  VITE_MEET_SERVER_LINK: ""
+
 jobs:
   verify:
+    name: Типы, стиль и production-сборка
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      CI_BACKEND_URL: http://127.0.0.1:8080
-      VITE_SERVER_LINK: ""
-      VITE_MEET_SERVER_LINK: ""
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
           cache: npm
-      - name: Установить зависимости
-        run: npm ci
+      - run: npm ci
       - name: Проверить типы
         run: npm run typecheck
       - name: Проверить ESLint
         run: npm run lint
       - name: Проверить логику приложения
         run: npm test
+      - name: Проверить регистрацию Playwright-тестов
+        run: npx playwright test --list
       - name: Собрать production
         run: npm run build
       - name: Проверить лимит 200 КБ и ES2015
         run: npm run check:build
-      - name: Сохранить production-сборку
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: production-build
           path: dist
           include-hidden-files: true
           retention-days: 7
+
+  e2e-public:
+    name: Playwright — публичные страницы
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-build
+          path: dist
       - name: Установить Chromium
         run: npx playwright install --with-deps chromium
-      - name: Проверить публичные страницы и невалидную локальную сессию
-        run: npm run test:e2e -- --grep @public
+      - name: Проверить публичные флоу
+        run: npm run test:e2e -- --grep @public --output=test-results/public
       - name: Сохранить публичный браузерный отчёт
         if: always()
         uses: actions/upload-artifact@v4
@@ -61,6 +80,25 @@ jobs:
             playwright-report
             test-results
           retention-days: 7
+
+  e2e-backend:
+    name: Playwright — настоящий backend и состояния ошибок
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CI_BACKEND_URL: http://127.0.0.1:8080
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: production-build
+          path: dist
       - name: Проверить секрет доступа к backend
         env:
           CI_BACKEND_TOKEN: ${{ secrets.CI_BACKEND_TOKEN }}
@@ -77,25 +115,31 @@ jobs:
           path: .ci/backend
           token: ${{ secrets.CI_BACKEND_TOKEN }}
           persist-credentials: false
-      - name: Создать временный ключ административного входа для CI
+      - name: Создать временный TOTP для тестового окружения
+        id: totp
         run: |
-          python3 - <<'PY'
-          import base64
-          import os
-          key = base64.b32encode(os.urandom(20)).decode()
-          print(f'::add-mask::{key}')
-          with open(os.environ['GITHUB_ENV'], 'a') as environment:
-              environment.write(f'CI_ADMIN_TOTP_SECRET={key}\n')
-          PY
+          ci_totp_secret=$(python3 -c 'import base64, os; print(base64.b32encode(os.urandom(20)).decode())')
+          echo "::add-mask::$ci_totp_secret"
+          echo "CI_ADMIN_TOTP_SECRET=$ci_totp_secret" >> "$GITHUB_ENV"
+      - name: Установить Chromium
+        run: npx playwright install --with-deps chromium
       - name: Поднять тестовый backend
         run: docker compose -f tests/backend/compose.yml up -d api
       - name: Дождаться готовности API и хранилища
+        id: ready
         run: |
           curl --fail --retry 90 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:8080/health
           curl --fail --retry 30 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:9000/minio/health/ready
-      - name: Проверить production с настоящим backend
-        run: npm run test:e2e -- --grep-invert @public
-      - name: Сохранить отчёты
+      - name: Проверить флоу с настоящим backend
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/backend
+        run: npm run test:e2e -- --grep-invert '@public|@ui-errors' --output=test-results/backend
+      - name: Проверить интерфейс при отказах запросов
+        if: ${{ !cancelled() && steps.ready.outcome == 'success' }}
+        env:
+          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/errors
+        run: npm run test:e2e -- --grep @ui-errors --output=test-results/errors
+      - name: Сохранить браузерные отчёты
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -105,8 +149,8 @@ jobs:
             test-results
           retention-days: 7
       - name: Сохранить логи backend
-        if: failure()
+        if: ${{ failure() && steps.totp.outcome == 'success' }}
         run: docker compose -f tests/backend/compose.yml logs --no-color
       - name: Удалить тестовое окружение
-        if: always()
+        if: ${{ always() && steps.totp.outcome == 'success' }}
         run: docker compose -f tests/backend/compose.yml down --volumes --remove-orphans

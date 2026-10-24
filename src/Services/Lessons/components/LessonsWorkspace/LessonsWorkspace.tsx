@@ -12,7 +12,7 @@ export default function LessonsWorkspace(props: LessonsMainPageProps) {
   return <Box className="lessons-main-page" sx={styles.root}>
     <Box component="header" sx={styles.header}>
       <Typography variant="h4" component="h1" sx={styles.title}>Мои уроки</Typography>
-      {props.canManageLessons && <Button variant="contained" startIcon={<AddIcon />} onClick={view.createLesson} disabled={view.isCreating}>Создать урок</Button>}
+      {props.canManageLessons && <Button data-testid="lesson-create" variant="contained" startIcon={<AddIcon />} onClick={view.createLesson} disabled={view.isCreating}>Создать урок</Button>}
     </Box>
     <Box component="main" sx={styles.content}>
       {view.isLoading ? <Box sx={styles.grid}>

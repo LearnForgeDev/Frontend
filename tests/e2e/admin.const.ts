@@ -8,3 +8,5 @@ export const BYTE_BITS = 8;
 export const TOTP_OFFSET_MASK = 0x0f;
 export const TOTP_VALUE_MASK = 0x7fffffff;
 export const ADMIN_REQUESTS_PATH = '/api/ApiSchool/provisioning-requests?includeRejected=true';
+
+export const PROVISION_TIMEOUT_MS = 45_000;

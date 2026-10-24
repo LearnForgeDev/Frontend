@@ -41,6 +41,7 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
   return (
     <>
       <Button
+        data-testid="invite-open"
         variant="contained"
         startIcon={<AddRoundedIcon />}
         onClick={() => setIsOpen(true)}
@@ -51,7 +52,7 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
       <Dialog fullScreen open={isOpen} onClose={() => setIsOpen(false)}>
         <AppBar position="sticky" color="inherit" elevation={0} sx={S.appBarSx}>
           <Toolbar sx={S.toolbarSx}>
-            <IconButton edge="start" onClick={() => setIsOpen(false)} aria-label="Закрыть">
+            <IconButton data-testid="invite-close" edge="start" onClick={() => setIsOpen(false)} aria-label="Закрыть">
               <CloseRoundedIcon />
             </IconButton>
             <Typography component="h2" sx={S.dialogTitleSx}>Пригласить в школу</Typography>
@@ -93,6 +94,7 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
                 slotProps={{ htmlInput: { min: MIN_INVITE_EXPIRATION_HOURS, max: MAX_INVITE_EXPIRATION_HOURS } }}
               />
               <Button
+                data-testid="invite-create"
                 type="submit"
                 variant="contained"
                 startIcon={<LinkRoundedIcon />}
@@ -112,12 +114,12 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
             {token && (
               <Box sx={S.resultSx}>
                 <Box sx={S.qrSx}>
-                  <QRCodeSVG value={inviteUrl} size={136} level="M" title="QR-код приглашения" />
+                  <QRCodeSVG data-testid="invite-qr" value={inviteUrl} size={136} level="M" title="QR-код приглашения" />
                 </Box>
                 <Box>
                   <Typography sx={S.resultTitleSx}>Приглашение готово</Typography>
                   <Typography sx={S.tokenSx}>{inviteUrl}</Typography>
-                  <Button startIcon={<ContentCopyRoundedIcon />} onClick={() => token && void copy(token)} sx={S.copyButtonSx}>
+                  <Button data-testid="invite-copy" startIcon={<ContentCopyRoundedIcon />} onClick={() => token && void copy(token)} sx={S.copyButtonSx}>
                     Скопировать ссылку
                   </Button>
                 </Box>

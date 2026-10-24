@@ -11,7 +11,7 @@ import FilePreviewDialog from './FilePreviewDialog/FilePreviewDialog';
 export default function FilesWorkspace({ schoolPublicId }: { schoolPublicId: string }) {
   const page = useFilesPage(schoolPublicId);
   return (
-    <Box sx={styles.container} onDragEnter={page.handleDrag} onDragOver={page.handleDrag} onDragLeave={page.handleDrag} onDrop={page.handleDrop}>
+    <Box data-testid="files-dropzone" sx={styles.container} onDragEnter={page.handleDrag} onDragOver={page.handleDrag} onDragLeave={page.handleDrag} onDrop={page.handleDrop}>
       <FilesToolbar {...page} />
       {page.dragActive && (
         <Box sx={styles.dropZone}>

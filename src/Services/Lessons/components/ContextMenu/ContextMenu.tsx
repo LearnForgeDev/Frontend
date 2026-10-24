@@ -82,7 +82,7 @@ export default function ContextMenu({
           </ListItemIcon>
           <ListItemText>Переместить</ListItemText>
         </MenuItem>}
-        <MenuItem onClick={handleDeleteClick} sx={styles.deleteItem}>
+        <MenuItem data-testid="lesson-delete" onClick={handleDeleteClick} sx={styles.deleteItem}>
           <ListItemIcon>
             <DeleteIcon fontSize="small" sx={styles.deleteIcon} />
           </ListItemIcon>
@@ -100,10 +100,10 @@ export default function ContextMenu({
               Вы уверены, что хотите безвозвратно удалить этот элемент? Это действие нельзя отменить.
             </Typography>
             <Box sx={styles.modalActions}>
-              <Button onClick={() => setIsDeleteConfirmOpen(false)} variant="outlined">
+              <Button data-testid="lesson-delete-cancel" onClick={() => setIsDeleteConfirmOpen(false)} variant="outlined">
                 Отмена
               </Button>
-              <Button onClick={handleConfirmDelete} variant="contained" color="error">
+              <Button data-testid="lesson-delete-confirm" onClick={handleConfirmDelete} variant="contained" color="error">
                 Удалить
               </Button>
             </Box>
