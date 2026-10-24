@@ -1,7 +1,5 @@
-import { useState, type FormEvent } from 'react';
 import { Button, TextField, Typography } from '@mui/material';
-import { useRequestSchool } from '../../hooks/useRequestSchool';
-import { validateSchoolName } from '../../validation/onboarding.validation';
+import { useRequestSchoolForm } from '../../hooks/useRequestSchoolForm';
 import * as S from './RequestSchoolForm.styles';
 
 type RequestSchoolFormProps = {
@@ -11,21 +9,8 @@ type RequestSchoolFormProps = {
 export default function RequestSchoolForm({
   initialSchoolName = '',
 }: RequestSchoolFormProps) {
-  const [schoolName, setSchoolName] = useState(initialSchoolName);
-  const [validationError, setValidationError] = useState<string | null>(null);
-  const requestSchool = useRequestSchool();
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const validation = validateSchoolName(schoolName);
-    setValidationError(validation.error);
-
-    if (validation.error) {
-      return;
-    }
-
-    requestSchool.mutate(validation.value);
-  };
+  const { schoolName, validationError, requestSchool, handleSubmit, changeSchoolName } =
+    useRequestSchoolForm(initialSchoolName);
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -36,10 +21,7 @@ export default function RequestSchoolForm({
         fullWidth
         label="Название школы"
         value={schoolName}
-        onChange={(event) => {
-          setSchoolName(event.target.value);
-          setValidationError(null);
-        }}
+        onChange={(event) => changeSchoolName(event.target.value)}
         error={Boolean(validationError)}
         helperText={validationError}
         disabled={requestSchool.isPending}
@@ -54,7 +36,7 @@ export default function RequestSchoolForm({
       )}
       <Button
         type="submit"
-        variant="outlined"
+        variant="contained"
         fullWidth
         disabled={requestSchool.isPending}
         sx={S.submitButton}

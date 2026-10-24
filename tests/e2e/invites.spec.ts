@@ -135,3 +135,27 @@ test('Управление приглашениями открывается в 
   await expect(page.getByText('Использовано 0 из 5', { exact: true })).toBeVisible();
   await test.info().attach('Управление приглашениями', { body: await page.screenshot({ fullPage: true }), contentType: 'image/png' });
 });
+
+test('Вступление по вставленной ссылке проверяет адрес и открывает школу', async ({ page }) => {
+  const owner = await ownerContext();
+  let token: string;
+  try {
+    token = await createInvite(owner);
+  } finally {
+    await owner.dispose();
+  }
+
+  await page.goto('/auth/register');
+  await page.getByLabel(/^Имя пользователя/).fill(`invite-paste-${crypto.randomUUID()}`);
+  await page.getByLabel(/^Пароль/).fill(CI_PASSWORD);
+  await page.getByLabel(/^Подтвердите пароль/).fill(CI_PASSWORD);
+  await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
+  await expect(page).toHaveURL(/\/onboarding$/);
+  await page.getByLabel('Ссылка-приглашение').fill('не ссылка');
+  await page.getByRole('button', { name: 'Вступить в школу', exact: true }).click();
+  await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).toBeVisible();
+  await page.getByLabel('Ссылка-приглашение').fill(`${baseURL}/onboarding?invite=${token}`);
+  await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).not.toBeVisible();
+  await page.getByRole('button', { name: 'Вступить в школу', exact: true }).click();
+  await expect(page).toHaveURL(`/app/schools/${SCHOOL_ID}/today`);
+});
