@@ -1,0 +1,5 @@
+export const PROFILE_MOBILE_VIEWPORT = { width: 393, height: 851 };
+
+export const PROFILE_LAYOUT_WIDTHS = [319, 350, 351, 393, 886, 1440];
+export const PROFILE_STACK_MAX_WIDTH_PX = 350;
+export const PROFILE_LAYOUT_PIXEL_TOLERANCE = 1;

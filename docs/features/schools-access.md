@@ -32,6 +32,25 @@ list; membership-load failures show retry. The student-management route requires
 `canTeach`. Other domain actions may use narrower backend permissions, such as
 course-specific `canManage`.
 
+The desktop sidebar can collapse to labeled icon actions while keeping navigation
+and school switching available. Collapse state lasts while the app shell is mounted;
+it is not persisted. The header and content follow the same sidebar width. Mobile
+navigation remains independent. Accounts without memberships do not show an empty
+school switcher and can add a school from [Profile](profile.md). In short desktop
+windows, the navigation scrolls while school switching and the collapse toggle retain
+their space; the sidebar can also scroll if those fixed controls exceed its height.
+
+The school-selection hook resolves a school route only against confirmed accessible
+memberships. An unknown route never falls back to another school's scope. Account
+pages retain an available stored school, otherwise a teaching membership, otherwise
+the first accessible membership. Profile entry remembers a confirmed route selection.
+
+Both the switcher and school list use the same selection operation. Selecting a
+different confirmed school persists its ID before full-page navigation to its Today
+page, replacing the running application's transient state. Reopening the current
+school uses ordinary internal navigation. Forged or roleless choices are ignored;
+backend authorization remains authoritative after reload.
+
 ## Data and dependencies
 
 The school route identifies the resource scope. Memberships and the selected school

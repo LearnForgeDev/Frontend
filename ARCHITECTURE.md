@@ -53,6 +53,9 @@ The browser's first render matches that initial state before restoration starts.
 Product URLs share one catch-all Next.js page. Next.js owns browser history;
 React Router matches the nested product routes and layouts. Internal transitions
 within that page are shallow and retain client state without fetching server props.
+Choosing a different school is an explicit exception: the school-selection hook
+persists the confirmed membership and starts full-page navigation, replacing the
+running browser application's transient scope.
 Full document requests still receive server redirects and HTTP status. Route state,
 query parameters, fragments, and relative navigation pass through the routing bridge.
 
@@ -107,6 +110,11 @@ Logout clears credentials and the active account scope, then opens login through
 full-page navigation. School capabilities derive from memberships, while individual
 domains can apply narrower rights. Platform administration uses separate backend
 administrative authentication rather than the ordinary user's school role.
+
+Account-level pages must choose school-scoped reads from confirmed memberships.
+Shared schedule reads accept an explicit school, including an empty value that
+disables fetching; school-route callers retain their route scope. Profile event
+creation installs the chosen school before reusing the existing scheduling form.
 
 ## Lessons, files, and drafts
 
