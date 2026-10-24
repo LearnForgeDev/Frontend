@@ -1,6 +1,7 @@
 import { test, expect } from './fixtures';
 import { login } from './auth.utils';
 import { BACKEND_TIMEOUT_MS, CI_PASSWORD, SCHOOL_ID, SCHOOL_PATH } from './core.const';
+import { PROFILE_MOBILE_VIEWPORT } from './profile.const';
 
 test('AUTH-03 SESSION-01 SESSION-07 PROFILE-04: вход через форму и восстановление сессии после перезагрузки', async ({ page }) => {
   await page.goto('/auth/login');
@@ -26,13 +27,26 @@ test('AUTH-04: ошибка входа показывает понятное с�
   await expect(page).toHaveURL(/\/auth\/login$/);
 });
 
-test('AUTH-07 ONB-01: регистрация нового пользователя приводит к подключению школы', async ({ page }) => {
+test('AUTH-07 ONB-01: регистрация нового пользователя приводит к подключению школы', async ({ page }, testInfo) => {
   await page.goto('/auth/register');
   await page.getByLabel(/^Имя пользователя/i).fill(`ci-new-${Date.now()}`);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);
   await page.getByLabel(/^Подтвердите пароль/i).fill(CI_PASSWORD);
   await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(/\/onboarding$/, { timeout: BACKEND_TIMEOUT_MS });
+  await page.goto('/app/profile');
+  await expect(page.getByText('Вы пока не состоите ни в одной школе.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Выберите школу' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Создать занятие', exact: true })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('profile-without-schools.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Свернуть меню', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Выберите школу' })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('profile-without-schools-collapsed.png'), fullPage: true });
+  await page.setViewportSize(PROFILE_MOBILE_VIEWPORT);
+  await expect(page.getByRole('button', { name: 'Выберите школу' })).toHaveCount(0);
+  await page.screenshot({ path: testInfo.outputPath('profile-without-schools-mobile.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Добавить школу', exact: true }).click();
+  await expect(page).toHaveURL(/\/onboarding$/);
 });
 
 for (const role of ['owner', 'teacher', 'student']) {
@@ -149,10 +163,10 @@ test('ACCESS-01: чужая школа недоступна', async ({ page }) =
   expect([403, 404]).toContain(response.status());
 });
 
-test('SCHEDULE-03: создание занятия сохраняет расписание и состав участников', async ({ page }) => {
-  await login(page, 'teacher');
-  await page.goto(`${SCHOOL_PATH}/schedule`);
-  await page.getByTestId('schedule-create').click();
+test('SCHEDULE-03: создание занятия из профиля сохраняет расписание и состав участников', async ({ page }) => {
+  await login(page, 'teacher', null);
+  await page.goto('/app/profile');
+  await page.getByRole('button', { name: 'Создать занятие', exact: true }).click();
   const title = `Занятие CI ${Date.now()}`;
   await page.getByLabel(/^Название/i).fill(title);
   await page.getByLabel(/^Время начала/i).fill('10:00');
@@ -168,6 +182,10 @@ test('SCHEDULE-03: создание занятия сохраняет распи
   const saved = (await list.json()).find((item: { title: string }) => item.title === title);
   expect(saved).toBeTruthy();
   expect(saved.attendees.length).toBeGreaterThan(0);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Создать занятие', exact: true })).toBeVisible();
+  await page.goto(`${SCHOOL_PATH}/schedule`);
+  await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
   await page.reload();
   await expect(page.getByText(title, { exact: true }).first()).toBeVisible();
   await page.goto(`${SCHOOL_PATH}/schedule?eventId=${saved.id}`);

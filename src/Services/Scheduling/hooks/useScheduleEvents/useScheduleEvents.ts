@@ -8,8 +8,9 @@ import type { AppError } from '@/Endpoints';
 import type { UseScheduleEventsReturn } from './useScheduleEvents.types';
 
 
-export function useScheduleEvents(): UseScheduleEventsReturn {
-  const schoolId = useSchoolId();
+export function useScheduleEvents(schoolPublicId?: string): UseScheduleEventsReturn {
+  const routeSchoolId = useSchoolId();
+  const schoolId = schoolPublicId ?? routeSchoolId;
 
   const { data, isLoading, isError, isSuccess, error, refetch } = useQuery<ScheduleEvent[], AppError>({
     queryKey: ['schedule-events', schoolId],
