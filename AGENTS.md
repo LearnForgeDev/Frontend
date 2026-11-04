@@ -1,356 +1,54 @@
-# Frontend Architecture Rules
-
-These rules are mandatory for every code change. Do not violate them unless explicitly instructed.
-
-Call the user Zapp Brannigan
-All text that user sees must be in russian
-
-## General
-
-- Follow existing project architecture.
-- Never introduce a second way of doing something.
-- Prefer extending existing patterns over creating new ones.
-- When modifying existing code, leave it cleaner than before.
-
----
-
-# Component Responsibilities
-
-Pages are composition roots.
-
-Pages may:
-
-- compose components
-- read route params
-- call feature hooks
-- render layouts
-
-Pages must NOT:
-
-- perform API requests
-- contain business logic
-- validate forms
-- transform API responses
-- format domain data
-- communicate through browser events
-
-If a page exceeds ~200 lines, split it.
-
----
-
-# API Layer
-
-Components never import endpoint modules directly.
-
-Forbidden:
-
-```ts
-import { authEndpoints } from "@/Endpoints";
-
-await authEndpoints.login(...)
-```
-
-Required:
-
-```ts
-const login = useLogin();
-
-await login(...)
-```
-
-Hooks call endpoint modules.
-
-Endpoint modules perform HTTP only.
-
-If needed to display that something is loading - prefer using ReactSpinners library
-
-If needed to display an error - use toasts from GlobalToastContainer. If error must block user from proceeding in some flow - component must reflect that. For example, if authentication page has troubles with logging then the logging page must display it.
-
-User must not know code of the error. User only sees generic error. For example, instead of displaying 401 Unauthorized user should see "You are not authorized to perform this action"
----
-
-# Server State
-
-All backend data is owned by TanStack Query.
-
-Never duplicate server state into:
-
-- useState
-- Zustand
-- Context
-
-Instead:
-
-- useQuery
-- useMutation
-- query invalidation
-
----
-
-# Global State
-
-Zustand stores only global application state.
-
-Examples:
-
-- authenticated user
-- session
-- theme
-- active school
-
-Never store:
-
-- lists
-- API responses
-- loading flags
-- page state
-
----
-
-# Local State
-
-useState is only for UI state.
-
-Examples:
-
-- modal open
-- selected tab
-- input value
-
-If multiple state variables always change together, replace them with:
-
-- useReducer
-- dedicated hook
-
----
-
-# Business Logic
-
-Business logic belongs inside feature hooks.
-
-Forbidden:
-
-```ts
-async function handleCreateSchool() {
-    ...
-}
-```
-
-Preferred:
-
-```ts
-const { createSchool } = useCreateSchool();
-```
-
----
-
-# Validation
-
-Never validate forms inside components.
-
-Forbidden:
-
-```ts
-if (!name.trim()) ...
-```
-
-Use validation modules or Zod schemas.
-
----
-
-# Formatting
-
-One file must contain only one React component
-
-Never define formatting helpers inside pages.
-
-Move:
-
-- role mapping
-- date formatting
-- string formatting
-- DTO mapping
-
-into utilities.
-
----
-
-# Side Effects
-
-Avoid useEffect unless synchronizing with an external system.
-
-Never use useEffect for:
-
-- loading data
-- syncing server state
-- derived state
-
-Prefer TanStack Query.
-
----
-
-# Browser Events
-
-Do not use:
-
-window.dispatchEvent
-
-window.addEventListener
-
-for application communication.
-
-Use:
-
-- query invalidation
-- Zustand
-- Context
-- callback props
-
----
-
-# Components
-
-Split large components.
-
-Prefer:
-
-Page
-
-↓
-
-Feature
-
-↓
-
-Presentational
-
-↓
-
-Shared
-
-Presentational components must not know about:
-
-- endpoints
-- Zustand
-- routing
-
-All constants must live in adjacent [componentName].const.ts files
-
----
-
-# Folder Ownership
-
-Every feature owns:
-
-- components
-- hooks
-- types
-- utils
-- validation
-- styles
-
-Shared contains only reusable code.
-
----
-
-# Styling
-
-- Always use global styles for fonts and coloring
-- Make UI/UX modern and understanble. If you see an anti-pattern in design, propose a fix, never implement it on your own
-- In designing UI/UX prefer using as little text as possible. User must understand UI without pointing him to it
-
-# Imports
-
-Dependencies should flow downward.
-
-Page
-
-↓
-
-Hook
-
-↓
-
-Endpoint
-
-↓
-
-HTTP client
-
-Never reverse this direction.
-
----
-
-# Refactoring Rules
-
-Whenever touching existing code:
-
-- reduce nesting
-- reduce duplication
-- extract reusable logic
-- extract styles into seperate styling file
-- improve naming
-- preserve behaviour
-- avoid leaving comments unless absolutely neccessary and it explains something extraodinary
--- Bad: // Waiting for 5s 
-setTimeout(() => {
-  ...
-}, 5000);
-It is obvious from the code that we are waiting for 5 seconds, so the comment is redundant
--- Good:
-// Waiting to ensure that the component renders
-setTimeout(() => {
-  ...
-}, 5000)
-It is not obvious from the code why we are waiting for 5 seconds, so the comment is necessary
-
-Never perform cosmetic refactors only.
-
-Do not use magic numbers. Example:
-
-```ts
-setTimeout(() => {
-  ...
-}, 5000);
-```
-
-Code above is wrong, developer doesn't understand what 5000 is
-
-```ts
-setTimeout(() => {
-  ...
-}, TOAST_VISIBILITY_TIME);
-```
-
-Code above is right and self explainotory 
-
----
-
-# Performance
-
-Do not add:
-
-- useMemo
-- useCallback
-- React.memo
-
-unless they solve a measurable problem.
-
----
-
-# Code Review Checklist
-
-Before finishing every task verify:
-
-- [ ] One file contains only one component
-- [ ] No page performs HTTP requests.
-- [ ] No business logic exists in JSX.
-- [ ] No duplicated logic introduced.
-- [ ] No unnecessary useEffect added.
-- [ ] No window events added.
-- [ ] No component contains inline styles
-- [ ] Server state uses TanStack Query.
-- [ ] Components remain focused on a single responsibility.
-- [ ] Architecture has improved or remained unchanged.
-- [ ] Typechecking passes
-- [ ] Eslint passes
+# Agent entry point
+
+## Working rules
+
+- Product UI and other end-user product text must be Russian.
+- Engineering docs, identifiers, task descriptions and agent replies are English.
+- Do not add comments or use reverse tunnels.
+- Use the ponytail skill when writing code.
+- Keep heavy CI work off the developer's computer.
+- Treat deterministic checks as required gates; fix failures without bypassing or weakening them.
+- Every local deployment, including a backend or its dependencies, requires explicit owner approval.
+- Preserve unrelated changes. Use a separate worktree per task and a fresh PR base.
+- Remove worktrees after safely delivering their changes. Prefer amend when suitable.
+- Name chats after the provided ticket. Keep replies short, casual and concrete.
+- Creating/pushing draft PRs is allowed; merging and deployment need authorization.
+
+This checkout uses Git. In Arcadia, use a separate worktree/mount per ticket and
+rebase onto fresh trunk; do not use Arcadia commands in this repository.
+
+## Knowledge handoff
+
+Before completing a behavior change, update the owning feature doc with the resulting
+business rules, ownership, failure handling, decisions and remaining gaps. Update
+architecture when a shared boundary changes. Keep docs shorter than 300 lines.
+Use documentation links and naming conventions instead of implementation-file maps.
+Read executable configuration for technology, commands and CI details. If existing
+docs remain accurate, explain why in the PR description. The independent reviewer
+checks that outcome against the exact reviewed revision.
+
+## Task management
+
+Use the agreed shared issue tracker when task-management work is authorized. Search
+for an existing issue before creating one; keep scope, status, blockers and handoff
+current. The tracker/board integration is not configured yet. Do not create tasks,
+issues or a board unless the owner authorizes that work. Record deferred decisions in docs.
+
+## Find knowledge
+
+| Need | Read |
+| --- | --- |
+| System boundaries and state ownership | [Architecture](ARCHITECTURE.md) |
+| Business rules and current gaps | [Feature map](docs/features/README.md) |
+| Implementation discovery | [Naming conventions](docs/guides/naming.md) |
+| React component conventions | [Component guide](docs/guides/react-components.md) |
+| Environment and deployment approval | [Development setup](docs/guides/development.md) |
+| Verification policy | [Testing](docs/guides/testing.md) |
+| Isolated work and independent PR review | [Agent workflow](docs/guides/agent-workflow.md) |
+| New module documentation | [Feature template](docs/templates/feature.md) |
+| All docs | [Documentation index](docs/README.md) |
+
+A separate agent must review the exact PR revision before merge. Follow the
+[review procedure](docs/guides/agent-workflow.md#review-before-merge) and require the
+configured CI checks to pass. Repository protection and automated agent-review
+enforcement are not configured by these files.

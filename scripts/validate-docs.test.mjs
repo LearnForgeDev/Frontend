@@ -1,0 +1,84 @@
+import assert from 'node:assert/strict';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { test } from 'node:test';
+import { getDocumentationErrors, getFeatureDocument } from './validate-docs.mjs';
+
+test('documentation coverage checks the staged snapshot, local links and line limit', () => {
+  assert.equal(getFeatureDocument('src/Services/Auth/hooks/useAuth.ts'), 'docs/features/auth-session.md');
+  assert.equal(getFeatureDocument('src/Endpoints/Auth/auth.ts'), 'docs/features/auth-session.md');
+  assert.equal(getFeatureDocument('src/Services/Schools/FilesPage/FilesPage.tsx'), 'docs/features/files.md');
+  assert.equal(getFeatureDocument('src/Services/Homework/hooks/useHomework.ts'), 'docs/features/homework.md');
+  assert.equal(getFeatureDocument('src/Services/APIKeys/hooks/useAPIKeys.ts'), 'docs/features/api-keys.md');
+  assert.equal(getFeatureDocument('src/Endpoints/factory/factory.ts'), 'ARCHITECTURE.md');
+  assert.equal(getFeatureDocument('src/Services/Auth/hooks/useAuth.test.tsx'), null);
+  assert.equal(getFeatureDocument('src/Services/Auth/AuthPage.styles.ts'), null);
+  const doc = 'docs/features/auth-session.md';
+  const code = 'src/Services/Auth/hooks/useAuth.ts';
+  const text = '# Auth\n\nCurrent user behavior.\n\n## User `identity`\n\n[Same](#user-identity)\n[Guide][guide]\n\n[guide]: ../guide.md#overview\n\n```text\n[Ignored](missing.md)\n# Hidden\n```\n';
+  const documents = new Map([[doc, text], ['docs/guide.md', '# Overview\n\nGuide.\n']]);
+  const paths = [...documents.keys(), code];
+  const validate = overrides => getDocumentationErrors({ documents, paths, ...overrides });
+  assert.deepEqual(validate(), []);
+  assert.match(validate({ documents: new Map([['docs/guide.md', '# Guide\n']]) }).join('\n'), /missing feature documentation/);
+  assert.match(validate({ documents: new Map([[doc, '# Auth\n\n[Gone](missing.md)\n']]) }).join('\n'), /broken local link/);
+  assert.match(validate({ documents: new Map([[doc, '# Auth\n\n[Gone](#hidden)\n```\n# Hidden\n```\n']]) }).join('\n'), /missing heading/);
+  assert.match(validate({ documents: new Map([[doc, '# Auth\n\n[Gone][missing]\n']]) }).join('\n'), /undefined link reference/);
+  assert.deepEqual(validate({ documents: new Map([[doc, '# Auth\n' + 'Text\n'.repeat(298)]]) }), []);
+  assert.match(validate({ documents: new Map([[doc, '# Auth\n' + 'Text\n'.repeat(299)]]) }).join('\n'), /300 lines/);
+
+  const directory = mkdtempSync(join(tmpdir(), 'learnforge-docs-'));
+  const script = fileURLToPath(new URL('./validate-docs.mjs', import.meta.url));
+  const git = (...args) => execFileSync('git', args, { cwd: directory, stdio: 'pipe' });
+  const write = (path, value) => {
+    mkdirSync(dirname(join(directory, path)), { recursive: true });
+    writeFileSync(join(directory, path), value);
+  };
+  const check = (...args) => spawnSync(process.execPath, [script, ...args], { cwd: directory, encoding: 'utf8' });
+  try {
+    git('init');
+    git('config', 'user.name', 'Documentation check');
+    git('config', 'user.email', 'docs@example.invalid');
+    git('config', 'core.hooksPath', '/dev/null');
+    write(code, 'export {};\n');
+    git('add', code);
+    write(doc, '# Auth\n\nCurrent user.\n');
+    assert.equal(check().status, 1, 'an unstaged feature document cannot provide coverage');
+    git('add', doc);
+    assert.equal(check().status, 0);
+    write('README.md', '# [Design](design(v2).md)\n\n[Design](design(v2).md)\n[Escaped](design\\(v2\\).md)\n[Nested](design(v(2)).md "A title (v2)")\n[Angle](<design(v2).md>)\n[Close](literal\\).md)\n[Reference][design]\n[Multiline reference][multiline]\n[Heading](#design)\n\n[design]: design(v2).md\n[multiline]:\n  design(v2).md\n');
+    for (const path of ['design(v2).md', 'design(v(2)).md', 'literal).md']) write(path, '# Design\n\nDocument.\n');
+    git('add', 'README.md', 'design(v2).md', 'design(v(2)).md', 'literal).md');
+    const parentheses = check();
+    assert.equal(parentheses.status, 0, parentheses.stderr);
+    git('commit', '-m', 'Documented feature');
+    const base = git('rev-parse', 'HEAD').toString().trim();
+    for (const mode of ['all', 'content', 'coverage']) assert.equal(check('--base', base, '--check', mode).status, 0);
+    assert.equal(check('--check', 'unknown').status, 1);
+    write(code, 'export const changed = true;\n');
+    git('add', code);
+    write(doc, '# Auth\n\nUpdated current user.\n');
+    const rejected = check();
+    assert.equal(rejected.status, 0, 'structural coverage does not require a prose edit for every source edit');
+    git('add', doc);
+    assert.equal(check().status, 0);
+    write('docs/guide.md', '# Guide\n\n[Auth](features/auth-session.md)\n');
+    git('add', 'docs/guide.md');
+    git('rm', doc, '-f');
+    assert.equal(check().status, 1, 'deleting a still-required document fails coverage and links');
+    assert.equal(check('--check', 'coverage').status, 1);
+    assert.equal(check('--check', 'content').status, 1);
+    assert.equal(check('--base', base).status, 0, 'CI reads the committed tree instead of staged edits');
+    git('commit', '-m', 'Remove required documentation');
+    assert.equal(check('--base', base, '--check', 'coverage').status, 1);
+    assert.equal(check('--base', base, '--check', 'content').status, 1);
+    git('rm', code, '-f');
+    git('rm', 'docs/guide.md', '-f');
+    assert.equal(check().status, 0, 'removing a complete feature and its docs is valid');
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

@@ -1,40 +1,71 @@
-name: Deploy Project
+name: Deploy
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   verify:
+    name: ci
     uses: ./.github/workflows/test.yml
     secrets: inherit
-  deploy:
+
+  deployment-build:
+    name: deployment-build
     needs: verify
-    runs-on: ubuntu-latest
-    container:
-      image: node:24
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v4
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
-      - name: Install dependencies
+          cache: npm
+      - name: dependencies
         run: npm ci
-      - name: Linter check
-        run: npm run lint
-      - name: Build project
+      - name: deployment-build
         env:
           VITE_SERVER_LINK: ${{ secrets.VITE_SERVER_LINK || vars.VITE_SERVER_LINK }}
-        run: npm run build
-      - name: Get SSH keys and set permission
+        run: YENV=production npx vite build
+      - name: deployment-artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: deployment-build
+          path: dist
+          include-hidden-files: true
+          retention-days: 7
+
+  deploy:
+    name: deploy
+    needs: deployment-build
+    runs-on: ubuntu-24.04
+    steps:
+      - name: deployment-artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: deployment-build
+          path: dist
+      - name: ssh
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
-      - name: Deploy using rsync
-        run: scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa -r ./dist/* ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }}:~/Frontend
-      - name: Restart server
-        run: ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa ${{secrets.SSH_USER}}@${{ secrets.SSH_HOST }} "pm2 reload 0"
+          ssh-keyscan "$SSH_HOST" >> ~/.ssh/known_hosts
+      - name: deploy
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: scp -i ~/.ssh/id_rsa -r ./dist/. "$SSH_USER@$SSH_HOST:~/Frontend"
+      - name: server-reload
+        env:
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+        run: ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" "pm2 reload 0"

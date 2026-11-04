@@ -1,4 +1,4 @@
-name: Проверка production-сборки
+name: CI
 
 on:
   pull_request:
@@ -6,74 +6,182 @@ on:
     secrets:
       CI_BACKEND_TOKEN:
         required: false
+      CI_ADMIN_TOTP_SECRET:
+        required: false
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: verify-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   TZ: Europe/Moscow
   VITE_SERVER_LINK: ""
   VITE_MEET_SERVER_LINK: ""
+  CI_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
 
 jobs:
-  verify:
-    name: Типы, стиль и production-сборка
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  checks:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: typechecking
+            command: npm run typecheck
+          - name: eslint
+            command: npm run lint
+          - name: naming
+            command: npm run validate:naming -- --base "$CI_BASE_REF"
+          - name: documentation
+            command: npm run validate:docs -- --base "$CI_BASE_REF" --check content
+          - name: documentation-coverage
+            command: npm run validate:docs -- --base "$CI_BASE_REF" --check coverage
+          - name: validator-regressions
+            command: node --test scripts/*.test.mjs
+          - name: playwright-registration
+            command: npx playwright test --list
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: node
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci
-      - name: Проверить типы
-        run: npm run typecheck
-      - name: Проверить ESLint
-        run: npm run lint
-      - name: Проверить логику приложения
-        run: npm test
-      - name: Проверить регистрацию Playwright-тестов
-        run: npx playwright test --list
-      - name: Собрать production
-        run: npm run build
-      - name: Проверить лимит 200 КБ и ES2015
-        run: npm run check:build
-      - uses: actions/upload-artifact@v4
+      - name: dependencies
+        run: npm ci
+      - name: ${{ matrix.name }}
+        run: ${{ matrix.command }}
+
+  unit-tests:
+    name: unit-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: dependencies
+        run: npm ci
+      - name: unit-tests
+        run: npm test -- --coverage
+      - name: coverage-report
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: test-coverage
+          path: coverage
+          if-no-files-found: error
+          retention-days: 7
+
+  test-coverage:
+    name: test-coverage
+    needs: unit-tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+      - name: coverage-report
+        uses: actions/download-artifact@v7
+        with:
+          name: test-coverage
+          path: coverage
+      - name: test-coverage
+        run: npm run validate:coverage -- --base "$CI_BASE_REF"
+
+  build:
+    name: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: dependencies
+        run: npm ci
+      - name: build
+        run: YENV=production npx vite build
+      - name: build-artifact
+        uses: actions/upload-artifact@v6
         with:
           name: production-build
           path: dist
           include-hidden-files: true
           retention-days: 7
 
-  e2e-public:
-    name: Playwright — публичные страницы
-    needs: verify
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
+  build-policy:
+    name: build-policy
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci
-      - uses: actions/download-artifact@v4
+      - name: dependencies
+        run: npm ci
+      - name: build-artifact
+        uses: actions/download-artifact@v7
         with:
           name: production-build
           path: dist
-      - name: Установить Chromium
+      - name: build-policy
+        run: npm run check:build
+
+  e2e-public:
+    name: e2e/public
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: dependencies
+        run: npm ci
+      - name: build-artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: production-build
+          path: dist
+      - name: chromium
         run: npx playwright install --with-deps chromium
-      - name: Проверить публичные флоу
+      - name: e2e/public
         run: npm run test:e2e -- --grep @public --output=test-results/public
-      - name: Сохранить публичный браузерный отчёт
+      - name: browser-report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: public-smoke
           path: |
@@ -82,75 +190,109 @@ jobs:
           retention-days: 7
 
   e2e-backend:
-    name: Playwright — настоящий backend и состояния ошибок
-    needs: verify
-    runs-on: ubuntu-latest
+    name: e2e/backend
+    needs: build
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
-    env:
-      CI_BACKEND_URL: http://127.0.0.1:8080
+    concurrency:
+      group: backend-e2e-${{ vars.CI_BACKEND_URL && 'shared' || github.run_id }}
+      cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: checkout
+        uses: actions/checkout@v5
+      - name: node
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: npm
-      - run: npm ci
-      - uses: actions/download-artifact@v4
+      - name: dependencies
+        run: npm ci
+      - name: build-artifact
+        uses: actions/download-artifact@v7
         with:
           name: production-build
           path: dist
-      - name: Проверить секрет доступа к backend
+      - name: backend-selection
+        id: backend
+        env:
+          EXISTING_BACKEND_URL: ${{ vars.CI_BACKEND_URL }}
+          EXISTING_ADMIN_SECRET: ${{ secrets.CI_ADMIN_TOTP_SECRET }}
+        run: |
+          if [ -n "$EXISTING_BACKEND_URL" ]; then
+            case "$EXISTING_BACKEND_URL" in
+              http://*|https://*) ;;
+              *) echo "::error::CI_BACKEND_URL must be an HTTP(S) test backend URL"; exit 1 ;;
+            esac
+            if [ "$(curl --silent --show-error --max-time 15 --output /dev/null --write-out '%{http_code}' "${EXISTING_BACKEND_URL%/}/health")" = 200 ]; then
+              if [ -z "$EXISTING_ADMIN_SECRET" ]; then
+                echo "::error::CI_ADMIN_TOTP_SECRET is required for the shared test backend"
+                exit 1
+              fi
+              echo "mode=existing" >> "$GITHUB_OUTPUT"
+              printf 'CI_BACKEND_URL=%s\nCI_ADMIN_TOTP_SECRET=%s\n' "${EXISTING_BACKEND_URL%/}" "$EXISTING_ADMIN_SECRET" >> "$GITHUB_ENV"
+              exit 0
+            fi
+            echo "::notice::Shared test backend unavailable; using the temporary fallback"
+          fi
+          echo "mode=temporary" >> "$GITHUB_OUTPUT"
+          echo "CI_BACKEND_URL=http://127.0.0.1:8080" >> "$GITHUB_ENV"
+      - name: backend-access
+        if: steps.backend.outputs.mode == 'temporary'
         env:
           CI_BACKEND_TOKEN: ${{ secrets.CI_BACKEND_TOKEN }}
-        run: |
-          if [ -z "$CI_BACKEND_TOKEN" ]; then
-            echo "::error::В Repository secrets Frontend отсутствует CI_BACKEND_TOKEN"
-            exit 1
-          fi
-      - name: Получить backend
-        uses: actions/checkout@v4
+        run: test -n "$CI_BACKEND_TOKEN" || { echo "::error::CI_BACKEND_TOKEN is required for the temporary backend"; exit 1; }
+      - name: backend-checkout
+        if: steps.backend.outputs.mode == 'temporary'
+        uses: actions/checkout@v5
         with:
           repository: LearnForgeDev/Backend-General
           ref: 6484e3c65220910cc834148fae1544ebc9e49971
           path: .ci/backend
           token: ${{ secrets.CI_BACKEND_TOKEN }}
           persist-credentials: false
-      - name: Создать временный TOTP для тестового окружения
-        id: totp
+      - name: backend-key
+        if: steps.backend.outputs.mode == 'temporary'
         run: |
           ci_totp_secret=$(python3 -c 'import base64, os; print(base64.b32encode(os.urandom(20)).decode())')
           echo "::add-mask::$ci_totp_secret"
           echo "CI_ADMIN_TOTP_SECRET=$ci_totp_secret" >> "$GITHUB_ENV"
-      - name: Установить Chromium
+      - name: chromium
         run: npx playwright install --with-deps chromium
-      - name: Поднять тестовый backend
+      - name: backend-start
+        id: start
+        if: steps.backend.outputs.mode == 'temporary'
         run: docker compose -f tests/backend/compose.yml up -d api
-      - name: Дождаться готовности API и хранилища
-        id: ready
-        run: |
-          curl --fail --retry 90 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:8080/health
-          curl --fail --retry 30 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:9000/minio/health/ready
-      - name: Проверить флоу с настоящим backend
-        env:
-          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/backend
-        run: npm run test:e2e -- --grep-invert '@public|@ui-errors' --output=test-results/backend
-      - name: Проверить интерфейс при отказах запросов
-        if: ${{ !cancelled() && steps.ready.outcome == 'success' }}
-        env:
-          PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/errors
-        run: npm run test:e2e -- --grep @ui-errors --output=test-results/errors
-      - name: Сохранить браузерные отчёты
+      - name: backend-readiness
+        run: curl --fail --retry 90 --retry-delay 2 --retry-connrefused --retry-all-errors "$CI_BACKEND_URL/health"
+      - name: storage-readiness
+        if: steps.backend.outputs.mode == 'temporary'
+        run: curl --fail --retry 30 --retry-delay 2 --retry-connrefused --retry-all-errors http://127.0.0.1:9000/minio/health/ready
+      - name: e2e/backend
+        run: npm run test:e2e -- --grep-invert @public --output=test-results/backend
+      - name: browser-report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: production-checks
           path: |
             playwright-report
             test-results
           retention-days: 7
-      - name: Сохранить логи backend
-        if: ${{ failure() && steps.totp.outcome == 'success' }}
+      - name: backend-logs
+        if: ${{ failure() && steps.start.outcome != 'skipped' && steps.backend.outputs.mode == 'temporary' }}
         run: docker compose -f tests/backend/compose.yml logs --no-color
-      - name: Удалить тестовое окружение
-        if: ${{ always() && steps.totp.outcome == 'success' }}
+      - name: backend-cleanup
+        if: ${{ always() && steps.start.outcome != 'skipped' && steps.backend.outputs.mode == 'temporary' }}
         run: docker compose -f tests/backend/compose.yml down --volumes --remove-orphans
+
+  verify:
+    name: ci
+    if: always()
+    needs: [checks, unit-tests, test-coverage, build, build-policy, e2e-public, e2e-backend]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: results
+        env:
+          RESULTS: ${{ toJSON(needs) }}
+        run: jq -e 'all(.[]; .result == "success")' <<< "$RESULTS"
