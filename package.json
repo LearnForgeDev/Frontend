@@ -9,6 +9,8 @@
     "build": "YENV=production tsc -b && YENV=production vite build",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "validate:naming": "node scripts/validate-naming.mjs",
+    "validate:docs": "node scripts/validate-docs.mjs",
     "preview": "YENV=production vite preview",
     "deploy": "YENV=production npm run build && gh-pages -d dist",
     "test": "vitest run",
