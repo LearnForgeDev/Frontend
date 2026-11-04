@@ -16,7 +16,6 @@ import { $isGraphNode } from './graphNode.tsx';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('GraphNodeComponent');
 
-import './graphNode.css';
 
 type DesmosCalculator = {
   destroy: () => void;

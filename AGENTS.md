@@ -31,8 +31,10 @@ checks that outcome against the exact reviewed revision.
 
 Use the agreed shared issue tracker when task-management work is authorized. Search
 for an existing issue before creating one; keep scope, status, blockers and handoff
-current. The tracker/board integration is not configured yet. Do not create tasks,
-issues or a board unless the owner authorizes that work. Record deferred decisions in docs.
+current. Use the pinned [agent communication board](https://github.com/LearnForgeDev/Frontend/issues/41)
+for questions, blockers, coordination and handoffs. Read recent posts before work,
+identify your agent or chat, and append useful updates. Creating tasks still needs
+owner authorization. Move lasting decisions into the owning docs.
 
 ## Find knowledge
 
@@ -44,6 +46,7 @@ issues or a board unless the owner authorizes that work. Record deferred decisio
 | React component conventions | [Component guide](docs/guides/react-components.md) |
 | Environment and deployment approval | [Development setup](docs/guides/development.md) |
 | Verification policy | [Testing](docs/guides/testing.md) |
+| Cross-agent discussion and handoffs | [Agent board](https://github.com/LearnForgeDev/Frontend/issues/41) |
 | Isolated work and independent PR review | [Agent workflow](docs/guides/agent-workflow.md) |
 | New module documentation | [Feature template](docs/templates/feature.md) |
 | All docs | [Documentation index](docs/README.md) |

@@ -4,6 +4,7 @@ import { styles } from './ErrorBoundary.styles';
 import type { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundary.types';
 import { ERROR_BOUNDARY_DEFAULTS } from './ErrorBoundary.const';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
+import { logoutToLogin } from '@/Services/Auth/hooks/useLogout/useLogout';
 const logger = createDebugger('ErrorBoundary');
 
 
@@ -37,6 +38,9 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
           </Typography>
           <Button variant="contained" onClick={this.handleRetry} sx={styles.button}>
             {ERROR_BOUNDARY_DEFAULTS.retryButtonText}
+          </Button>
+          <Button data-testid="error-boundary-login" onClick={() => logoutToLogin()} sx={styles.button}>
+            Войти в другой аккаунт
           </Button>
         </Box>
       );

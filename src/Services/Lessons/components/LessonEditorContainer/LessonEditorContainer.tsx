@@ -1,4 +1,4 @@
-import { Suspense, lazy } from 'react';
+import dynamic from 'next/dynamic';
 import { Alert, Button } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import type { SerializedDocument } from '@lexical/file';
@@ -6,7 +6,13 @@ import type { Lesson } from '../FileManager/FileManager.types';
 import { useLessonEditing } from '../../hooks/useLessonEditing';
 import { isLessonDocumentEmpty } from '../../hooks/useLessonEditor/useLessonEditor.utils';
 
-const TextEditor = lazy(() => import('../TextEditor/TextEditor'));
+const TextEditor = dynamic(() => import('../TextEditor/TextEditor'), {
+  ssr: false,
+  loading: ({ error }) => {
+    if (error) throw error;
+    return <ClipLoader color="var(--app-primary)" aria-label="Загрузка редактора" />;
+  },
+});
 
 interface LessonEditorContainerProps {
   schoolPublicId: string;
@@ -23,17 +29,15 @@ export default function LessonEditorContainer({ schoolPublicId, lesson, document
       Урок изменён на сервере. Скопируйте нужные изменения: загрузка актуальной версии удалит этот черновик.
     </Alert>}
     {view.storageFailed && <Alert severity="warning">Не удалось сохранить черновик на устройстве. Сохраните урок перед выходом.</Alert>}
-    <Suspense fallback={<ClipLoader color="var(--app-primary)" aria-label="Загрузка редактора" />}>
-      <TextEditor
-        id={lesson.id}
-        isEditMode={isEditMode}
-        editorState={view.restoredDraft ?? document}
-        isSaving={view.isSaving}
-        isSaveBlocked={view.hasConflict}
-        saveStatus={view.status}
-        onDraft={view.recordDraft}
-        onSave={view.saveDocument}
-      />
-    </Suspense>
+    <TextEditor
+      id={lesson.id}
+      isEditMode={isEditMode}
+      editorState={view.restoredDraft ?? document}
+      isSaving={view.isSaving}
+      isSaveBlocked={view.hasConflict}
+      saveStatus={view.status}
+      onDraft={view.recordDraft}
+      onSave={view.saveDocument}
+    />
   </>;
 }

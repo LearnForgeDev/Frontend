@@ -22,7 +22,7 @@ test.describe('Публичные страницы', { tag: '@public' }, () => {
     await page.getByLabel(/^Пароль/i).fill('password-one');
     await page.getByLabel(/^Подтвердите пароль/i).fill('password-two');
     await page.getByTestId('auth-register-submit').click();
-    await expect(page.getByRole('alert')).toContainText('Пароли не совпадают');
+    await expect(page.getByRole('alert').filter({ hasText: 'Пароли не совпадают' })).toBeVisible();
     await page.getByRole('link', { name: 'Войти', exact: true }).click();
     await expect(page).toHaveURL(/\/auth\/login$/);
   });

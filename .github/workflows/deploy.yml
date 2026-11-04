@@ -4,6 +4,15 @@ on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      app_name:
+        description: Existing PM2 service name to run the SSR server
+        required: true
+        type: string
+      port:
+        description: Existing reverse-proxy upstream port for the frontend
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -30,8 +39,9 @@ jobs:
         run: npm ci
       - name: deployment-build
         env:
-          VITE_SERVER_LINK: ${{ secrets.VITE_SERVER_LINK || vars.VITE_SERVER_LINK }}
-        run: YENV=production npx vite build
+          BACKEND_URL: ${{ secrets.BACKEND_URL || vars.BACKEND_URL || secrets.VITE_SERVER_LINK || vars.VITE_SERVER_LINK }}
+          NEXT_PUBLIC_SERVER_LINK: ''
+        run: npm run build
       - name: deployment-artifact
         uses: actions/upload-artifact@v6
         with:
@@ -42,9 +52,17 @@ jobs:
 
   deploy:
     name: deploy
+    if: github.event_name == 'workflow_dispatch'
+    env:
+      SSR_APP_NAME: ${{ inputs.app_name }}
+      SSR_PORT: ${{ inputs.port }}
     needs: deployment-build
     runs-on: ubuntu-24.04
     steps:
+      - name: runtime-settings
+        run: |
+          [[ "$SSR_APP_NAME" =~ ^[A-Za-z0-9_-]+$ ]] || { echo "::error::Invalid PM2 service name"; exit 1; }
+          [[ "$SSR_PORT" =~ ^[1-9][0-9]{0,4}$ ]] && (( SSR_PORT > 0 && SSR_PORT < 65536 )) || { echo "::error::Invalid SSR port"; exit 1; }
       - name: deployment-artifact
         uses: actions/download-artifact@v7
         with:
@@ -68,4 +86,4 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
-        run: ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" "pm2 reload 0"
+        run: ssh -i ~/.ssh/id_rsa "$SSH_USER@$SSH_HOST" "cd ~/Frontend && SSR_APP_NAME='$SSR_APP_NAME' SSR_PORT='$SSR_PORT' pm2 startOrReload ecosystem.config.cjs --update-env"

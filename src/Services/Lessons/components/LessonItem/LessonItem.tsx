@@ -3,7 +3,6 @@ import LessonItemIcon from '@/Assets/Art/images/LessonItemIcon.tsx';
 import { Box, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import './LessonItem.css';
 import type {MouseEvent, JSX} from 'react';
 
 export function LessonItem(

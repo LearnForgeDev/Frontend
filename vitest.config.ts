@@ -1,11 +1,26 @@
-import { defineConfig, mergeConfig } from 'vitest/config';
-import viteConfig from './vite.config';
+import { defineConfig } from 'vitest/config';
+import { fileURLToPath } from 'node:url';
 
-export default mergeConfig(viteConfig, defineConfig({
+export default defineConfig({
+  esbuild: { jsx: 'automatic' },
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)), src: fileURLToPath(new URL('./src', import.meta.url)) } },
   test: {
-    include: ['tests/unit/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
-    environment: 'jsdom',
-    setupFiles: ['./tests/setup.mjs'],
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'dom',
+          include: ['tests/unit/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
+          exclude: ['src/Router/ApplicationSsr.test.tsx'],
+          environment: 'jsdom',
+          setupFiles: ['./tests/setup.mjs'],
+        },
+      },
+      {
+        extends: true,
+        test: { name: 'ssr', include: ['src/Router/ApplicationSsr.test.tsx'], environment: 'node' },
+      },
+    ],
     maxWorkers: 1,
     clearMocks: true,
     restoreMocks: true,
@@ -18,4 +33,4 @@ export default mergeConfig(viteConfig, defineConfig({
     },
     server: { deps: { inline: ['@mui/material', '@mui/system', '@mui/icons-material', 'react-transition-group'] } },
   },
-}));
+});

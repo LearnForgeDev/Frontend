@@ -54,3 +54,6 @@ Mobile viewing does not imply mobile editing support.
 Recheck [course lesson consumption](courses.md), [file contracts](files.md), account
 isolation and editor chunk deferral. Preserve the distinction between local draft,
 published version and server-confirmed rename.
+
+Editor code loads in the browser after session confirmation. A failed editor import
+must reach the page recovery controls rather than leave an indefinite spinner.

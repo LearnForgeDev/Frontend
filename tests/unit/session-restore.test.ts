@@ -8,6 +8,7 @@ import {
 const CURRENT_DATE = new Date('2026-10-18T12:00:00Z');
 const VALID_EXPIRY_SECONDS = Date.parse('2026-10-18T13:00:00Z') / 1000;
 const EXPIRED_SECONDS = Date.parse('2026-10-18T11:00:00Z') / 1000;
+const SCHOOL_PUBLIC_ID = '11111111-1111-4111-8111-111111111111';
 
 function tokenWithExpiry(exp: unknown) {
   return `header.${Buffer.from(JSON.stringify({ exp })).toString('base64url')}.signature`;
@@ -18,7 +19,7 @@ const RESTORED_IDENTITY = {
   userName: 'Проверенный пользователь',
   jwtToken: tokenWithExpiry(VALID_EXPIRY_SECONDS),
   refreshToken: 'server-refresh-token',
-  userRoles: [],
+  userRoles: [{ id: 2, role: 1, schoolId: SCHOOL_PUBLIC_ID, userId: 2 }],
 };
 
 afterEach(() => {
@@ -81,6 +82,27 @@ describe('Данные сессии после ответа сервера', () 
     });
   });
 
+  it('сохраняет проверенные роли, контакты и выбранную школу', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(CURRENT_DATE);
+    const userRoles = [{ id: 2, role: 1, schoolId: SCHOOL_PUBLIC_ID, userId: 7 }];
+
+    expect(normalizeRestoredSession({
+      ...RESTORED_IDENTITY, userRoles, activeSchoolPublicId: 'school', email: 'user@example.invalid', phone: '+79990000000',
+    })).toMatchObject({ userRoles, activeSchoolPublicId: 'school', email: 'user@example.invalid', phone: '+79990000000' });
+  });
+
+  it.each([
+    null, {}, { role: 8, schoolId: SCHOOL_PUBLIC_ID, userId: 7 },
+    { role: 1, schoolId: 3, userId: 7 }, { role: 1, schoolId: '3', userId: 7 },
+    { role: 1, schoolId: SCHOOL_PUBLIC_ID, userId: '7' },
+  ])('отклоняет некорректную роль %s', (role) => {
+    vi.useFakeTimers();
+    vi.setSystemTime(CURRENT_DATE);
+
+    expect(normalizeRestoredSession({ ...RESTORED_IDENTITY, userRoles: [role] })).toBeNull();
+  });
+
   it.each(['jwtToken', 'refreshToken', 'userPublicId', 'userName', 'userRoles'] as const)(
     'не принимает ответ без обязательного поля %s',
     (key) => {
@@ -91,7 +113,7 @@ describe('Данные сессии после ответа сервера', () 
     },
   );
 
-  it.each([EXPIRED_SECONDS, undefined, 'invalid'])('не принимает JWT со сроком %s', (exp) => {
+  it.each([EXPIRED_SECONDS, CURRENT_DATE.getTime() / 1000, undefined, null, 'invalid', String(VALID_EXPIRY_SECONDS), Number.MAX_VALUE])('не принимает JWT со сроком %s', (exp) => {
     vi.useFakeTimers();
     vi.setSystemTime(CURRENT_DATE);
 

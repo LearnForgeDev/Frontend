@@ -15,6 +15,20 @@ Prepare the concrete setup and resource needs before requesting that approval.
 Do not start a local stack to work around an unavailable backend without approval.
 Do not use reverse tunnels. Heavy verification belongs in CI.
 
+## Server runtime
+
+Use the scripts in [package.json](../../package.json) to start the development or
+production server. Read [server configuration](../../next.config.ts) for public
+configuration and backend rewrites. Keep server-only backend targets out of public
+browser configuration. Rewrites are selected at build time.
+
+Production needs a Node server behind the existing reverse proxy. The standalone
+artifact includes its runtime dependencies, public files and client assets. The
+[deployment workflow](../../.github/workflows/deploy.yml) requires explicit dispatch
+with the existing process-manager service name and upstream port. Confirm that the
+reverse proxy forwards page requests and websocket upgrades to that service before
+the first SSR rollout. Do not deploy while validating a code change.
+
 ## Configuration
 
 Keep machine-specific configuration and credentials out of tracked files. Values

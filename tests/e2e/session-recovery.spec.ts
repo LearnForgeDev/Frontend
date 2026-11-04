@@ -1,7 +1,8 @@
 import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
+import { expireStoredJwt } from './auth.utils';
 
-test('SESSION-05 SESSION-09: истёкший локальный срок запускает один refresh перед параллельными чтениями', { tag: '@ui-errors' }, async ({ actors }) => {
+test('SESSION-05 SESSION-09: истёкший JWT запускает один refresh перед параллельными чтениями', async ({ actors }) => {
   const { page } = await actors();
   const initialStudents = page.waitForResponse(response => response.url().endsWith(`/ApiStudents/${SCHOOL_ID}`));
   await page.goto(`${SCHOOL_PATH}/today`);
@@ -9,10 +10,7 @@ test('SESSION-05 SESSION-09: истёкший локальный срок зап
   await expect(page.getByRole('heading', { name: /^Сегодня,/ })).toBeVisible();
   let refreshCount = 0;
   page.on('request', request => { if (request.url().endsWith('/ApiAuth/refreshToken')) refreshCount++; });
-  await page.evaluate(() => {
-    const identity = JSON.parse(localStorage.getItem('user_identity')!);
-    localStorage.setItem('user_identity', JSON.stringify({ ...identity, exp: Date.now() - 1 }));
-  });
+  await expireStoredJwt(page);
   const students = page.waitForResponse(response => response.url().endsWith(`/ApiStudents/${SCHOOL_ID}`));
   const invites = page.waitForResponse(response => response.url().endsWith(`/ApiAuth/invites/${SCHOOL_ID}`));
   await page.getByTestId('nav-desktop-students').click();

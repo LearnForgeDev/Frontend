@@ -1,113 +1,54 @@
 import { afterEach, expect, it } from 'vitest';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
 const directories: string[] = [];
-const BYTE_LIMIT = 200_000;
-const DEFERRED_CHUNK_NAMES = ['vendor-lexical', 'vendor-katex', 'TextEditor', 'vendor-fullcalendar', 'vendor-desmos', 'vendor-jitsi'];
-type ManifestChunk = { file: string; isEntry?: boolean; imports?: string[]; dynamicImports?: string[] };
-type FixtureOptions = { manifest?: Record<string, ManifestChunk>; files?: Record<string, string> };
-
-afterEach(async () => {
-  await Promise.all(directories.splice(0).map((directory) => rm(directory, { recursive: true, force: true })));
-});
-
-async function fixture(main: string, lazy = 'export const value = 1;', options: FixtureOptions = {}) {
-  const directory = await mkdtemp(join(tmpdir(), 'frontend-build-policy-'));
+type Chunk = { initial: boolean; files: string[]; modules: Array<{ name: string; modules?: Array<{ name: string }> }> };
+async function fixture({ entry = 'const value = data?.name;', chunks, omit }: { entry?: string; chunks?: Chunk[]; omit?: string } = {}) {
+  const directory = await mkdtemp(join(tmpdir(), 'next-build-policy-'));
   directories.push(directory);
-  await mkdir(join(directory, '.vite'));
-  await writeFile(join(directory, '.vite/manifest.json'), JSON.stringify(options.manifest ?? {
-    'src/main.tsx': { file: 'main.js', isEntry: true, dynamicImports: ['lazy.js'] },
-    'lazy.js': { file: 'lazy.js' },
-  }));
-  await writeFile(join(directory, 'main.js'), main);
-  await writeFile(join(directory, 'lazy.js'), lazy);
-  await Promise.all(Object.entries(options.files ?? {}).map(([name, source]) => writeFile(join(directory, name), source)));
+  const files: Record<string, string> = {
+    'BUILD_ID': 'build-id',
+    'build-manifest.json': JSON.stringify({ pages: { '/_app': ['static/chunks/pages/_app.js'], '/[[...path]]': ['static/chunks/pages/route.js'] } }),
+    'server/pages-manifest.json': JSON.stringify({ '/_app': 'pages/_app.js', '/[[...path]]': 'pages/route.js' }),
+    'client-stats.json': JSON.stringify({ chunks: chunks ?? [{ initial: true, files: ['static/chunks/pages/_app.js'], modules: [{ name: './src/pages/_app.tsx' }] }] }),
+    'static/chunks/pages/_app.js': entry,
+    'static/chunks/pages/route.js': 'export const route = 1;',
+    'server/pages/_app.js': 'module.exports = {};',
+    'server/pages/route.js': 'module.exports = {};',
+    'standalone/server.js': 'require("next");',
+  };
+  for (const [file, content] of Object.entries(files)) {
+    if (file === omit) continue;
+    await mkdir(dirname(join(directory, file)), { recursive: true });
+    await writeFile(join(directory, file), content);
+  }
   return execute(process.execPath, [resolve('scripts/check-build.mjs'), directory]);
 }
 
-it('разрешает ES2015 и динамическую загрузку Vite', async () => {
-  await expect(fixture('const load = () => import("./lazy.js");')).resolves.toHaveProperty('stdout');
+afterEach(async () => {
+  await Promise.all(directories.splice(0).map(directory => rm(directory, { recursive: true, force: true })));
 });
-
-it('отклоняет чанк больше 200 000 байт', async () => {
-  await expect(fixture(' '.repeat(BYTE_LIMIT + 1))).rejects.toThrow();
+it('accepts valid Next server output and its modern client syntax', async () => {
+  await expect(fixture()).resolves.toHaveProperty('stdout');
 });
-
-it('отклоняет новый синтаксис в ленивом чанке', async () => {
-  await expect(fixture('export const value = 1;', 'export const value = data?.name;')).rejects.toThrow();
+it('keeps the 200000-byte application entry budget', async () => {
+  await expect(fixture({ entry: ' '.repeat(200_001) })).rejects.toThrow('Application entry exceeds');
 });
-
-it('отклоняет async-функции в основном чанке', async () => {
-  await expect(fixture('export async function load() {}')).rejects.toThrow();
+it.each(['BUILD_ID', 'client-stats.json', 'standalone/server.js', 'server/pages/route.js', 'static/chunks/pages/route.js'])('rejects missing build output %s', async omit => {
+  await expect(fixture({ omit })).rejects.toThrow();
 });
-
-it.each(DEFERRED_CHUNK_NAMES)('отклоняет тяжёлый модуль %s в статическом графе', async (name) => {
-  const heavyFile = `${name}-test.js`;
-  await expect(fixture('import "./runtime.js";', undefined, {
-    manifest: {
-      'src/main.tsx': { file: 'main.js', isEntry: true, imports: ['runtime'] },
-      runtime: { file: 'runtime.js', imports: ['heavy'] },
-      heavy: { file: heavyFile },
-    },
-    files: { 'runtime.js': `import "./${heavyFile}";`, [heavyFile]: 'export const value = 1;' },
-  })).rejects.toThrow('Тяжёлый модуль попал в начальную загрузку');
+it('rejects client syntax outside the configured browser baseline', async () => {
+  await expect(fixture({ entry: 'using value = acquire();' })).rejects.toThrow('Unsupported client JavaScript');
 });
-
-it.each(DEFERRED_CHUNK_NAMES)('разрешает ленивую загрузку тяжёлого модуля %s', async (name) => {
-  const heavyFile = `${name}-test.js`;
-  await expect(fixture(`const load = () => import("./${heavyFile}");`, undefined, {
-    manifest: {
-      'src/main.tsx': { file: 'main.js', isEntry: true, dynamicImports: ['heavy'] },
-      heavy: { file: heavyFile },
-    },
-    files: { [heavyFile]: 'export const value = 1;' },
-  })).resolves.toHaveProperty('stdout');
+it.each(['@lexical/react', 'lexical', '@fullcalendar/core', '@jitsi/sdk', 'desmos', 'katex'])('keeps %s out of initial JavaScript', async name => {
+  await expect(fixture({ chunks: [{ initial: true, files: ['static/chunks/pages/_app.js'], modules: [{ name: 'concatenated', modules: [{ name: `./node_modules/${name}/index.js` }] }] }] })).rejects.toThrow('Heavy module entered initial JavaScript');
+  await expect(fixture({ chunks: [{ initial: true, files: ['static/chunks/pages/_app.js'], modules: [{ name: './src/pages/_app.tsx' }] }, { initial: false, files: ['static/chunks/editor.js'], modules: [{ name: `./node_modules/${name}/index.js` }] }] })).resolves.toHaveProperty('stdout');
 });
-
-it('отклоняет неизвестную статическую зависимость', async () => {
-  await expect(fixture('import "./missing.js";', undefined, {
-    manifest: { 'src/main.tsx': { file: 'main.js', isEntry: true, imports: ['missing'] } },
-  })).rejects.toThrow('В манифесте отсутствует статическая зависимость');
-});
-
-it('считает размер общих статических зависимостей один раз и сообщает gzip', async () => {
-  const main = 'import "./runtime.js";';
-  const runtime = 'export const value = 1;';
-  const result = await fixture(main, undefined, {
-    manifest: {
-      'src/main.tsx': { file: 'main.js', isEntry: true, imports: ['runtime', 'runtime'] },
-      runtime: { file: 'runtime.js', imports: ['src/main.tsx'] },
-    },
-    files: { 'runtime.js': runtime },
-  });
-  expect(result.stdout).toContain(`Начальный JavaScript со статическими зависимостями: ${Buffer.byteLength(main + runtime)} байт, gzip:`);
-});
-
-it('изолирует React runtime от обёрток редактора и стилей', async () => {
-  const modulePaths = [
-    '/app/node_modules/react/index.js',
-    '/app/node_modules/.pnpm/react-dom@19/node_modules/react-dom/client.js',
-    '/app/node_modules/scheduler/index.js',
-    '/app/node_modules/@lexical/react/LexicalComposer.js',
-    '/app/node_modules/.pnpm/@lexical+react@0.39/node_modules/@lexical/react/LexicalComposer.js',
-    '/app/node_modules/@emotion/react/index.js',
-    '/app/node_modules/prismjs/prism.js',
-    '/app/node_modules/prismjs/components/prism-javascript.js',
-    '/app/node_modules/.pnpm/prismjs@1.30.0/node_modules/prismjs/prism.js',
-  ];
-  const result = await execute(process.execPath, ['--input-type=module', '-e', `
-    const { loadConfigFromFile } = await import('vite');
-    const { config } = await loadConfigFromFile({ command: 'build', mode: 'production' });
-    const classify = config.build.rollupOptions.output.manualChunks;
-    console.log(JSON.stringify(${JSON.stringify(modulePaths)}.map((id) => classify(id))));
-  `]);
-  expect(JSON.parse(result.stdout.trim())).toEqual([
-    'vendor-react', 'vendor-react', 'vendor-react', 'vendor-lexical', 'vendor-lexical', 'vendor-styles',
-    'vendor-lexical', 'vendor-lexical', 'vendor-lexical',
-  ]);
+it('does not confuse global math CSS with eager math JavaScript', async () => {
+  await expect(fixture({ chunks: [{ initial: true, files: ['static/chunks/pages/_app.js'], modules: [{ name: './node_modules/katex/dist/katex.css' }] }] })).resolves.toHaveProperty('stdout');
 });

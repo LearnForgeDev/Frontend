@@ -29,3 +29,22 @@ export async function register(page: Page) {
   expect(response.ok()).toBe(true);
   return storeIdentity(page, await response.json(), '');
 }
+
+export async function expireStoredJwt(page: Page, refreshToken?: string) {
+  await page.evaluate((replacementRefreshToken) => {
+    const identity: unknown = JSON.parse(localStorage.getItem('user_identity') ?? 'null');
+    if (!identity || typeof identity !== 'object' || !('jwtToken' in identity) || typeof identity.jwtToken !== 'string') {
+      throw new Error('Expected a stored test session');
+    }
+    const parts = identity.jwtToken.split('.');
+    const claims: unknown = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+    if (!claims || typeof claims !== 'object') throw new Error('Expected JWT claims');
+    parts[1] = btoa(JSON.stringify({ ...claims, exp: 1 })).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    localStorage.setItem('user_identity', JSON.stringify({
+      ...identity,
+      jwtToken: parts.join('.'),
+      exp: Date.now() + 60_000,
+      ...(replacementRefreshToken ? { refreshToken: replacementRefreshToken } : {}),
+    }));
+  }, refreshToken);
+}

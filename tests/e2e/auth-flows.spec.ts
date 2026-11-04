@@ -16,7 +16,7 @@ test('AUTH-08: занятое имя не создаёт новую сессию
   await page.getByLabel(/^Пароль/).fill(CI_PASSWORD);
   await page.getByLabel(/^Подтвердите пароль/).fill(CI_PASSWORD);
   await page.getByTestId('auth-register-submit').click();
-  await expect(page.getByRole('alert').first()).toBeVisible();
+  await expect(page.locator('form').getByRole('alert')).toBeVisible();
   await expect(page).toHaveURL(/\/auth\/register$/);
   expect(await page.evaluate(() => localStorage.getItem('user_identity'))).toBeNull();
 });
@@ -40,9 +40,12 @@ test('SESSION-01 SESSION-07: сессия переносится в новый �
     await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
     await page.getByTestId('profile-open').click();
     await expect(page.getByTestId('profile-logout')).toBeVisible();
+    const signedOut = page.waitForRequest(request => request.isNavigationRequest()
+      && request.resourceType() === 'document' && new URL(request.url()).pathname === '/auth/login');
     await page.getByTestId('profile-logout').click();
-    await page.reload();
+    await signedOut;
     await expect(page).toHaveURL(/\/auth\/login$/);
+    await expect(page.getByTestId('auth-login-submit')).toBeVisible();
     expect(await page.evaluate(() => localStorage.getItem('user_identity'))).toBeNull();
     await page.goBack();
     await expect(page.getByTestId('auth-login-submit')).toBeVisible();
@@ -56,6 +59,7 @@ test('SESSION-06: ошибка восстановления блокирует �
   await page.route('**/api/ApiAuth/refreshToken', route => route.fulfill(ERROR_RESPONSE));
   await page.goto(`${SCHOOL_PATH}/lessons`);
   await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
+  await expect(page.getByTestId('session-restore-login')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Разделы школы' })).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem('user_identity'))).not.toBeNull();
   await page.unroute('**/api/ApiAuth/refreshToken');
