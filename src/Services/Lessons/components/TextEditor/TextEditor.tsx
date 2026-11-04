@@ -20,7 +20,6 @@ import LoadPreviousStatePlugin from '../TextEditorComponents/plugins/LoadPreviou
 import AutoSavePlugin from '../TextEditorComponents/plugins/AutoSavePlugin.tsx';
 import Toolbar from '../TextEditorComponents/ui/Toolbar.tsx';
 
-import './lexicalEditorTheme.css';
 
 import type { TextEditorProps } from './component.types';
 import { INITIAL_EDITOR_CONFIG } from './component.const';

@@ -62,7 +62,7 @@ const saveNotificationsToStorage = (notifications: NotificationConfig[]) => {
 };
 
 export const useGlobalNotificationStore = create<GlobalNotificationState>((set, get) => ({
-  notifications: loadSavedNotifications(),
+  notifications: [],
   pushNotification: (notification) => set((state) => {
     const updated = [...state.notifications, notification];
     if (notification.saveNotification) {
@@ -81,3 +81,10 @@ export const useGlobalNotificationStore = create<GlobalNotificationState>((set, 
   }),
   isNotificationsEmpty: () => get().notifications.length === 0,
 }));
+
+export const restoreSavedNotifications = () => {
+  const saved = loadSavedNotifications();
+  useGlobalNotificationStore.setState((state) => ({
+    notifications: [...saved.filter(notification => !state.notifications.some(current => current.id === notification.id)), ...state.notifications],
+  }));
+};

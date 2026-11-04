@@ -8,7 +8,6 @@
 
 import type {JSX, Ref, RefObject} from 'react';
 
-import './EquationEditor.css';
 
 import {isHTMLElement} from 'lexical';
 import {type ChangeEvent, forwardRef} from 'react';

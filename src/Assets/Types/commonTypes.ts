@@ -32,7 +32,7 @@ export type UserIdentity = {
   activeSchoolPublicId?: string;
   userName: string;
   userPublicId: string;
-  userRoles: Array<{ role: AuthRole; schoolId: number; userId: number }>;
+  userRoles: Array<{ role: AuthRole; schoolId: string; userId: number }>;
   exp: number;
   email?: string;
   phone?: string;

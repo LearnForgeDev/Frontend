@@ -2,7 +2,6 @@ import { Button, Typography } from '@mui/material';
 import { serializedDocumentFromEditorState, type SerializedDocument } from '@lexical/file';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ClipLoader } from 'react-spinners';
-import './Controls.css';
 import { SAVE_LOADER_SIZE } from './ControlsPlugin.const';
 
 interface ControlsPluginProps {

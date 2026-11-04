@@ -1,74 +1,62 @@
-import { readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { parse } from 'acorn';
 
 const MAX_ENTRY_BYTES = 200_000;
-const DEFERRED_MODULES = /(?:vendor-(?:lexical|katex|fullcalendar|desmos|jitsi)|TextEditor|@lexical|@fullcalendar|@jitsi|(?:^|[/_-])(?:lexical|katex|desmos)(?:[/_.-]|$))/i;
-const outputDirectory = resolve(process.argv[2] ?? 'dist');
-const manifest = JSON.parse(await readFile(resolve(outputDirectory, '.vite/manifest.json'), 'utf8'));
-const entries = Object.values(manifest).filter((chunk) => chunk.isEntry);
-if (!entries.length) throw new Error('В сборке отсутствует основной чанк');
-
-for (const entry of entries) {
-  const content = await readFile(resolve(outputDirectory, entry.file));
-  console.log(`${entry.file}: ${content.length} байт, gzip: ${gzipSync(content).length} байт`);
-  if (content.length > MAX_ENTRY_BYTES) {
-    throw new Error(`Основной чанк превышает лимит ${MAX_ENTRY_BYTES} байт`);
+const CLIENT_ECMA_VERSION = 2022;
+const DEFERRED_MODULES = /(?:node_modules\/(?:@lexical|lexical|@fullcalendar|@jitsi|desmos|katex)\/|Services\/Lessons\/components\/TextEditor)/i;
+const outputDirectory = resolve(process.argv[2] ?? '.next');
+const json = async path => JSON.parse(await readFile(resolve(outputDirectory, path), 'utf8'));
+const buildId = (await readFile(resolve(outputDirectory, 'BUILD_ID'), 'utf8')).trim();
+if (!buildId) throw new Error('The Next.js build ID is missing.');
+const manifest = await json('build-manifest.json');
+const pages = await json('server/pages-manifest.json');
+const stats = await json('client-stats.json');
+for (const route of ['/_app', '/[[...path]]']) {
+  if (!pages[route] || !Array.isArray(manifest.pages?.[route]) || !manifest.pages[route].length) {
+    throw new Error(`Missing server/client route output: ${route}`);
   }
-  const visited = new Set();
-  let initialSize = 0;
-  let initialGzipSize = 0;
-  async function checkInitialChunk(chunk, key) {
-    if (!chunk || typeof chunk.file !== 'string') {
-      throw new Error(`В манифесте отсутствует статическая зависимость: ${key}`);
-    }
-    if (visited.has(chunk.file)) return;
-    visited.add(chunk.file);
-    if ([key, chunk.file, chunk.name, chunk.src].some((value) => typeof value === 'string' && DEFERRED_MODULES.test(value))) {
-      throw new Error(`Тяжёлый модуль попал в начальную загрузку: ${chunk.file}`);
-    }
-    if (chunk.imports !== undefined && (!Array.isArray(chunk.imports) || chunk.imports.some((dependency) => typeof dependency !== 'string'))) {
-      throw new Error(`Некорректные статические зависимости: ${chunk.file}`);
-    }
-    const source = await readFile(resolve(outputDirectory, chunk.file));
-    initialSize += source.length;
-    initialGzipSize += gzipSync(source).length;
-    for (const dependency of chunk.imports ?? []) await checkInitialChunk(manifest[dependency], dependency);
-  }
-  await checkInitialChunk(entry, entry.file);
-  console.log(`Начальный JavaScript со статическими зависимостями: ${initialSize} байт, gzip: ${initialGzipSize} байт`);
+  await stat(resolve(outputDirectory, 'server', pages[route]));
 }
+await stat(resolve(outputDirectory, 'standalone/server.js'));
+if (!Array.isArray(stats.chunks) || !stats.chunks.length) throw new Error('Client compiler chunk data is missing.');
 
+function checkModules(modules) {
+  for (const module of modules ?? []) {
+    const name = module.nameForCondition ?? module.name ?? module.identifier ?? '';
+    if (!/\.css(?:[?!]|$)/.test(name) && DEFERRED_MODULES.test(name.replaceAll('\\', '/'))) {
+      throw new Error(`Heavy module entered initial JavaScript: ${name}`);
+    }
+    if (module.filteredModules > 0) throw new Error(`Incomplete module data: ${name}`);
+    checkModules(module.modules ?? module.children);
+  }
+}
+if (!stats.chunks.some(chunk => chunk.initial && chunk.files?.some(file => file.endsWith('.js')))) throw new Error('Initial client chunk data is missing.');
+for (const chunk of stats.chunks) {
+  if (!chunk.initial || !chunk.files?.some(file => file.endsWith('.js'))) continue;
+  if (chunk.filteredModules > 0 || !Array.isArray(chunk.modules)) throw new Error('Initial chunk module data is incomplete.');
+  checkModules(chunk.modules);
+}
+const initial = [...new Set(['/_app', '/[[...path]]'].flatMap(route => manifest.pages[route]))].filter(file => file.endsWith('.js'));
+let initialSize = 0;
+let initialGzipSize = 0;
+for (const file of initial) {
+  const content = await readFile(resolve(outputDirectory, file));
+  initialSize += content.length;
+  initialGzipSize += gzipSync(content).length;
+  if (file.includes('/pages/') && content.length > MAX_ENTRY_BYTES) throw new Error(`Application entry exceeds ${MAX_ENTRY_BYTES} bytes: ${file}`);
+}
+console.log(`Initial JavaScript: ${initialSize} bytes; gzip: ${initialGzipSize} bytes.`);
 async function checkDirectory(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
     if (entry.isDirectory()) await checkDirectory(path);
     else if (entry.name.endsWith('.js')) {
-      const source = await readFile(path, 'utf8');
-      const tree = parse(source, { ecmaVersion: 'latest', sourceType: 'module' });
-      const replacements = [];
-      function visit(node) {
-        if (!node || typeof node !== 'object') return;
-        if (node.type === 'ImportExpression') replacements.push([node.start, node.start + 'import'.length, '__load']);
-        if (node.type === 'MetaProperty' && node.meta.name === 'import') replacements.push([node.start, node.end, 'import_meta']);
-        for (const value of Object.values(node)) {
-          if (Array.isArray(value)) value.forEach(visit);
-          else if (value && typeof value === 'object') visit(value);
-        }
-      }
-      visit(tree);
-      let normalized = source;
-      for (const [start, end, replacement] of replacements.sort((a, b) => b[0] - a[0])) {
-        normalized = normalized.slice(0, start) + replacement + normalized.slice(end);
-      }
-      try {
-        parse(normalized, { ecmaVersion: 2015, sourceType: 'module' });
-      } catch (error) {
-        throw new Error(`Синтаксис новее ES2015 в ${path}: ${error.message}`);
-      }
+      try { parse(await readFile(path, 'utf8'), { ecmaVersion: CLIENT_ECMA_VERSION, sourceType: 'module' }); }
+      catch (error) { throw new Error(`Unsupported client JavaScript in ${path}: ${error.message}`); }
     }
   }
 }
-await checkDirectory(outputDirectory);
-console.log('Проверены все JS-чанки: ES2015 с модульной загрузкой Vite');
+await checkDirectory(resolve(outputDirectory, 'static'));
+console.log('Next.js server output, application entry budgets, lazy modules and modern client syntax passed.');

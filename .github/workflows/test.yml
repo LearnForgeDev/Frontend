@@ -24,6 +24,34 @@ env:
   CI_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
 
 jobs:
+  backend-target:
+    name: backend-target
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      mode: ${{ steps.backend.outputs.mode }}
+      url: ${{ steps.backend.outputs.url }}
+    steps:
+      - name: backend-selection
+        id: backend
+        env:
+          EXISTING_BACKEND_URL: ${{ vars.CI_BACKEND_URL }}
+          EXISTING_ADMIN_SECRET: ${{ secrets.CI_ADMIN_TOTP_SECRET }}
+        run: |
+          if [ -n "$EXISTING_BACKEND_URL" ]; then
+            case "$EXISTING_BACKEND_URL" in
+              http://*|https://*) ;;
+              *) echo "::error::CI_BACKEND_URL must be an HTTP(S) test backend URL"; exit 1 ;;
+            esac
+            if [ "$(curl --silent --show-error --max-time 15 --output /dev/null --write-out '%{http_code}' "${EXISTING_BACKEND_URL%/}/health")" = 200 ]; then
+              test -n "$EXISTING_ADMIN_SECRET" || { echo "::error::CI_ADMIN_TOTP_SECRET is required for the shared test backend"; exit 1; }
+              printf 'mode=existing\nurl=%s\n' "${EXISTING_BACKEND_URL%/}" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "::notice::Shared test backend unavailable; using the temporary fallback"
+          fi
+          printf 'mode=temporary\nurl=http://127.0.0.1:8080\n' >> "$GITHUB_OUTPUT"
+
   checks:
     name: ${{ matrix.name }}
     runs-on: ubuntu-24.04
@@ -110,6 +138,9 @@ jobs:
 
   build:
     name: build
+    needs: backend-target
+    env:
+      CI_BACKEND_URL: ${{ needs.backend-target.outputs.url }}
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
@@ -123,12 +154,14 @@ jobs:
       - name: dependencies
         run: npm ci
       - name: build
-        run: YENV=production npx vite build
+        run: npm run build
       - name: build-artifact
         uses: actions/upload-artifact@v6
         with:
           name: production-build
-          path: dist
+          path: |
+            .next
+            !.next/cache
           include-hidden-files: true
           retention-days: 7
 
@@ -151,7 +184,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: production-build
-          path: dist
+          path: .next
       - name: build-policy
         run: npm run check:build
 
@@ -174,7 +207,7 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: production-build
-          path: dist
+          path: .next
       - name: chromium
         run: npx playwright install --with-deps chromium
       - name: e2e/public
@@ -191,7 +224,10 @@ jobs:
 
   e2e-backend:
     name: e2e/backend
-    needs: build
+    needs: [build, backend-target]
+    env:
+      CI_BACKEND_URL: ${{ needs.backend-target.outputs.url }}
+      CI_ADMIN_TOTP_SECRET: ${{ secrets.CI_ADMIN_TOTP_SECRET }}
     runs-on: ubuntu-24.04
     timeout-minutes: 60
     concurrency:
@@ -211,31 +247,12 @@ jobs:
         uses: actions/download-artifact@v7
         with:
           name: production-build
-          path: dist
+          path: .next
       - name: backend-selection
         id: backend
         env:
-          EXISTING_BACKEND_URL: ${{ vars.CI_BACKEND_URL }}
-          EXISTING_ADMIN_SECRET: ${{ secrets.CI_ADMIN_TOTP_SECRET }}
-        run: |
-          if [ -n "$EXISTING_BACKEND_URL" ]; then
-            case "$EXISTING_BACKEND_URL" in
-              http://*|https://*) ;;
-              *) echo "::error::CI_BACKEND_URL must be an HTTP(S) test backend URL"; exit 1 ;;
-            esac
-            if [ "$(curl --silent --show-error --max-time 15 --output /dev/null --write-out '%{http_code}' "${EXISTING_BACKEND_URL%/}/health")" = 200 ]; then
-              if [ -z "$EXISTING_ADMIN_SECRET" ]; then
-                echo "::error::CI_ADMIN_TOTP_SECRET is required for the shared test backend"
-                exit 1
-              fi
-              echo "mode=existing" >> "$GITHUB_OUTPUT"
-              printf 'CI_BACKEND_URL=%s\nCI_ADMIN_TOTP_SECRET=%s\n' "${EXISTING_BACKEND_URL%/}" "$EXISTING_ADMIN_SECRET" >> "$GITHUB_ENV"
-              exit 0
-            fi
-            echo "::notice::Shared test backend unavailable; using the temporary fallback"
-          fi
-          echo "mode=temporary" >> "$GITHUB_OUTPUT"
-          echo "CI_BACKEND_URL=http://127.0.0.1:8080" >> "$GITHUB_ENV"
+          BACKEND_MODE: ${{ needs.backend-target.outputs.mode }}
+        run: echo "mode=$BACKEND_MODE" >> "$GITHUB_OUTPUT"
       - name: backend-access
         if: steps.backend.outputs.mode == 'temporary'
         env:
@@ -288,7 +305,7 @@ jobs:
   verify:
     name: ci
     if: always()
-    needs: [checks, unit-tests, test-coverage, build, build-policy, e2e-public, e2e-backend]
+    needs: [backend-target, checks, unit-tests, test-coverage, build, build-policy, e2e-public, e2e-backend]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:

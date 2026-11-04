@@ -116,7 +116,7 @@ export default function AppGlobalStyles() {
         'button, input, textarea, select': {
           font: 'inherit',
         },
-        '#root': {
+        '#__next': {
           minHeight: '100vh',
         },
         '.material-symbols-outlined': {

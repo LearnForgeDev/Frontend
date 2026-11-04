@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import './styles.css';
 
 export const LessonsConfig: React.FC = () => {
     return (

@@ -63,6 +63,23 @@ separate jobs. The aggregate `ci` result fails when any required job fails or sk
 Knowledge handoff remains required by [AGENTS.md](../../AGENTS.md). Automated checks
 verify structure and links; independent review checks the business explanation.
 
+## Server rendering and browser recovery
+
+Verify login and registration in raw HTTP responses and with JavaScript disabled.
+Private records must not appear in anonymous HTML or shared server caches. Check
+hydration errors, missing assets, query and hash preservation, back navigation and
+relative school links after the server-rendered document becomes interactive.
+
+The build policy reads the configured runtime's server manifests and client compiler
+metadata. It preserves application entry budgets and deferred heavy-module checks.
+Its client syntax baseline follows the modern server runtime rather than the removed
+static bundler's ES2015 output. Read the executable policy for the exact limits.
+
+A loading, error or expired-session screen must expose an action that lets the user
+recover or leave. Cover rejected refresh, stalled restoration, explicit login,
+onboarding logout and offline mutation failure. A manual test reload does not prove
+that logout performs its own full-page navigation.
+
 ## Coverage evidence
 
 CI publishes the full application coverage report and checks executable lines added

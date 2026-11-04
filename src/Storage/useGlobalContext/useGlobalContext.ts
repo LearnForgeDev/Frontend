@@ -1,12 +1,13 @@
 import { create } from 'zustand';
-import { AuthRole, type UserIdentity } from '@/Assets/Types/commonTypes.ts';
+import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
 import { persistActiveSchool, persistUserIdentity } from './useGlobalContext.utils';
 import { USER_STORAGE_KEY } from '../UserContext/UserContext.const';
+import { getJwtExpiry } from '@/Endpoints/auth/utils';
 
 export interface User {
     userPublicId: string;
     userName: string;
-    roles: Array<{ role: AuthRole; schoolId: number }>;
+    roles: UserIdentity['userRoles'];
     activeSchoolPublicId?: string;
     email?: string;
     phone?: string;
@@ -19,6 +20,7 @@ const logger = createDebugger('useGlobalContext');
 interface AuthSlice {
     user: User | null;
     isAuthenticated: boolean;
+    jwtExpiresAt: number | null;
     setActiveSchoolPublicId: (schoolPublicId: string) => void;
     setUser: (userIdentity: UserIdentity) => void;
     logout: () => void;
@@ -32,6 +34,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
     auth: {
         user: null,
         isAuthenticated: false,
+        jwtExpiresAt: null,
         setActiveSchoolPublicId: (schoolPublicId: string) =>
             set((state) => {
                 if (!state.auth.user) return state;
@@ -57,7 +60,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                 const user: User = {
                     userPublicId: res.userPublicId,
                     userName: res.userName,
-                    roles: res.userRoles as Array<{ role: AuthRole; schoolId: number }>,
+                    roles: res.userRoles,
                     activeSchoolPublicId,
                     email: res.email,
                     phone: res.phone,
@@ -74,6 +77,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                         ...state.auth,
                         user,
                         isAuthenticated: true,
+                        jwtExpiresAt: getJwtExpiry(res.jwtToken),
                     },
                 };
             }),
@@ -90,6 +94,7 @@ export const useGlobalContext = create<GlobalState>((set) => ({
                         ...state.auth,
                         user: null,
                         isAuthenticated: false,
+                        jwtExpiresAt: null,
                     },
                 };
             }),

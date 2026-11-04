@@ -11,6 +11,15 @@ guards. Roles belong to each membership, not one global role for the whole accou
 otherwise the first school. No schools leads to onboarding. A loading/error response
 is not treated as an authoritative empty membership list.
 
+Definitively rejected refresh credentials sign the user out and return protected
+school routes to login. Failed refresh caused by a temporary service problem retains
+retry and logout recovery; it does not confirm new membership or an empty school list.
+Public login is outside the session restoration gate, so failed startup cannot trap
+the user on the school list.
+Client mutations start even when the browser reports offline and settle with the
+transport result. They do not wait indefinitely in an offline queue with forms stuck
+pending. Unknown accepted-write outcomes still require the owning feature's recovery.
+
 | Membership | Access school | Teach | Manage school |
 | --- | --- | --- | --- |
 | Student | Yes | No | No |

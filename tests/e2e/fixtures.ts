@@ -7,6 +7,9 @@ function watchProduction(context: BrowserContext) {
   const errors: string[] = [];
   const attach = (page: import('@playwright/test').Page) => {
     page.on('pageerror', error => errors.push(error.message));
+    page.on('console', message => {
+      if (message.type() === 'error' && /hydrat|server.rendered|did not match|React error #4(?:18|19|21|23|25)/i.test(message.text())) errors.push(message.text());
+    });
     page.on('requestfailed', request => {
       if (request.url().startsWith(BASE_URL + '/') && ['script', 'stylesheet'].includes(request.resourceType())) errors.push(`${request.failure()?.errorText} ${request.url()}`);
     });

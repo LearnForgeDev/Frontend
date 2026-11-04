@@ -13,6 +13,11 @@ memberships known before the request and the returned request public ID, then op
 the waiting page. The pointer is associated with the user; another account must not
 inherit an earlier user's waiting route.
 
+The shared onboarding header offers direct logout on selection and waiting screens,
+without requiring the profile to load. It clears the current session and opens login
+with a full-page navigation. Pending or failed session restoration also offers login
+recovery before any protected onboarding content is shown.
+
 Polling continues only for appropriate nonterminal states and stops on errors.
 An unavailable request offers a way back. Approval alone does not prove the school
 is usable: the waiting flow polls memberships until the approved school is visible,
@@ -37,6 +42,11 @@ Keep request input on failure, distinguish unavailable requests from transient
 failures and avoid uncontrolled polling. An approval/provisioning delay is not a
 frontend permission to create membership locally. Never persist invitation or auth
 secrets in knowledge docs or screenshots intended for sharing.
+
+A rejected, expired or revoked invitation can return 401 even after the account's
+refresh succeeds. Keep the authenticated session, show the invitation failure and
+allow another link to be submitted. Rejected refresh credentials still end the
+session; this invitation exception does not change other protected operations.
 
 ## Verification
 

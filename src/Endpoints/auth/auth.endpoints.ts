@@ -1,9 +1,9 @@
 import { isAxiosError } from 'axios';
 import { HTTP_STATUS } from '../factory/factory.const';
 import { REFRESH_RETRY_COUNT } from './auth.const';
-import { getRefreshRetryDelay, parseJwt } from './utils';
+import { getRefreshRetryDelay, normalizeRestoredSession } from './utils';
+import { createUnauthenticatedError } from '../factory/factory.utils';
 import { createApiClient, createQueryFn, createQueryFnWithRefresh } from '../factory/factory';
-import { useGlobalContext } from "@/Storage/useGlobalContext/useGlobalContext.ts";
 import type {
     LoginParams,
     RegisterParams,
@@ -20,6 +20,7 @@ export * from './types';
 const apiClient = createApiClient({ staleTime: 0 });
 const queryFn = createQueryFn();
 const protectedQueryFn = createQueryFnWithRefresh();
+const joinSchoolQueryFn = createQueryFnWithRefresh({ invalidateSessionOnRepeated401: false });
 
 export const authEndpoints = {
     async register(dto: RegisterParams): Promise<UserIdentity> {
@@ -30,10 +31,8 @@ export const authEndpoints = {
             queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto)
         });
 
-        const parsedJwtToken = parseJwt(response.data.jwtToken);
-        const exp = Number(parsedJwtToken.exp) * 1000;
-
-        const user = { ...response.data, exp };
+        const user = normalizeRestoredSession(response.data);
+        if (!user) throw createUnauthenticatedError();
         return user;
     },
 
@@ -44,10 +43,8 @@ export const authEndpoints = {
             queryFn: () => queryFn.post<UserIdentity>(queryKey[0], dto)
         });
 
-        const parsedJwtToken = parseJwt(response.data.jwtToken);
-        const exp = Number(parsedJwtToken.exp) * 1000;
-
-        const user = { ...response.data, exp };
+        const user = normalizeRestoredSession(response.data);
+        if (!user) throw createUnauthenticatedError();
         return user;
     },
 
@@ -104,10 +101,11 @@ export const authEndpoints = {
         const queryKey = ['/api/ApiAuth/join-school'];
         const response = await apiClient.fetchQuery({
             queryKey: [...queryKey, dto],
-            queryFn: () => protectedQueryFn.post<UserIdentity>(queryKey[0], dto)
+            queryFn: () => joinSchoolQueryFn.post<UserIdentity>(queryKey[0], dto)
         });
-        useGlobalContext.getState().auth.setUser(response.data);
-        return response.data;
+        const user = normalizeRestoredSession(response.data);
+        if (!user) throw createUnauthenticatedError();
+        return user;
     },
 
     async invite(dto: InviteParams): Promise<unknown> {

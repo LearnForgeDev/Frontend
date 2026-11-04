@@ -7,7 +7,7 @@ export enum DebugSeverity {
 export const createDebugger = (context: string) => {
     return {
         logEventForDebug: (severity: DebugSeverity, message: string, ...args: unknown[]) => {
-            const isDev = import.meta.env.DEV;
+            const isDev = process.env.NODE_ENV !== 'production';
             const isDebugParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'true';
 
             if (!isDev && !isDebugParam) return;

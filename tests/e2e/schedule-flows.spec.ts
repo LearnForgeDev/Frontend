@@ -127,6 +127,36 @@ test('SCHEDULE-12: ошибка изменения оставляет введё
   await actor.page.unroute(`**/events/${event.id}`);
 });
 
+test('SCHEDULE-14: offline save retains input, unlocks Cancel and does not replay on reconnect', { tag: '@ui-errors' }, async ({ actors }) => {
+  const actor = await actors('teacher');
+  const event = await createEvent(actor);
+  const dialog = await openEvent(actor.page, event.id);
+  await dialog.getByTestId('schedule-event-edit').click();
+  const form = actor.page.getByRole('dialog').filter({ hasText: 'Редактировать занятие' });
+  const title = uniqueName('Несохранённое занятие');
+  await form.getByTestId('schedule-form-title').fill(title);
+  let saveRequests = 0;
+  actor.page.on('request', request => {
+    if (new URL(request.url()).pathname === `/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}` && request.method() === 'PATCH') saveRequests++;
+  });
+  await actor.context.setOffline(true);
+  try {
+    await form.getByTestId('schedule-form-submit').click();
+    await expect(actor.page.getByText('Не удалось сохранить занятие. Попробуйте ещё раз.', { exact: true })).toBeVisible();
+    await expect(form.getByTestId('schedule-form-title')).toHaveValue(title);
+    await expect(form.getByTestId('schedule-form-cancel')).toBeEnabled();
+    await form.getByTestId('schedule-form-cancel').click();
+    await expect(form).not.toBeVisible();
+    expect(saveRequests).toBe(1);
+  } finally {
+    await actor.context.setOffline(false);
+  }
+  expect((await readEvent(actor.page, event.id)).title).toBe(event.title);
+  const restored = await openEvent(actor.page, event.id);
+  await expect(restored.getByTestId('schedule-event-title')).toContainText(event.title);
+  expect(saveRequests).toBe(1);
+});
+
 test('SCHEDULE-13 CALL-02: начать сейчас переносит интервал перед переходом в комнату', async ({ actors }) => {
   const actor = await actors('teacher');
   const event = await createEvent(actor);

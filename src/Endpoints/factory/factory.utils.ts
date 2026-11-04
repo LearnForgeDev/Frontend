@@ -60,3 +60,9 @@ export function createUnauthenticatedError() {
   error.status = HTTP_STATUS.UNAUTHORIZED;
   return error;
 }
+
+export function isRejectedAuthentication(error: unknown): boolean {
+  if (!isAxiosError(error)) return false;
+  const status = error.response?.status ?? error.status;
+  return status === HTTP_STATUS.UNAUTHORIZED || status === HTTP_STATUS.FORBIDDEN;
+}

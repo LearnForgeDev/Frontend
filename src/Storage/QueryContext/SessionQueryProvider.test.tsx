@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { act, cleanup, renderHook } from '@testing-library/react';
-import { useQueryClient } from '@tanstack/react-query';
+import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
+import { onlineManager, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import SessionQueryProvider from './SessionQueryProvider';
@@ -13,9 +13,23 @@ afterEach(() => {
   cleanup();
   useGlobalContext.getState().auth.logout();
   localStorage.clear();
+  onlineManager.setOnline(true);
 });
 
 describe('Кеш сессии', () => {
+  it('завершает запись сетевой ошибкой без зависания в оффлайн-очереди', async () => {
+    onlineManager.setOnline(false);
+    const { result } = renderHook(() => useMutation({ mutationFn: async () => { throw new Error('offline'); } }), {
+      wrapper: ({ children }: { children: ReactNode }) => <SessionQueryProvider>{children}</SessionQueryProvider>,
+    });
+
+    await act(async () => { await expect(result.current.mutateAsync()).rejects.toThrow('offline'); });
+    await waitFor(() => expect(result.current.isError).toBe(true));
+
+    expect(result.current.isPaused).toBe(false);
+    expect(result.current.isPending).toBe(false);
+  });
+
   it('не переносит учеников и прогресс между аккаунтами', () => {
     const { result } = renderHook(() => useQueryClient(), {
       wrapper: ({ children }: { children: ReactNode }) => <SessionQueryProvider>{children}</SessionQueryProvider>,

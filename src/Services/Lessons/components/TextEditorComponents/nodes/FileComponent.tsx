@@ -15,7 +15,6 @@ import {
 import { $isFileNode } from './FileNode.tsx';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
-import './fileNode.css';
 
 interface FileComponentProps {
   fileName: string;

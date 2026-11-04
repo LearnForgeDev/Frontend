@@ -45,7 +45,7 @@ export default function RegisterPage() {
   const visibleComponents = currentStep?.components ?? [];
 
   return (
-    <Box component="form" onSubmit={handleSubmit} noValidate sx={S.formContainer}>
+    <Box component="form" method="post" onSubmit={handleSubmit} noValidate sx={S.formContainer}>
       <Typography variant="h5" component="h1" align="center" sx={S.title}>
         {currentStep?.title ?? "Регистрация"}
       </Typography>
