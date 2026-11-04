@@ -105,6 +105,7 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     write('src/Services/Auth/old_name.ts');
     git('add', '.');
     git('commit', '-m', 'Legacy path');
+    const base = git('rev-parse', 'HEAD').toString().trim();
     assert.equal(check('--all').status, 1, 'audit mode includes legacy paths');
     writeFileSync(join(directory, 'src/Services/Auth/old_name.ts'), 'export const existing = 1;\n');
     git('add', '.');
@@ -124,6 +125,14 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     assert.equal(check().status, 1, 'rename detection cannot grandfather a bad new name');
     git('mv', 'src/Services/Auth/new_bad_name.ts', 'src/Services/Auth/auth.validation.ts');
     assert.equal(check().status, 0, 'a valid migration passes');
+    git('commit', '-m', 'Canonical paths');
+    assert.equal(check('--base', base).status, 0, 'CI checks committed migrations');
+    write('src/Services/Auth/hooks/useAuth/useAuth.ts');
+    git('add', 'src/Services/Auth/hooks/useAuth/useAuth.ts');
+    assert.equal(check('--base', base).status, 0, 'CI ignores the index');
+    git('commit', '-m', 'Invalid committed hook');
+    assert.equal(check('--base', base).status, 1, 'a clean index cannot hide a committed violation');
+    assert.equal(check('--base', 'missing-ref').status, 1);
     write('docs/features/bad name\tfile.md');
     git('add', 'docs/features/bad name\tfile.md');
     assert.equal(check().status, 1, 'NUL-separated git paths preserve whitespace');

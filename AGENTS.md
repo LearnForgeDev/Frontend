@@ -23,7 +23,9 @@ Before completing a behavior change, update the owning feature doc with the resu
 business rules, ownership, failure handling, decisions and remaining gaps. Update
 architecture when a shared boundary changes. Keep docs shorter than 300 lines.
 Use documentation links and naming conventions instead of implementation-file maps.
-Read executable configuration for technology, commands and CI details.
+Read executable configuration for technology, commands and CI details. If existing
+docs remain accurate, explain why in the PR description. The independent reviewer
+checks that outcome against the exact reviewed revision.
 
 ## Task management
 
@@ -46,8 +48,7 @@ issues or a board unless the owner authorizes that work. Record deferred decisio
 | New module documentation | [Feature template](docs/templates/feature.md) |
 | All docs | [Documentation index](docs/README.md) |
 
-A separate agent must review the current PR revision before merge. Precommit validates
-new/renamed staged paths against naming conventions and validates staged documentation
-coverage, local links and length. Business-code changes require a staged knowledge
-update in the owning document. CI integration, repository protection and review
-enforcement remain pending.
+A separate agent must review the exact PR revision before merge. Follow the
+[review procedure](docs/guides/agent-workflow.md#review-before-merge) and require the
+configured CI checks to pass. Repository protection and automated agent-review
+enforcement are not configured by these files.

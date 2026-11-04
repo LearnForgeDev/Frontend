@@ -2,7 +2,8 @@
 
 This is the required naming convention for new and migrated code. Precommit validates
 new and renamed staged paths. Existing filenames remain legacy exceptions until
-renamed; changing a file's contents does not migrate its name. CI wiring is still pending.
+renamed; changing a file's contents does not migrate its name. CI checks new and
+renamed committed paths against the PR base.
 
 ## Canonical locations
 
@@ -79,9 +80,10 @@ Styling filenames are excluded while the replacement approach is undecided.
 
 Exported-symbol casing and semantic boundaries remain review rules; this path
 validator does not inspect declarations or prove a file's business responsibility.
-The same validator should be wired to CI with an explicit change-base policy, rather
-than treating an empty CI staging area as a passing naming check.
+CI uses `--base REF` to inspect committed changes independently of the staging area.
+The verification workflow supplies the PR base; local commits use the Git index.
 
 Naming validation cannot prove correct business behavior or truthful documentation.
-The documentation validator separately enforces feature coverage, staged knowledge
-updates, short files and valid local documentation links. The agent must still update business knowledge as required by AGENTS.md.
+The documentation validator separately enforces feature coverage, short files and
+valid local documentation links. Reviewers assess knowledge updates or the explicit
+reason that existing docs remain accurate, as required by AGENTS.md.

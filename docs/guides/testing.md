@@ -40,25 +40,35 @@ schools cannot interfere.
 
 ## Documentation and naming checks
 
-`validate:docs` checks the Git index, not unstaged files. Staged Markdown must be
-shorter than 300 lines, and local links/heading fragments must resolve in the same
-snapshot. External links are not fetched.
+Documentation validation checks the Git index locally and the committed snapshot
+in CI. Markdown must be shorter than 300 lines, and local links and heading fragments
+must resolve in that snapshot. External links are not fetched.
 
-Business features must have a nonempty owning document. Implementation changes in
-Services, Storage or Endpoints require a staged update to that document, including
-deletions and moves; tests, styles and barrel-only changes are excluded. New features
-use a kebab-case doc name. Legacy feature names and school-contained modules map to
-their existing business docs; shared infrastructure maps to architecture. Removing
-a whole feature and its doc is valid when no remaining references require it.
+Business features must have a nonempty owning document. New features use a kebab-case
+doc name. Legacy feature names and school-contained modules map to their business
+docs; shared infrastructure maps to architecture. Removing a whole feature and its
+doc is valid when no remaining references require it.
 
-Naming is checked for new/renamed staged paths before commit; an all-tracked-path
-audit includes legacy violations. See [naming](naming.md) and package scripts for
-scope. CI integration is still pending.
+Update the owning document when behavior, contracts, ownership or failure handling
+changes. For mechanical changes that leave existing knowledge accurate, explain why
+in the PR description. The independent reviewer validates that outcome against the
+reviewed SHA. Structural coverage does not require a meaningless prose edit.
 
-Knowledge handoff is required by [AGENTS.md](../../AGENTS.md). Automated checks can
-verify structure and links; they cannot establish that a business explanation is true.
+Naming validation covers new and renamed paths, using staged paths locally and the
+PR base in CI. An all-tracked-path audit also includes legacy violations. See
+[naming](naming.md) for conventions and executable configuration for scope.
+
+CI runs documentation content, documentation coverage and validator regressions as
+separate jobs. The aggregate `ci` result fails when any required job fails or skips.
+Knowledge handoff remains required by [AGENTS.md](../../AGENTS.md). Automated checks
+verify structure and links; independent review checks the business explanation.
 
 ## Coverage evidence
+
+CI publishes the full application coverage report and checks executable lines added
+or modified against the PR base. The changed-line minimum belongs in the executable
+coverage policy. Application lines absent from the report fail that check. A change
+with no added executable application lines has no changed-line score.
 
 Use the [acceptance catalogue](../e2e/README.md) and [coverage summary](../e2e/coverage.md)
 to distinguish implemented assertions from desired tests. Existing coverage does

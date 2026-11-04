@@ -29,9 +29,11 @@ Page / component → public feature hook → typed endpoints
                         persistence adapters
 ```
 
-Redux is the required sole source of truth for client business state. This is an
-explicit architecture decision, not a claim that the current dependency migration
-has happened. The backend remains authoritative for persisted records and rights.
+The owner selected Redux as the sole source of truth for client business state.
+The goal is one owner for each domain's records and transitions, with reads and
+operations available through its public hook. Agent discoverability alone does
+not require this library choice. The backend remains authoritative for persisted
+records and rights.
 
 Components and pages must not access store selectors, dispatch, storage adapters or
 endpoints directly. The public feature hook exposes both typed data and supported
@@ -43,6 +45,26 @@ Store reducers update state without performing I/O. Network and persistence work
 belongs behind the hook's operation layer. Existing parallel query/context/global
 state paths must be consolidated during migration rather than retained as competing
 business sources of truth.
+
+## State migration boundary
+
+This documentation records the approved target. It does not implement or authorize
+a runtime migration as part of unrelated fixes. The current application still uses
+query caches, global state and contexts; installed dependencies remain defined by
+[package.json](package.json).
+
+Migration covers client business records, account and school scope, business drafts,
+and persisted snapshots. Local presentation state remains local. Transport clients
+may handle requests and retries behind hooks, but must not become a second business
+state owner.
+
+Each migration needs an explicitly agreed domain scope. Identify its readers,
+writers, persistence and cross-domain dependencies before changing state ownership.
+Move the complete domain behind its public hook and remove the replaced state paths
+in the same change. Shared ownership changes need a cross-domain plan first.
+Preserve authorization, account isolation, stale-response protection, retry and
+draft-recovery guarantees, and verify them before replacing the existing paths.
+Record completed migration scope and remaining gaps in the owning feature docs.
 
 ## State ownership
 
@@ -119,10 +141,11 @@ Do not choose replacement libraries or redesign these modules as part of docs wo
 ## Verification and delivery
 
 Use the [testing policy](docs/guides/testing.md) and owning executable configuration.
-New/renamed staged paths receive precommit naming validation. Staged documentation
-is checked for feature coverage, local links and length; business-code changes
-require an owning knowledge update. CI integration remains pending. Neither validator
-proves exported-symbol casing, correct business behavior or truthful prose.
+Precommit and CI enforce the configured deterministic checks. Documentation coverage,
+local links and length are structural checks; they cannot establish correct business
+behavior or truthful prose. Update knowledge when behavior or ownership changes.
+Repository merge protection and independent review of the exact PR revision are
+separate requirements, described in the [agent workflow](docs/guides/agent-workflow.md).
 
 Keep heavy checks in CI. Any local deployment, including a backend started for
 verification, requires explicit approval from the project owner. Backend availability

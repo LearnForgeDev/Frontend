@@ -87,13 +87,15 @@ export function getNamingError(path) {
 
 function run() {
   const args = process.argv.slice(2);
-  if (args.length > 1 || (args.length && !['--staged', '--all'].includes(args[0]))) {
-    throw new Error('Usage: npm run validate:naming -- [--staged|--all]');
+  const committed = args.length === 2 && args[0] === '--base';
+  if (!committed && (args.length > 1 || (args.length && !['--staged', '--all'].includes(args[0])))) {
+    throw new Error('Usage: npm run validate:naming -- [--staged|--all|--base REF]');
   }
+  const base = committed ? execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${args[1]}^{commit}`], { encoding: 'utf8' }).trim() : null;
   const all = args[0] === '--all';
   const gitArgs = all
     ? ['ls-files', '--cached', '--full-name', '-z']
-    : ['diff', '--cached', '--name-only', '--diff-filter=A', '--no-renames', '--no-relative', '-z'];
+    : ['diff', ...(base ? [base, 'HEAD'] : ['--cached']), '--name-only', '--diff-filter=A', '--no-renames', '--no-relative', '-z'];
   const paths = execFileSync('git', [...gitArgs, '--'], { encoding: 'utf8' }).split('\0').filter(Boolean);
   const errors = paths.flatMap(path => {
     const error = getNamingError(path);
@@ -104,7 +106,7 @@ function run() {
     process.exitCode = 1;
     return;
   }
-  console.log(`Naming check passed: ${paths.length} ${all ? 'tracked' : 'added/renamed staged'} paths checked.`);
+  console.log(`Naming check passed: ${paths.length} ${all ? 'tracked' : base ? 'added/renamed committed' : 'added/renamed staged'} paths checked.`);
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

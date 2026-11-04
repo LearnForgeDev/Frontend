@@ -24,6 +24,25 @@ Use one independent browser context per user. A shared authenticated state is su
 only when deliberately testing another session of the same account. Include a real
 second school in isolation checks; a random missing school ID is not equivalent.
 
+## Reusing a test backend
+
+CI can use a dedicated test backend through the repository variable `CI_BACKEND_URL`
+and secret `CI_ADMIN_TOTP_SECRET`. Leave the variable unset until an isolated test
+stand exists. Never point it at production. A healthy configured stand skips backend
+checkout, startup and teardown; an unavailable stand uses the temporary CI backend.
+A healthy stand with missing credentials or incompatible fixtures fails explicitly.
+
+The stand must provide the fixture identities, memberships, schools and chat from
+the test backend seed, matching API contracts and administrative login. Its storage
+URLs must be reachable from the CI browser and permit the preview origin. Configure
+cookie behavior for requests proxied through the preview, including administrative
+login. Health alone does not establish fixture or storage compatibility.
+
+Shared-backend runs are serialized because the seeded accounts are shared. Each test
+still owns its created entities and cleanup. CI never tears down the shared stand;
+the stand owner maintains its baseline and removes residue after failed cleanup.
+Temporary backend infrastructure remains isolated to its job and is always removed.
+
 ## Observable outcomes
 
 Create/update through the UI when that is the workflow under test. Use the API for

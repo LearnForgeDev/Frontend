@@ -51,6 +51,10 @@ loading/retry instead of child routes, and exposes user/set/clear through a cont
 It was already in the application; it is not a newly introduced business feature.
 Identity currently also appears in query/global state, and selected school is stored
 with auth. These paths need consolidation under the required hook/Redux boundary.
+That migration needs its own agreed scope under the
+[state migration boundary](../../ARCHITECTURE.md#state-migration-boundary).
+An unrelated authentication fix must preserve the current state lifecycle rather
+than start a partial migration.
 
 Refresh-aware requests now share pending refresh work and retry a rejected request
 once after a backend 401. Refresh rate-limit responses have bounded retry handling.

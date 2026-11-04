@@ -25,20 +25,35 @@ Russian and engineering docs/replies English. Do not add comments or reverse tun
 Backend availability is not guaranteed; every local deployment requires explicit
 owner approval. Heavy verification belongs in CI.
 
-Use [testing policy](testing.md) and executable configuration for checks. Path naming is checked for new/renamed staged files in precommit. Documentation
-coverage, local links and length are checked against the staged snapshot; stage the
-owning knowledge update with business-code changes. CI integration remains pending.
+Use the [testing policy](testing.md) and [CI configuration](../../.github/workflows/test.yml)
+for required checks. Local validators inspect the staged snapshot; CI validates the
+committed PR changes against their base. Update business knowledge when behavior,
+contracts, ownership or failure handling changes. If existing docs remain accurate,
+explain that outcome in the PR description for the reviewer to assess.
 
 ## Review before merge
 
-A separate reviewing agent must inspect the exact PR revision, its relevant behavior,
-tests and changed business knowledge. The implementing agent's self-check is not a
-substitute. Record the reviewed revision, actionable findings and verification limits.
-Resolve findings and review changed revisions before merge.
+Before merge, complete these steps:
 
-With one human developer, agent review needs its own defined reviewer integration
-and repository enforcement. Do not assume self-approval or a bot's arbitrary review
-satisfies the repository's rules. This integration is not configured by docs work.
+1. Push the final revision and record its full commit SHA.
+2. Invoke a separate agent with a review-only task in an isolated worktree at that
+   SHA, or use an agreed independent reviewer integration. Supply the PR scope,
+   base revision and relevant verification results. Do not ask the reviewer to edit.
+3. Have the reviewer inspect behavior, tests and business knowledge, including any
+   explanation that existing docs remain accurate.
+4. Record the reviewed SHA, findings and verification limits in the PR description
+   or an authorized PR review. Address each actionable finding.
+5. After any new commit or rebase, request review of the new SHA. An earlier review
+   does not approve the changed revision.
+
+The implementing agent's self-check does not satisfy independent review. With one
+human developer, the owner checks that the recorded review matches the final SHA
+and that CI passes before merging. Agent review is a manual policy until a reviewer
+integration and repository rules enforce it.
+
+Require the aggregate `ci` status through repository branch protection or a ruleset.
+These workflow files do not configure those repository settings or an automated
+agent-review requirement. Do not treat a green status as proof of independent review.
 
 ## Handoff and cleanup
 
