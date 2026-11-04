@@ -1,5 +1,6 @@
 import type { SxProps, Theme } from '@mui/material/styles';
 import {
+  APP_COLLAPSED_SIDEBAR_WIDTH_PX,
   APP_CONTENT_MAX_WIDTH_PX,
   APP_MOBILE_NAV_HEIGHT_PX,
   APP_SIDEBAR_WIDTH_PX,
@@ -7,6 +8,7 @@ import {
 } from './AppShell.const';
 
 export const rootSx: SxProps<Theme> = {
+  '--app-sidebar-width': `${APP_SIDEBAR_WIDTH_PX}px`,
   minHeight: '100vh',
   backgroundColor: 'var(--app-background)',
   color: 'var(--app-text)',
@@ -16,7 +18,7 @@ export const sidebarSx: SxProps<Theme> = {
   display: { xs: 'none', lg: 'flex' },
   position: 'fixed',
   inset: '0 auto 0 0',
-  width: APP_SIDEBAR_WIDTH_PX,
+  width: 'var(--app-sidebar-width)',
   flexDirection: 'column',
   borderRight: '1px solid var(--app-border)',
   backgroundColor: 'var(--app-surface)',
@@ -52,22 +54,6 @@ export const logoSx: SxProps<Theme> = {
 export const schoolSwitcherWrapSx: SxProps<Theme> = {
   px: 1.5,
   pb: 2,
-};
-
-export const schoolSwitcherSx: SxProps<Theme> = {
-  width: '100%',
-  minHeight: 58,
-  justifyContent: 'space-between',
-  border: '1px solid var(--app-border)',
-  borderRadius: '16px',
-  backgroundColor: 'var(--app-surface-subtle)',
-  color: 'var(--app-text)',
-  px: 1.5,
-  textTransform: 'none',
-  '&:hover': {
-    borderColor: 'var(--app-border-strong)',
-    backgroundColor: 'var(--app-surface-muted)',
-  },
 };
 
 export const navigationSx: SxProps<Theme> = {
@@ -111,7 +97,7 @@ export const topbarSx: SxProps<Theme> = {
   position: 'fixed',
   top: 0,
   right: 0,
-  left: { xs: 0, lg: `${APP_SIDEBAR_WIDTH_PX}px` },
+  left: { xs: 0, lg: 'var(--app-sidebar-width)' },
   height: APP_TOPBAR_HEIGHT_PX,
   display: 'flex',
   alignItems: 'center',
@@ -137,7 +123,7 @@ export const titleSx: SxProps<Theme> = {
 };
 
 export const mainSx: SxProps<Theme> = {
-  ml: { xs: 0, lg: `${APP_SIDEBAR_WIDTH_PX}px` },
+  ml: { xs: 0, lg: 'var(--app-sidebar-width)' },
   pt: `${APP_TOPBAR_HEIGHT_PX}px`,
   pb: { xs: `${APP_MOBILE_NAV_HEIGHT_PX + 16}px`, lg: 0 },
   minHeight: '100vh',
@@ -173,4 +159,48 @@ export const moreSheetSx: SxProps<Theme> = {
   borderTopRightRadius: '24px',
   p: 2,
   backgroundColor: 'var(--app-surface)',
+};
+
+export const collapsedRootSx: SxProps<Theme> = {
+  ...rootSx,
+  '--app-sidebar-width': `${APP_COLLAPSED_SIDEBAR_WIDTH_PX}px`,
+};
+
+export const collapsedBrandSx: SxProps<Theme> = {
+  ...brandSx,
+  justifyContent: 'center',
+  px: 0,
+};
+
+export const collapsedNavigationItemSx: SxProps<Theme> = {
+  ...navigationItemSx,
+  justifyContent: 'center',
+  px: 0,
+  gap: 0,
+};
+
+export const navigationLabelSx: SxProps<Theme> = {
+  '& .MuiListItemText-primary': { fontWeight: 700 },
+};
+
+export const sidebarFooterSx: SxProps<Theme> = {
+  mt: 'auto',
+  p: 1.5,
+  display: 'flex',
+  justifyContent: 'center',
+};
+
+export const sidebarToggleSx: SxProps<Theme> = {
+  width: 44,
+  height: 44,
+  color: 'var(--app-text-muted)',
+  borderRadius: '14px',
+  '&:hover': {
+    color: 'var(--app-text)',
+    backgroundColor: 'var(--app-surface-muted)',
+  },
+  '&.Mui-focusVisible': {
+    outline: '3px solid var(--app-focus)',
+    outlineOffset: 2,
+  },
 };

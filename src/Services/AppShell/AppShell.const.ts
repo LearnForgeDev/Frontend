@@ -8,6 +8,10 @@ import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import type { AppNavigationItem } from './AppShell.types';
 
 export const APP_SIDEBAR_WIDTH_PX = 272;
+export const APP_COLLAPSED_SIDEBAR_WIDTH_PX = 80;
+export const APP_DESKTOP_NAVIGATION_ID = 'school-navigation';
+export const SIDEBAR_COLLAPSE_LABEL = 'Свернуть меню';
+export const SIDEBAR_EXPAND_LABEL = 'Развернуть меню';
 export const APP_TOPBAR_HEIGHT_PX = 72;
 export const APP_MOBILE_NAV_HEIGHT_PX = 72;
 export const APP_CONTENT_MAX_WIDTH_PX = 1440;
