@@ -54,7 +54,7 @@ afterEach(() => cleanup());
 
 describe('Native auth form values', () => {
   it.each(['login', 'register'] as const)('submits %s values entered without React change events', async (mode) => {
-    const values = { name: 'Автор', password: 'native-password', confirmPassword: mode === 'register' ? 'native-password' : '' };
+    const values = { name: 'Автор', password: 'native-password1', confirmPassword: mode === 'register' ? 'native-password1' : '' };
     const form = renderForm(mode);
     expect(form.getAttribute('method')).toBe('post');
     const exp = Date.now() + 60_000;
@@ -74,8 +74,8 @@ describe('Native auth form values', () => {
   it.each([
     { mode: 'login', values: { name: '', password: 'secret', confirmPassword: '' }, message: AUTH_VALIDATION_MESSAGES.name },
     { mode: 'login', values: { name: 'Автор', password: '', confirmPassword: '' }, message: AUTH_VALIDATION_MESSAGES.password },
-    { mode: 'register', values: { name: 'Автор', password: 'secret', confirmPassword: '' }, message: AUTH_VALIDATION_MESSAGES.confirmation },
-    { mode: 'register', values: { name: 'Автор', password: 'secret', confirmPassword: 'different' }, message: AUTH_VALIDATION_MESSAGES.mismatch },
+    { mode: 'register', values: { name: 'Автор', password: 'valid-password1', confirmPassword: '' }, message: AUTH_VALIDATION_MESSAGES.confirmation },
+    { mode: 'register', values: { name: 'Автор', password: 'valid-password1', confirmPassword: 'different' }, message: AUTH_VALIDATION_MESSAGES.mismatch },
   ] as const)('validates native $mode values and retains them after $message', ({ mode, values, message }) => {
     const form = renderForm(mode);
     setNativeValues(form, values, mode);
@@ -89,7 +89,7 @@ describe('Native auth form values', () => {
 
   it.each(['login', 'register'] as const)('retains native %s values after a request failure and submits corrected values', async (mode) => {
     mocks[mode].mockRejectedValue(new Error('offline'));
-    const values = { name: 'Автор', password: 'native-password', confirmPassword: mode === 'register' ? 'native-password' : '' };
+    const values = { name: 'Автор', password: 'native-password1', confirmPassword: mode === 'register' ? 'native-password1' : '' };
     const form = renderForm(mode);
     setNativeValues(form, values, mode);
 
@@ -98,7 +98,7 @@ describe('Native auth form values', () => {
     await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());
     expectNativeValues(form, values, mode);
     expect(screen.getByTestId(`auth-${mode}-submit`).hasAttribute('disabled')).toBe(false);
-    const corrected = { ...values, password: 'corrected-password', confirmPassword: mode === 'register' ? 'corrected-password' : '' };
+    const corrected = { ...values, password: 'corrected-password1', confirmPassword: mode === 'register' ? 'corrected-password1' : '' };
     setNativeValues(form, corrected, mode);
     fireEvent.submit(form);
 

@@ -33,8 +33,9 @@ Backend request status and memberships are authoritative. A local pointer is onl
 navigation hint. Use returned request IDs rather than inferring one from a school
 name. Invitation tokens travel in the onboarding URL and survive authentication.
 
-The waiting screen lazily loads the dinosaur game only after explicit interaction.
-It supports keyboard/touch input and reduced-motion behavior.
+Selection and request states stay directly below the setup steps with bounded spacing,
+including on tall screens. Cards use the base theme radius. The waiting page contains
+request status and school access options only; the dinosaur game has been removed.
 
 ## Failure handling and limitations
 
@@ -51,7 +52,7 @@ session; this invitation exception does not change other protected operations.
 ## Verification
 
 - Unit checks cover request-pointer ownership and status polling.
-- Onboarding browser flow covers a real request, responsive bounds and the game.
+- Onboarding browser flow covers a real request, responsive bounds, compact spacing and absence of the removed game.
 - Auth/onboarding tests cover pointers, unavailable requests and return paths.
 - Invitation tests cover joining and limits.
 

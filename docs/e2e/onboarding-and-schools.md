@@ -16,8 +16,8 @@ and [platform administration](../features/platform-administration.md).
 | ONB-06 | P1 | Reject/fail a request and return to the app. | Terminal polling stops and another valid path is available without redirect loops. |
 | ONB-07 | P0 | Keep A's request pointer, authenticate as B and open a foreign request. | B does not inherit A's waiting path; denied reads settle without repeated polling or input loss. |
 | ONB-08 | P1 | Fail a request-status read and recover. | Error/retry preserves relevant input and restores the correct state. |
-| ONB-09 | P1 | Open waiting with a long school name at narrow, tablet and desktop widths. | Heading, status and forms remain visible without document overflow or overlap. |
-| ONB-10 | P1 | Start/restart the waiting game with keyboard/touch; enable reduced motion. | It loads only on request, manages focus, avoids stealing form input and respects reduced motion. |
+| ONB-09 | P1 | Open waiting with a long school name at narrow, tablet and desktop widths. | Heading, status and forms remain visible without document overflow or overlap; request cards stay close to the setup steps with the base theme radius. |
+| ONB-10 | P1 | Open and reload a pending request. | Request status and school access instructions remain available; no dinosaur game or game control is present. |
 | ONB-11 | P1 | Traverse selection, waiting, provisioning, rejection and approval. | Setup steps and current-step semantics match actual progress. |
 
 Unknown backend statuses need an explicit contract; do not invent an extra success
@@ -38,13 +38,14 @@ QR presence/link equality can be checked without a physical camera. Actual scann
 is a separate device check. Do not assume a manual token input exists merely because
 an older scenario described it.
 
-## Platform administration
+## Backend platform administration
 
 | ID | Priority | Preparation and action | Expected result |
 | --- | --- | --- | --- |
-| DEV-01 | P1 | Open requests with a separate admin session; repeat with an empty list. | Correct request data or an explicit empty state appears. |
+| DEV-01 | P1 | Read the backend request API with a separate admin session. | Authorized request data is returned; the frontend has no request-management page. |
 | DEV-02 | P0 | Approve a test request and observe the applicant. | Backend decision persists and the applicant reaches the provisioned school; duplicate decisions are blocked. |
-| DEV-03 | P1 | Reject a separate request. | Rejection persists, the list updates and no school appears for that request. |
-| DEV-04 | P0 | Open without admin auth and with only ordinary school auth; expire admin auth and fail a request. | Administrative login is distinct from read retry; no unauthorized data or approve/reject operation is allowed. |
+| DEV-03 | P1 | Reject a separate request. | Rejection persists, the applicant sees rejection and no school appears for that request. |
+| DEV-04 | P0 | Open without admin auth and with only ordinary school auth; expire admin auth and fail a request. | The backend requires separate administrative authentication; no unauthorized read or decision is allowed. The removed frontend `/developer` path shows not found. |
 
-External server administration is not a frontend page in this catalogue.
+Provisioning decisions use backend administrative APIs in these journeys. The backend
+`/SoftAdmin` and `/Admin/Schools` pages are separate from frontend navigation.

@@ -42,6 +42,8 @@ UI capability checks guide navigation; backend authorization remains authoritati
 
 Legacy admin-school URLs redirect through the existing adapter. Do not add routes
 to disconnected old layouts merely because their files remain in the repository.
+Platform provisioning is [backend administration](platform-administration.md); the
+frontend school endpoint boundary contains only ordinary school operations.
 
 ## Failure handling and limitations
 

@@ -18,7 +18,7 @@ School routes below start at `/app/schools/:schoolPublicId`.
 | [Chat](chat.md) | Branch/direct messages, attachments and call invitations; `chats` | Connected; local-first retention/update UX required |
 | [Calls](calls.md) | Backend-authorized meeting entry; `calls` | Connected; architecture discussion deferred |
 | [Profile](profile.md) | Identity, school roles, upcoming event and logout; `/app/profile` | Read-only profile |
-| [Platform administration](platform-administration.md) | Provisioning requests and separate admin login; `/developer` | Implemented |
+| [Platform administration](platform-administration.md) | Provisioning and separate admin login on the backend; frontend page removed | Backend-owned |
 | [Homework](homework.md) | Course-item contract fragment | Not implemented as a frontend workflow |
 
 ## Shared foundations

@@ -45,6 +45,9 @@ describe('Аккаунт и прогресс онбординга', () => {
     ['approved', undefined],
   ] as const)('показывает текущий этап для состояния %s', (stage, label) => {
     const { container } = render(<MemoryRouter><OnboardingFrame stage={stage}>Настройка</OnboardingFrame></MemoryRouter>);
+    const mainStyle = window.getComputedStyle(screen.getByRole('main'));
+    expect(mainStyle.marginTop).toBe('0px');
+    expect(mainStyle.marginBottom).toBe('0px');
     if (label) {
       expect(container.querySelector('[aria-current="step"]')?.textContent).toContain(label);
     } else {

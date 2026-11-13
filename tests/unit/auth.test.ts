@@ -31,7 +31,7 @@ describe('Авторизация и выбор школы', () => {
     expect(getRedirectPath({})).toBe('/app');
   });
 
-  it.each(['https://evil.invalid', '//evil.invalid/app', '/\\\\evil.invalid/app', '/auth/login', '/app/../../outside', 'javascript:alert(1)'])(
+  it.each(['https://evil.invalid', '//evil.invalid/app', '/\\\\evil.invalid/app', '/auth/login', '/app/../../outside', '/developer', 'javascript:alert(1)'])(
     'не перенаправляет на внешний или неподходящий адрес %s',
     (fromLocation) => expect(getRedirectPath({ fromLocation })).toBe('/app'),
   );

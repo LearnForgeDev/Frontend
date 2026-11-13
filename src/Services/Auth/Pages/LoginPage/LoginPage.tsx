@@ -1,4 +1,4 @@
-import { createElement, useMemo } from 'react';
+import { createElement, useCallback, useMemo, type KeyboardEvent, type MouseEvent } from 'react';
 import { Alert, Box, Link as MuiLink, Typography } from '@mui/material';
 import { Link } from 'react-router-dom';
 
@@ -8,8 +8,14 @@ import * as S from './LoginPage.styles';
 
 
 export default function LoginPage() {
-  const { name, password, error, isLoading, setField, handleSubmit, alternatePath } =
+  const { name, password, error, isLoading, setField, handleSubmit, submitForm, alternatePath } =
     useAuthFlow();
+  const submitLogin = useCallback((event: MouseEvent<HTMLButtonElement>) => {
+    const form = event.currentTarget.form;
+    if (form) {
+      submitForm(form);
+    }
+  }, [submitForm]);
 
   const loginSteps = useMemo(
     () =>
@@ -19,8 +25,9 @@ export default function LoginPage() {
         isLoading,
         onNameChange: (value) => setField("name", value),
         onPasswordChange: (value) => setField("password", value),
+        onSubmit: submitLogin,
       }),
-    [isLoading, name, password, setField],
+    [submitLogin, isLoading, name, password, setField],
   );
 
   const currentStep = loginSteps[0];
@@ -30,6 +37,12 @@ export default function LoginPage() {
       component="form"
       method="post"
       onSubmit={handleSubmit}
+      onKeyDown={(event: KeyboardEvent<HTMLFormElement>) => {
+        if (event.key === 'Enter' && event.target instanceof HTMLInputElement && !event.nativeEvent.isComposing) {
+          event.preventDefault();
+          submitForm(event.currentTarget);
+        }
+      }}
       noValidate
       sx={S.form}
     >

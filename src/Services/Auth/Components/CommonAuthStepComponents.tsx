@@ -1,9 +1,10 @@
-import type React from 'react';
+import type { ChangeEvent } from 'react';
 import { Button } from '@mui/material';
 
 import LoginField from './LoginField';
 import PasswordField from './PasswordField';
 import * as S from '../AuthSteps.styles';
+import { AUTH_VALIDATION_MESSAGES } from '../hooks/useAuthForm/useAuthForm.const';
 
 type AuthCredentialsStepProps = {
     name: string;
@@ -31,16 +32,17 @@ export function AuthCredentialsStep({
                 name="name"
                 autoComplete="username"
                 value={name}
-                onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onNameChange(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onNameChange(event.target.value)}
             />
 
             <PasswordField
                 label="Пароль"
                 name="password"
                 autoComplete="new-password"
+                helperText={AUTH_VALIDATION_MESSAGES.passwordRequirements}
                 toggleTestId="auth-register-password-toggle"
                 value={password}
-                onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onPasswordChange(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onPasswordChange(event.target.value)}
             />
 
             <PasswordField
@@ -49,7 +51,7 @@ export function AuthCredentialsStep({
                 autoComplete="new-password"
                 toggleTestId="auth-register-confirmation-toggle"
                 value={confirmPassword}
-                onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onConfirmPasswordChange(event.target.value)}
+                onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onConfirmPasswordChange(event.target.value)}
             />
 
             <Button

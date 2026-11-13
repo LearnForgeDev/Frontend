@@ -10,7 +10,6 @@ import ForbiddenPage from '../Services/Forbidden/ForbiddenPage';
 import AuthLayout from '../Services/Auth/Pages/AuthLayout/AuthLayout';
 import LoginPage from '../Services/Auth/Pages/LoginPage/LoginPage';
 import RegisterPage from '../Services/Auth/Pages/RegisterPage/RegisterPage';
-import DeveloperRequestsPage from '../Services/Developer/DeveloperRequestsPage';
 
 const AppShell = lazy(() => import('../Services/AppShell/AppShell'));
 const AppEntryPage = lazy(() => import('../Services/AppShell/AppEntryPage'));
@@ -44,10 +43,6 @@ export const routes: RouteObject[] = [
       { path: 'login', element: <LoginPage /> },
       { path: 'register', element: <RegisterPage /> },
     ],
-  },
-  {
-    path: '/developer',
-    element: <DeveloperRequestsPage />,
   },
   {
     element: <ProtectedRoute />,

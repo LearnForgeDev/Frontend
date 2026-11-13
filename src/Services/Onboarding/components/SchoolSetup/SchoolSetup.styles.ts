@@ -11,7 +11,7 @@ export const card: SxProps<Theme> = {
   p: { xs: 3, sm: 4 },
   border: '1px solid',
   borderColor: 'divider',
-  borderRadius: 5,
+  borderRadius: 1,
   minWidth: 0,
 };
 
