@@ -32,9 +32,14 @@ events as confirmed data. Do not add speculative profile writes to a read-only p
 
 ## Verification
 
+The logout action clears session credentials and performs full-page navigation to
+login even if memberships or schedule data cannot load. Account-scoped drafts survive
+logout; private query scope does not cross into the next account.
+
 Existing browser checks cover guest route protection and current logout behavior.
 Browser journeys now cover profile identity/roles, event navigation and access from
-onboarding/waiting. Those checks do not establish the required full-page logout.
+onboarding/waiting. Focused unit checks establish the full-page logout operation;
+browser navigation and real-backend acceptance still require CI verification.
 
 ## When changing this feature
 

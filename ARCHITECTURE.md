@@ -1,156 +1,150 @@
-# LearnForge architecture
+# LearnForge system architecture
 
-This is the intended architecture. Existing code still needs migration to some of
-these rules; current behavior and gaps belong in the [feature docs](docs/features/README.md).
-Installed technologies and versions are defined by [package.json](package.json).
-Runtime and delivery settings belong in the [verification](.github/workflows/test.yml)
-and [deployment](.github/workflows/deploy.yml) workflows.
+LearnForge is a school workspace for teachers, students, and school owners.
+One frontend application connects teaching content, scheduling, messages, and
+meetings to backend services. The frontend contains both server rendering and
+browser interaction. The backend owns durable records and authorization.
 
-## Business boundaries
+## System context
 
-The frontend presents school workflows and manages interaction and recovery.
-The backend owns durable business records, membership, authorization and accepted
-writes. File storage owns uploaded bytes; realtime transport delivers updates;
-the meeting service owns conference media.
+| Component | Responsibility |
+| --- | --- |
+| Browser application | Forms, navigation, session restoration, local drafts, and interaction with school resources |
+| Frontend server | Initial HTML, route redirects and HTTP status, browser assets, and configured backend forwarding |
+| Application backend | Accounts, memberships, school resources, accepted writes, provisioning, and meeting access |
+| Object storage | Uploaded file bytes, separate from backend metadata and access rules |
+| Chat hubs | Realtime message delivery and change notifications |
+| Conference service | Conference rooms and media through an embedded browser client |
 
-Organize around capabilities: authentication, schools, students, lessons, courses,
-scheduling, materials, chat and calls. A module can have several screens. Sharing a
-school URL does not make all modules one feature.
+The frontend is one deployable application with shared infrastructure and product
+modules. Pages compose feature interfaces, hooks coordinate operations, and endpoint
+modules describe backend contracts. Shared UI and themes support the product modules.
 
-## Access business state through the feature hook
+## Product modules
 
-The required dependency direction is:
+| Module | Responsibility and dependencies |
+| --- | --- |
+| Identity and school access | Login, restoration, memberships, school selection, onboarding, and the school workspace |
+| Students and invitations | School rosters and invitation entry, subject to membership capabilities |
+| Lessons | Lesson metadata, rich documents, publication, and local draft recovery |
+| Courses | Programs, audiences, and progress, with references to source lessons |
+| Scheduling | Events, participants, and meeting entry; Today and Profile derive their event summaries from this data |
+| Files | Authorized upload, listing, preview, download, and deletion for lessons and attachments |
+| Chat | Group and direct conversations, history, drafts, attachments, and call invitations |
+| Calls | Backend-authorized entry into the embedded conference service |
+| Platform administration | School provisioning decisions through a separate administrative session |
 
-```text
-Page / component → public feature hook → typed endpoints
-                                  ↕
-                              Redux store
-                                  ↕
-                        persistence adapters
-```
+The [feature map](docs/features/README.md) describes connected workflows and gaps.
+Courses and calls have existing integrations while their broader design remains
+under discussion. A course references lessons; deleting a course does not imply
+deleting its source teaching material.
 
-The owner selected Redux as the sole source of truth for client business state.
-The goal is one owner for each domain's records and transitions, with reads and
-operations available through its public hook. Agent discoverability alone does
-not require this library choice. The backend remains authoritative for persisted
-records and rights.
+## Rendering and navigation
 
-Components and pages must not access store selectors, dispatch, storage adapters or
-endpoints directly. The public feature hook exposes both typed data and supported
-operations such as get, create, update, delete, refresh and retry. It orchestrates
-endpoint calls and applies confirmed results to the store. Do not add meaningless
-CRUD methods to a read-only capability.
+Next.js renders public login, registration, and error pages as HTML. Protected
+routes initially render a session-check screen with an account-exit action. Private
+school records load in the browser after session confirmation.
 
-Store reducers update state without performing I/O. Network and persistence work
-belongs behind the hook's operation layer. Existing parallel query/context/global
-state paths must be consolidated during migration rather than retained as competing
-business sources of truth.
+The server starts with no browser identity. It neither reads browser storage nor
+restores credentials during rendering. Each render has its own query client and
+Emotion style cache, so requests share neither account query data nor style state.
+The browser's first render matches that initial state before restoration starts.
 
-## State migration boundary
+Product URLs share one catch-all Next.js page. Next.js owns browser history;
+React Router matches the nested product routes and layouts. Internal transitions
+within that page are shallow and retain client state without fetching server props.
+Full document requests still receive server redirects and HTTP status. Route state,
+query parameters, fragments, and relative navigation pass through the routing bridge.
 
-This documentation records the approved target. It does not implement or authorize
-a runtime migration as part of unrelated fixes. The current application still uses
-query caches, global state and contexts; installed dependencies remain defined by
-[package.json](package.json).
-
-Migration covers client business records, account and school scope, business drafts,
-and persisted snapshots. Local presentation state remains local. Transport clients
-may handle requests and retries behind hooks, but must not become a second business
-state owner.
-
-Each migration needs an explicitly agreed domain scope. Identify its readers,
-writers, persistence and cross-domain dependencies before changing state ownership.
-Move the complete domain behind its public hook and remove the replaced state paths
-in the same change. Shared ownership changes need a cross-domain plan first.
-Preserve authorization, account isolation, stale-response protection, retry and
-draft-recovery guarantees, and verify them before replacing the existing paths.
-Record completed migration scope and remaining gaps in the owning feature docs.
+The school identifier in the route selects the resource scope. Membership guards
+control entry into that school's workspace, and capability guards limit teaching
+screens. Failed membership reads remain distinct from a confirmed empty school list.
+Browser-only editors and external clients load when their owning feature is active.
 
 ## State ownership
 
-| State | Owner |
+| State | Current owner |
 | --- | --- |
-| Current authenticated user | Auth slice only |
-| School membership and selected school | School domain state |
-| Lessons, courses, events, files and chat records | Their domain slices |
-| Unsaved business drafts | Owning domain, scoped to user/school/resource |
-| Open dialog, focus, transient form input | Local component or feature-hook state |
-| Navigation | Router, accessed through the appropriate page/hook boundary |
-| Persisted local snapshot | Persistence adapter; hydrated into the store through the hook |
+| Durable accounts, memberships, and business records | Backend services |
+| Browser identity, roles, decoded token expiry, and selected school | Global auth store |
+| Session restoration, current credentials, and recovery status | Session query and user context, backed by the persisted browser session |
+| Loaded lessons, courses, events, files, and conversations | Query caches observed through feature hooks |
+| Unsaved lesson documents | Browser storage, scoped by account, school, and lesson |
+| Conversation drafts | In-memory chat state scoped to the conversation |
+| Forms, open dialogs, focus, and view selection | Local component and hook state |
+| Navigation and history | Next.js, with nested route matching through React Router |
 
-Do not put school selection, chat records or unrelated feature data in auth.
-Persisted snapshots are a recovery mechanism, not another object that components
-can read instead of the store. Isolate persisted data by account and school.
+The current implementation combines query caches, global state, contexts, and local
+persistence. Selected school is still stored alongside auth identity. Session query
+scope is replaced when the account changes, and session-aware endpoint caches clear
+on identity changes. Local lesson drafts remain associated with their original owner.
 
-## Components and contracts
+## State migration boundary
 
-Pages compose features. Components render typed data and call hook operations.
-Domain rules should be testable independently of rendering. Shared UI must not
-import product-specific store or endpoint modules.
+Consolidation behind public feature hooks with Redux is a requested future design.
+Redux domain state is not implemented in the current runtime. The ownership table
+above describes the existing application rather than that proposed replacement.
 
-Endpoint requests, successful responses and documented error responses must have
-concrete types derived from backend Swagger/OpenAPI. Do not expose an endpoint as
-`unknown` or `any` when the backend declares its schema. Keep unexpected failures
-explicit without weakening the normal contract. Local JSON still needs parsing and
-validation; a type assertion does not validate stored data.
+## API and authentication
 
-Use [naming conventions](docs/guides/naming.md) to discover implementation. Keep
-business docs focused on rules instead of maintaining source-file link inventories.
+Feature hooks coordinate reads and writes through endpoint modules. Shared HTTP
+clients apply the backend origin, cookies, timeouts, error handling, and credential
+refresh. Browser requests use a configured backend origin or the frontend's
+same-origin forwarding paths. The backend decides whether a write is accepted.
 
-## Authentication and access
+The persisted browser session contains access and refresh credentials. Cold-start
+restoration confirms saved credentials with the backend after browser mount.
+Public forms remain available during pending or failed restoration. Invalid or
+rejected credentials lead to a signed-out state; temporary failures retain retry
+and account-exit actions.
 
-Decode a persisted JWT and require a finite expiry with `exp * 1000 > Date.now()`.
-An expired token must be refreshed before use; invalid credentials must be cleared.
-Local decoding checks expiry, not signature validity, revocation or membership.
-The backend must confirm protected operations.
+Protected requests check the decoded JWT expiry, share pending refresh work, and
+retry a rejected request once after refresh. Decoding an expiry does not establish
+signature validity, membership, or backend permission. Responses associated with a
+previous account cannot install that account's identity into a replacement session.
 
-Auth exposes the current user through its feature hook. Logout clears user identity,
-credentials and account-scoped business state, then performs full-page navigation
-to login. Late requests must not restore the previous user during cleanup.
-See [authentication](docs/features/auth-session.md) for required behavior and gaps.
+Logout clears credentials and the active account scope, then opens login through
+full-page navigation. School capabilities derive from memberships, while individual
+domains can apply narrower rights. Platform administration uses separate backend
+administrative authentication rather than the ordinary user's school role.
 
-School capabilities derive from the membership of that school. Domain permissions
-can be narrower than teaching capability. Platform administration uses separate
-credentials and does not follow from school ownership.
+## Lessons, files, and drafts
 
-## Recovery and synchronization
+A lesson combines backend metadata with a stored JSON document. The browser loads
+both before mounting its Lexical editor. Editor extensions handle formatting,
+media, formulas, and graphs. External graph and media services have availability
+separate from document persistence.
 
-Keep pending, empty, denied and failed states distinct. Retain input on failure,
-prevent duplicate submission and confirm a write before describing it as persisted.
-Do not blindly retry an operation whose server outcome is unknown.
+Local drafts are recovery snapshots, separate from published lesson content. A draft
+retains the source storage key. Publication supplies that expected key, allowing the
+backend to reject an overwrite when the source changed. A completed save clears only
+the corresponding draft snapshot, preserving newer edits.
 
-Protect scope and version ownership: an old account cannot repopulate the store,
-one file response cannot replace another preview, and an old save cannot clear a
-newer draft. Clean up external resources when their owning scope ends.
+File upload separates authorization, byte transfer, and registration. The backend
+issues a presigned storage URL, the browser transfers bytes, and backend completion
+establishes the usable file record. Metadata and access remain with the backend;
+object storage owns the bytes. Previews and downloads obtain authorized content.
 
-Chat must retain locally available records until the backend supplies replacement
-information. A transport failure or elapsed time alone must not erase history.
-Components show whether chat information is updating, not transport connection states.
-Local SQL persistence is under consideration; no engine or schema has been selected.
-See [chat](docs/features/chat.md).
+## Realtime and meetings
 
-## Decisions deferred for discussion
+Chat history comes from backend endpoints. SignalR hubs deliver messages and notify
+the browser when history needs refreshing. Connections follow the selected school
+and conversation. Direct-conversation shortcuts persist by school, but conversation
+drafts are in memory. Durable account-scoped offline history is not implemented.
 
-- [Calls](docs/features/calls.md): architecture review is deferred; the current design is not endorsed.
-- [Courses](docs/features/courses.md): architecture discussion is deferred.
-- Styling: move away from `.styles.ts` and `sx`; select the replacement before a migration.
+Schedule and chat links carry room references to the calls module. The backend
+returns meeting access before the browser creates an embedded conference client.
+A room reference or invitation alone does not grant access. The conference service
+handles media; the frontend owns the embedded client's lifecycle and navigation.
 
-These are discussion boundaries, not tasks created by this documentation change.
-Do not choose replacement libraries or redesign these modules as part of docs work.
+## Deployment boundaries
 
-## Verification and delivery
+The deployable artifact contains a Next.js server, browser assets, and public files.
+A static file host alone cannot provide the server-rendered application. The server is
+configured for a process manager behind a reverse proxy. Backend, object
+storage, chat transport, and conference services remain external to that artifact.
 
-Use the [testing policy](docs/guides/testing.md) and owning executable configuration.
-Precommit and CI enforce the configured deterministic checks. Documentation coverage,
-local links and length are structural checks; they cannot establish correct business
-behavior or truthful prose. Update knowledge when behavior or ownership changes.
-Repository merge protection and independent review of the exact PR revision are
-separate requirements, described in the [agent workflow](docs/guides/agent-workflow.md).
-
-Keep heavy checks in CI. Any local deployment, including a backend started for
-verification, requires explicit approval from the project owner. Backend availability
-must not be assumed. Never use reverse tunnels.
-
-Follow [AGENTS.md](AGENTS.md) for language, knowledge handoff, task-management
-boundaries and review expectations. Update the owning module when behavior changes;
-keep this file about cross-feature decisions and boundaries.
+Configured backend rewrites are fixed at build time. They forward API, administrative,
+and realtime traffic to the selected backend; changing that target requires a new
+artifact. Browser-visible configuration contains public service addresses, while
+server deployment settings identify the frontend process and proxy upstream.

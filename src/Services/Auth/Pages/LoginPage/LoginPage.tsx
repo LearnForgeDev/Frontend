@@ -28,6 +28,7 @@ export default function LoginPage() {
   return (
     <Box
       component="form"
+      method="post"
       onSubmit={handleSubmit}
       noValidate
       sx={S.form}

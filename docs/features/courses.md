@@ -34,3 +34,6 @@ Related modules: [lessons](lessons-editor.md), [students](students-invitations.m
 Existing unit coverage includes mapping, audience preservation and failure recovery.
 Browser checks cover an unavailable course API without presenting an empty catalogue;
 successful course program/audience/progress workflows remain unverified. See [course acceptance scenarios](../e2e/courses.md).
+
+Course lesson reading uses a browser-loaded editor. Import failure must expose
+recovery and account exit through the application boundary.

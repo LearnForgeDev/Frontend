@@ -8,7 +8,6 @@ import { useParams } from 'react-router-dom';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('InsertImageModal');
 
-import './InsertImageModal.css';
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();

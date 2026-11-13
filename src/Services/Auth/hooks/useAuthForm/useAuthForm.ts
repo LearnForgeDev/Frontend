@@ -13,6 +13,10 @@ import { validateAuthForm } from '../../validation/auth.validation';
 import { INITIAL_AUTH_FORM } from './useAuthForm.const';
 import type { AuthFormState, AuthMode } from './useAuthForm.types';
 
+function readTextField(value: FormDataEntryValue | null): string {
+  return typeof value === 'string' ? value : '';
+}
+
 export function useAuthForm() {
   const location = useLocation();
   const mode: AuthMode = location.pathname === '/auth/register' ? 'register' : 'login';
@@ -45,12 +49,19 @@ export function useAuthForm() {
     mutation.reset();
   };
 
-  const handleSubmit = (event: FormEvent) => {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (mutation.isPending) return;
-    const error = validateAuthForm(mode, form);
+    const data = new FormData(event.currentTarget);
+    const submittedForm = {
+      name: readTextField(data.get('name')),
+      password: readTextField(data.get('password')),
+      confirmPassword: readTextField(data.get('confirmPassword')),
+    };
+    setForm(submittedForm);
+    const error = validateAuthForm(mode, submittedForm);
     setValidationError(error);
-    if (!error) mutation.mutate(form);
+    if (!error) mutation.mutate(submittedForm);
   };
 
   return {

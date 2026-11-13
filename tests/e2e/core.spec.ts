@@ -22,7 +22,7 @@ test('AUTH-04: ошибка входа показывает понятное с�
   await page.getByLabel(/^Имя/i).fill('ci-owner');
   await page.getByLabel(/^Пароль/i).fill('incorrect-password');
   await page.getByTestId('auth-login-submit').click();
-  await expect(page.getByRole('alert')).toContainText('Не удалось войти');
+  await expect(page.getByRole('alert').filter({ hasText: 'Не удалось войти' })).toBeVisible();
   await expect(page).toHaveURL(/\/auth\/login$/);
 });
 

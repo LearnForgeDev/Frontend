@@ -9,7 +9,6 @@ import { useSaveLesson } from '../../hooks/useSaveLesson';
 import LessonEditorContainer from '../LessonEditorContainer/LessonEditorContainer';
 import LessonEditorStatus from '../LessonEditorStatus/LessonEditorStatus';
 import RenameLessonDialog from '../RenameLessonDialog/RenameLessonDialog';
-import '../../LessonIdPage.css';
 
 interface LessonWorkspaceProps {
   lessonId: string;

@@ -71,7 +71,7 @@ test('INV-10: замена требует подтверждения, сохра
   const nextMember = await actors('new');
   await nextMember.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
   await nextMember.page.getByTestId('onboarding-join-submit').click();
-  await expect(nextMember.page.getByRole('alert')).toContainText('Не удалось вступить');
+  await expect(nextMember.page.getByRole('alert').filter({ hasText: 'Не удалось вступить' })).toBeVisible();
   await acceptInvite(nextMember, inviteToken);
   expect((await readInvite(owner, invite.id)).usedCount).toBe(2);
 });
@@ -95,7 +95,7 @@ test('INV-07 INV-11: удаление сохраняет карточку и и�
   const refused = await actors('new');
   await refused.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
   await refused.page.getByTestId('onboarding-join-submit').click();
-  await expect(refused.page.getByRole('alert')).toContainText('Не удалось вступить');
+  await expect(refused.page.getByRole('alert').filter({ hasText: 'Не удалось вступить' })).toBeVisible();
   expect((await readInvite(owner, invite.id)).usedCount).toBe(1);
 });
 

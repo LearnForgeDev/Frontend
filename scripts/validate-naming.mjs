@@ -29,6 +29,7 @@ export function getNamingError(path) {
       ? null : 'Use scripts/<kebab-case>.mjs or scripts/<kebab-case>.test.mjs.';
   }
   if (!path.startsWith('src/')) return null;
+  if (/^src\/pages\/(?:_app|_document|_error|\[\[\.\.\.path\]\])\.tsx$/.test(path)) return null;
   const root = { services: 'Services', endpoints: 'Endpoints', storage: 'Storage', assets: 'Assets', router: 'Router' }[parts[1].toLowerCase()];
   if (root && parts[1] !== root) return `Use src/${root}/ with this capitalization.`;
   if (['Services', 'Storage', 'Endpoints'].includes(root) && parts.length > 3 && !pascalCase.test(parts[2])) {

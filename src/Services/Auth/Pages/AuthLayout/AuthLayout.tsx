@@ -3,7 +3,7 @@ import AutoStoriesRoundedIcon from '@mui/icons-material/AutoStoriesRounded';
 import CalendarMonthRoundedIcon from '@mui/icons-material/CalendarMonthRounded';
 import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { useHasValidSession } from '../../hooks/useHasValidSession';
 import { AuthFlowProvider } from '../../contexts/AuthFlowContext';
 import { getRedirectPath } from './AuthLayout.utils';
 import { AUTH_RETURN_PARAM } from './AuthLayout.const';
@@ -12,9 +12,9 @@ import * as S from './AuthLayout.styles';
 export default function AuthLayout() {
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const isAuthenticated = useGlobalContext((state) => state.auth.isAuthenticated);
+  const hasValidSession = useHasValidSession();
 
-  if (isAuthenticated) {
+  if (hasValidSession) {
     return <Navigate to={getRedirectPath({ fromLocation: searchParams.get(AUTH_RETURN_PARAM) })} replace />;
   }
 

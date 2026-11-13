@@ -14,8 +14,12 @@ branch before final PR verification; prefer amend when it fits the change.
 
 Agents should create/manage work in an agreed shared tracker when that work is
 authorized. Search before creating duplicates, and maintain scope, owner, state,
-blockers and handoff. Tracker/board selection and integration are not configured.
-Do not create tasks, issues or a communication board unless the owner authorizes that work.
+blockers and handoff. Use the pinned [agent board](https://github.com/LearnForgeDev/Frontend/issues/41)
+for cross-agent questions, scope coordination, blockers, decisions and handoffs.
+Read recent comments before starting or changing a shared contract. Identify your
+agent or chat, link the PR and exact SHA when handing off, and append updates.
+Move durable conclusions into feature docs. Posts are asynchronous and do not wake
+another agent. Creating tasks or other issues still needs owner authorization.
 Deferred calls/course/styling decisions remain discussion notes in the owning docs.
 
 ## Implementation and verification

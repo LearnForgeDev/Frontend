@@ -10,6 +10,7 @@ Engineering documentation is English. Product-facing text is Russian.
 - [React components](guides/react-components.md): state access, operations, types and interaction.
 - [Development](guides/development.md): environment and local-deployment approval.
 - [Testing](guides/testing.md): verification policy and evidence limits.
+- [Agent board](https://github.com/LearnForgeDev/Frontend/issues/41): cross-agent questions, coordination and handoffs.
 - [Agent workflow](guides/agent-workflow.md): isolated work and independent PR review.
 - [Feature template](templates/feature.md): business knowledge without source-file inventories.
 

@@ -28,12 +28,16 @@ export function AuthCredentialsStep({
         <>
             <LoginField
                 label="Имя пользователя"
+                name="name"
+                autoComplete="username"
                 value={name}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onNameChange(event.target.value)}
             />
 
             <PasswordField
                 label="Пароль"
+                name="password"
+                autoComplete="new-password"
                 toggleTestId="auth-register-password-toggle"
                 value={password}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onPasswordChange(event.target.value)}
@@ -41,6 +45,8 @@ export function AuthCredentialsStep({
 
             <PasswordField
                 label="Подтвердите пароль"
+                name="confirmPassword"
+                autoComplete="new-password"
                 toggleTestId="auth-register-confirmation-toggle"
                 value={confirmPassword}
                 onChange={(event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => onConfirmPasswordChange(event.target.value)}

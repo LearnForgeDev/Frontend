@@ -30,7 +30,7 @@ for (const { name, identity, requiresBackend } of INVALID_SESSION_CASES) {
       await expect(page.getByLabel(/^Имя/i)).toBeVisible();
       await expect(page.getByTestId('auth-login-submit')).toBeVisible();
       await expect(page.locator(PROTECTED_UI_SELECTOR)).toHaveCount(0);
-      expect(await page.evaluate(() => localStorage.getItem('user_identity'))).toBeNull();
+      await expect.poll(() => page.evaluate(() => localStorage.getItem('user_identity'))).toBeNull();
       expect(await page.evaluate((marker) => sessionStorage.getItem(marker), PROTECTED_UI_MARKER)).toBeNull();
     });
   }

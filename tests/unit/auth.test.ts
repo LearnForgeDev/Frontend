@@ -6,7 +6,7 @@ import { AuthRole, type UserIdentity } from '../../src/Assets/Types/commonTypes'
 
 const identity: UserIdentity = {
   userPublicId: 'student', userName: 'Ученик', jwtToken: 'token', refreshToken: 'refresh', exp: 0,
-  userRoles: [{ role: AuthRole.STUDENT, schoolId: 1, userId: 1 }],
+  userRoles: [{ role: AuthRole.STUDENT, schoolId: '11111111-1111-4111-8111-111111111111', userId: 1 }],
 };
 afterEach(() => {
   useGlobalContext.getState().auth.logout();
@@ -40,8 +40,10 @@ describe('Авторизация и выбор школы', () => {
     useGlobalContext.getState().auth.setUser(identity);
     expect(useGlobalContext.getState().auth.isAuthenticated).toBe(true);
     expect(useGlobalContext.getState().auth.user?.roles[0].role).toBe(AuthRole.STUDENT);
+    expect(useGlobalContext.getState().auth.user?.roles[0].schoolId).toBe(identity.userRoles[0].schoolId);
     useGlobalContext.getState().auth.setActiveSchoolPublicId('school');
     expect(JSON.parse(localStorage.getItem('user_identity')!).activeSchoolPublicId).toBe('school');
+    expect(JSON.parse(localStorage.getItem('user_identity')!).userRoles[0].schoolId).toBe(identity.userRoles[0].schoolId);
     useGlobalContext.getState().auth.logout();
     expect(useGlobalContext.getState().auth.user).toBeNull();
     expect(useGlobalContext.getState().auth.isAuthenticated).toBe(false);

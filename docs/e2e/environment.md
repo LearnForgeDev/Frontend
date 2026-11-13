@@ -28,8 +28,8 @@ second school in isolation checks; a random missing school ID is not equivalent.
 
 CI can use a dedicated test backend through the repository variable `CI_BACKEND_URL`
 and secret `CI_ADMIN_TOTP_SECRET`. Leave the variable unset until an isolated test
-stand exists. Never point it at production. A healthy configured stand skips backend
-checkout, startup and teardown; an unavailable stand uses the temporary CI backend.
+stand exists. Never point it at production. CI chooses the backend before building because server rewrites capture that target.
+A healthy configured stand skips backend checkout, startup and teardown; an unavailable stand uses the temporary CI backend.
 A healthy stand with missing credentials or incompatible fixtures fails explicitly.
 
 The stand must provide the fixture identities, memberships, schools and chat from

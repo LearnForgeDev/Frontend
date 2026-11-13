@@ -71,6 +71,8 @@ export function getLoginSteps({
           component: LoginField,
           props: {
             label: "Имя",
+            name: "name",
+            autoComplete: "username",
             value: name,
             onChange: (
               event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -84,6 +86,8 @@ export function getLoginSteps({
           component: PasswordField,
           props: {
             label: "Пароль",
+            name: "password",
+            autoComplete: "current-password",
             value: password,
             onChange: (
               event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

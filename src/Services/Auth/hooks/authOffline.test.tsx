@@ -1,17 +1,21 @@
-import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
-import type { FormEvent, ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
 import { useRestoreSession } from './useRestoreSession/useRestoreSession';
-import { useAuthForm } from './useAuthForm/useAuthForm';
+import { AuthFlowProvider } from '../contexts/AuthFlowContext';
+import LoginPage from '../Pages/LoginPage/LoginPage';
+import RegisterPage from '../Pages/RegisterPage/RegisterPage';
 
 const mocks = vi.hoisted(() => ({ login: vi.fn(), register: vi.fn(), refreshToken: vi.fn(), toast: vi.fn() }));
 vi.mock('@/Endpoints', () => ({ authEndpoints: mocks }));
 vi.mock('@/Endpoints/auth/auth.endpoints', () => ({ authEndpoints: mocks }));
-vi.mock('@/Endpoints/auth/utils', () => ({ normalizeRestoredSession: (value: unknown) => value }));
+vi.mock('@/Endpoints/auth/utils', (importOriginal) => importOriginal<typeof import('@/Endpoints/auth/utils')>().then((original) => Object.assign({}, original, {
+  normalizeRestoredSession: (value: unknown) => value,
+})));
 vi.mock('@/Storage/UserContext/UserContext', () => ({ useUser: () => ({ setUser: vi.fn() }) }));
 vi.mock('@/Storage/useToastStore', () => ({
   ToastSeverity: { ERROR: 'error' },
@@ -61,15 +65,15 @@ describe('Вход без соединения', () => {
 
   it.each(['login', 'register'] as const)('%s показывает ошибку и снимает блокировку кнопки', async (mode) => {
     mocks[mode].mockRejectedValue(new Error('offline'));
-    const { result } = renderHook(() => useAuthForm(), { wrapper: makeWrapper(`/auth/${mode}`) });
-    act(() => {
-      result.current.setField('name', 'Ученик');
-      result.current.setField('password', 'Пароль');
-      result.current.setField('confirmPassword', 'Пароль');
-    });
-    act(() => result.current.handleSubmit({ preventDefault: vi.fn() } as unknown as FormEvent));
-    await waitFor(() => expect(result.current.error).toBeTruthy());
-    expect(result.current.isLoading).toBe(false);
+    const Page = mode === 'login' ? LoginPage : RegisterPage;
+    render(<AuthFlowProvider><Page /></AuthFlowProvider>, { wrapper: makeWrapper(`/auth/${mode}`) });
+    fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Ученик' } });
+    fireEvent.change(screen.getByLabelText(/^Пароль/), { target: { value: 'Пароль' } });
+    if (mode === 'register') fireEvent.change(screen.getByLabelText(/^Подтвердите пароль/), { target: { value: 'Пароль' } });
+    const submit = screen.getByTestId(`auth-${mode}-submit`);
+    fireEvent.click(submit);
+    await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());
+    expect(submit.hasAttribute('disabled')).toBe(false);
     expect(mocks[mode]).toHaveBeenCalledOnce();
   });
 });

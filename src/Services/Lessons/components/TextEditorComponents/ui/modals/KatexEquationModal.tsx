@@ -8,7 +8,6 @@
 
 import type {JSX} from 'react';
 
-import './KatexEquationModal.css';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 
