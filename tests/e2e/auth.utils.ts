@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 import { CI_PASSWORD, SCHOOL_ID } from './core.const';
 import type { TestIdentity } from './flows.types';
 
-async function storeIdentity(page: Page, identity: TestIdentity, school: string) {
+async function storeIdentity(page: Page, identity: TestIdentity, school: string | null) {
   const claims = JSON.parse(Buffer.from(identity.jwtToken.split('.')[1], 'base64url').toString());
   await page.evaluate(({ identity, exp, school }) => {
     localStorage.setItem('user_identity', JSON.stringify({ ...identity, exp, activeSchoolPublicId: school }));
@@ -11,7 +11,7 @@ async function storeIdentity(page: Page, identity: TestIdentity, school: string)
   return identity;
 }
 
-export async function login(page: Page, role = 'owner', school = SCHOOL_ID) {
+export async function login(page: Page, role = 'owner', school: string | null = SCHOOL_ID) {
   await page.goto('/auth/login');
   const response = await page.request.post('/api/ApiAuth/login', {
     data: { name: `ci-${role}`, password: CI_PASSWORD },

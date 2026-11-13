@@ -10,7 +10,10 @@ test('NAV-01 NAV-02: корень школы и список сохраняют 
   await expect(page).toHaveURL(`${SCHOOL_PATH}/today`);
   await page.goto('/app/schools');
   await expect(page.getByRole('heading', { name: 'Мои школы', exact: true }).last()).toBeVisible();
-  await page.getByTestId(`school-open-${OTHER_SCHOOL_ID}`).click();
+  await Promise.all([
+    page.waitForRequest(request => request.isNavigationRequest() && new URL(request.url()).pathname === `${OTHER_SCHOOL_PATH}/today`),
+    page.getByTestId(`school-open-${OTHER_SCHOOL_ID}`).click(),
+  ]);
   await expect(page).toHaveURL(`${OTHER_SCHOOL_PATH}/today`);
   await page.goto('/app');
   await expect(page).toHaveURL(`${OTHER_SCHOOL_PATH}/today`);
@@ -23,7 +26,10 @@ test('NAV-03 ACCESS-02: Teacher в A становится Student в B без п
   await page.goto(`${SCHOOL_PATH}/lessons`);
   await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /CI School/ }).first().click();
-  await page.getByRole('menuitem', { name: /CI Other School/ }).click();
+  await Promise.all([
+    page.waitForRequest(request => request.isNavigationRequest() && new URL(request.url()).pathname === `${OTHER_SCHOOL_PATH}/today`),
+    page.getByRole('menuitem', { name: /CI Other School/ }).click(),
+  ]);
   await expect(page).toHaveURL(`${OTHER_SCHOOL_PATH}/today`);
   await page.goto(`${OTHER_SCHOOL_PATH}/lessons`);
   await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toHaveCount(0);

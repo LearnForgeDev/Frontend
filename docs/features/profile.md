@@ -2,21 +2,34 @@
 
 ## Status and scope
 
-Implemented as a read-only account overview at `/app/profile`: identity/contact
-display, school roles, upcoming event and logout. `/profile` is a legacy redirect.
-Profile editing and avatar upload are not connected user workflows.
+Implemented at `/app/profile`: identity/contact display, school roles, upcoming
+event, school onboarding, event creation and logout. `/profile` is a legacy redirect.
+Identity remains read-only; profile editing and avatar upload are not connected.
 
 ## Behavior and rules
 
 Identity belongs to auth; school labels and roles belong to school memberships.
-Under the required architecture, the page obtains both through public feature hooks.
-Existing direct store/query access is a migration gap, not the target boundary. The upcoming event uses existing schedule data and opens the
-selected school's calendar with the event ID. Membership and schedule failures are
-rendered independently.
+The page composes its public feature hook, which observes the existing auth store
+and membership/schedule queries. The upcoming event opens the selected school's
+calendar with the event ID. Membership and schedule failures render independently.
 
-The route is outside a school URL; schedule scope selection
-can use the persisted active school. Do not invent a route school ID or mix an event
-from one school with a link to another.
+Opening profile from a confirmed school route retains that school as the active
+selection, including when the route was opened directly. The switcher and school
+navigation remain available on profile. The visible Back action restores the recorded
+in-app source path, query and fragment. Direct entry, an invalid return path or a
+profile loop falls back to the selected confirmed school's Today page, or `/app`
+without a school. Back does not depend on external browser history.
+
+The route is outside a school URL. It selects the available stored active school,
+otherwise the first teaching membership, otherwise the first membership. The schedule
+query and event link both use that confirmed school. With no memberships, no schedule
+request or event-creation action is available.
+
+The school-card action opens onboarding. Teachers and owners in the selected school
+can open the existing scheduling form. Opening it installs that school as the active
+scope so attendee reads and event writes use the same school as the profile. Students
+cannot open the form. Closing or successfully saving returns to the profile, and
+the scheduling workflow owns validation, persistence and query refresh.
 
 ## Data and dependencies
 
@@ -28,7 +41,8 @@ The avatar endpoint's existence does not mean the profile page exposes that oper
 
 Missing identity must not render another user's profile. Loading/error/empty school
 and event states are distinct. Avoid treating optional email/phone or unavailable
-events as confirmed data. Do not add speculative profile writes to a read-only page.
+events as confirmed data. Event-creation failure keeps the scheduling form available;
+backend authorization remains authoritative even when a teaching action is visible.
 
 ## Verification
 
@@ -37,9 +51,12 @@ login even if memberships or schedule data cannot load. Account-scoped drafts su
 logout; private query scope does not cross into the next account.
 
 Existing browser checks cover guest route protection and current logout behavior.
-Browser journeys now cover profile identity/roles, event navigation and access from
-onboarding/waiting. Focused unit checks establish the full-page logout operation;
-browser navigation and real-backend acceptance still require CI verification.
+Focused checks cover retained school selection, safe Back navigation, role-limited
+creation, scoped event reads and links, independent loading/errors and the card actions.
+Separate unit checks establish
+the full-page logout operation. Browser journeys additionally cover layout bounds,
+event persistence and access from onboarding/waiting. Browser navigation and
+real-backend acceptance still require CI verification.
 
 ## When changing this feature
 

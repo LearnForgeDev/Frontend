@@ -34,6 +34,11 @@ The same event data feeds [Today](today.md) and [Profile](profile.md). Server da
 are authoritative instants; view selection and form input are local UI state.
 Room names in a URL are references, not a grant of meeting access.
 
+The shared schedule reader accepts an explicit school scope for account-level pages;
+otherwise it uses the existing route/active-school scope. An explicit empty scope
+disables the query. Profile chooses its school from confirmed memberships and sets
+that same active scope before opening the existing event form.
+
 ## Failure handling and limitations
 
 Do not interpret a failed event query as an empty schedule. Keep forms available

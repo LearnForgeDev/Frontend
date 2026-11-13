@@ -1,22 +1,13 @@
 import { Alert, Box, Button, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import { useNavigate } from 'react-router-dom';
-import type { UserSchoolInfo } from '@/Endpoints';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
+import { useSchoolSelection } from '@/Services/Schools/hooks/useSchoolSelection';
 import ActiveSchoolsList from './Components/ActiveSchoolsList';
-import { useSchools } from './hooks/useSchools';
 import * as S from './SchoolsPage.styles';
 
 export default function SchoolsPage() {
   const navigate = useNavigate();
-  const activeSchoolPublicId = useGlobalContext((state) => state.auth.user?.activeSchoolPublicId);
-  const setActiveSchoolPublicId = useGlobalContext((state) => state.auth.setActiveSchoolPublicId);
-  const schoolsQuery = useSchools();
-
-  const handleNavigateToSchool = (school: UserSchoolInfo) => {
-    setActiveSchoolPublicId(school.schoolPublicId);
-    navigate(`/app/schools/${school.schoolPublicId}/today`);
-  };
+  const { school, schoolsQuery, selectSchool } = useSchoolSelection();
 
   return (
     <Box sx={S.pageSx}>
@@ -44,8 +35,8 @@ export default function SchoolsPage() {
       <ActiveSchoolsList
         schools={schoolsQuery.data ?? []}
         isLoading={schoolsQuery.isLoading}
-        activeSchoolPublicId={activeSchoolPublicId}
-        onNavigateToSchool={handleNavigateToSchool}
+        activeSchoolPublicId={school?.schoolPublicId}
+        onNavigateToSchool={selectSchool}
       />
     </Box>
   );

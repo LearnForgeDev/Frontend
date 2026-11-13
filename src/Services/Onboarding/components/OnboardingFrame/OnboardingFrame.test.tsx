@@ -1,12 +1,24 @@
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { ReactElement } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { schoolsEndpoints } from '@/Endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import OnboardingFrame from './OnboardingFrame';
 
 const initialState = useGlobalContext.getState();
 const logout = vi.hoisted(() => vi.fn());
 vi.mock('@/Services/Auth/hooks/useLogout/useLogout', () => ({ useLogout: () => logout }));
+
+function renderFrame(element: ReactElement) {
+  const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 } } });
+  return render(<QueryClientProvider client={client}>{element}</QueryClientProvider>);
+}
+
+beforeEach(() => {
+  vi.spyOn(schoolsEndpoints, 'getMySchools').mockResolvedValue([]);
+});
 
 afterEach(() => {
   cleanup();
@@ -17,7 +29,7 @@ afterEach(() => {
 
 describe('Аккаунт и прогресс онбординга', () => {
   it('позволяет выйти сразу из онбординга без открытия профиля', () => {
-    render(<MemoryRouter><OnboardingFrame stage="pending">Настройка</OnboardingFrame></MemoryRouter>);
+    renderFrame(<MemoryRouter><OnboardingFrame stage="pending">Настройка</OnboardingFrame></MemoryRouter>);
 
     fireEvent.click(screen.getByTestId('onboarding-logout'));
 
@@ -25,7 +37,7 @@ describe('Аккаунт и прогресс онбординга', () => {
   });
 
   it('открывает существующий профиль общей кнопкой из шапки', () => {
-    render(
+    renderFrame(
       <MemoryRouter>
         <Routes>
           <Route path="/" element={<OnboardingFrame stage="selection">Выбор школы</OnboardingFrame>} />
@@ -44,7 +56,7 @@ describe('Аккаунт и прогресс онбординга', () => {
     ['rejected', 'Школа'],
     ['approved', undefined],
   ] as const)('показывает текущий этап для состояния %s', (stage, label) => {
-    const { container } = render(<MemoryRouter><OnboardingFrame stage={stage}>Настройка</OnboardingFrame></MemoryRouter>);
+    const { container } = renderFrame(<MemoryRouter><OnboardingFrame stage={stage}>Настройка</OnboardingFrame></MemoryRouter>);
     const mainStyle = window.getComputedStyle(screen.getByRole('main'));
     expect(mainStyle.marginTop).toBe('0px');
     expect(mainStyle.marginBottom).toBe('0px');
