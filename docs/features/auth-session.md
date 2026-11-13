@@ -64,6 +64,24 @@ a hydration gate to accept input.
 Both native forms use POST so named credentials are not appended to the URL if
 submission happens before JavaScript handles the event.
 
+## Passwords and browser saving
+
+Registration requires at least 12 Unicode code points, including a Unicode letter and
+a Unicode decimal digit. The frontend checks before sending; the backend owns
+enforcement for all clients. Passwords are not trimmed or transformed. Login accepts
+existing passwords without applying the new-account policy.
+
+After hydration, the login button and Enter key capture the current native form
+values from the button or keyboard event and start the API request without dispatching native
+submission. An explicit form-submit event uses the same value capture and validation.
+Username/current-password autocomplete remains available, and failed or pending
+requests retain the same visible fields and input. Only a confirmed, normalized
+authentication response requests password saving through the browser Credential
+Management API. Unsupported or rejected browser storage never blocks authentication.
+Browser and extension save prompts remain controlled by their own heuristics; this
+flow avoids sending an unverified native submission signal, but native prompt behavior
+still needs a manual check in the affected browser.
+
 ## Logout
 
 Logout clears persisted identity/credentials and account-scoped business state,

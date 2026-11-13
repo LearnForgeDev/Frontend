@@ -10,6 +10,7 @@ import { AUTH_ERROR_MESSAGES } from '../../contexts/AuthFlowContext.const';
 import { getAuthPath, getRedirectPath } from '../../Pages/AuthLayout/AuthLayout.utils';
 import { AUTH_RETURN_PARAM } from '../../Pages/AuthLayout/AuthLayout.const';
 import { validateAuthForm } from '../../validation/auth.validation';
+import { storePasswordCredential } from '../../auth.credentials';
 import { INITIAL_AUTH_FORM } from './useAuthForm.const';
 import type { AuthFormState, AuthMode } from './useAuthForm.types';
 
@@ -32,10 +33,13 @@ export function useAuthForm() {
     mutationFn: async (values: AuthFormState) => {
       const result = await authEndpoints[mode](values);
       const identity = normalizeRestoredSession(result);
-      if (!identity) throw new Error(AUTH_ERROR_MESSAGES[mode]);
+      if (!identity) {
+        throw new Error(AUTH_ERROR_MESSAGES[mode]);
+      }
       return identity;
     },
-    onSuccess: (identity) => {
+    onSuccess: (identity, values) => {
+      storePasswordCredential(values);
       setUser(identity);
       navigate(redirectPath, { replace: true });
     },
@@ -43,16 +47,19 @@ export function useAuthForm() {
   });
 
   const setField = (field: keyof AuthFormState, value: string) => {
-    if (mutation.isPending) return;
+    if (mutation.isPending) {
+      return;
+    }
     setForm((previous) => ({ ...previous, [field]: value }));
     setValidationError(null);
     mutation.reset();
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (mutation.isPending) return;
-    const data = new FormData(event.currentTarget);
+  const submitForm = (element: HTMLFormElement) => {
+    if (mutation.isPending) {
+      return;
+    }
+    const data = new FormData(element);
     const submittedForm = {
       name: readTextField(data.get('name')),
       password: readTextField(data.get('password')),
@@ -61,13 +68,21 @@ export function useAuthForm() {
     setForm(submittedForm);
     const error = validateAuthForm(mode, submittedForm);
     setValidationError(error);
-    if (!error) mutation.mutate(submittedForm);
+    if (!error) {
+      mutation.mutate(submittedForm);
+    }
+  };
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    submitForm(event.currentTarget);
   };
 
   return {
     ...form,
     setField,
     handleSubmit,
+    submitForm,
     isLoading: mutation.isPending,
     error: validationError ?? (mutation.error ? getAuthErrorMessage(mutation.error, mode) : null),
     alternatePath: getAuthPath(mode === 'login' ? 'register' : 'login', redirectPath),

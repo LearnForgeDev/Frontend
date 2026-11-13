@@ -19,8 +19,8 @@ test.describe('Публичные страницы', { tag: '@public' }, () => {
     await page.getByRole('link', { name: 'Зарегистрироваться' }).click();
     await expect(page).toHaveURL(/\/auth\/register$/);
     await page.getByLabel(/^Имя пользователя/i).fill('Ученик');
-    await page.getByLabel(/^Пароль/i).fill('password-one');
-    await page.getByLabel(/^Подтвердите пароль/i).fill('password-two');
+    await page.getByLabel(/^Пароль/i).fill('password-one-123');
+    await page.getByLabel(/^Подтвердите пароль/i).fill('password-two-123');
     await page.getByTestId('auth-register-submit').click();
     await expect(page.getByRole('alert').filter({ hasText: 'Пароли не совпадают' })).toBeVisible();
     await page.getByRole('link', { name: 'Войти', exact: true }).click();

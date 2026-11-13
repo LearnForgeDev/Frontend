@@ -68,8 +68,8 @@ describe('Вход без соединения', () => {
     const Page = mode === 'login' ? LoginPage : RegisterPage;
     render(<AuthFlowProvider><Page /></AuthFlowProvider>, { wrapper: makeWrapper(`/auth/${mode}`) });
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Ученик' } });
-    fireEvent.change(screen.getByLabelText(/^Пароль/), { target: { value: 'Пароль' } });
-    if (mode === 'register') fireEvent.change(screen.getByLabelText(/^Подтвердите пароль/), { target: { value: 'Пароль' } });
+    fireEvent.change(screen.getByLabelText(/^Пароль/), { target: { value: 'ПарольДляТеста123' } });
+    if (mode === 'register') fireEvent.change(screen.getByLabelText(/^Подтвердите пароль/), { target: { value: 'ПарольДляТеста123' } });
     const submit = screen.getByTestId(`auth-${mode}-submit`);
     fireEvent.click(submit);
     await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());

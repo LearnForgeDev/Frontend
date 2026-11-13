@@ -1,4 +1,4 @@
-import type React from 'react';
+import type { ChangeEvent, ElementType, MouseEventHandler } from 'react';
 import { Button } from '@mui/material';
 
 import { AuthCredentialsStep } from './Components/CommonAuthStepComponents.tsx';
@@ -21,7 +21,7 @@ type ValueChangeHandler<TValue> = {
 export type AuthStepComponent<TFieldName extends string, TValue = string> = {
   formFieldName: TFieldName;
   componentKey: string;
-  component: React.ElementType;
+  component: ElementType;
   value?: TValue;
   onChangeOnValue?: ValueChangeHandler<TValue>;
   props?: ComponentProps;
@@ -52,6 +52,7 @@ type LoginStepsOptions = {
   isLoading: boolean;
   onNameChange: (value: string) => void;
   onPasswordChange: (value: string) => void;
+  onSubmit: MouseEventHandler<HTMLButtonElement>;
 };
 
 export function getLoginSteps({
@@ -60,6 +61,7 @@ export function getLoginSteps({
   isLoading,
   onNameChange,
   onPasswordChange,
+  onSubmit,
 }: LoginStepsOptions): LoginSteps {
   return [
     {
@@ -75,7 +77,7 @@ export function getLoginSteps({
             autoComplete: "username",
             value: name,
             onChange: (
-              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+              event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
             ) => onNameChange(event.target.value),
             autoFocus: true,
           },
@@ -90,7 +92,7 @@ export function getLoginSteps({
             autoComplete: "current-password",
             value: password,
             onChange: (
-              event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+              event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
             ) => onPasswordChange(event.target.value),
           },
         },
@@ -99,7 +101,8 @@ export function getLoginSteps({
           componentKey: "login-submit-button",
           component: Button,
           props: {
-            type: "submit",
+            type: "button",
+            onClick: onSubmit,
             "data-testid": "auth-login-submit",
             variant: "contained",
             color: "primary",
