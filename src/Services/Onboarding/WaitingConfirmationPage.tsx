@@ -1,11 +1,9 @@
-import { useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { Navigate, useParams } from 'react-router-dom';
 import { PulseLoader } from 'react-spinners';
 import JoinSchoolForm from './components/JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from './components/RequestSchoolForm/RequestSchoolForm';
 import SchoolRequestStatus from './components/SchoolRequestStatus/SchoolRequestStatus';
-import DinosaurGame from './components/DinosaurGame/DinosaurGame';
 import { useWaitingConfirmation } from './hooks/useWaitingConfirmation';
 import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import { WAITING_CONFIRMATION_TEXT } from './WaitingConfirmationPage.const';
@@ -13,7 +11,6 @@ import * as S from './WaitingConfirmationPage.styles';
 
 export default function WaitingConfirmationPage() {
   const { requestPublicId } = useParams<{ requestPublicId: string }>();
-  const [isGameVisible, setIsGameVisible] = useState(false);
   const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, isUnavailable, returnToOnboarding } = useWaitingConfirmation(requestPublicId);
 
   if (!requestPublicId) {
@@ -106,17 +103,6 @@ export default function WaitingConfirmationPage() {
           </Paper>
         )}
 
-        {requestViewState === 'pending' && !isGameVisible && (
-          <Button
-            variant="text"
-            onClick={() => setIsGameVisible(true)}
-            sx={S.gameButton}
-          >
-            Скоротать время
-          </Button>
-        )}
-
-        {requestViewState === 'pending' && isGameVisible && <DinosaurGame />}
       </Box>
     </OnboardingFrame>
   );

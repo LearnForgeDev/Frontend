@@ -9,7 +9,7 @@ run. Discover implementation through [naming](../guides/naming.md).
 | Public/auth forms | Validation, visibility, guest redirects, return paths and form failures | New auth-hook/Redux ownership and a complete field boundary matrix |
 | Sessions | Invalid records, protected-UI gating, expired credentials, shared refresh, backend 401 recovery and late responses after logout | Persisted-JWT-first startup sequence, required full-page logout and wider account races |
 | Roles/navigation | Real second-school switching, role changes, foreign resource denial, legacy links and mobile navigation | Every revocation/isolation path and the required store boundary |
-| Onboarding/admin | Real requests, approval/rejection, applicant provisioning, separate admin login, waiting recovery and profile access | Broader provisioning failure/retry combinations |
+| Onboarding/admin | Real requests, approval/rejection, applicant provisioning, separate backend admin login/API, removed frontend admin route, waiting recovery and profile access | Broader provisioning failure/retry combinations |
 | Lessons | Creation, keyboard/direct entry, publish/rename, learner permissions, deletion confirmation, drafts/conflicts, formatting, selected media and attachments | Complete external-media and editor interoperability coverage |
 | Files | Real byte storage, valid text/image preview, UI download/delete, same-name identity, multiple/drop uploads, cancellation and access denial | Successful valid PDF rendering and wider preview formats |
 | Chat | Independent group/direct delivery, attachments, images/download, call links, reload, mobile navigation and draft handling | Durable account-scoped local fallback, backend-confirmed retention and update-only UI |

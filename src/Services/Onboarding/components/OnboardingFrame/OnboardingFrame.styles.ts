@@ -30,7 +30,7 @@ export const content = {
   width: '100%',
   display: 'flex',
   justifyContent: 'center',
-  my: 'auto',
+  my: 0,
   py: { xs: 1, sm: 3 },
 };
 

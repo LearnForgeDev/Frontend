@@ -35,11 +35,11 @@ for (const decision of ['approve', 'reject'] as const) {
     await expect(applicant.page.getByRole('heading', { name: 'Заявка на рассмотрении' })).toBeVisible();
     await applicant.page.goto('/onboarding');
     await expect(applicant.page).toHaveURL(new RegExp(`${waitingPath}$`));
-    await admin.page.goto('/developer');
     const requestId = waitingPath.split('/').pop();
-    const row = admin.page.getByTestId(`school-request-${requestId}`);
-    await expect(row.getByRole('heading', { name: schoolName, exact: true })).toBeVisible();
-    await row.getByTestId(`school-request-${decision === 'approve' ? 'approve' : 'reject'}`).click();
+    const requests = await readJson<Array<{ publicId: string; requestedSchoolName: string }>>(await admin.page.request.get('/api/ApiSchool/provisioning-requests'));
+    expect(requests.find(request => request.publicId === requestId)?.requestedSchoolName).toBe(schoolName);
+    const decisionResponse = await admin.page.request.post(`/api/ApiSchool/provisioning-requests/${requestId}/${decision}`);
+    expect(decisionResponse.ok()).toBe(true);
     if (decision === 'approve') {
       await expect(applicant.page).toHaveURL(/\/app\/schools\/[^/]+\/today$/, { timeout: PROVISION_TIMEOUT_MS });
       const schools = await readJson<Array<{ schoolName: string; roles: string[] }>>(await applicant.page.request.get('/api/ApiSchool/my-schools'));

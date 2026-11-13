@@ -20,6 +20,7 @@ test.describe('Public server rendering without JavaScript', { tag: '@public' }, 
       const html = await response.text();
       expect(html).toMatch(/<form\b[^>]*method="post"/);
       expect(html).toMatch(/<input\b[^>]*type="password"/);
+      expect(html).toMatch(/<input\b[^>]*name="name"/);
       expect(html).toContain(`data-testid="auth-${mode}-submit"`);
       for (const secret of ['ci-ssr-private-token', 'ci-ssr-private-refresh', 'ci-ssr-private-user']) {
         expect(html).not.toContain(secret);
@@ -48,14 +49,16 @@ test.describe('Public server rendering without JavaScript', { tag: '@public' }, 
     });
   }
 
-  test('SSR-03: an unknown route returns HTTP 404 and useful HTML without JavaScript', async ({ page, request }) => {
-    const response = await request.get('/missing-ssr-route');
-    expect(response.status()).toBe(404);
-    expect(await response.text()).toContain('Страница не найдена');
-    const navigation = await page.goto('/missing-ssr-route');
-    expect(navigation?.status()).toBe(404);
-    await expect(page.getByText('Страница не найдена', { exact: true })).toBeVisible();
-  });
+  for (const route of ['/missing-ssr-route', '/developer']) {
+    test(`SSR-03: ${route} returns HTTP 404 and useful HTML without JavaScript`, async ({ page, request }) => {
+      const response = await request.get(route);
+      expect(response.status()).toBe(404);
+      expect(await response.text()).toContain('Страница не найдена');
+      const navigation = await page.goto(route);
+      expect(navigation?.status()).toBe(404);
+      await expect(page.getByText('Страница не найдена', { exact: true })).toBeVisible();
+    });
+  }
 });
 
 test('SSR-04: public hydration preserves return paths and working form controls', { tag: '@public' }, async ({ page }) => {

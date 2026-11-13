@@ -10,7 +10,7 @@ export const content: SxProps<Theme> = {
 
 export const statusCard: SxProps<Theme> = {
   p: { xs: 2.5, sm: 3 },
-  borderRadius: 2,
+  borderRadius: 1,
   border: '1px solid',
   borderColor: 'divider',
   boxShadow: 1,
@@ -18,7 +18,7 @@ export const statusCard: SxProps<Theme> = {
 
 export const actionsCard: SxProps<Theme> = {
   p: { xs: 2.5, sm: 3 },
-  borderRadius: 4,
+  borderRadius: 1,
   border: '1px solid',
   borderColor: 'divider',
   boxShadow: 'none',
@@ -35,12 +35,6 @@ export const actionHeader: SxProps<Theme> = {
 
 export const actionTitle: SxProps<Theme> = {
   fontWeight: 750,
-};
-
-export const gameButton: SxProps<Theme> = {
-  alignSelf: 'center',
-  borderRadius: 3,
-  textTransform: 'none',
 };
 
 export const loading: SxProps<Theme> = {

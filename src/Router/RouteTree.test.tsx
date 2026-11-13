@@ -71,6 +71,7 @@ describe('server route rendering', () => {
   it.each([
     ['/403', 'Доступ ограничен'],
     ['/unknown-address', 'Страница не найдена'],
+    ['/developer', 'Страница не найдена'],
   ])('renders a public error page for %s', (path, heading) => {
     expect(renderRequest(path)).toContain(heading);
   });
@@ -85,6 +86,7 @@ describe('server route rendering', () => {
 
   it.each([
     ['/unknown-address', 404],
+    ['/developer', 404],
     ['/app/schools', 200],
     ['/auth/login?returnTo=%2Fapp', 200],
   ])('sets HTTP status for %s from the real route tree', async (resolvedUrl, status) => {

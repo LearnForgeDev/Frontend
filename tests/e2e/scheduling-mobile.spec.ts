@@ -17,11 +17,13 @@ test('телефон: создание занятия, предыдущий де
   const response = await created;
   expect(response.ok(), await response.text()).toBe(true);
   const saved = await response.json();
-  await expect(page.getByText(title, { exact: true })).toBeVisible();
+  const calendar = page.getByRole('main').getByRole('main');
+  const calendarEvent = calendar.getByRole('button').filter({ has: page.getByText(title, { exact: true }) });
+  await expect(calendarEvent).toBeVisible();
   await page.getByRole('button', { name: 'Предыдущий период', exact: true }).click();
-  await expect(page.getByText(title, { exact: true })).toHaveCount(0);
-  await page.getByRole('main').first().getByRole('button', { name: 'Сегодня', exact: true }).click();
-  await expect(page.getByText(title, { exact: true })).toBeVisible();
+  await expect(calendarEvent).toHaveCount(0);
+  await page.getByTestId('schedule-today').click();
+  await expect(calendarEvent).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('mobile-schedule.png'), fullPage: true });
   expect((await page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${saved.id}`)).ok()).toBe(true);
 });

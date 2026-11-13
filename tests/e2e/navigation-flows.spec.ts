@@ -99,7 +99,8 @@ test('ACCESS-03 DEV-04: ученик не может изменить защищ
   ];
   for (const response of await Promise.all(requests)) expect(HTTP_DENIED).toContain(response.status());
   await page.goto('/developer');
-  await expect(page.getByText('Войдите как администратор, чтобы просмотреть заявки.').first()).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Страница не найдена', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Заявки на школы', exact: true })).toHaveCount(0);
 });
 
 test('NAV-04 COMMON-02: ошибка школ восстанавливается явным повтором', { tag: '@ui-errors' }, async ({ actors }) => {
