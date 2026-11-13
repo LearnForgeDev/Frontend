@@ -1,10 +1,4 @@
-import type { ReactNode } from 'react';
-
-interface IconBackgroundProps {
-  children: ReactNode;
-  backgroundColor: string;
-  size: number | string;
-}
+import type { IconBackgroundProps } from './IconBackground.type';
 
 export function IconBackground({ children, backgroundColor, size }: IconBackgroundProps) {
   return (

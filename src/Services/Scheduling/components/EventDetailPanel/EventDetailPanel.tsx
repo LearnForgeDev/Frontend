@@ -1,3 +1,5 @@
+import type { EventDetailPanelProps } from './EventDetailPanel.type';
+export type { EventDetailPanelProps } from './EventDetailPanel.type';
 import { useState } from 'react';
 import { Box, TextField, Typography } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -11,20 +13,9 @@ import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils'
 import { useUpdateEventTitle } from '@/Services/Scheduling/hooks/useUpdateEventTitle/useUpdateEventTitle';
 import { useSchoolStudents } from '@/Services/Scheduling/hooks/useSchoolStudents/useSchoolStudents';
 import { haveSameNonEmptyIds } from '@/Services/Scheduling/utils/audience.utils';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import {
-  EVENT_DETAIL_SELECT_PROMPT,
-  EVENT_DETAIL_NO_ATTENDEES,
-  EVENT_DETAIL_ALL_SCHOOL,
-  EVENT_DETAIL_EDIT_TITLE_HINT,
-  EVENT_DETAIL_TITLE_ARIA,
-} from './EventDetailPanel.const';
-import { styles } from './EventDetailPanel.styles';
 
-export interface EventDetailPanelProps {
-  event: ScheduleEvent | null;
-  canManage: boolean;
-}
+import { EVENT_DETAIL_SELECT_PROMPT, EVENT_DETAIL_NO_ATTENDEES, EVENT_DETAIL_ALL_SCHOOL, EVENT_DETAIL_EDIT_TITLE_HINT, EVENT_DETAIL_TITLE_ARIA } from './EventDetailPanel.const';
+import { styles } from './EventDetailPanel.styles';
 
 export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -33,7 +24,9 @@ export function EventDetailPanel({ event, canManage }: EventDetailPanelProps) {
   const { studentIds } = useSchoolStudents();
 
   const startEditing = () => {
-    if (!canManage || !event) return;
+    if (!canManage || !event) {
+      return;
+    }
     setTitleValue(event.title);
     setIsEditing(true);
   };

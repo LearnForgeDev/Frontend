@@ -26,7 +26,9 @@ it('navigates between cached app routes through the real Next router without pag
   const previousManifest = window.__BUILD_MANIFEST;
   const fetch = vi.fn(() => Promise.reject(new Error('Offline')));
   const loadPage = vi.fn(() => Promise.reject(new Error('Unexpected page load')));
-  const getDataHref = vi.fn(() => { throw new Error('Unexpected page-data request'); });
+  const getDataHref = vi.fn(() => {
+    throw new Error('Unexpected page-data request');
+  });
   vi.stubGlobal('fetch', fetch);
   window.history.replaceState({}, '', initialPath);
   window.__NEXT_DATA__ = { props: {}, page: '/[[...path]]', query: {}, buildId: 'navigation-test', gssp: true };

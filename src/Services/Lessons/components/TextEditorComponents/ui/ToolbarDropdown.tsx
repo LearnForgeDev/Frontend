@@ -1,5 +1,5 @@
-import type {PluginItem} from '@/Services/Lessons/lessonTypes';
-import {useEffect, useEffectEvent, useRef, useState} from 'react';
+import type {PluginItem} from '@/Services/Lessons/Lessons.type';
+import {useEffect, useRef, useState} from 'react';
 
 export default function Dropdown({
   buttons,
@@ -11,20 +11,19 @@ export default function Dropdown({
   value?: string,
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState(buttons[0]);
+  const [selected, setSelected] = useState(() => buttons.find(button => button.event === value) ?? buttons[0]);
+  const [selectionInput, setSelectionInput] = useState({ value, buttons });
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const setSelectedElement = useEffectEvent((item: PluginItem) => setSelected(item));
-
-  useEffect(() => {
+  if (selectionInput.value !== value || selectionInput.buttons !== buttons) {
+    setSelectionInput({ value, buttons });
     if (value) {
       const button = buttons.find(b => b.event === value);
       if (button) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setSelectedElement(button);
+        setSelected(button);
       }
     }
-  }, [value, buttons]);
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {

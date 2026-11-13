@@ -1,5 +1,5 @@
 export * from './factory/factory';
-export * from './factory/types';
+export * from './factory/factory.contract.type';
 export * from './auth';
 export * from './branches';
 export * from './chat';

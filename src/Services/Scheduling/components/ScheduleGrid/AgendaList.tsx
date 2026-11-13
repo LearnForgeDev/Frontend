@@ -1,12 +1,9 @@
+import type { AgendaListProps } from './AgendaList.type';
 import { Box, Typography } from '@mui/material';
 import { EventBlock } from '../EventBlock/EventBlock';
-import type { GridProps } from './ScheduleGrid.types';
+
 import { AGENDA_EMPTY_TEXT } from './AgendaList.const';
 import { styles } from './ScheduleGrid.styles';
-
-interface AgendaListProps extends GridProps {
-  dateLabel: string;
-}
 
 export function AgendaList({ events, dateLabel, onSelectEvent, selectedEventId }: AgendaListProps) {
   return (

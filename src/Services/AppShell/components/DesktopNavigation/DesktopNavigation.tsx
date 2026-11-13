@@ -1,14 +1,8 @@
+import type { DesktopNavigationProps } from './DesktopNavigation.type';
 import { ListItemButton, ListItemIcon, ListItemText, Tooltip } from '@mui/material';
 import { APP_DESKTOP_NAVIGATION_ID } from '../../AppShell.const';
-import type { AppNavigationItem } from '../../AppShell.types';
-import * as S from '../../AppShell.styles';
 
-type DesktopNavigationProps = {
-  items: AppNavigationItem[];
-  activeItemId?: string;
-  collapsed?: boolean;
-  onSelect: (item: AppNavigationItem) => void;
-};
+import * as S from '../../AppShell.styles';
 
 export default function DesktopNavigation({ items, activeItemId, collapsed = false, onSelect }: DesktopNavigationProps) {
   return (

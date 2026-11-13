@@ -1,3 +1,4 @@
+import type { BroadcastCallInviteParams } from './useBroadcastCallInvite.type';
 import { HubConnectionBuilder } from '@microsoft/signalr';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { schoolsEndpoints } from '@/Endpoints';
@@ -6,26 +7,10 @@ import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import { RECONNECT_DELAYS_MS } from '@/Services/Chat/Chat.const';
 import config from '../../../../../config';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
-import {
-  CALL_INVITE_EMPTY_SUBTITLE,
-  CALL_INVITE_EMPTY_TITLE,
-  CALL_INVITE_ERROR_SUBTITLE,
-  CALL_INVITE_ERROR_TITLE,
-  CALL_INVITE_SUCCESS_TITLE,
-} from './useBroadcastCallInvite.const';
-import {
-  createCallInviteMessage,
-  createCallInviteUrl,
-  getCallInviteRecipients,
-} from './useBroadcastCallInvite.utils';
+import { CALL_INVITE_EMPTY_SUBTITLE, CALL_INVITE_EMPTY_TITLE, CALL_INVITE_ERROR_SUBTITLE, CALL_INVITE_ERROR_TITLE, CALL_INVITE_SUCCESS_TITLE } from './useBroadcastCallInvite.const';
+import { createCallInviteMessage, createCallInviteUrl, getCallInviteRecipients } from './useBroadcastCallInvite.utils';
 
 const logger = createDebugger('useBroadcastCallInvite');
-
-interface BroadcastCallInviteParams {
-  room: string;
-  title: string | null;
-  recipientUserPublicIds: string[];
-}
 
 async function sendDirectInvite(schoolPublicId: string, recipientUserPublicId: string, message: string) {
   const connection = new HubConnectionBuilder()

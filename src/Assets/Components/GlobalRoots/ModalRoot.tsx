@@ -9,7 +9,9 @@ export function ModalRoot() {
   // Queue system: only display the first modal
   const currentModal = modals.length > 0 ? modals[0] : null;
 
-  if (!currentModal) return null;
+  if (!currentModal) {
+    return null;
+  }
 
   return createPortal(
     <Modal

@@ -1,5 +1,5 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
-import type { Branch, BranchFile, BranchModel, UpdateBranchRequest } from './types';
+import type { Branch, BranchFile, BranchModel, UpdateBranchRequest } from './branches.contract.type';
 
 const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();

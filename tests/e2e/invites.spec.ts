@@ -40,7 +40,9 @@ async function findInvite(api: APIRequestContext, token: string) {
     const invite = invites.find((item) => item.uses.some((use) => use.userName === member.name));
     expect(invite).toBeTruthy();
     return invite!;
-  } finally { await member.api.dispose(); }
+  } finally {
+    await member.api.dispose();
+  }
 }
 
 test('INV-08 INV-09 INV-10 INV-11 INV-12: Ссылка сохраняет историю, меняет лимит, заменяется и удаляется', async () => {
@@ -62,7 +64,10 @@ test('INV-08 INV-09 INV-10 INV-11 INV-12: Ссылка сохраняет ист
     const list = await owner.get(invitesUrl);
     expect((await list.json()).find((item: { id: number }) => item.id === invite.id)).toMatchObject({ usedCount: 1, maxUses: 2, revokedAt: expect.any(String) });
     expect((await member.api.get(invitesUrl)).status()).toBe(403);
-  } finally { await owner.dispose(); await member.api.dispose(); }
+  } finally {
+    await owner.dispose();
+    await member.api.dispose();
+  }
 });
 
 test('INV-06: Последнее использование ссылки доступно одному участнику при одновременном вступлении', async () => {
@@ -78,7 +83,11 @@ test('INV-06: Последнее использование ссылки дос�
     const invite = items.find((item) => item.uses.some((use) => [first.name, second.name].includes(use.userName)));
     expect(invite?.usedCount).toBe(1);
     expect(invite?.uses).toHaveLength(1);
-  } finally { await owner.dispose(); await first.api.dispose(); await second.api.dispose(); }
+  } finally {
+    await owner.dispose();
+    await first.api.dispose();
+    await second.api.dispose();
+  }
 });
 
 test('INV-04: Приглашение сохраняется при переходе с входа на регистрацию', async ({ page }) => {
@@ -116,7 +125,11 @@ test('INV-05 INV-09 INV-12: Истёкшее приглашение можно �
     expect((await member.api.post('/api/ApiAuth/join-school', { data: { inviteToken: token } })).ok()).toBe(false);
     expect((await owner.put(`${invitesUrl}/${invite.id}`, { data: { maxUses: 2, expiresAt: new Date(Date.now() + 3_600_000).toISOString() } })).ok()).toBe(true);
     expect((await member.api.post('/api/ApiAuth/join-school', { data: { inviteToken: token } })).ok()).toBe(true);
-  } finally { await owner.dispose(); await teacher.dispose(); await member.api.dispose(); }
+  } finally {
+    await owner.dispose();
+    await teacher.dispose();
+    await member.api.dispose();
+  }
 });
 
 test('INV-01 INV-07: Управление приглашениями открывается в школе', async ({ page, context }) => {

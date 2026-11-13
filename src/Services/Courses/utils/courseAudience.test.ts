@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CourseInput } from '../Courses.types';
+import type { CourseInput } from '../Courses.type';
 import { getCourseAudience, getRestrictedCourseAudience } from './courseAudience';
 
 const input: CourseInput = { title: 'Курс', description: '', lessonIds: [], studentPublicIds: [], groupIds: [], accessMode: 'selected' };

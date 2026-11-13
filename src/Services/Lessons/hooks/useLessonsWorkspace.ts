@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useLessons } from './useLessons/useLessons';
 import { useLessonMutations } from './useLessonMutations/useLessonMutations';
 import { useCreateLessonFlow } from './useCreateLessonFlow/useCreateLessonFlow';
-import type { LessonsMainPageProps } from '../LessonsMainPage.types';
+import type { LessonsMainPageProps } from '../LessonsMainPage.type';
 
 export function useLessonsWorkspace({ onOpenLesson }: LessonsMainPageProps) {
   const { schoolPublicId = '' } = useParams();
@@ -12,8 +12,12 @@ export function useLessonsWorkspace({ onOpenLesson }: LessonsMainPageProps) {
   const mutations = useLessonMutations();
   const [renameId, setRenameId] = useState<string | null>(null);
   const openLesson = (id: string, title: string) => {
-    if (onOpenLesson) onOpenLesson(id, title);
-    else navigate(`/app/schools/${schoolPublicId}/lessons/${id}?edit=true`);
+    if (onOpenLesson) {
+      onOpenLesson(id, title);
+    }
+    else {
+      navigate(`/app/schools/${schoolPublicId}/lessons/${id}?edit=true`);
+    }
   };
   const create = useCreateLessonFlow({ onSuccess: openLesson });
   return {

@@ -1,14 +1,15 @@
-import React, { useEffect } from 'react';
+import type { FC } from 'react';
+import { useEffect } from 'react';
 import { Box, GlobalStyles } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import AdminPanelTopBar from '@/Services/AdminPanel/AdminPanelLayout/AdminPanelTopBar';
 import { adminPanelCommonStyles } from '@/Services/AdminPanel/AdminPanelLayout/AdminPanelCommon.styles';
 import { layoutRootSx } from '@/Services/AdminPanel/AdminPanelLayout/AdminPanelLayout.styles';
-import { useUser } from '@/Storage/UserContext/UserContext';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import DashboardHome from '@/Services/AdminPanel/DashboardHome/DashboardHome';
 import SchoolsPage from '@/Services/AdminPanel/SchoolsPage/SchoolsPage';
 
-const AdminPage: React.FC = () => {
+const AdminPage: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
 

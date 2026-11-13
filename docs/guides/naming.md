@@ -18,13 +18,13 @@ Use established domain names consistently, such as `Auth`, `Schools`, `Lessons`,
 | Feature root | `src/Services/<Feature>/` |
 | Page | `<Feature>Page.tsx` or a descriptive `<Purpose>Page.tsx` in its feature |
 | Component | `components/<Component>/<Component>.tsx` |
-| Component props | `<Component>.types.ts` when a separate type file is useful |
+| Named types and component props | `<Owner>.type.ts` beside their owner |
 | Public feature hook | `hooks/use<Feature>.ts` |
 | Internal hook | `hooks/use<Purpose>.ts` |
 | Domain state | `src/Storage/<Feature>/<feature>.slice.ts` |
 | Internal selectors | `src/Storage/<Feature>/<feature>.selectors.ts` |
 | Endpoint operations | `src/Endpoints/<Feature>/<feature>.ts` |
-| Endpoint contracts | `src/Endpoints/<Feature>/<feature>.types.ts` |
+| Endpoint contracts | `src/Endpoints/<Feature>/<feature>.type.ts` |
 | Validation | `<subject>.validation.ts` |
 | Domain conversion/calculation | `<subject>.<purpose>.ts` |
 | Constants | `<subject>.const.ts` |
@@ -34,11 +34,39 @@ Use established domain names consistently, such as `Auth`, `Schools`, `Lessons`,
 
 Keep hooks flat in the feature-level `hooks/` or shared `src/Assets/Hooks/` directory.
 Hooks must not live inside component folders or their own per-hook directories.
-Name hook sidecars beside the hook, such as `useAuth.types.ts` and `useAuth.test.ts`.
+Name hook sidecars beside the hook, such as `useAuth.type.ts` and `useAuth.test.ts`.
 Endpoint files omit the redundant `.endpoints` suffix; new `.endpoints.ts` paths fail.
 
 Do not add a style-file naming rule until the replacement styling approach is agreed.
 Do not move unrelated legacy files just to make one feature change conform.
+
+## Enforced source structure
+
+All named type aliases and interfaces belong in files ending with the literal
+singular `.type.ts` suffix. This includes component props, tests, configuration and
+ambient module/global augmentations. Type sidecars contain erased declarations and
+type-only imports; runtime constants stay with runtime code. Use an adjacent owner
+basename or a shared feature basename. This universal sidecar convention also applies
+beside an existing owner in a legacy directory, without requiring unrelated directory
+migrations. It does not waive naming rules for runtime files. Framework-generated
+`next-env.d.ts` is excluded; handwritten declarations have no exemption or baseline.
+The naming check verifies an adjacent owner in the staged/committed tree, or a
+matching shared feature/component package. Shared model libraries use the canonical
+`src/Assets/Types/` directory. Unowned sidecars, nested engineering sidecars and
+executable `.type.tsx`/`.type.mts` lookalikes fail instead of bypassing path checks.
+
+Import types with `import type`. React types use direct named imports such as
+`FormEventHandler`, including when React was imported under another namespace alias.
+Explicit named `JSX` imports, global `Intl` types and runtime `typeof` expressions
+remain valid. Every `if` and `else` body uses a braced block spanning multiple lines.
+Keep each statement on its own line. Inline ESLint directives cannot disable these
+rules. JavaScript variants and TypeScript `.mts`/`.cts` modules share the same checks.
+
+Each source file is limited to 400 physical lines, including blanks and comments.
+Split code by responsibility instead of compressing statements to meet the limit.
+The global source check includes application code, tests, engineering scripts, styles
+and workflow/source configuration. Generated dependencies/build output and data lock
+files are outside that source set. See [testing](testing.md) for the executable gates.
 
 ## Names that reveal the boundary
 

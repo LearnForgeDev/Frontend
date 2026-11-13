@@ -1,42 +1,19 @@
-import {
-  DecoratorNode,
-  type DOMConversionMap,
-  type DOMExportOutput,
-  type EditorConfig,
-  type LexicalNode,
-  type NodeKey,
-  type SerializedLexicalNode,
-  type Spread,
-} from "lexical";
+import type { FilePayload, SerializedFileNode } from './FileNode.type';
+export type { FilePayload, SerializedFileNode } from './FileNode.type';
+import { DecoratorNode, type DOMConversionMap, type DOMExportOutput, type EditorConfig, type LexicalNode, type NodeKey } from "lexical";
 import type { JSX } from 'react';
 import FileComponent from './FileComponent.tsx';
-
-export interface FilePayload {
-  fileName: string;
-  url: string;
-  sizeBytes?: number;
-  key?: NodeKey;
-}
-
-export type SerializedFileNode = Spread<
-  {
-    fileName: string;
-    url: string;
-    sizeBytes?: number;
-  },
-  SerializedLexicalNode
->;
 
 export class FileNode extends DecoratorNode<JSX.Element> {
   __fileName: string;
   __url: string;
   __sizeBytes?: number;
 
-  static getType(): string {
+  static override getType(): string {
     return "file";
   }
 
-  static clone(node: FileNode): FileNode {
+  static override clone(node: FileNode): FileNode {
     return new FileNode(
       node.__fileName,
       node.__url,
@@ -57,7 +34,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     this.__sizeBytes = sizeBytes;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement("span");
     const className = config.theme.file;
     if (className !== undefined) {
@@ -66,11 +43,11 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("a");
     element.setAttribute("href", this.__url);
     element.setAttribute("download", this.__fileName);
@@ -78,7 +55,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return { element };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       a: () => ({
         conversion: (element: HTMLElement) => {
@@ -95,7 +72,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportJSON(): SerializedFileNode {
+  override exportJSON(): SerializedFileNode {
     return {
       fileName: this.getFileName(),
       url: this.getUrl(),
@@ -105,7 +82,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  static importJSON(serializedNode: SerializedFileNode): FileNode {
+  static override importJSON(serializedNode: SerializedFileNode): FileNode {
     const { fileName, url, sizeBytes } = serializedNode;
     return $createFileNode({
       fileName,
@@ -122,7 +99,7 @@ export class FileNode extends DecoratorNode<JSX.Element> {
     return this.__url;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return (
       <FileComponent
         fileName={this.__fileName}

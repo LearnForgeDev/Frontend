@@ -1,3 +1,4 @@
+import type { AuthenticatedImageProps } from './AuthenticatedImage.type';
 import { useState, useEffect } from 'react';
 import { Box, Skeleton, type SxProps, type Theme } from '@mui/material';
 import BrokenImageIcon from '@mui/icons-material/BrokenImage';
@@ -5,15 +6,6 @@ import { filesEndpoints } from '@/Endpoints';
 import { styles } from './AuthenticatedImage.styles';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('AuthenticatedImage');
-
-
-interface AuthenticatedImageProps {
-  schoolPublicId: string;
-  filePublicId: string;
-  alt?: string;
-  sx?: SxProps<Theme>;
-  onClick?: () => void;
-}
 
 export default function AuthenticatedImage({
   schoolPublicId,
@@ -37,13 +29,17 @@ export default function AuthenticatedImage({
     filesEndpoints
       .getFileBlob(schoolPublicId, filePublicId)
       .then((blob) => {
-        if (!isMounted) return;
+        if (!isMounted) {
+          return;
+        }
         objectUrl = URL.createObjectURL(blob);
         setImgSrc(objectUrl);
         setLoading(false);
       })
       .catch((err: unknown) => {
-        if (!isMounted) return;
+        if (!isMounted) {
+          return;
+        }
         logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to load authenticated image:', err);
         setError(true);
         setLoading(false);

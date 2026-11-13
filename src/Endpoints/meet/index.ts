@@ -1,2 +1,2 @@
 export * from './meet.endpoints';
-export * from './types';
+export * from './meet.contract.type';

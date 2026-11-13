@@ -1,3 +1,4 @@
+import type { AuthCredentialsStepProps } from './CommonAuthStepComponents.type';
 import type { ChangeEvent } from 'react';
 import { Button } from '@mui/material';
 
@@ -5,16 +6,6 @@ import LoginField from './LoginField';
 import PasswordField from './PasswordField';
 import * as S from '../AuthSteps.styles';
 import { AUTH_VALIDATION_MESSAGES } from '../hooks/useAuthForm/useAuthForm.const';
-
-type AuthCredentialsStepProps = {
-    name: string;
-    password: string;
-    confirmPassword: string;
-    isLoading: boolean;
-    onNameChange: (value: string) => void;
-    onPasswordChange: (value: string) => void;
-    onConfirmPasswordChange: (value: string) => void;
-};
 
 export function AuthCredentialsStep({
     name,

@@ -16,6 +16,11 @@ test('documentation coverage checks the staged snapshot, local links and line li
   assert.equal(getFeatureDocument('src/Endpoints/factory/factory.ts'), 'ARCHITECTURE.md');
   assert.equal(getFeatureDocument('src/Services/Auth/hooks/useAuth.test.tsx'), null);
   assert.equal(getFeatureDocument('src/Services/Auth/AuthPage.styles.ts'), null);
+  for (const extension of ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts']) {
+    assert.equal(getFeatureDocument(`src/Services/Auth/auth.validation.${extension}`), 'docs/features/auth-session.md');
+    assert.equal(getFeatureDocument(`src/Services/Auth/auth.test.${extension}`), null);
+    assert.match(getDocumentationErrors({ documents: new Map(), paths: [`src/Services/Auth/auth.validation.${extension}`] }).join('\n'), /missing feature documentation/);
+  }
   const doc = 'docs/features/auth-session.md';
   const code = 'src/Services/Auth/hooks/useAuth.ts';
   const text = '# Auth\n\nCurrent user behavior.\n\n## User `identity`\n\n[Same](#user-identity)\n[Guide][guide]\n\n[guide]: ../guide.md#overview\n\n```text\n[Ignored](missing.md)\n# Hidden\n```\n';
@@ -50,13 +55,15 @@ test('documentation coverage checks the staged snapshot, local links and line li
     git('add', doc);
     assert.equal(check().status, 0);
     write('README.md', '# [Design](design(v2).md)\n\n[Design](design(v2).md)\n[Escaped](design\\(v2\\).md)\n[Nested](design(v(2)).md "A title (v2)")\n[Angle](<design(v2).md>)\n[Close](literal\\).md)\n[Reference][design]\n[Multiline reference][multiline]\n[Heading](#design)\n\n[design]: design(v2).md\n[multiline]:\n  design(v2).md\n');
-    for (const path of ['design(v2).md', 'design(v(2)).md', 'literal).md']) write(path, '# Design\n\nDocument.\n');
+    for (const path of ['design(v2).md', 'design(v(2)).md', 'literal).md'])
+      write(path, '# Design\n\nDocument.\n');
     git('add', 'README.md', 'design(v2).md', 'design(v(2)).md', 'literal).md');
     const parentheses = check();
     assert.equal(parentheses.status, 0, parentheses.stderr);
     git('commit', '-m', 'Documented feature');
     const base = git('rev-parse', 'HEAD').toString().trim();
-    for (const mode of ['all', 'content', 'coverage']) assert.equal(check('--base', base, '--check', mode).status, 0);
+    for (const mode of ['all', 'content', 'coverage'])
+      assert.equal(check('--base', base, '--check', mode).status, 0);
     assert.equal(check('--check', 'unknown').status, 1);
     write(code, 'export const changed = true;\n');
     git('add', code);

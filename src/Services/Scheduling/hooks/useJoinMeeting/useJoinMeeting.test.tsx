@@ -7,7 +7,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import { useJoinMeeting } from './useJoinMeeting';
 
 const navigateMock = vi.fn();

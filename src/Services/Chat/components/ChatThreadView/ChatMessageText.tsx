@@ -1,11 +1,8 @@
+import type { ChatMessageTextProps } from './ChatMessageText.type';
 import { Link, Typography } from '@mui/material';
 import { parseChatCallInvite, splitChatMessageText } from './ChatThreadView.utils';
 import ChatCallInviteMessage from './ChatCallInviteMessage';
 import { styles } from './ChatMessageText.styles';
-
-interface ChatMessageTextProps {
-  text: string;
-}
 
 export default function ChatMessageText({ text }: ChatMessageTextProps) {
   const callInvite = parseChatCallInvite(text);

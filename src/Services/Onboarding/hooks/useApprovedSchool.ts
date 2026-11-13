@@ -4,7 +4,7 @@ import { SCHOOLS_POLLING_INTERVAL_MS } from '../onboarding.const';
 import type {
   SchoolRequestPointer,
   SchoolRequestStatus,
-} from '../types/onboarding.types';
+} from '../types/onboarding.type';
 import { findApprovedSchool } from '../utils/schoolRequestStatus.utils';
 
 export function useApprovedSchool(

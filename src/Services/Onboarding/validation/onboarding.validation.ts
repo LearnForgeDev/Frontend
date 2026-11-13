@@ -1,7 +1,5 @@
-export type ValidationResult = {
-  value: string;
-  error: string | null;
-};
+import type { ValidationResult } from './onboarding.validation.type';
+export type { ValidationResult } from './onboarding.validation.type';
 
 export function validateSchoolName(schoolName: string): ValidationResult {
   const value = schoolName.trim();

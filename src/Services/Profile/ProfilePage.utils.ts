@@ -1,4 +1,4 @@
-import type { ScheduleEvent } from '../Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '../Scheduling/Scheduling.type';
 import { SCHOOL_ROLE_LABELS } from './ProfilePage.const';
 
 export const getClosestEvent = (

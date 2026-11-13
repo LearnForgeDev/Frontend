@@ -1,8 +1,8 @@
 import { useJoinMeeting } from '@/Services/Scheduling/hooks/useJoinMeeting/useJoinMeeting';
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import type { MeetingInterval } from '@/Services/Scheduling/utils/meeting.utils';
-import type { UseStartMeetingNowReturn } from './useStartMeetingNow.types';
+import type { UseStartMeetingNowReturn } from './useStartMeetingNow.type';
 
 export function useStartMeetingNow(): UseStartMeetingNowReturn {
   const { updateEvent } = useScheduleMutations();

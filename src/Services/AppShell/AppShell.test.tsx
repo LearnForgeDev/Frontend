@@ -1,7 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import AppShell from './AppShell';
 

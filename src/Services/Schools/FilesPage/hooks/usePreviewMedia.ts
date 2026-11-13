@@ -6,7 +6,9 @@ export function usePreviewMedia<T extends HTMLImageElement | HTMLIFrameElement>(
 
   useEffect(() => {
     const media = mediaRef.current;
-    if (!media) return;
+    if (!media) {
+      return;
+    }
     const url = URL.createObjectURL(blob);
     media.src = url;
     return () => {

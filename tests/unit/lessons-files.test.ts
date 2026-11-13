@@ -4,7 +4,7 @@ import { calculateContentMd5Base64 } from '../../src/Endpoints/files/md5.utils';
 import { apiFileToLesson, isLessonFile } from '../../src/Endpoints/lessons/types';
 import { getBreadcrumbPath } from '../../src/Services/Lessons/components/FileManager/utils';
 import { parseYoutubeId, sanitizeUrl } from '../../src/Services/Lessons/components/TextEditorComponents/utils/url';
-import type { ApiFile } from '../../src/Endpoints/files/types';
+import type { ApiFile } from '../../src/Endpoints/files/files.contract.type';
 
 const file: ApiFile = {
   publicId: 'file', fileName: 'lesson::%D0%A3%D1%80%D0%BE%D0%BA::lesson-id.lesson::published',

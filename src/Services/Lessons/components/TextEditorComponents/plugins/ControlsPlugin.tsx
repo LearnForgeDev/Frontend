@@ -1,15 +1,9 @@
+import type { ControlsPluginProps } from './ControlsPlugin.type';
 import { Button, Typography } from '@mui/material';
-import { serializedDocumentFromEditorState, type SerializedDocument } from '@lexical/file';
+import { serializedDocumentFromEditorState } from '@lexical/file';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { ClipLoader } from 'react-spinners';
 import { SAVE_LOADER_SIZE } from './ControlsPlugin.const';
-
-interface ControlsPluginProps {
-  onSave: (document: SerializedDocument) => Promise<void>;
-  isSaving: boolean;
-  isSaveBlocked: boolean;
-  status: 'saved' | 'draft' | 'error';
-}
 
 export default function ControlsPlugin({ onSave, isSaving, isSaveBlocked, status }: ControlsPluginProps) {
   const [editor] = useLexicalComposerContext();

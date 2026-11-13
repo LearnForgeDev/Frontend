@@ -1,3 +1,4 @@
+import type * as AuthSessionModule from '@/Endpoints/auth/utils';
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { onlineManager, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
@@ -13,10 +14,10 @@ import RegisterPage from '../Pages/RegisterPage/RegisterPage';
 const mocks = vi.hoisted(() => ({ login: vi.fn(), register: vi.fn(), refreshToken: vi.fn(), toast: vi.fn() }));
 vi.mock('@/Endpoints', () => ({ authEndpoints: mocks }));
 vi.mock('@/Endpoints/auth/auth.endpoints', () => ({ authEndpoints: mocks }));
-vi.mock('@/Endpoints/auth/utils', (importOriginal) => importOriginal<typeof import('@/Endpoints/auth/utils')>().then((original) => Object.assign({}, original, {
+vi.mock('@/Endpoints/auth/utils', (importOriginal) => importOriginal<typeof AuthSessionModule>().then((original) => Object.assign({}, original, {
   normalizeRestoredSession: (value: unknown) => value,
 })));
-vi.mock('@/Storage/UserContext/UserContext', () => ({ useUser: () => ({ setUser: vi.fn() }) }));
+vi.mock('@/Services/Auth/hooks/useUser', () => ({ useUser: () => ({ setUser: vi.fn() }) }));
 vi.mock('@/Storage/useToastStore', () => ({
   ToastSeverity: { ERROR: 'error' },
   useToastStore: { getState: () => ({ addToast: mocks.toast }) },
@@ -69,7 +70,9 @@ describe('Вход без соединения', () => {
     render(<AuthFlowProvider><Page /></AuthFlowProvider>, { wrapper: makeWrapper(`/auth/${mode}`) });
     fireEvent.change(screen.getByRole('textbox'), { target: { value: 'Ученик' } });
     fireEvent.change(screen.getByLabelText(/^Пароль/), { target: { value: 'ПарольДляТеста123' } });
-    if (mode === 'register') fireEvent.change(screen.getByLabelText(/^Подтвердите пароль/), { target: { value: 'ПарольДляТеста123' } });
+    if (mode === 'register') {
+      fireEvent.change(screen.getByLabelText(/^Подтвердите пароль/), { target: { value: 'ПарольДляТеста123' } });
+    }
     const submit = screen.getByTestId(`auth-${mode}-submit`);
     fireEvent.click(submit);
     await waitFor(() => expect(screen.getByRole('alert')).toBeTruthy());

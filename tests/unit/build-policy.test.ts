@@ -1,3 +1,4 @@
+import type { Chunk } from './build-policy.test.type';
 import { afterEach, expect, it } from 'vitest';
 import { mkdtemp, mkdir, writeFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -7,7 +8,7 @@ import { promisify } from 'node:util';
 
 const execute = promisify(execFile);
 const directories: string[] = [];
-type Chunk = { initial: boolean; files: string[]; modules: Array<{ name: string; modules?: Array<{ name: string }> }> };
+
 async function fixture({ entry = 'const value = data?.name;', chunks, omit }: { entry?: string; chunks?: Chunk[]; omit?: string } = {}) {
   const directory = await mkdtemp(join(tmpdir(), 'next-build-policy-'));
   directories.push(directory);
@@ -23,7 +24,9 @@ async function fixture({ entry = 'const value = data?.name;', chunks, omit }: { 
     'standalone/server.js': 'require("next");',
   };
   for (const [file, content] of Object.entries(files)) {
-    if (file === omit) continue;
+    if (file === omit) {
+      continue;
+    }
     await mkdir(dirname(join(directory, file)), { recursive: true });
     await writeFile(join(directory, file), content);
   }

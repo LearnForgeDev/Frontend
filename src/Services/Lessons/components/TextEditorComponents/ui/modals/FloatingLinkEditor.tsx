@@ -1,11 +1,6 @@
+import type { FloatingLinkEditorProps } from './FloatingLinkEditor.type';
 import { useEffect, useRef, useState, useCallback } from 'react';
-import {
-  SELECTION_CHANGE_COMMAND,
-  $getSelection,
-  $isRangeSelection,
-  type LexicalEditor,
-  type RangeSelection,
-} from "lexical";
+import { SELECTION_CHANGE_COMMAND, $getSelection, $isRangeSelection, type RangeSelection } from "lexical";
 import { mergeRegister } from '@lexical/utils';
 import { $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
 
@@ -32,10 +27,6 @@ function positionEditorElement(editorElem: HTMLDivElement, rect: DOMRect | null,
   //  FIXME: 10 - magic number
   //  FIXME: Positioning is slightly off when near the right edge of the editor
   }
-}
-
-interface FloatingLinkEditorProps {
-  editor: LexicalEditor;
 }
 
 export default function FloatingLinkEditor({ editor }: FloatingLinkEditorProps) {

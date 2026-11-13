@@ -24,7 +24,9 @@ describe('Browser credential storage', () => {
 
   it('passes the unchanged successful credentials to the browser', () => {
     const credential = { id: values.name, type: 'password' };
-    const constructor = vi.fn(function () { return credential; });
+    const constructor = vi.fn(function () {
+      return credential;
+    });
     const store = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal('PasswordCredential', constructor);
     vi.stubGlobal('navigator', { credentials: { store } });
@@ -34,11 +36,15 @@ describe('Browser credential storage', () => {
   });
 
   it('does not throw when the browser rejects storage or construction', async () => {
-    vi.stubGlobal('PasswordCredential', vi.fn(function () { return { id: values.name, type: 'password' }; }));
+    vi.stubGlobal('PasswordCredential', vi.fn(function () {
+      return { id: values.name, type: 'password' };
+    }));
     vi.stubGlobal('navigator', { credentials: { store: vi.fn().mockRejectedValue(new Error('denied')) } });
     expect(() => storePasswordCredential(values)).not.toThrow();
     await Promise.resolve();
-    vi.stubGlobal('PasswordCredential', vi.fn(function () { throw new Error('unavailable'); }));
+    vi.stubGlobal('PasswordCredential', vi.fn(function () {
+      throw new Error('unavailable');
+    }));
     expect(() => storePasswordCredential(values)).not.toThrow();
   });
 });

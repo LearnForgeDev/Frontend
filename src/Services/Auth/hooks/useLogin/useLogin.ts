@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints';
 import { schoolsEndpoints } from '@/Endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
-import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import type { AppError } from '@/Endpoints';
 
 export function useLogin() {

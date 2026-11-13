@@ -1,7 +1,6 @@
-import type { UserIdentity } from '@/Assets/Types/commonTypes';
-import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
+import type { StoredSession } from './useRestoreSession.utils.type';
 
-type StoredSession = Pick<UserIdentity, 'refreshToken' | 'activeSchoolPublicId'>;
+import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
 
 export function getSessionStorageSnapshot(): string | null {
   try {

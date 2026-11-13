@@ -1,8 +1,10 @@
-import type { CourseInput } from '@/Services/Courses/Courses.types';
+import type { CourseInput } from '@/Services/Courses/Courses.type';
 import { COURSE_DESCRIPTION_MAX_LENGTH, COURSE_LESSON_MAX_COUNT, COURSE_STUDENT_MAX_COUNT, COURSE_TITLE_MAX_LENGTH } from './courseValidation.const';
 
 export function validateCourse(input: CourseInput): string | null {
-  if (!input.title.trim()) return 'Введите название курса';
+  if (!input.title.trim()) {
+    return 'Введите название курса';
+  }
   if (input.title.trim().length > COURSE_TITLE_MAX_LENGTH) {
     return `Название не должно превышать ${COURSE_TITLE_MAX_LENGTH} символов`;
   }

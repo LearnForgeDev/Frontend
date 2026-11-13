@@ -1,3 +1,6 @@
+import YouTubePlayer from '@/Services/Lessons/components/YouTubePlayer/YouTubePlayer';
+import type { SerializedYouTubeNode } from './YoutubeNode.type';
+export type { SerializedYouTubeNode } from './YoutubeNode.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,55 +9,12 @@
  *
  */
 
-import type {
-  DOMConversionMap,
-  DOMConversionOutput,
-  DOMExportOutput,
-  EditorConfig,
-  LexicalEditor,
-  LexicalNode,
-  NodeKey,
-  Spread,
-  SerializedLexicalNode,
-} from 'lexical';
-import type {JSX} from 'react';
+import type { DOMConversionMap, DOMConversionOutput, DOMExportOutput, EditorConfig, LexicalEditor, LexicalNode, NodeKey } from 'lexical';
+import type { JSX } from 'react';
 
-import {
-  DecoratorNode,
-} from 'lexical';
+import { DecoratorNode } from 'lexical';
 
-type YouTubeComponentProps = Readonly<{
-  className: string;
-  nodeKey: NodeKey;
-  videoID: string;
-}>;
 
-// eslint-disable-next-line react-refresh/only-export-components
-function YouTubeComponent({
-  className,
-  videoID,
-}: YouTubeComponentProps) {
-  return (
-    <span className={className}>
-      <iframe
-        width="560"
-        height="315"
-        src={`https://www.youtube-nocookie.com/embed/${videoID}`}
-        style={{border: 'none'}}
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-        allowFullScreen={true}
-        title="YouTube video"
-      />
-    </span>
-  );
-}
-
-export type SerializedYouTubeNode = Spread<
-  {
-    videoID: string;
-  },
-  SerializedLexicalNode
->;
 
 function $convertYoutubeElement(
   domNode: HTMLElement,
@@ -70,19 +30,19 @@ function $convertYoutubeElement(
 export class YouTubeNode extends DecoratorNode<JSX.Element> {
   __id: string;
 
-  static getType(): string {
+  static override getType(): string {
     return 'youtube';
   }
 
-  static clone(node: YouTubeNode): YouTubeNode {
+  static override clone(node: YouTubeNode): YouTubeNode {
     return new YouTubeNode(node.__id, node.__key);
   }
 
-  static importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
+  static override importJSON(serializedNode: SerializedYouTubeNode): YouTubeNode {
     return $createYouTubeNode(serializedNode.videoID);
   }
 
-  exportJSON(): SerializedYouTubeNode {
+  override exportJSON(): SerializedYouTubeNode {
     return {
       type: 'youtube',
       version: 1,
@@ -95,7 +55,7 @@ export class YouTubeNode extends DecoratorNode<JSX.Element> {
     this.__id = id;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement('span');
     const className = config.theme.youtube;
     if (className !== undefined) {
@@ -104,11 +64,11 @@ export class YouTubeNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement('iframe');
     element.setAttribute('data-lexical-youtube', this.__id);
     element.setAttribute('width', '560');
@@ -127,7 +87,7 @@ export class YouTubeNode extends DecoratorNode<JSX.Element> {
     return {element};
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       iframe: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute('data-lexical-youtube')) {
@@ -145,15 +105,15 @@ export class YouTubeNode extends DecoratorNode<JSX.Element> {
     return this.__id;
   }
 
-  getTextContent(): string {
+  override getTextContent(): string {
     return `https://www.youtube.com/watch?v=${this.__id}`;
   }
 
-  decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
+  override decorate(_editor: LexicalEditor, config: EditorConfig): JSX.Element {
     const embedBlockTheme = config.theme.embedBlock || {};
     const className = embedBlockTheme.base || '';
     return (
-      <YouTubeComponent
+      <YouTubePlayer
         className={className}
         nodeKey={this.getKey()}
         videoID={this.__id}

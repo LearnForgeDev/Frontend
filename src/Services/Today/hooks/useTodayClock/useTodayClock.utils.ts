@@ -1,4 +1,4 @@
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 export function getNextTodayRefreshAt(events: ScheduleEvent[], now: Date): number {
   const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1).getTime();

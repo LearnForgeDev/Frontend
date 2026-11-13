@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { meetEndpoints } from '@/Endpoints';
 import { ToastSeverity, useToastStore } from '@/Storage/useToastStore';
-import type { JitsiApi } from '../typings';
+import type { JitsiApi } from '../CallsPage.type';
 import config from '@/config';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 import { CUSTOM_INVITE_BUTTON_ELEMENT_ID, CUSTOM_INVITE_BUTTON_ID, INVITE_BUTTON_ICON } from '../CallsPage.constants';
@@ -38,15 +38,21 @@ export function useCallSession(schoolPublicId: string) {
     queryFn: async ({ signal }) => {
       try {
         const { roomUrl } = await meetEndpoints.getMeetToken({ schoolPublicId, room: activeRoom });
-        if (signal.aborted) throw new Error(CALL_CONNECTION_ERROR);
+        if (signal.aborted) {
+          throw new Error(CALL_CONNECTION_ERROR);
+        }
         const url = new URL(roomUrl);
         const domain = config.meetServerUrl ? new URL(config.meetServerUrl).host : url.host;
         const roomName = url.pathname.substring(1);
-        if (!domain || !roomName) throw new Error(CALL_CONNECTION_ERROR);
+        if (!domain || !roomName) {
+          throw new Error(CALL_CONNECTION_ERROR);
+        }
         await loadJitsiScript(domain);
         return { domain, roomName, jwt: url.searchParams.get('jwt') || undefined };
       } catch (error) {
-        if (!signal.aborted) addToast(CALL_CONNECTION_ERROR, ToastSeverity.ERROR);
+        if (!signal.aborted) {
+          addToast(CALL_CONNECTION_ERROR, ToastSeverity.ERROR);
+        }
         throw error;
       }
     },
@@ -58,19 +64,25 @@ export function useCallSession(schoolPublicId: string) {
     ? CALL_CONNECTION_ERROR : null;
 
   useEffect(() => {
-    if (!domain || !roomName || !containerRef.current || !window.JitsiMeetExternalAPI) return;
+    if (!domain || !roomName || !containerRef.current || !window.JitsiMeetExternalAPI) {
+      return;
+    }
     const container = containerRef.current;
     container.replaceChildren();
     let disposed = false;
     let api: JitsiApi | undefined;
     void Promise.resolve().then(() => {
-      if (disposed || !window.JitsiMeetExternalAPI) return;
+      if (disposed || !window.JitsiMeetExternalAPI) {
+        return;
+      }
       api = new window.JitsiMeetExternalAPI(domain, {
         roomName, jwt, parentNode: container, width: '100%', height: '100%', lang: 'ru',
         configOverwrite: JITSI_CONFIG, interfaceConfigOverwrite: JITSI_INTERFACE_CONFIG,
       });
       api.addEventListener('videoConferenceJoined', () => {
-        if (disposed) return;
+        if (disposed) {
+          return;
+        }
         try {
           api?.registerCustomToolbarButton?.({
             id: CUSTOM_INVITE_BUTTON_ID, text: 'Пригласить', icon: INVITE_BUTTON_ICON, btnId: CUSTOM_INVITE_BUTTON_ELEMENT_ID,
@@ -80,15 +92,23 @@ export function useCallSession(schoolPublicId: string) {
         }
       });
       api.addEventListener('customToolbarButtonClicked', event => {
-        if (!disposed && event.id === CUSTOM_INVITE_BUTTON_ID) setIsInviteDialogOpen(true);
+        if (!disposed && event.id === CUSTOM_INVITE_BUTTON_ID) {
+          setIsInviteDialogOpen(true);
+        }
       });
       api.addEventListener('videoConferenceLeft', () => {
-        if (disposed) return;
-        if (document.fullscreenElement) void document.exitFullscreen().catch(() => addToast(CALL_FULLSCREEN_ERROR, ToastSeverity.ERROR));
+        if (disposed) {
+          return;
+        }
+        if (document.fullscreenElement) {
+          void document.exitFullscreen().catch(() => addToast(CALL_FULLSCREEN_ERROR, ToastSeverity.ERROR));
+        }
         navigate(`/app/schools/${schoolPublicId}/today`);
       });
     }).catch(() => {
-      if (disposed) return;
+      if (disposed) {
+        return;
+      }
       api?.dispose();
       api = undefined;
       container.replaceChildren();
@@ -110,15 +130,21 @@ export function useCallSession(schoolPublicId: string) {
 
   const toggleFullscreen = async () => {
     try {
-      if (document.fullscreenElement) await document.exitFullscreen();
-      else await pageRef.current?.requestFullscreen();
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+      }
+      else {
+        await pageRef.current?.requestFullscreen();
+      }
     } catch {
       addToast(CALL_FULLSCREEN_ERROR, ToastSeverity.ERROR);
     }
   };
 
   const sendInvite = (recipientUserPublicIds: string[]) => {
-    if (!activeRoom) return;
+    if (!activeRoom) {
+      return;
+    }
     invites.broadcastInvite({ room: activeRoom, title: activeCallTitle, recipientUserPublicIds });
     setIsInviteDialogOpen(false);
   };

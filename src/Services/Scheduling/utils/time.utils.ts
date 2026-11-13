@@ -1,5 +1,7 @@
+import type { MonthGridDay } from './time.utils.type';
+export type { MonthGridDay } from './time.utils.type';
 import { MONTH_NAMES_NOMINATIVE } from '@/Services/Scheduling/Scheduling.const';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 const MS_PER_MINUTE = 60_000;
 
@@ -27,7 +29,8 @@ export function getEventDurationMinutes(startIso: string, endIso: string): numbe
 
 export function getHourSlots(startHour: number, endHour: number): number[] {
   const slots: number[] = [];
-  for (let h = startHour; h <= endHour; h++) slots.push(h);
+  for (let h = startHour; h <= endHour; h++)
+    slots.push(h);
   return slots;
 }
 
@@ -79,11 +82,6 @@ export function formatMonthYearTitle(date: Date, view: 'day' | 'week' | 'agenda'
   return `${MONTH_NAMES_NOMINATIVE[month]} ${year}`;
 }
 
-export interface MonthGridDay {
-  date: Date;
-  isCurrentMonth: boolean;
-}
-
 export function getMonthCalendarGrid(year: number, month: number): MonthGridDay[][] {
   const firstOfMonth = new Date(year, month, 1);
   const firstDow = (firstOfMonth.getDay() + 6) % 7;
@@ -132,17 +130,25 @@ export function isSlotEmpty(events: ScheduleEvent[], date: Date, hour: number): 
 }
 
 export function isoToLocalDateInput(iso?: string | null): string {
-  if (!iso) return '';
+  if (!iso) {
+    return '';
+  }
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
+  if (Number.isNaN(d.getTime())) {
+    return '';
+  }
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export function isoToLocalTimeInput(iso?: string | null): string {
-  if (!iso) return '';
+  if (!iso) {
+    return '';
+  }
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '';
+  if (Number.isNaN(d.getTime())) {
+    return '';
+  }
   const pad = (n: number) => String(n).padStart(2, '0');
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
@@ -160,8 +166,12 @@ export function formatLocalTimeInput(d?: Date): string {
 }
 
 export function localDateTimeToIso(dateStr: string, timeStr: string): string {
-  if (!dateStr || !timeStr) return '';
+  if (!dateStr || !timeStr) {
+    return '';
+  }
   const d = new Date(`${dateStr}T${timeStr}:00`);
-  if (Number.isNaN(d.getTime())) return '';
+  if (Number.isNaN(d.getTime())) {
+    return '';
+  }
   return d.toISOString();
 }

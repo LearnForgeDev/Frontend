@@ -12,6 +12,8 @@ export const getServerSideProps: GetServerSideProps<{ initialPath: string }> = a
     const search = resolvedUrl.slice(pathname.length);
     return { redirect: { destination: `/auth/login${search}`, permanent: false } };
   }
-  if (matchRoutes(routes, pathname)?.at(-1)?.route.path === '*') res.statusCode = 404;
+  if (matchRoutes(routes, pathname)?.at(-1)?.route.path === '*') {
+    res.statusCode = 404;
+  }
   return { props: { initialPath: resolvedUrl } };
 };

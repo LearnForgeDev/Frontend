@@ -22,7 +22,7 @@ export default function FilesWorkspace({ schoolPublicId }: { schoolPublicId: str
       <FilesList {...page} />
       <FileDeleteDialog {...page} />
       {page.previewFile && (
-        <FilePreviewDialog key={page.previewFile.publicId} schoolPublicId={schoolPublicId} file={page.previewFile} onClose={page.handleClosePreview} onDownload={page.handleDownloadFile} />
+        <FilePreviewDialog key={page.previewFile.publicId} schoolPublicId={schoolPublicId} file={page.previewFile} onClose={page.handleClosePreview} onDownload={file => { void page.handleDownloadFile(file); }} />
       )}
       <FileUploadProgress items={page.uploadItems} onCancel={page.handleCancelUpload} />
     </Box>

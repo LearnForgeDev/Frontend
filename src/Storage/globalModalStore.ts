@@ -1,19 +1,6 @@
+import type { GlobalModalState } from './globalModalStore.type';
+export type { ModalConfig } from './globalModalStore.type';
 import { create } from 'zustand';
-
-export interface ModalConfig {
-  id: string;
-  title: string;
-  subtitle?: string;
-  icon?: string;
-  time?: number;
-}
-
-interface GlobalModalState {
-  modals: ModalConfig[];
-  pushModal: (modal: ModalConfig) => void;
-  popModal: () => void;
-  clearModals: () => void;
-}
 
 export const useGlobalModalStore = create<GlobalModalState>((set) => ({
   modals: [],

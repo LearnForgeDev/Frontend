@@ -1,3 +1,5 @@
+import type { ContextMenuProps } from './ContextMenu.type';
+export type { ContextMenuProps } from './ContextMenu.type';
 import { useState } from 'react';
 import { Menu, MenuItem, ListItemIcon, ListItemText, Typography, Box, Button } from '@mui/material';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -6,15 +8,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Modal } from '@/Assets/Components/Modal/Modal';
 import { styles } from './ContextMenu.styles';
-
-export interface ContextMenuProps {
-  anchorEl: HTMLElement | null;
-  onClose: () => void;
-  onOpen: () => void;
-  onRename: () => void;
-  onMove?: () => void;
-  onDelete: () => void;
-}
 
 export default function ContextMenu({
   anchorEl,

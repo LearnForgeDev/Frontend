@@ -1,5 +1,6 @@
+import type { CourseEditorModalProps } from './CourseEditorModal.type';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
-import type { CourseDetail } from '@/Services/Courses/Courses.types';
+
 import { Modal } from '@/Assets/Components/Modal/Modal';
 import { useCourseEditor } from '../../hooks/useCourseEditor';
 import { useCourseDismissal } from '../../hooks/useCourseDismissal';
@@ -9,19 +10,15 @@ import CourseAccessPicker from '../CourseAccessPicker/CourseAccessPicker';
 import CourseStudentPicker from '../CourseStudentPicker/CourseStudentPicker';
 import { styles } from './CourseEditorModal.styles';
 
-interface CourseEditorModalProps {
-  schoolPublicId: string;
-  course?: CourseDetail;
-  onClose: () => void;
-  onSaved: (course: CourseDetail) => void;
-}
-
 export default function CourseEditorModal({ schoolPublicId, course, onClose, onSaved }: CourseEditorModalProps) {
   const editor = useCourseEditor(schoolPublicId, onSaved, course);
   const dismissal = useCourseDismissal(editor.form, editor.isSaving, onClose);
   return (
     <Modal title={course ? 'Настройки курса' : 'Новый курс'} onClose={onClose} onRequestClose={dismissal.requestClose} disableClose={editor.isSaving}>
-      <Box component="form" sx={styles.form} onSubmit={event => { event.preventDefault(); editor.submit(); }} noValidate>
+      <Box component="form" sx={styles.form} onSubmit={event => {
+        event.preventDefault();
+        editor.submit();
+      }} noValidate>
         <TextField label="Название курса" value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} required autoFocus fullWidth disabled={editor.isSaving} />
         <TextField label="Описание" value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} multiline minRows={2} fullWidth disabled={editor.isSaving} />
         {editor.isLoading && <CourseState kind="loading" title="Загружаем уроки и учеников" />}

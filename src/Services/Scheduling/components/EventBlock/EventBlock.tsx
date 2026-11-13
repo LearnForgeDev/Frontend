@@ -1,7 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { formatEventTimeRange, getEventDurationMinutes } from '@/Services/Scheduling/utils/time.utils';
 import { SLOT_HEIGHT_PX } from '@/Services/Scheduling/Scheduling.const';
-import type { EventBlockProps } from './EventBlock.types';
+import type { EventBlockProps } from './EventBlock.type';
 import { styles } from './EventBlock.styles';
 
 export function EventBlock({ event, onSelect, selected = false, sized = false }: EventBlockProps) {
@@ -17,7 +17,9 @@ export function EventBlock({ event, onSelect, selected = false, sized = false }:
       sx={styles.root(selected, height)}
       onClick={() => onSelect?.(event.id)}
       onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') onSelect?.(event.id);
+        if (e.key === 'Enter' || e.key === ' ') {
+          onSelect?.(event.id);
+        }
       }}
     >
       <Typography component="div" sx={styles.time}>

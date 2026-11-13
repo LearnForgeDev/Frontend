@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Alert, Box, Icon, Typography, Collapse } from '@mui/material';
-import type { NotificationProps } from './Notification.types';
+import type { NotificationProps } from './Notification.type';
 import { styles } from './Notification.styles';
 
 export default function Notification({ title, subtitle, icon, time, onClose }: NotificationProps) {
@@ -16,8 +16,10 @@ export default function Notification({ title, subtitle, icon, time, onClose }: N
   }, [onClose]);
 
   useEffect(() => {
-    if (!time || time <= 0) return;
-    
+    if (!time || time <= 0) {
+      return;
+    }
+
     const interval = 100;
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -37,9 +39,9 @@ export default function Notification({ title, subtitle, icon, time, onClose }: N
 
   return (
     <Collapse in={open} onExited={handleExited} unmountOnExit>
-      <Alert 
-        severity="info" 
-        variant="filled" 
+      <Alert
+        severity="info"
+        variant="filled"
         onClose={handleClose}
         icon={icon ? <Icon>{icon}</Icon> : undefined}
         sx={styles.alert}

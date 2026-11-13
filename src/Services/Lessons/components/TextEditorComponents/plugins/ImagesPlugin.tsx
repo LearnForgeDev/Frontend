@@ -1,53 +1,20 @@
-import type {JSX} from 'react';
+import { RESIZE_IMAGE_COMMAND } from '@/Services/Lessons/imageCommands.const';
+import type { InsertImagePayload } from './ImagesPlugin.type';
+export type { InsertImagePayload } from './ImagesPlugin.type';
+import type { JSX } from 'react';
 
-import {
-  $isAutoLinkNode,
-  $isLinkNode,
-  LinkNode,
-  TOGGLE_LINK_COMMAND,
-} from '@lexical/link';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {
-  $findMatchingParent,
-  $wrapNodeInElement,
-  mergeRegister,
-} from '@lexical/utils';
+import type { LinkNode} from '@lexical/link';
+import { $isAutoLinkNode, $isLinkNode, TOGGLE_LINK_COMMAND } from '@lexical/link';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $findMatchingParent, $wrapNodeInElement, mergeRegister } from '@lexical/utils';
 import { filesEndpoints, type ApiFile } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
-import {
-  $createParagraphNode,
-  $createRangeSelection, $getNodeByKey,
-  $getSelection,
-  $insertNodes,
-  $isNodeSelection,
-  $isRootOrShadowRoot,
-  $setSelection,
-  COMMAND_PRIORITY_EDITOR,
-  COMMAND_PRIORITY_HIGH,
-  COMMAND_PRIORITY_LOW,
-  createCommand,
-  DRAGOVER_COMMAND,
-  DRAGSTART_COMMAND,
-  DROP_COMMAND,
-  getDOMSelectionFromTarget,
-  isHTMLElement,
-  type LexicalCommand,
-  type LexicalEditor,
-} from 'lexical';
-import {useEffect} from 'react';
+import { $createParagraphNode, $createRangeSelection, $getNodeByKey, $getSelection, $insertNodes, $isNodeSelection, $isRootOrShadowRoot, $setSelection, COMMAND_PRIORITY_EDITOR, COMMAND_PRIORITY_HIGH, COMMAND_PRIORITY_LOW, createCommand, DRAGOVER_COMMAND, DRAGSTART_COMMAND, DROP_COMMAND, getDOMSelectionFromTarget, isHTMLElement, type LexicalCommand, type LexicalEditor } from 'lexical';
+import { useEffect } from 'react';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('ImagesPlugin');
 
-
-import {
-  $createImageNode,
-  $isImageNode,
-  ImageNode, type ImagePayload,
-  RESIZE_IMAGE_COMMAND,
-  type ResizeImagePayload,
-} from '../nodes/ImageNode.tsx';
-
-export type InsertImagePayload = Readonly<ImagePayload>;
+import { $createImageNode, $isImageNode, ImageNode, type ResizeImagePayload } from '../nodes/ImageNode.tsx';
 
 export const INSERT_IMAGE_COMMAND: LexicalCommand<InsertImagePayload> =
   createCommand('INSERT_IMAGE_COMMAND');
@@ -256,13 +223,6 @@ function getDragImageData(event: DragEvent): null | InsertImagePayload {
   }
 
   return data;
-}
-
-declare global {
-  interface DragEvent {
-    rangeOffset?: number;
-    rangeParent?: Node;
-  }
 }
 
 function canDropImage(event: DragEvent): boolean {

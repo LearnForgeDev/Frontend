@@ -21,7 +21,7 @@ import AutoSavePlugin from '../TextEditorComponents/plugins/AutoSavePlugin.tsx';
 import Toolbar from '../TextEditorComponents/ui/Toolbar.tsx';
 
 
-import type { TextEditorProps } from './component.types';
+import type { TextEditorProps } from './TextEditor.type';
 import { INITIAL_EDITOR_CONFIG } from './component.const';
 
 export default function TextEditor({
@@ -34,7 +34,9 @@ export default function TextEditor({
   onSave,
 }: TextEditorProps) {
   const [hasLoadError, setHasLoadError] = useState(false);
-  if (hasLoadError) return <Alert severity="error">Не удалось прочитать содержимое урока. Обратитесь к преподавателю.</Alert>;
+  if (hasLoadError) {
+    return <Alert severity="error">Не удалось прочитать содержимое урока. Обратитесь к преподавателю.</Alert>;
+  }
   return (
     <LexicalComposer initialConfig={{ ...INITIAL_EDITOR_CONFIG, editable: isEditMode }}>
       {isEditMode && <Toolbar />}

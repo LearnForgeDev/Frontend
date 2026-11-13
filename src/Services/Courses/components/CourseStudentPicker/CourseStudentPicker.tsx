@@ -1,13 +1,7 @@
+import type { CourseStudentPickerProps } from './CourseStudentPicker.type';
 import { Autocomplete, Box, TextField, Typography } from '@mui/material';
-import type { CourseStudentOption } from '@/Services/Courses/Courses.types';
-import { styles } from './CourseStudentPicker.styles';
 
-interface CourseStudentPickerProps {
-  options: CourseStudentOption[];
-  selectedIds: string[];
-  onChange: (studentPublicIds: string[]) => void;
-  disabled: boolean;
-}
+import { styles } from './CourseStudentPicker.styles';
 
 export default function CourseStudentPicker({ options, selectedIds, onChange, disabled }: CourseStudentPickerProps) {
   const selected = options.filter(student => selectedIds.includes(student.userPublicId));

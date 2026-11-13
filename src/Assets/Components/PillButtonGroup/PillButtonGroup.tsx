@@ -1,5 +1,5 @@
 import { ToggleButton, Box, useTheme } from '@mui/material';
-import type { PillButtonGroupProps } from './PillButtonGroup.types';
+import type { PillButtonGroupProps } from './PillButtonGroup.type';
 import * as S from './PillButtonGroup.styles';
 
 export default function PillButtonGroup<T extends NonNullable<unknown>>({ options, value, onChange, ...props }: PillButtonGroupProps<T>) {

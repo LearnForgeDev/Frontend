@@ -10,19 +10,18 @@ export default function RestoreFromLocalStoragePlugin({id}: {id?: string}): JSX.
   const [serializedEditorState, setSerializedEditorState] = useLocalStorage<
     string | null
   >(`lesson-${id}-editor`, null) // TODO: define better key
-  const [isFirstRender, setIsFirstRender] = React.useState(true)
+  const isFirstRender = React.useRef(true)
 
   React.useEffect(() => {
-    if (isFirstRender) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setIsFirstRender(false)
+    if (isFirstRender.current) {
+      isFirstRender.current = false
 
       if (serializedEditorState) {
         const initialEditorState = editor.parseEditorState(serializedEditorState)
         editor.setEditorState(initialEditorState)
       }
     }
-  }, [isFirstRender, serializedEditorState, editor])
+  }, [serializedEditorState, editor])
 
   const onChange = React.useCallback(
     (editorState: EditorState) => {

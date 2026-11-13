@@ -1,3 +1,4 @@
+import type { ScheduleDialog } from './useSchedulePage.type';
 import { getAgendaEvents, formatAgendaDate } from '../../utils/agenda.utils';
 import { useState } from 'react';
 import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext';
@@ -6,13 +7,8 @@ import { useScheduleMutations } from '../useScheduleMutations/useScheduleMutatio
 import { useIsTeacherOrOwner } from '../useIsTeacherOrOwner/useIsTeacherOrOwner';
 import { useHandleEventIdParam } from '../useHandleEventIdParam/useHandleEventIdParam';
 import { formatLocalTimeInput, formatEventFullDateTime } from '../../utils/time.utils';
-import type { ScheduleEvent } from '../../Scheduling.types';
+import type { ScheduleEvent } from '../../Scheduling.type';
 import { DEFAULT_EVENT_DURATION_MS } from './useSchedulePage.const';
-
-type ScheduleDialog =
-  | { type: 'create'; date: Date; startTime?: string; endTime?: string }
-  | { type: 'edit' | 'delete'; eventId: string }
-  | null;
 
 export function useSchedulePage() {
   const schedule = useScheduleEvents();
@@ -41,7 +37,9 @@ export function useSchedulePage() {
     setDialog({ type: 'delete', eventId });
   };
   const confirmDelete = () => {
-    if (dialog?.type !== 'delete' || deleteEvent.isPending) return;
+    if (dialog?.type !== 'delete' || deleteEvent.isPending) {
+      return;
+    }
     deleteEvent.mutate(dialog.eventId, { onSuccess: closeDialog });
   };
 

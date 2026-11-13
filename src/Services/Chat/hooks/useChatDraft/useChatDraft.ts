@@ -1,15 +1,10 @@
+import type { UseChatDraftOptions } from './useChatDraft.type';
 import { useReducer, useRef, useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { useToast } from '@/Storage/useToastStore';
 import { CHAT_SEND_ERROR } from './useChatDraft.const';
 import { canSendChatDraft, chatDraftReducer, createChatDraft } from './useChatDraft.utils';
-import type { ChatDraftFile, ChatDraftSnapshot } from './useChatDraft.types';
-
-interface UseChatDraftOptions {
-  draftKey: string;
-  disabled?: boolean;
-  onSendMessage: (text: string, filePublicIds?: string[]) => Promise<void>;
-}
+import type { ChatDraftFile, ChatDraftSnapshot } from './useChatDraft.type';
 
 export function useChatDraft({ draftKey, disabled, onSendMessage }: UseChatDraftOptions) {
   const [drafts, dispatch] = useReducer(chatDraftReducer, {});
@@ -27,10 +22,14 @@ export function useChatDraft({ draftKey, disabled, onSendMessage }: UseChatDraft
     },
   });
   const submit = () => {
-    if (sendingRef.current || disabled || !canSendChatDraft(draft)) return;
+    if (sendingRef.current || disabled || !canSendChatDraft(draft)) {
+      return;
+    }
     sendingRef.current = true;
     dispatch({ type: 'error', key: draftKey, error: null });
-    send.mutate({ ...draft, key: draftKey }, { onSettled: () => { sendingRef.current = false; } });
+    send.mutate({ ...draft, key: draftKey }, { onSettled: () => {
+      sendingRef.current = false;
+    } });
   };
   return {
     ...draft, submit, isSending: send.isPending, canSend: !disabled && !send.isPending && canSendChatDraft(draft),

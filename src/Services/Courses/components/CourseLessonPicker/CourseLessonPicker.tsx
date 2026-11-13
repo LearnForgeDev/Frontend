@@ -1,15 +1,8 @@
+import type { CourseLessonPickerProps } from './CourseLessonPicker.type';
 import { Autocomplete, Box, IconButton, TextField, Typography } from '@mui/material';
 import { ArrowDownward, ArrowUpward, Close } from '@mui/icons-material';
-import type { LessonOption } from '../../Courses.types';
-import { styles } from './CourseLessonPicker.styles';
 
-interface CourseLessonPickerProps {
-  options: LessonOption[];
-  selected: LessonOption[];
-  onChange: (lessonIds: number[]) => void;
-  onMove: (lessonId: number, direction: -1 | 1) => void;
-  disabled: boolean;
-}
+import { styles } from './CourseLessonPicker.styles';
 
 export default function CourseLessonPicker({ options, selected, onChange, onMove, disabled }: CourseLessonPickerProps) {
   return (

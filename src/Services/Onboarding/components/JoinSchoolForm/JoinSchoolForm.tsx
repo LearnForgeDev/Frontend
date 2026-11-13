@@ -1,13 +1,7 @@
+import type { JoinSchoolFormProps } from './JoinSchoolForm.type';
 import { Box, Button, TextField, Typography } from '@mui/material';
 import { useInviteEntry } from '../../hooks/useInviteEntry';
 import * as S from './JoinSchoolForm.styles';
-
-type JoinSchoolFormProps = {
-  knownSchoolPublicIds: string[];
-  initialInviteToken?: string;
-  disabled?: boolean;
-  allowInviteLink?: boolean;
-};
 
 export default function JoinSchoolForm({
   knownSchoolPublicIds,

@@ -1,24 +1,11 @@
-import type {JSX} from 'react';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {
-  $wrapNodeInElement,
-  mergeRegister,
-} from '@lexical/utils';
-import {
-  $createParagraphNode,
-  $insertNodes,
-  $isRootOrShadowRoot,
-  COMMAND_PRIORITY_EDITOR,
-  createCommand,
-  type LexicalCommand,
-} from 'lexical';
-import {useEffect} from 'react';
-import {
-  $createFileNode,
-  FileNode, type FilePayload,
-} from '../nodes/FileNode.tsx';
-
-export type InsertFilePayload = Readonly<FilePayload>;
+import type { InsertFilePayload } from './FilesPlugin.type';
+export type { InsertFilePayload } from './FilesPlugin.type';
+import type { JSX } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $wrapNodeInElement, mergeRegister } from '@lexical/utils';
+import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand } from 'lexical';
+import { useEffect } from 'react';
+import { $createFileNode, FileNode } from '../nodes/FileNode.tsx';
 
 export const INSERT_FILE_COMMAND: LexicalCommand<InsertFilePayload> =
   createCommand('INSERT_FILE_COMMAND');

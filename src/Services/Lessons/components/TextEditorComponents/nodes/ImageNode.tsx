@@ -1,36 +1,8 @@
-import {
-  DecoratorNode,
-  type DOMConversionMap,
-  type DOMExportOutput,
-  type EditorConfig,
-  type LexicalNode,
-  type NodeKey,
-  type SerializedLexicalNode,
-  type Spread,
-  createCommand,
-  type LexicalCommand,
-} from "lexical";
+import type { ImagePayload, SerializedImageNode } from './ImageNode.type';
+export type { ImagePayload, SerializedImageNode, ResizeImagePayload } from './ImageNode.type';
+import { DecoratorNode, type DOMConversionMap, type DOMExportOutput, type EditorConfig, type LexicalNode, type NodeKey } from "lexical";
 import type { JSX } from 'react';
 import ImageComponent from './ImageComponent.tsx';
-
-export interface ImagePayload {
-  altText: string;
-  src: string;
-  width?: number;
-  height?: number;
-  float?: 'left' | 'right' | 'center';
-  key?: NodeKey;
-}
-
-export type SerializedImageNode = Spread<
-  {
-    altText: string;
-    src: string;
-    width?: number;
-    height?: number;
-  },
-  SerializedLexicalNode
->;
 
 export class ImageNode extends DecoratorNode<JSX.Element> {
   __src: string;
@@ -39,11 +11,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
   __height?: number;
   __float?: "left" | "right" | "center";
 
-  static getType(): string {
+  static override getType(): string {
     return "image";
   }
 
-  static clone(node: ImageNode): ImageNode {
+  static override clone(node: ImageNode): ImageNode {
     return new ImageNode(
       node.__src,
       node.__altText,
@@ -70,7 +42,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     this.__float = float;
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement("span");
     const className = config.theme.image;
     if (className !== undefined) {
@@ -79,11 +51,11 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("img");
     element.setAttribute("src", this.__src);
     element.setAttribute("alt", this.__altText);
@@ -96,7 +68,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     return { element };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       img: () => ({
         conversion: (element: HTMLElement) => {
@@ -117,7 +89,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportJSON(): SerializedImageNode {
+  override exportJSON(): SerializedImageNode {
     return {
       altText: this.getAltText(),
       src: this.getSrc(),
@@ -128,7 +100,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  static importJSON(serializedNode: SerializedImageNode): ImageNode {
+  static override importJSON(serializedNode: SerializedImageNode): ImageNode {
     const { altText, src, width, height } = serializedNode;
     return $createImageNode({
       altText,
@@ -164,7 +136,7 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
     writable.__height = height;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return (
       <ImageComponent
         float={this.__float}
@@ -179,7 +151,6 @@ export class ImageNode extends DecoratorNode<JSX.Element> {
 }
 
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function $createImageNode({
   altText,
   src,
@@ -191,18 +162,9 @@ export function $createImageNode({
   return new ImageNode(src, altText, width, height, float, key);
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
+
 export function $isImageNode(
   node: LexicalNode | null | undefined
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
-
-export interface ResizeImagePayload {
-  nodeKey: NodeKey;
-  width: number | undefined;
-  height: number | undefined;
-}
-
-export const RESIZE_IMAGE_COMMAND: LexicalCommand<ResizeImagePayload> =
-  createCommand("RESIZE_IMAGE_COMMAND");

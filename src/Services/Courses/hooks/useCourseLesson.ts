@@ -13,7 +13,9 @@ export function useCourseLesson(schoolPublicId: string, coursePublicId: string, 
     queryFn: async () => {
       try {
         const metadata = await lessonsEndpoints.getLessonById(schoolPublicId, lessonId);
-        if (!metadata.lessonJsonFile) throw new Error('Содержимое урока недоступно');
+        if (!metadata.lessonJsonFile) {
+          throw new Error('Содержимое урока недоступно');
+        }
         return parseLessonContent(await filesEndpoints.getFileContent(schoolPublicId, metadata.lessonJsonFile.publicId));
       } catch (error) {
         toast.error('Не удалось загрузить урок. Попробуйте ещё раз.');

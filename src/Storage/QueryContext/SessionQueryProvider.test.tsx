@@ -19,11 +19,15 @@ afterEach(() => {
 describe('Кеш сессии', () => {
   it('завершает запись сетевой ошибкой без зависания в оффлайн-очереди', async () => {
     onlineManager.setOnline(false);
-    const { result } = renderHook(() => useMutation({ mutationFn: async () => { throw new Error('offline'); } }), {
+    const { result } = renderHook(() => useMutation({ mutationFn: async () => {
+      throw new Error('offline');
+    } }), {
       wrapper: ({ children }: { children: ReactNode }) => <SessionQueryProvider>{children}</SessionQueryProvider>,
     });
 
-    await act(async () => { await expect(result.current.mutateAsync()).rejects.toThrow('offline'); });
+    await act(async () => {
+      await expect(result.current.mutateAsync()).rejects.toThrow('offline');
+    });
     await waitFor(() => expect(result.current.isError).toBe(true));
 
     expect(result.current.isPaused).toBe(false);
@@ -54,12 +58,17 @@ describe('Кеш сессии', () => {
       queryKey: ['private-school'],
       queryFn: (context) => {
         signal = context.signal;
-        return new Promise<string>((resolve) => { finish = resolve; });
+        return new Promise<string>((resolve) => {
+          finish = resolve;
+        });
       },
     }).catch(() => null);
     act(() => useGlobalContext.getState().auth.logout());
     expect(signal.aborted).toBe(true);
-    await act(async () => { finish('Чужие данные'); await pending; });
+    await act(async () => {
+      finish('Чужие данные');
+      await pending;
+    });
     expect(result.current.getQueryData(['private-school'])).toBeUndefined();
   });
 
@@ -70,7 +79,9 @@ describe('Кеш сессии', () => {
     let finish!: (value: string) => void;
     const pending = client.fetchQuery({
       queryKey: ['school'],
-      queryFn: () => new Promise<string>((resolve) => { finish = resolve; }),
+      queryFn: () => new Promise<string>((resolve) => {
+        finish = resolve;
+      }),
     }).catch(() => null);
     useGlobalContext.getState().auth.logout();
     expect(client.getQueryData(['members'])).toBeUndefined();

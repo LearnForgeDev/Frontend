@@ -1,5 +1,5 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
-import type { UserSchoolInfo, SchoolInfo, MemberDto } from './types';
+import type { UserSchoolInfo, SchoolInfo, MemberDto } from './schools.contract.type';
 import { studentsEndpoints } from '../students/students.endpoints';
 import { profileEndpoints } from '../profile/profile.endpoints';
 

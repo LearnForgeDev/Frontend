@@ -1,34 +1,11 @@
-import { createContext, useContext, type ReactNode } from 'react';
-import type { UserIdentity } from '@/Assets/Types/commonTypes';
+import { type ReactNode } from 'react';
+
 import { useRestoreSession } from '@/Services/Auth/hooks/useRestoreSession/useRestoreSession';
 
-export { USER_STORAGE_KEY } from './UserContext.const';
-
-type UserContextValue = {
-    user: UserIdentity | null;
-    setUser: (user: UserIdentity) => void;
-    clearUser: () => void;
-    isRestoring: boolean;
-    isRestoreError: boolean;
-    retryRestore: () => void;
-};
-
-const UserContext = createContext<UserContextValue | undefined>(undefined);
+import { UserContext } from '@/Services/Auth/UserContext.context';
 
 export function UserProvider({ children }: { children: ReactNode }) {
     const { user, setUser, clearUser, isPending, isError, retry } = useRestoreSession();
 
     return <UserContext.Provider value={{ user, setUser, clearUser, isRestoring: isPending, isRestoreError: isError, retryRestore: retry }}>{children}</UserContext.Provider>;
 }
-
-// eslint-disable-next-line react-refresh/only-export-components
-export function useUser(): UserContextValue {
-    const context = useContext(UserContext);
-
-    if (!context) {
-        throw new Error('useUser must be used within a UserProvider');
-    }
-
-    return context;
-}
-

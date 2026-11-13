@@ -9,7 +9,9 @@ export function NotificationRoot() {
 
   const globalNotifications = notifications.filter(n => n.shouldDisplayGlobally);
 
-  if (globalNotifications.length === 0) return null;
+  if (globalNotifications.length === 0) {
+    return null;
+  }
 
   return createPortal(
     <Box

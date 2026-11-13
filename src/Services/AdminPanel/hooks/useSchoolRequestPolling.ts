@@ -1,18 +1,13 @@
+import type { ActiveSchoolRequest } from './useSchoolRequestPolling.type';
+export type { ActiveSchoolRequest } from './useSchoolRequestPolling.type';
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { authEndpoints } from '@/Endpoints';
-import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import { useQueryClient } from '@tanstack/react-query';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('useSchoolRequestPolling');
 
-
 const STORAGE_KEY = 'activeSchoolRequest';
-
-export type ActiveSchoolRequest = {
-    publicId: string;
-    schoolName: string;
-    status: string;
-};
 
 export function useSchoolRequestPolling() {
     const { user } = useUser();
@@ -43,9 +38,11 @@ export function useSchoolRequestPolling() {
     }, []);
 
     useEffect(() => {
-        if (!activeRequest || !user?.jwtToken || pollingIntervalRef.current) return;
+        if (!activeRequest || !user?.jwtToken || pollingIntervalRef.current) {
+          return;
+        }
 
-        pollingIntervalRef.current = setInterval(async () => {
+        const poll = async () => {
             try {
                 const statusData = await authEndpoints.getSchoolRequestStatus(activeRequest.publicId);
 
@@ -56,7 +53,7 @@ export function useSchoolRequestPolling() {
                 if (statusData.status === 'Created' || statusData.status === 'Completed') {
                     // Success!
                     clearRequest();
-                    queryClient.invalidateQueries({ queryKey: ['my-schools'] });
+                    await queryClient.invalidateQueries({ queryKey: ['my-schools'] });
                 } else if (statusData.status === 'Failed') {
                     // We can keep it to show error or clear it
                     // Let's clear after some time or let user dismiss
@@ -64,6 +61,9 @@ export function useSchoolRequestPolling() {
             } catch (err) {
                 logger.logEventForDebug(DebugSeverity.DANGER, 'Polling error:', err);
             }
+        };
+        pollingIntervalRef.current = setInterval(() => {
+          void poll();
         }, 5000);
 
         return () => stopPolling();

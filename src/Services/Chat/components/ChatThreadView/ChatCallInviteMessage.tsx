@@ -1,15 +1,9 @@
+import type { ChatCallInviteMessageProps } from './ChatCallInviteMessage.type';
 import { Box, Button, Typography } from '@mui/material';
 import VideocamIcon from '@mui/icons-material/Videocam';
-import type { ChatCallInvite } from '@/Services/Chat/Chat.types';
-import {
-  CHAT_CALL_INVITE_FALLBACK_TITLE,
-  CHAT_CALL_INVITE_JOIN_TEXT,
-} from './ChatCallInviteMessage.const';
-import { styles } from './ChatCallInviteMessage.styles';
 
-interface ChatCallInviteMessageProps {
-  invite: ChatCallInvite;
-}
+import { CHAT_CALL_INVITE_FALLBACK_TITLE, CHAT_CALL_INVITE_JOIN_TEXT } from './ChatCallInviteMessage.const';
+import { styles } from './ChatCallInviteMessage.styles';
 
 export default function ChatCallInviteMessage({ invite }: ChatCallInviteMessageProps) {
   return (

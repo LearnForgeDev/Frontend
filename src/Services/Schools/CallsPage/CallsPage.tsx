@@ -77,7 +77,7 @@ export default function CallsPage() {
                 variant="outlined"
                 size="small"
                 startIcon={isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-                data-testid="call-fullscreen" onClick={toggleFullscreen}
+                data-testid="call-fullscreen" onClick={() => { void toggleFullscreen(); }}
               >
                 {isFullscreen ? 'Свернуть' : 'На весь экран'}
               </Button>

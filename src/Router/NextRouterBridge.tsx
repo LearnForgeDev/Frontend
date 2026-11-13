@@ -11,7 +11,9 @@ function getServerHistorySnapshot(): null {
 }
 
 function getLocationState(history: unknown): unknown {
-  if (!history || typeof history !== 'object' || !('options' in history)) return null;
+  if (!history || typeof history !== 'object' || !('options' in history)) {
+    return null;
+  }
   const options = history.options;
   return options && typeof options === 'object' && 'learnForgeState' in options
     ? options.learnForgeState

@@ -1,4 +1,5 @@
-import React from 'react';
+import type { FC } from 'react';
+
 import { Box, Typography } from '@mui/material';
 
 import { useGetGreetingMessage } from '@/Services/AdminPanel/hooks/useGetGreetingMessage';
@@ -6,7 +7,7 @@ import { getTimeOfDay, getGradient } from '@/Services/AdminPanel/utils';
 import { useWindowScroll } from 'react-use';
 import { gradientFadeIn, textSlideUp, gradientPulse } from './DashboardHome.const';
 
-const DashboardHome: React.FC = () => {
+const DashboardHome: FC = () => {
   const { y } = useWindowScroll();
   const greetingMessage = useGetGreetingMessage();
 

@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { authEndpoints } from '@/Endpoints';
 import { useToast } from '@/Storage/useToastStore';
 import { INVITES_QUERY_KEY } from '../Components/InviteWidget.const';
-import type { InviteParams } from '@/Endpoints/auth/types';
+import type { InviteParams } from '@/Endpoints/auth/auth.contract.type';
 
 function readInviteToken(response: unknown): string {
   if (typeof response === 'string') {

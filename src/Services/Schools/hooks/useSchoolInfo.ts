@@ -1,13 +1,8 @@
+import type { UseSchoolInfoReturn } from './useSchoolInfo.type';
+export type { UseSchoolInfoReturn } from './useSchoolInfo.type';
 import { useQuery } from '@tanstack/react-query';
 import { schoolsEndpoints, type SchoolInfo } from '@/Endpoints';
 import type { AppError } from '@/Endpoints';
-
-export interface UseSchoolInfoReturn {
-  school: SchoolInfo | null;
-  isLoading: boolean;
-  isError: boolean;
-  error: AppError | null;
-}
 
 const STALE_TIME_5_MINUTES = 5 * 60 * 1000;
 

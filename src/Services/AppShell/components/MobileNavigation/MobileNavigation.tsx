@@ -1,15 +1,10 @@
+import type { MobileNavigationProps } from './MobileNavigation.type';
 import { useState } from 'react';
 import { BottomNavigation, BottomNavigationAction, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
-import type { AppNavigationItem } from '../../AppShell.types';
+import type { AppNavigationItem } from '../../AppShell.type';
 import { MORE_NAVIGATION_LABEL } from '../../AppShell.const';
 import * as S from '../../AppShell.styles';
-
-type MobileNavigationProps = {
-  items: AppNavigationItem[];
-  activeItemId?: string;
-  onSelect: (item: AppNavigationItem) => void;
-};
 
 export default function MobileNavigation({ items, activeItemId, onSelect }: MobileNavigationProps) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);

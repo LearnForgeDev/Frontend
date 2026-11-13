@@ -1,29 +1,26 @@
+import type { FileUploadProgressProps } from './FileUploadProgress.type';
+export type { UploadItemProgress } from './FileUploadProgress.type';
 import { Box, Typography, LinearProgress, Paper } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
-export interface UploadItemProgress {
-  id: string;
-  fileName: string;
-  sizeBytes?: number;
-  progress: number; // 0 to 100
-  status: 'uploading' | 'completed' | 'error';
-  errorMessage?: string;
-}
-
-interface FileUploadProgressProps {
-  items: UploadItemProgress[];
-}
-
 function formatFileSize(bytes?: number): string {
-  if (!bytes) return '';
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (!bytes) {
+    return '';
+  }
+  if (bytes < 1024) {
+    return `${bytes} B`;
+  }
+  if (bytes < 1024 * 1024) {
+    return `${(bytes / 1024).toFixed(1)} KB`;
+  }
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export default function FileUploadProgress({ items }: FileUploadProgressProps) {
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <Box

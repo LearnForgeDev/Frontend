@@ -1,13 +1,13 @@
+import type { DragEvent, ChangeEvent } from 'react';
 import { Modal } from '@/Assets/Components/Modal/Modal';
-import React, {useState} from 'react';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
-import {$createImageNode} from '../../nodes/ImageNode.tsx';
+import { useState } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getSelection, $insertNodes, $isRangeSelection } from 'lexical';
+import { $createImageNode } from '../../nodes/ImageNode.tsx';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('InsertImageModal');
-
 
 export default function InsertImageModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();
@@ -19,7 +19,9 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
 
   const handleInsert = async (src?: string, altText: string = "Image") => {
     const imageSource = src;
-    if (!imageSource) return;
+    if (!imageSource) {
+      return;
+    }
 
     if (!imageSource.startsWith('data:image/')) {
       const isValid = await isValidImgUrl(imageSource);
@@ -40,7 +42,7 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
     onClose();
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -49,13 +51,13 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    handleAddImg(e);
+    void handleAddImg(e);
   };
 
-  const handleAddImg = async (e: React.DragEvent<HTMLDivElement> | React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddImg = async (e: DragEvent<HTMLDivElement> | ChangeEvent<HTMLInputElement>) => {
     const file = 'dataTransfer' in e
       ? e.dataTransfer?.files[0]
       : e.target?.files?.[0];
@@ -70,7 +72,7 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
       try {
         const apiFile = await filesEndpoints.uploadFileMultipart(schoolPublicId, file, undefined, undefined, 'lessons');
         const url = filesEndpoints.getFileUrl(schoolPublicId, apiFile.publicId);
-        handleInsert(url, file.name);
+        await handleInsert(url, file.name);
       } catch (error) {
         logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to upload image', error);
         setImageUrlError('Ошибка при загрузке изображения');
@@ -98,11 +100,13 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
               setImageUrl(e.target.value);
             }}
             onKeyDown={(e) => {
-              if (e.key === 'Enter') handleInsert(imageUrl.trim());
+              if (e.key === 'Enter') {
+                void handleInsert(imageUrl.trim());
+              }
             }}
           />
           <button
-            onClick={() => handleInsert(imageUrl.trim())}
+            onClick={() => { void handleInsert(imageUrl.trim()); }}
           >Вставить</button>
         </div>
 
@@ -125,7 +129,7 @@ export default function InsertImageModal({onClose}: {onClose: () => void}) {
             aria-hidden={true}
             style={{display: 'none'}}
             id='fileInput'
-            onChange={handleAddImg}
+            onChange={event => { void handleAddImg(event); }}
             onClick={(e) => e.stopPropagation()}
             disabled={isUploading}
           />

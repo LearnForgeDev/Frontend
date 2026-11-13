@@ -1,3 +1,4 @@
+import type { Props } from './KatexEquationModal.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,22 +7,15 @@
  *
  */
 
-import type {JSX} from 'react';
+import type { JSX } from 'react';
 
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-
-import {useCallback, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
+import { useCallback, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import KatexRenderer from '../KatexRenderer.tsx';
 import { Modal } from '@/Assets/Components/Modal/Modal';
-
-type Props = {
-  initialEquation?: string;
-  onConfirm: (equation: string, inline: boolean) => void;
-  onClose: () => void;
-};
 
 export default function KatexEquationModal({
                                                onConfirm,

@@ -1,2 +1,2 @@
 export * from './files.endpoints';
-export * from './types';
+export * from './files.contract.type';

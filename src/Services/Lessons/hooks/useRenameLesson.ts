@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/Storage/useToastStore';
 import { validateLessonTitle } from '../validation/lessonTitle';
 import { useSaveLesson } from './useSaveLesson';
-import type { Lesson } from '../components/FileManager/FileManager.types';
+import type { Lesson } from '../components/FileManager/FileManager.type';
 
 export function useRenameLesson(schoolPublicId: string, lesson: Lesson, onClose: () => void) {
   const [title, setTitle] = useState(lesson.title);
@@ -13,7 +13,9 @@ export function useRenameLesson(schoolPublicId: string, lesson: Lesson, onClose:
   const submit = async () => {
     const validationError = validateLessonTitle(title);
     setError(validationError);
-    if (validationError || save.isSaving) return;
+    if (validationError || save.isSaving) {
+      return;
+    }
     try {
       await save.mutateAsync({ title: title.trim() });
       toast.success('Название сохранено');
@@ -26,7 +28,14 @@ export function useRenameLesson(schoolPublicId: string, lesson: Lesson, onClose:
 
   return {
     title, error, isSaving: save.isSaving, submit,
-    changeTitle: (value: string) => { setTitle(value); setError(null); },
-    close: () => { if (!save.isSaving) onClose(); },
+    changeTitle: (value: string) => {
+      setTitle(value);
+      setError(null);
+    },
+    close: () => {
+      if (!save.isSaving) {
+      onClose();
+    }
+    },
   };
 }

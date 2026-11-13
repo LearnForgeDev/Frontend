@@ -17,7 +17,10 @@ function createWrapper() {
   };
 }
 
-afterEach(() => { cleanup(); onlineManager.setOnline(true); });
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+});
 
 it('удаление оффлайн завершает ошибку и освобождает подтверждение для повтора или отмены', async () => {
   onlineManager.setOnline(false);

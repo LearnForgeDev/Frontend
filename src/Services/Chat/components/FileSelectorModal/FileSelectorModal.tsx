@@ -1,27 +1,6 @@
+import type { FileSelectorModalProps } from './FileSelectorModal.type';
 import { useState, useRef, useMemo, type ChangeEvent } from 'react';
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  List,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Checkbox,
-  CircularProgress,
-  Typography,
-  Box,
-  TextField,
-  InputAdornment,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  type SelectChangeEvent,
-} from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Checkbox, CircularProgress, Typography, Box, TextField, InputAdornment, FormControl, InputLabel, Select, MenuItem, type SelectChangeEvent } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SearchIcon from '@mui/icons-material/Search';
@@ -41,42 +20,57 @@ import { styles } from './FileSelectorModal.styles';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('FileSelectorModal');
 
-
-interface FileSelectorModalProps {
-  open: boolean;
-  onClose: () => void;
-  schoolPublicId: string;
-  onSelectFiles: (selectedFiles: Array<{ publicId: string; fileName: string }>) => void;
-}
-
 const getFileCategory = (filename: string): string => {
   const ext = filename.split('.').pop()?.toLowerCase() || '';
-  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image';
-  if (ext === 'pdf') return 'pdf';
-  if (['txt', 'md', 'json', 'js', 'ts', 'html', 'css'].includes(ext)) return 'text';
-  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) return 'document';
-  if (['zip', 'rar', 'tar', 'gz', '7z'].includes(ext)) return 'archive';
-  if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) return 'audio';
-  if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) return 'video';
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) {
+    return 'image';
+  }
+  if (ext === 'pdf') {
+    return 'pdf';
+  }
+  if (['txt', 'md', 'json', 'js', 'ts', 'html', 'css'].includes(ext)) {
+    return 'text';
+  }
+  if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(ext)) {
+    return 'document';
+  }
+  if (['zip', 'rar', 'tar', 'gz', '7z'].includes(ext)) {
+    return 'archive';
+  }
+  if (['mp3', 'wav', 'ogg', 'm4a'].includes(ext)) {
+    return 'audio';
+  }
+  if (['mp4', 'mov', 'avi', 'mkv'].includes(ext)) {
+    return 'video';
+  }
   return 'other';
 };
 
 const getFileIcon = (filename: string) => {
   const category = getFileCategory(filename);
   switch (category) {
-    case 'image': return <ImageIcon color="primary" />;
-    case 'pdf': return <PictureAsPdfIcon color="error" />;
+    case 'image':
+      return <ImageIcon color="primary" />;
+    case 'pdf':
+      return <PictureAsPdfIcon color="error" />;
     case 'text':
-    case 'document': return <ArticleIcon color="info" />;
-    case 'archive': return <FolderZipIcon color="warning" />;
-    case 'audio': return <AudioFileIcon color="secondary" />;
-    case 'video': return <VideoFileIcon color="secondary" />;
-    default: return <InsertDriveFileIcon color="action" />;
+    case 'document':
+      return <ArticleIcon color="info" />;
+    case 'archive':
+      return <FolderZipIcon color="warning" />;
+    case 'audio':
+      return <AudioFileIcon color="secondary" />;
+    case 'video':
+      return <VideoFileIcon color="secondary" />;
+    default:
+      return <InsertDriveFileIcon color="action" />;
   }
 };
 
 const formatFileSize = (bytes: number) => {
-  if (!bytes || bytes === 0) return '0 Б';
+  if (!bytes || bytes === 0) {
+    return '0 Б';
+  }
   const k = 1024;
   const sizes = ['Б', 'КБ', 'МБ', 'ГБ'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -134,7 +128,9 @@ export default function FileSelectorModal({
 
   const handleUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     const fileList = e.target.files;
-    if (!fileList || fileList.length === 0) return;
+    if (!fileList || fileList.length === 0) {
+      return;
+    }
     setIsLocalUploading(true);
     try {
       for (let i = 0; i < fileList.length; i++) {
@@ -217,7 +213,9 @@ export default function FileSelectorModal({
       logger.logEventForDebug(DebugSeverity.DANGER, 'File upload failed in modal', err);
     } finally {
       setIsLocalUploading(false);
-      if (fileInputRef.current) fileInputRef.current.value = '';
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
     }
   };
 
@@ -262,7 +260,7 @@ export default function FileSelectorModal({
             multiple
             style={{ display: 'none' }}
             ref={fileInputRef}
-            onChange={handleUpload}
+            onChange={event => { void handleUpload(event); }}
             disabled={showLoading}
           />
           <Button

@@ -3,14 +3,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getAgendaEvents } from '../../src/Services/Scheduling/utils/agenda.utils';
 import { getTodayEvents, getUpcomingEvent } from '../../src/Services/Today/TodayPage.utils';
 import { useTodayClock } from '../../src/Services/Today/hooks/useTodayClock/useTodayClock';
-import type { ScheduleEvent } from '../../src/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '../../src/Services/Scheduling/Scheduling.type';
 
 const event: ScheduleEvent = {
   id: 'lesson', title: 'Математика', description: null, room: 'room', hostUserPublicId: 'teacher', attendees: [],
   start: '2026-10-21T10:00:00', end: '2026-10-21T11:00:00',
 };
 
-afterEach(() => { cleanup(); vi.useRealTimers(); });
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('Актуальное расписание', () => {
   it('показывает выбранный день, оставляя прошлые дни доступными', () => {
@@ -27,18 +30,18 @@ describe('Актуальное расписание', () => {
     expect(getAgendaEvents([ended, overnight], new Date('2026-10-21T12:00:00'))).toEqual([overnight]);
   });
 
-  it('меняет ближайшее занятие ровно при завершении текущего', () => {
+  it('меняет ближайшее занятие ровно при завершении текущего', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-10-21T10:59:59'));
     const next = { ...event, id: 'next', start: '2026-10-21T12:00:00', end: '2026-10-21T13:00:00' };
     const events = [event, next];
     const { result } = renderHook(() => getUpcomingEvent(events, useTodayClock(events)));
     expect(result.current?.id).toBe(event.id);
-    act(() => vi.advanceTimersByTime(1000));
+    await act(() => vi.advanceTimersByTime(1000));
     expect(result.current?.id).toBe(next.id);
   });
 
-  it('обновляет дату и список сегодня в полночь без сетевого ответа', () => {
+  it('обновляет дату и список сегодня в полночь без сетевого ответа', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-10-20T23:59:59'));
     const events = [event];
@@ -47,7 +50,7 @@ describe('Актуальное расписание', () => {
       return { day: now.getDate(), events: getTodayEvents(events, now) };
     });
     expect(result.current.events).toEqual([]);
-    act(() => vi.advanceTimersByTime(1000));
+    await act(() => vi.advanceTimersByTime(1000));
     expect(result.current.day).toBe(21);
     expect(result.current.events).toEqual([event]);
   });

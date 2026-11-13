@@ -1,20 +1,16 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import type { FC } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Box, Drawer, GlobalStyles, useMediaQuery } from '@mui/material';
 import { serviceRegistry } from '@/Services/ServiceRegistry';
-import type { ServiceManifest } from '@/Assets/Types/serviceTypes';
+import type { ServiceManifest } from '@/Assets/Types/serviceTypes.type';
 import AdminPanelDrawerContent from './AdminPanelDrawerContent';
 import AdminPanelTopBar from './AdminPanelTopBar';
-import {
-  drawerPaperSx,
-  drawerRootSx,
-  layoutRootSx,
-  mainContentSx,
-} from "./AdminPanelLayout.styles";
+import { drawerPaperSx, drawerRootSx, layoutRootSx, mainContentSx } from "./AdminPanelLayout.styles";
 import { adminPanelCommonStyles } from './AdminPanelCommon.styles';
-import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 
-const AdminPanelLayout: React.FC = () => {
+const AdminPanelLayout: FC = () => {
   const { user } = useUser();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

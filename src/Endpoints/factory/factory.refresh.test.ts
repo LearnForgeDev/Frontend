@@ -1,10 +1,12 @@
+import { makeIdentity, response, requestError, storedIdentity } from '@/Services/Auth/sessionRefresh.testSupport';
+import type * as AxiosModule from 'axios';
 import { createElement, type ReactNode } from 'react';
 import { act, cleanup, renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRestoreSession } from '@/Services/Auth/hooks/useRestoreSession/useRestoreSession';
-import { AxiosError, AxiosHeaders, type InternalAxiosRequestConfig } from 'axios';
+import { AxiosHeaders, type InternalAxiosRequestConfig } from 'axios';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AuthRole, type UserIdentity } from '@/Assets/Types/commonTypes';
+import { AuthRole } from '@/Assets/Types/commonTypes';
 import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { MILLISECONDS_PER_SECOND, REFRESH_RETRY_COUNT, REFRESH_RETRY_DELAY_MS } from '@/Endpoints/auth/auth.const';
 import { getRefreshRetryDelay } from '@/Endpoints/auth/utils';
@@ -12,18 +14,10 @@ import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { createQueryFnWithRefresh } from './factory';
 import { HTTP_STATUS } from './factory.const';
-import {
-  SESSION_TEST_EXPIRED_AT,
-  SESSION_TEST_LIFETIME_MS,
-  SESSION_TEST_REFRESH_PATH,
-  SESSION_TEST_RESOURCE_PATH,
-  SESSION_TEST_RETRY_AFTER_SECONDS,
-  SESSION_TEST_SCHOOL_ID,
-  SESSION_TEST_USER_ID,
-} from './factory.refresh.const';
+import { SESSION_TEST_EXPIRED_AT, SESSION_TEST_LIFETIME_MS, SESSION_TEST_REFRESH_PATH, SESSION_TEST_RESOURCE_PATH, SESSION_TEST_RETRY_AFTER_SECONDS, SESSION_TEST_SCHOOL_ID, SESSION_TEST_USER_ID } from './factory.refresh.const';
 
 const mocks = vi.hoisted(() => ({ adapter: vi.fn() }));
-vi.mock('axios', (importOriginal) => importOriginal<typeof import('axios')>().then((original) => Object.assign({}, original, {
+vi.mock('axios', (importOriginal) => importOriginal<typeof AxiosModule>().then((original) => Object.assign({}, original, {
   default: Object.assign({}, original.default, {
     create: (config: Parameters<typeof original.default.create>[0]) => {
       const client = original.default.create(config);
@@ -32,34 +26,6 @@ vi.mock('axios', (importOriginal) => importOriginal<typeof import('axios')>().th
     },
   }),
 })));
-
-function makeIdentity(refreshToken: string = crypto.randomUUID(), exp = Date.now() + SESSION_TEST_LIFETIME_MS): UserIdentity {
-  const userRoles = [{ id: 2, role: AuthRole.TEACHER, schoolId: SESSION_TEST_SCHOOL_ID, userId: 2 }];
-  return {
-    userPublicId: SESSION_TEST_USER_ID,
-    userName: 'Пользователь',
-    jwtToken: `header.${btoa(JSON.stringify({ exp: exp / MILLISECONDS_PER_SECOND, refreshToken }))}.signature`,
-    refreshToken,
-    userRoles,
-    exp,
-    activeSchoolPublicId: SESSION_TEST_SCHOOL_ID,
-  };
-}
-
-function response(config: InternalAxiosRequestConfig, data: unknown = {}) {
-  return { config, data, status: 200, statusText: 'OK', headers: new AxiosHeaders() };
-}
-
-function requestError(config: InternalAxiosRequestConfig, status: number, retryAfter?: string) {
-  return new AxiosError('Ошибка запроса', undefined, config, undefined, {
-    ...response(config), status,
-    headers: new AxiosHeaders(retryAfter === undefined ? {} : { 'retry-after': retryAfter }),
-  });
-}
-
-function storedIdentity(): UserIdentity {
-  return JSON.parse(localStorage.getItem(USER_STORAGE_KEY)!);
-}
 
 beforeEach(() => {
   mocks.adapter.mockReset();
@@ -84,8 +50,12 @@ describe('Автоматическое обновление JWT', () => {
   });
 
   it.each([null, '{invalid', '{}'])('очищает непригодные текущие credentials %s до отправки запроса', async (stored) => {
-    if (stored === null) localStorage.removeItem(USER_STORAGE_KEY);
-    else localStorage.setItem(USER_STORAGE_KEY, stored);
+    if (stored === null) {
+      localStorage.removeItem(USER_STORAGE_KEY);
+    }
+    else {
+      localStorage.setItem(USER_STORAGE_KEY, stored);
+    }
 
     await expect(createQueryFnWithRefresh().get(SESSION_TEST_RESOURCE_PATH)).rejects.toBeDefined();
 
@@ -124,8 +94,12 @@ describe('Автоматическое обновление JWT', () => {
   it('восстанавливает запрос после серверного 401 до локального истечения JWT', async () => {
     const refreshed = makeIdentity('server-rotated-refresh');
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (config.url === SESSION_TEST_REFRESH_PATH) return response(config, refreshed);
-      if (storedIdentity().refreshToken !== refreshed.refreshToken) throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      if (config.url === SESSION_TEST_REFRESH_PATH) {
+        return response(config, refreshed);
+      }
+      if (storedIdentity().refreshToken !== refreshed.refreshToken) {
+        throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      }
       return response(config);
     });
 
@@ -136,7 +110,9 @@ describe('Автоматическое обновление JWT', () => {
 
   it('не зацикливает повторный 401', async () => {
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (config.url === SESSION_TEST_REFRESH_PATH) return response(config, makeIdentity('retry-refresh'));
+      if (config.url === SESSION_TEST_REFRESH_PATH) {
+        return response(config, makeIdentity('retry-refresh'));
+      }
       throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
     });
 
@@ -150,9 +126,13 @@ describe('Автоматическое обновление JWT', () => {
     const refreshed = makeIdentity('invite-refresh');
     let joinAttempts = 0;
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (config.url === SESSION_TEST_REFRESH_PATH) return response(config, refreshed);
+      if (config.url === SESSION_TEST_REFRESH_PATH) {
+        return response(config, refreshed);
+      }
       joinAttempts += 1;
-      if (joinAttempts <= 2) throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      if (joinAttempts <= 2) {
+        throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      }
       return response(config, refreshed);
     });
 
@@ -255,9 +235,13 @@ describe('Автоматическое обновление JWT', () => {
     useGlobalContext.getState().auth.setUser(makeIdentity(undefined, SESSION_TEST_EXPIRED_AT));
     let refreshAttempts = 0;
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (config.url !== SESSION_TEST_REFRESH_PATH) return response(config);
+      if (config.url !== SESSION_TEST_REFRESH_PATH) {
+        return response(config);
+      }
       refreshAttempts += 1;
-      if (refreshAttempts === 1) throw requestError(config, HTTP_STATUS.TOO_MANY_REQUESTS, retryAfter);
+      if (refreshAttempts === 1) {
+        throw requestError(config, HTTP_STATUS.TOO_MANY_REQUESTS, retryAfter);
+      }
       return response(config, makeIdentity(`rate-limit-refresh-${retryAfter}`));
     });
 
@@ -299,15 +283,18 @@ describe('Автоматическое обновление JWT', () => {
   it.each(['logout', 'switch'] as const)('не восстанавливает прежнюю сессию при %s во время refresh', async (action) => {
     useGlobalContext.getState().auth.setUser(makeIdentity(undefined, SESSION_TEST_EXPIRED_AT));
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (action === 'logout') useGlobalContext.getState().auth.logout();
-      else useGlobalContext.getState().auth.setUser({ ...makeIdentity('next-account-refresh'), userPublicId: 'next-user' });
+      if (action === 'logout') {
+        useGlobalContext.getState().auth.logout();
+      }
+      else {
+        useGlobalContext.getState().auth.setUser({ ...makeIdentity('next-account-refresh'), userPublicId: 'next-user' });
+      }
       return response(config, makeIdentity('late-refresh'));
     });
     await expect(createQueryFnWithRefresh().get(SESSION_TEST_RESOURCE_PATH)).rejects.toBeDefined();
     expect(useGlobalContext.getState().auth.user?.userPublicId).toBe(action === 'logout' ? undefined : 'next-user');
     expect(mocks.adapter).toHaveBeenCalledOnce();
   });
-
 
   it('восстанавливает страницу после 429 на начальном refresh без выхода из аккаунта', async () => {
     const stored = localStorage.getItem(USER_STORAGE_KEY)!;
@@ -317,7 +304,9 @@ describe('Автоматическое обновление JWT', () => {
     let attempts = 0;
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
       attempts += 1;
-      if (attempts === 1) throw requestError(config, HTTP_STATUS.TOO_MANY_REQUESTS, '0');
+      if (attempts === 1) {
+        throw requestError(config, HTTP_STATUS.TOO_MANY_REQUESTS, '0');
+      }
       return response(config, refreshed);
     });
     const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -334,8 +323,12 @@ describe('Автоматическое обновление JWT', () => {
   it('объединяет refresh при одновременных 401 и повторяет оба исходных запроса', async () => {
     const refreshed = makeIdentity('parallel-401-refresh');
     mocks.adapter.mockImplementation(async (config: InternalAxiosRequestConfig) => {
-      if (config.url === SESSION_TEST_REFRESH_PATH) return response(config, refreshed);
-      if (storedIdentity().refreshToken !== refreshed.refreshToken) throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      if (config.url === SESSION_TEST_REFRESH_PATH) {
+        return response(config, refreshed);
+      }
+      if (storedIdentity().refreshToken !== refreshed.refreshToken) {
+        throw requestError(config, HTTP_STATUS.UNAUTHORIZED);
+      }
       return response(config);
     });
     const results = await Promise.all([

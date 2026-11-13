@@ -1,3 +1,5 @@
+import type { FileUploadProgressProps } from './FileUploadProgress.type';
+export type { UploadItemProgress } from './FileUploadProgress.type';
 import { Box, Button, LinearProgress, Paper, Typography } from '@mui/material';
 import CancelRoundedIcon from '@mui/icons-material/CancelRounded';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -5,25 +7,13 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { getUploadStatusText } from './FileUploadProgress.utils';
 import * as S from './FileUploadProgress.styles';
 
-export interface UploadItemProgress {
-  id: string;
-  fileName: string;
-  sizeBytes?: number;
-  progress: number;
-  status: 'uploading' | 'completed' | 'error' | 'cancelled';
-  errorMessage?: string;
-}
-
-interface FileUploadProgressProps {
-  items: UploadItemProgress[];
-  onCancel: (uploadId: string) => void;
-}
-
 export default function FileUploadProgress({
   items,
   onCancel,
 }: FileUploadProgressProps) {
-  if (items.length === 0) return null;
+  if (items.length === 0) {
+    return null;
+  }
 
   return (
     <Box sx={S.rootSx}>

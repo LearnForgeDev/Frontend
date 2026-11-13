@@ -1,3 +1,5 @@
+import type { EventDetailModalProps } from './EventDetailModal.type';
+export type { EventDetailModalProps } from './EventDetailModal.type';
 import { Dialog, DialogContent, IconButton, Box, Tooltip } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
@@ -5,24 +7,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 import { EventDetailPanel } from '@/Services/Scheduling/components/EventDetailPanel/EventDetailPanel';
 import { buildGoogleCalendarUrl } from '@/Services/Scheduling/utils/gcalendar.utils';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import {
-  CLOSE_ARIA_LABEL,
-  DIALOG_ARIA_LABEL,
-  EDIT_TOOLTIP,
-  DELETE_TOOLTIP,
-  GCAL_TOOLTIP,
-} from './EventDetailModal.const';
-import { styles } from './EventDetailModal.styles';
 
-export interface EventDetailModalProps {
-  event: ScheduleEvent | null;
-  canManage: boolean;
-  isDeleting: boolean;
-  onClose: () => void;
-  onEdit?: (event: ScheduleEvent) => void;
-  onDelete: (id: string) => void;
-}
+import { CLOSE_ARIA_LABEL, DIALOG_ARIA_LABEL, EDIT_TOOLTIP, DELETE_TOOLTIP, GCAL_TOOLTIP } from './EventDetailModal.const';
+import { styles } from './EventDetailModal.styles';
 
 export function EventDetailModal({
   event,

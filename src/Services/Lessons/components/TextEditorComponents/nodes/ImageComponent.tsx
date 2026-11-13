@@ -1,28 +1,13 @@
-import React, {useRef, useCallback, useEffect, type JSX} from 'react';
+import { RESIZE_IMAGE_COMMAND } from '@/Services/Lessons/imageCommands.const';
+import type { ImageComponentProps } from './ImageComponent.type';
+import type { CSSProperties } from 'react';
+import { useRef, useCallback, useEffect, type JSX } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import {
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
-  CLICK_COMMAND,
-  COMMAND_PRIORITY_LOW,
-  KEY_BACKSPACE_COMMAND,
-  KEY_DELETE_COMMAND,
-  type NodeKey,
-} from "lexical";
-import { $isImageNode, RESIZE_IMAGE_COMMAND } from './ImageNode.tsx';
+import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND } from "lexical";
+import { $isImageNode } from './ImageNode.tsx';
 import { useResizable } from '@/Assets/Hooks/useResizable';
-
-interface ImageComponentProps {
-  src: string;
-  altText: string;
-  width?: number;
-  height?: number;
-  float?: 'left' | 'right' | 'center';
-  nodeKey: NodeKey;
-}
 
 export default function ImageComponent({
   src,
@@ -40,7 +25,7 @@ export default function ImageComponent({
     nodeKey,
     width,
     height,
-    elementRef: imageRef as React.RefObject<HTMLElement>,
+    elementRef: imageRef,
     resizeCommand: RESIZE_IMAGE_COMMAND,
     maintainAspectRatio: true,
   });
@@ -90,7 +75,7 @@ export default function ImageComponent({
     );
   }, [clearSelection, editor, onDelete, setSelected]);
 
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     width: currentWidth ? `${currentWidth}px` : undefined,
     height: currentHeight ? `${currentHeight}px` : undefined,
     maxWidth: "100%",

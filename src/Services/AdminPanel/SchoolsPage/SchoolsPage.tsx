@@ -26,7 +26,7 @@ export default function SchoolsPage() {
       {schoolsQuery.isError && (
         <Alert
           severity="error"
-          action={<Button color="inherit" onClick={() => schoolsQuery.refetch()}>Повторить</Button>}
+          action={<Button color="inherit" onClick={() => void schoolsQuery.refetch()}>Повторить</Button>}
         >
           Не удалось загрузить список школ.
         </Alert>

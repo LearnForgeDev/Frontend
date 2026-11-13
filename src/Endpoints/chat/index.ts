@@ -1,2 +1,2 @@
 export * from './chat.endpoints';
-export * from './types';
+export * from './chat.contract.type';

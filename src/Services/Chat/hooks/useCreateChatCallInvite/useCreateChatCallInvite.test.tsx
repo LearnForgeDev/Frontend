@@ -17,7 +17,11 @@ function createWrapper() {
   };
 }
 
-afterEach(() => { cleanup(); onlineManager.setOnline(true); vi.clearAllMocks(); });
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+  vi.clearAllMocks();
+});
 
 it('ошибка оффлайн завершает создание приглашения и не отправляет его после возвращения сети', async () => {
   onlineManager.setOnline(false);

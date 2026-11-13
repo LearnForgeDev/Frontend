@@ -1,17 +1,11 @@
+import type { FolderItemProps } from './FolderItem.type';
+export type { FolderItemProps } from './FolderItem.type';
+import type { KeyboardEvent } from 'react';
 import { Box, Typography, type SxProps, type Theme } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
-import type { LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
 import { FILE_MANAGER_CONSTANTS } from '@/Services/Lessons/components/FileManager/FileManager.const';
 import { styles } from './FolderItem.styles';
-
-export interface FolderItemProps {
-  folder: LessonFolder;
-  view: 'grid' | 'list';
-  selected: boolean;
-  onClick: (e: React.MouseEvent) => void;
-  onDoubleClick: () => void;
-  onContextMenu: (e: React.MouseEvent) => void;
-}
 
 export default function FolderItem({
   folder,
@@ -23,7 +17,7 @@ export default function FolderItem({
 }: FolderItemProps) {
   const folderColor = folder.color || FILE_MANAGER_CONSTANTS.DEFAULT_FOLDER_COLOR;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       onDoubleClick();
     }

@@ -1,3 +1,4 @@
+import type { SchoolSwitcherProps } from './SchoolSwitcher.type';
 import { useState, type MouseEvent } from 'react';
 import { Box, Button, ListItemIcon, ListItemText, Menu, MenuItem, Tooltip, Typography } from '@mui/material';
 import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
@@ -7,15 +8,6 @@ import type { UserSchoolInfo } from '@/Endpoints';
 import { formatRoles } from '@/Assets/globalUtils';
 import { ALL_SCHOOLS_LABEL, SELECT_SCHOOL_LABEL } from './SchoolSwitcher.const';
 import * as S from './SchoolSwitcher.styles';
-
-type SchoolSwitcherProps = {
-  schools: UserSchoolInfo[];
-  currentSchool?: UserSchoolInfo;
-  compact?: boolean;
-  iconOnly?: boolean;
-  onSelectSchool: (school: UserSchoolInfo) => void;
-  onOpenSchoolList: () => void;
-};
 
 export default function SchoolSwitcher({
   schools,

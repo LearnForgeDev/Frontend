@@ -1,21 +1,6 @@
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { ApiFile } from '../files/types';
-import type { SerializedDocument } from '@lexical/file';
-
-export interface UpdateLessonRequest {
-  title: string;
-  content?: SerializedDocument;
-  expectedStorageKey?: string;
-}
-
-export interface CreateLessonRequest {
-  title: string;
-  description?: string | null;
-  lessonJsonFilePublicId: string;
-  allowedUserPublicIds?: string[] | null;
-  allowedGroupIds?: number[] | null;
-  filePublicIds?: string[] | null;
-}
+export type { UpdateLessonRequest, CreateLessonRequest } from './lessons.contract.type';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
+import type { ApiFile } from '../files/files.contract.type';
 
 export function isLessonFile(file: ApiFile): boolean {
   return (file.fileName || '').startsWith('lesson::');
@@ -23,11 +8,11 @@ export function isLessonFile(file: ApiFile): boolean {
 
 export function apiFileToLesson(file: ApiFile): Lesson {
   const parts = (file.fileName || '').split('::');
-  
+
   // lesson::{url-encoded-title}::{lessonId}.lesson
   // status: derive from name (add '::draft' or '::published' as 4th segment)
   const title = parts.length > 1 ? decodeURIComponent(parts[1]) : (file.fileName || '');
-  
+
   let lessonId = file.publicId;
   if (parts.length > 2) {
     lessonId = parts[2].replace('.lesson', '');
@@ -46,5 +31,5 @@ export function apiFileToLesson(file: ApiFile): Lesson {
     status,
     updatedAt: file.uploadedAt,
     content: null,
-  } as Lesson;
+  };
 }

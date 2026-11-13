@@ -9,7 +9,7 @@ import { AUTH_VALIDATION_MESSAGES } from './hooks/useAuthForm/useAuthForm.const'
 
 const mocks = vi.hoisted(() => ({ login: vi.fn(), register: vi.fn(), setUser: vi.fn(), toast: vi.fn(), store: vi.fn() }));
 vi.mock('@/Endpoints', () => ({ authEndpoints: mocks }));
-vi.mock('@/Storage/UserContext/UserContext', () => ({ useUser: () => ({ setUser: mocks.setUser }) }));
+vi.mock('@/Services/Auth/hooks/useUser', () => ({ useUser: () => ({ setUser: mocks.setUser }) }));
 vi.mock('@/Storage/useToastStore', () => ({ useToast: () => ({ error: mocks.toast }) }));
 
 const identity = {
@@ -75,8 +75,12 @@ describe('Login submission and password saving', () => {
   });
 
   it('saves only after a valid server response and does not duplicate pending attempts', async () => {
-    let complete: (value: typeof identity) => void = () => { throw new Error('Login has not started'); };
-    mocks.login.mockImplementation(() => new Promise(resolve => { complete = resolve; }));
+    let complete: (value: typeof identity) => void = () => {
+      throw new Error('Login has not started');
+    };
+    mocks.login.mockImplementation(() => new Promise(resolve => {
+      complete = resolve;
+    }));
     renderAuth();
     const password = screen.getByLabelText(/^Пароль/);
     fireEvent.keyDown(password, { key: 'Enter' });

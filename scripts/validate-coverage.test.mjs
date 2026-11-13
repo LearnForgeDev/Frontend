@@ -4,15 +4,36 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { matchesGlob } from 'node:path';
 import { test } from 'node:test';
 import { getChangedLineCoverage, MIN_CHANGED_LINE_COVERAGE } from './validate-coverage.mjs';
+import vitestConfig from '../vitest.config.ts';
+
+test('coverage and test discovery include executable JavaScript and TypeScript variants', () => {
+  const coverage = vitestConfig.test.coverage;
+  const discovery = vitestConfig.test.projects[0].test.include;
+  for (const extension of ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts']) {
+    const path = `src/ProbePage.${extension}`;
+    assert.ok(coverage.include.some(pattern => matchesGlob(path, pattern)), path);
+    assert.ok(!coverage.exclude.some(pattern => matchesGlob(path, pattern)), path);
+    assert.ok(discovery.some(pattern => matchesGlob(`src/probe.test.${extension}`, pattern)), extension);
+    assert.ok(discovery.some(pattern => matchesGlob(`tests/unit/probe.test.${extension}`, pattern)), extension);
+    const patch = `+++ b/${path}\n@@ -0,0 +1 @@\n+run();\n`;
+    assert.deepEqual(getChangedLineCoverage({ lcov: '', patch }).missing, [path]);
+    assert.deepEqual(getChangedLineCoverage({ lcov: `SF:${path}\nDA:1,0\nend_of_record\n`, patch }), { covered: 0, total: 1, percent: 0, missing: [] });
+  }
+  const executable = 'src/ProbePage.type.tsx';
+  assert.ok(!coverage.exclude.some(pattern => matchesGlob(executable, pattern)));
+  assert.deepEqual(getChangedLineCoverage({ lcov: '', patch: `+++ b/${executable}\n@@ -0,0 +1 @@\n+run();\n` }).missing, [executable]);
+  assert.ok(coverage.exclude.some(pattern => matchesGlob('src/ProbePage.type.ts', pattern)));
+});
 
 test('changed coverage scores executable additions and fails missing reports', () => {
   const lcov = 'SF:src/rules.ts\nDA:1,1\nDA:2,0\nDA:4,1\nend_of_record\n';
   const patch = '+++ b/src/rules.ts\n@@ -0,0 +1,4 @@\n+covered\n+missed\n+type only\n+covered\n';
   assert.deepEqual(getChangedLineCoverage({ lcov, patch }), { covered: 2, total: 3, percent: 2 / 3 * 100, missing: [] });
   assert.deepEqual(getChangedLineCoverage({ lcov, patch: patch.replace('rules.ts', 'missing.ts') }).missing, ['src/missing.ts']);
-  for (const path of ['src/rules.test.ts', 'src/rules.types.ts', 'src/rules.styles.ts', 'src/env.d.ts', 'src/Assets/Art/image.ts']) {
+  for (const path of ['src/rules.test.ts', 'src/rules.type.ts', 'src/rules.styles.ts', 'src/env.d.ts', 'src/Assets/Art/image.ts']) {
     assert.deepEqual(getChangedLineCoverage({ lcov, patch: patch.replace('src/rules.ts', path) }), { covered: 0, total: 0, percent: null, missing: [] });
   }
   assert.equal(getChangedLineCoverage({ lcov, patch: '+++ /dev/null\n@@ -1 +0,0 @@\n-deleted\n' }).total, 0);

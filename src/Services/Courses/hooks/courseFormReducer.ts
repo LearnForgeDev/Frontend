@@ -1,14 +1,6 @@
-import type { CourseDetail, CourseInput } from '../Courses.types';
-import type { CourseFormState } from '../Courses.types';
-
-type CourseFormAction =
-  | { type: 'field'; field: 'title' | 'description'; value: string }
-  | { type: 'lessons'; lessonIds: number[] }
-  | { type: 'students'; studentPublicIds: string[] }
-  | { type: 'groups'; groupIds: number[] }
-  | { type: 'access'; accessMode: CourseInput['accessMode'] }
-  | { type: 'move'; lessonId: number; direction: -1 | 1 }
-  | { type: 'error'; error: string | null };
+import type { CourseFormAction } from './courseFormReducer.type';
+import type { CourseDetail, CourseInput } from '../Courses.type';
+import type { CourseFormState } from '../Courses.type';
 
 export function createCourseForm(course?: CourseDetail): CourseFormState {
   return {
@@ -23,15 +15,29 @@ export function createCourseForm(course?: CourseDetail): CourseFormState {
 }
 
 export function courseFormReducer(state: CourseFormState, action: CourseFormAction): CourseFormState {
-  if (action.type === 'field') return { ...state, [action.field]: action.value, error: null };
-  if (action.type === 'lessons') return { ...state, lessonIds: action.lessonIds, error: null };
-  if (action.type === 'students') return { ...state, studentPublicIds: action.studentPublicIds, error: null };
-  if (action.type === 'groups') return { ...state, groupIds: action.groupIds, error: null };
-  if (action.type === 'access') return { ...state, accessMode: action.accessMode, error: null };
-  if (action.type === 'error') return { ...state, error: action.error };
+  if (action.type === 'field') {
+    return { ...state, [action.field]: action.value, error: null };
+  }
+  if (action.type === 'lessons') {
+    return { ...state, lessonIds: action.lessonIds, error: null };
+  }
+  if (action.type === 'students') {
+    return { ...state, studentPublicIds: action.studentPublicIds, error: null };
+  }
+  if (action.type === 'groups') {
+    return { ...state, groupIds: action.groupIds, error: null };
+  }
+  if (action.type === 'access') {
+    return { ...state, accessMode: action.accessMode, error: null };
+  }
+  if (action.type === 'error') {
+    return { ...state, error: action.error };
+  }
   const index = state.lessonIds.indexOf(action.lessonId);
   const nextIndex = index + action.direction;
-  if (index < 0 || nextIndex < 0 || nextIndex >= state.lessonIds.length) return state;
+  if (index < 0 || nextIndex < 0 || nextIndex >= state.lessonIds.length) {
+    return state;
+  }
   const lessonIds = [...state.lessonIds];
   [lessonIds[index], lessonIds[nextIndex]] = [lessonIds[nextIndex], lessonIds[index]];
   return { ...state, lessonIds };

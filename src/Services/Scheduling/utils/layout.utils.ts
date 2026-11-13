@@ -1,5 +1,5 @@
 import { getEventDurationMinutes } from '@/Services/Scheduling/utils/time.utils';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 /**
  * Returns the seven days of the week containing `date` in local timezone (Monday-first).

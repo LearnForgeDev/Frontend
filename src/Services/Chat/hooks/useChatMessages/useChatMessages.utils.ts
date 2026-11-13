@@ -1,33 +1,13 @@
-import type { ChatMessage, ChatFileDto } from '../../Chat.types';
+import type { ApiFileItem, ApiHistoryItem } from './useChatMessages.utils.type';
+export type { ApiHistoryItem } from './useChatMessages.utils.type';
+import type { ChatMessage, ChatFileDto } from '../../Chat.type';
 import { filesEndpoints } from '@/Endpoints';
 import { UNKNOWN_SENDER } from './useChatMessages.const';
 
-interface ApiFileItem {
-  publicId?: string;
-  PublicId?: string;
-  fileName?: string;
-  FileName?: string;
-  fileUrl?: string;
-  FileUrl?: string;
-}
-
-export interface ApiHistoryItem {
-  publicId?: string;
-  PublicId?: string;
-  senderPublicId?: string;
-  SenderPublicId?: string;
-  senderName?: string;
-  SenderName?: string;
-  text?: string;
-  Text?: string;
-  files?: ApiFileItem[];
-  Files?: ApiFileItem[];
-  sentAt?: string;
-  SentAt?: string;
-}
-
 function mapFiles(raw: ApiFileItem[] | undefined, schoolPublicId: string): ChatFileDto[] {
-  if (!raw || raw.length === 0) return [];
+  if (!raw || raw.length === 0) {
+    return [];
+  }
   return raw.map(f => {
     const id = f.publicId ?? f.PublicId ?? '';
     const name = f.fileName ?? f.FileName ?? '';

@@ -1,28 +1,9 @@
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Typography,
-} from '@mui/material';
+import type { StartMeetingNowDialogProps } from './StartMeetingNowDialog.type';
+export type { StartMeetingNowDialogProps } from './StartMeetingNowDialog.type';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import { formatEventFullDateTime } from '@/Services/Scheduling/utils/time.utils';
-import type { MeetingInterval } from '@/Services/Scheduling/utils/meeting.utils';
-import {
-  CANCEL_BUTTON_TEXT,
-  CONFIRM_BUTTON_TEXT,
-  DIALOG_DESCRIPTION,
-  DIALOG_TITLE,
-  NEW_INTERVAL_LABEL,
-} from './StartMeetingNowDialog.const';
 
-export interface StartMeetingNowDialogProps {
-  interval: MeetingInterval | null;
-  isPending: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
+import { CANCEL_BUTTON_TEXT, CONFIRM_BUTTON_TEXT, DIALOG_DESCRIPTION, DIALOG_TITLE, NEW_INTERVAL_LABEL } from './StartMeetingNowDialog.const';
 
 export function StartMeetingNowDialog({
   interval,

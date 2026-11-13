@@ -17,18 +17,27 @@ function createWrapper() {
 function deferred() {
   let resolve!: () => void;
   let reject!: (error: Error) => void;
-  const promise = new Promise<void>((done, fail) => { resolve = done; reject = fail; });
+  const promise = new Promise<void>((done, fail) => {
+    resolve = done;
+    reject = fail;
+  });
   return { promise, resolve, reject };
 }
 
-afterEach(() => { cleanup(); onlineManager.setOnline(true); });
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+});
 
 describe('Черновик сообщения', () => {
   it('ошибка сохраняет текст и вложения, повтор очищает их только после подтверждения', async () => {
     const request = deferred();
     const send = vi.fn().mockReturnValueOnce(request.promise).mockResolvedValue(undefined);
     const { result } = renderHook(() => useChatDraft({ draftKey: 'school:branch:a', onSendMessage: send }), { wrapper: createWrapper() });
-    act(() => { result.current.setText('  Домашнее задание  '); result.current.selectFiles([file]); });
+    act(() => {
+      result.current.setText('  Домашнее задание  ');
+      result.current.selectFiles([file]);
+    });
     act(() => result.current.submit());
     await waitFor(() => expect(send).toHaveBeenCalledWith('Домашнее задание', ['file-a']));
     expect(result.current.text).toBe('  Домашнее задание  ');
@@ -48,7 +57,11 @@ describe('Черновик сообщения', () => {
     const send = vi.fn(() => request.promise);
     const { result } = renderHook(() => useChatDraft({ draftKey: 'a', onSendMessage: send }), { wrapper: createWrapper() });
     act(() => result.current.setText('Сообщение'));
-    act(() => { result.current.submit(); result.current.submit(); result.current.submit(); });
+    act(() => {
+      result.current.submit();
+      result.current.submit();
+      result.current.submit();
+    });
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     await act(async () => request.resolve());
   });
@@ -57,11 +70,17 @@ describe('Черновик сообщения', () => {
     const request = deferred();
     const send = vi.fn(() => request.promise);
     const { result } = renderHook(() => useChatDraft({ draftKey: 'a', onSendMessage: send }), { wrapper: createWrapper() });
-    act(() => { result.current.setText('Первое'); result.current.selectFiles([file]); });
+    act(() => {
+      result.current.setText('Первое');
+      result.current.selectFiles([file]);
+    });
     act(() => result.current.submit());
     await waitFor(() => expect(send).toHaveBeenCalledTimes(1));
     const selectionId = result.current.files[0].selectionId;
-    act(() => { result.current.setText('Следующее'); result.current.removeFile(selectionId); });
+    act(() => {
+      result.current.setText('Следующее');
+      result.current.removeFile(selectionId);
+    });
     act(() => result.current.selectFiles([file, { publicId: 'file-b', fileName: 'Ответ.pdf' }]));
     await act(async () => request.resolve());
     await waitFor(() => expect(result.current.isSending).toBe(false));

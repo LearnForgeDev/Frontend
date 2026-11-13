@@ -9,7 +9,7 @@ import MobileNavigation from './components/MobileNavigation/MobileNavigation';
 import SchoolSwitcher from './components/SchoolSwitcher/SchoolSwitcher';
 import { useCurrentSchool } from './hooks/useCurrentSchool';
 import { getVisibleNavigationItems } from './utils/getVisibleNavigationItems';
-import type { AppNavigationItem } from './AppShell.types';
+import type { AppNavigationItem } from './AppShell.type';
 import { APP_DESKTOP_NAVIGATION_ID, SIDEBAR_COLLAPSE_LABEL, SIDEBAR_EXPAND_LABEL } from './AppShell.const';
 import * as S from './AppShell.styles';
 

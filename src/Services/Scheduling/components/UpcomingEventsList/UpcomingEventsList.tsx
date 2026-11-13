@@ -1,14 +1,10 @@
+import type { UpcomingEventsListProps } from './UpcomingEventsList.type';
+export type { UpcomingEventsListProps } from './UpcomingEventsList.type';
 import { useState } from 'react';
 import { Box, List, ListItemButton, Typography } from '@mui/material';
 import { formatEventTimeRange } from '@/Services/Scheduling/utils/time.utils';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import { styles } from './UpcomingEventsList.styles';
 
-export interface UpcomingEventsListProps {
-  events: ScheduleEvent[];
-  onSelect: (id: string) => void;
-  selectedEventId: string | null;
-}
+import { styles } from './UpcomingEventsList.styles';
 
 export function UpcomingEventsList({ events, onSelect, selectedEventId }: UpcomingEventsListProps) {
   const [now] = useState(() => Date.now());

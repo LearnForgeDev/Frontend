@@ -18,14 +18,23 @@ function createWrapper() {
   };
 }
 
-beforeEach(() => { vi.clearAllMocks(); status = 'connected'; invoke.mockResolvedValue(undefined); });
-afterEach(() => { cleanup(); onlineManager.setOnline(true); });
+beforeEach(() => {
+  vi.clearAllMocks();
+  status = 'connected';
+  invoke.mockResolvedValue(undefined);
+});
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+});
 
 describe('Подтверждение отправки SignalR', () => {
   it('возвращает ошибку сервера вызывающей форме', async () => {
     invoke.mockRejectedValue(new Error('server rejected'));
     const { result } = renderHook(() => useChatMessages({ type: 'branch', schoolPublicId: 'school', threadId: 'chat' }), { wrapper: createWrapper() });
-    await act(async () => { await expect(result.current.sendMessage('Текст', ['file'])).rejects.toThrow('server rejected'); });
+    await act(async () => {
+      await expect(result.current.sendMessage('Текст', ['file'])).rejects.toThrow('server rejected');
+    });
     expect(invoke).toHaveBeenCalledWith('SendMessageToBreanch', 'school', 'chat', 'Текст', ['file']);
   });
 
@@ -33,16 +42,24 @@ describe('Подтверждение отправки SignalR', () => {
     onlineManager.setOnline(false);
     status = 'disconnected';
     const { result } = renderHook(() => useChatMessages({ type: 'direct', schoolPublicId: 'school', threadId: 'person' }), { wrapper: createWrapper() });
-    await act(async () => { await expect(result.current.sendMessage('Текст')).rejects.toThrow('Нет соединения'); });
+    await act(async () => {
+      await expect(result.current.sendMessage('Текст')).rejects.toThrow('Нет соединения');
+    });
     expect(invoke).not.toHaveBeenCalled();
   });
 
   it('ожидает подтверждение invoke для личного сообщения', async () => {
     let resolve!: () => void;
-    invoke.mockReturnValue(new Promise<void>(done => { resolve = done; }));
+    invoke.mockReturnValue(new Promise<void>(done => {
+      resolve = done;
+    }));
     const { result } = renderHook(() => useChatMessages({ type: 'direct', schoolPublicId: 'school', threadId: 'person' }), { wrapper: createWrapper() });
     let completed = false;
-    act(() => { void result.current.sendMessage('Текст').then(() => { completed = true; }); });
+    act(() => {
+      void result.current.sendMessage('Текст').then(() => {
+      completed = true;
+    });
+    });
     await waitFor(() => expect(invoke).toHaveBeenCalledWith('SendMessageToDirect', 'school', 'person', 'Текст', []));
     expect(completed).toBe(false);
     await act(async () => resolve());

@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { createLesson, openLessonEditor, saveLesson, uniqueName, readJson, uploadFile } from './flows.utils';
 import { PNG_BYTES } from './flows.const';
-import type { TestFile } from './flows.types';
+import type { TestFile } from './flows.type';
 
 test('SCHEDULE-04 COMMON-04: свободный слот задаёт дату и время, Escape закрывает форму', async ({ actors }) => {
   const { page } = await actors('teacher');
@@ -26,10 +26,16 @@ test('FILE-04: отмена передачи не создаёт файл, по�
   const name = uniqueName('Отменённый файл') + '.txt';
   let release!: () => void;
   let received!: () => void;
-  const gate = new Promise<void>(resolve => { release = resolve; });
-  const started = new Promise<void>(resolve => { received = resolve; });
+  const gate = new Promise<void>(resolve => {
+    release = resolve;
+  });
+  const started = new Promise<void>(resolve => {
+    received = resolve;
+  });
   await actor.page.route('http://127.0.0.1:9000/**', async route => {
-    if (route.request().method() !== 'PUT') return route.continue();
+    if (route.request().method() !== 'PUT') {
+      return route.continue();
+    }
     received();
     await gate;
     await route.abort('aborted');

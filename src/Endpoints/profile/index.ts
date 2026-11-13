@@ -1,2 +1,2 @@
 export * from './profile.endpoints';
-export * from './types';
+export * from './profile.contract.type';

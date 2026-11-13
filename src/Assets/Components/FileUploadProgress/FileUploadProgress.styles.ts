@@ -1,12 +1,16 @@
+import type { UploadStatus } from './FileUploadProgress.styles.type';
 import type { SxProps, Theme } from '@mui/material/styles';
-import type { UploadItemProgress } from './FileUploadProgress';
-
-type UploadStatus = UploadItemProgress['status'];
 
 const getStatusColor = (theme: Theme, status: UploadStatus): string => {
-  if (status === 'error') return theme.palette.error.main;
-  if (status === 'completed') return theme.palette.success.main;
-  if (status === 'cancelled') return theme.palette.text.disabled;
+  if (status === 'error') {
+    return theme.palette.error.main;
+  }
+  if (status === 'completed') {
+    return theme.palette.success.main;
+  }
+  if (status === 'cancelled') {
+    return theme.palette.text.disabled;
+  }
   return theme.palette.primary.main;
 };
 

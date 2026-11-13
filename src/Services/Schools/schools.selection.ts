@@ -1,5 +1,5 @@
 import { getSchoolCapabilities } from '@/Services/AppShell/utils/getSchoolCapabilities';
-import type { SchoolSelectionInput } from './schools.types';
+import type { SchoolSelectionInput } from './schools.type';
 
 export function resolveSchoolSelection({ schools, routeSchoolPublicId, activeSchoolPublicId }: SchoolSelectionInput) {
   const availableSchools = schools.filter(school => getSchoolCapabilities(school.roles).canAccessSchool);

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { branchesEndpoints } from '@/Endpoints';
-import type { ChatThread } from '@/Services/Chat/Chat.types';
-import type { Branch } from '@/Endpoints/branches/types';
+import type { ChatThread } from '@/Services/Chat/Chat.type';
+import type { Branch } from '@/Endpoints/branches/branches.contract.type';
 
 export function useChatList(schoolPublicId: string) {
   const { data: branches, isLoading, isError } = useQuery({

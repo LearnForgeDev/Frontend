@@ -3,7 +3,7 @@ import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { uploadFile, uniqueName, readJson } from './flows.utils';
 import { PNG_BYTES, ERROR_RESPONSE, MOBILE_USER_AGENT, HTTP_DENIED } from './flows.const';
-import type { TestFile } from './flows.types';
+import type { TestFile } from './flows.type';
 
 test('FILE-05 FILE-07: поиск, фильтр, список и UI-скачивание сохраняют исходные байты', async ({ actors }) => {
   const actor = await actors();
@@ -25,7 +25,11 @@ test('FILE-05 FILE-07: поиск, фильтр, список и UI-скачив
   await card.getByTestId('file-download').click();
   const download = await downloadEvent;
   expect(download.suggestedFilename()).toBe(name);
-  expect(await readFile((await download.path())!)).toEqual(bytes);
+  const downloadPath = await download.path();
+  if (!downloadPath) {
+    throw new Error('The file download has no local path.');
+  }
+  expect(await readFile(downloadPath)).toEqual(bytes);
 });
 
 test('FILE-06: просмотр текста и изображения не смешивает содержимое', async ({ actors }) => {
@@ -75,12 +79,15 @@ test('FILE-03: несколько выбранных файлов заверша
   const names = [uniqueName('Первый') + '.txt', uniqueName('Второй') + '.txt'];
   await actor.page.goto(`${SCHOOL_PATH}/files`);
   await actor.page.getByTestId('files-input').setInputFiles(names.map(name => ({ name, mimeType: 'text/plain', buffer: Buffer.from(name) })));
-  for (const name of names) await expect(actor.page.getByTestId(/^file-[0-9a-f-]+$/).filter({ hasText: name })).toBeVisible();
+  for (const name of names)
+    await expect(actor.page.getByTestId(/^file-[0-9a-f-]+$/).filter({ hasText: name })).toBeVisible();
   const files = await readJson<TestFile[]>(await actor.page.request.get(`/api/ApiFiles/${SCHOOL_ID}`));
   for (const name of names) {
     const file = files.find(item => item.fileName === name);
     expect(file).toBeTruthy();
-    actor.cleanup.push(async () => { expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file!.publicId}`)).ok()).toBe(true); });
+    actor.cleanup.push(async () => {
+      expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file!.publicId}`)).ok()).toBe(true);
+    });
   }
 });
 
@@ -98,7 +105,9 @@ test('FILE-03: drag-and-drop отправляет реальные байты в
   const files = await readJson<TestFile[]>(await actor.page.request.get(`/api/ApiFiles/${SCHOOL_ID}`));
   const file = files.find(item => item.fileName === name)!;
   expect(file).toBeTruthy();
-  actor.cleanup.push(async () => { expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file.publicId}`)).ok()).toBe(true); });
+  actor.cleanup.push(async () => {
+    expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file.publicId}`)).ok()).toBe(true);
+  });
   expect(await (await actor.page.request.get(`/api/ApiFiles/${SCHOOL_ID}/${file.publicId}/content`)).text()).toBe('Текст перетаскивания');
 });
 
@@ -134,5 +143,7 @@ test('FILE-11: мобильный capture-input использует обычн�
   const files = await readJson<TestFile[]>(await actor.page.request.get(`/api/ApiFiles/${SCHOOL_ID}`));
   const file = files.find(item => item.fileName === name)!;
   expect(file).toBeTruthy();
-  actor.cleanup.push(async () => { expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file.publicId}`)).ok()).toBe(true); });
+  actor.cleanup.push(async () => {
+    expect((await actor.page.request.delete(`/api/ApiFiles/${SCHOOL_ID}/${file.publicId}`)).ok()).toBe(true);
+  });
 });

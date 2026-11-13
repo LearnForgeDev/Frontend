@@ -35,8 +35,12 @@ test('SESSION-11: a pending restore has an immediate sign-in escape', { tag: '@u
   const { page } = await actors();
   let release!: () => void;
   let started!: () => void;
-  const gate = new Promise<void>(resolve => { release = resolve; });
-  const ready = new Promise<void>(resolve => { started = resolve; });
+  const gate = new Promise<void>(resolve => {
+    release = resolve;
+  });
+  const ready = new Promise<void>(resolve => {
+    started = resolve;
+  });
   await page.route(`**${SESSION_REFRESH_PATH}`, async route => {
     started();
     await gate;

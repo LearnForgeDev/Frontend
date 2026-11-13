@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { ChatThread } from '../../Chat.types';
+import type { ChatThread } from '../../Chat.type';
 import { useChatMessages } from '../useChatMessages/useChatMessages';
 import { useDownloadChatFile } from '../useDownloadChatFile/useDownloadChatFile';
 import { useCreateChatCallInvite } from '../useCreateChatCallInvite/useCreateChatCallInvite';

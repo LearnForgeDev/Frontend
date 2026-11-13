@@ -1,10 +1,4 @@
-import type { AuthFormState } from './hooks/useAuthForm/useAuthForm.types';
-
-declare global {
-  interface Window {
-    PasswordCredential?: new (data: { id: string; password: string }) => Credential;
-  }
-}
+import type { AuthFormState } from './hooks/useAuthForm/useAuthForm.type';
 
 export function storePasswordCredential({ name, password }: Pick<AuthFormState, 'name' | 'password'>): void {
   if (!window.PasswordCredential || !navigator.credentials?.store) {

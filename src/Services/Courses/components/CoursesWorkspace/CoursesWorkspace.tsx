@@ -1,3 +1,4 @@
+import type { CoursesWorkspaceProps } from './CoursesWorkspace.type';
 import { Alert, Box, Button, InputAdornment, TextField, Typography } from '@mui/material';
 import { Add, Search } from '@mui/icons-material';
 import CourseEditorModal from '../../components/CourseEditorModal/CourseEditorModal';
@@ -5,10 +6,6 @@ import CoursesList from '../../components/CoursesList/CoursesList';
 import CourseState from '../../components/CourseState/CourseState';
 import { useCoursesPage } from '../../hooks/useCoursesPage';
 import { styles } from './CoursesWorkspace.styles';
-
-interface CoursesWorkspaceProps {
-  schoolPublicId: string;
-}
 
 export default function CoursesWorkspace({ schoolPublicId }: CoursesWorkspaceProps) {
   const view = useCoursesPage(schoolPublicId);

@@ -1,16 +1,9 @@
+import type { CourseStateProps } from './CourseState.type';
 import { Box, Button, Typography, useTheme } from '@mui/material';
 import { CloudOffOutlined, SchoolOutlined } from '@mui/icons-material';
 import { ClipLoader } from 'react-spinners';
 import { COURSE_SPINNER_SIZE } from './CourseState.const';
 import { styles } from './CourseState.styles';
-
-interface CourseStateProps {
-  kind: 'loading' | 'error' | 'empty';
-  title: string;
-  description?: string;
-  actionLabel?: string;
-  onAction?: () => void;
-}
 
 export default function CourseState({ kind, title, description, actionLabel, onAction }: CourseStateProps) {
   const theme = useTheme();

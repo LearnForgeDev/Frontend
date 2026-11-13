@@ -1,4 +1,4 @@
-import type { ScheduleEvent } from '../Scheduling.types';
+import type { ScheduleEvent } from '../Scheduling.type';
 import { AGENDA_DATE_FORMAT } from '../components/ScheduleGrid/AgendaList.const';
 
 export function getAgendaEvents(events: ScheduleEvent[], date: Date): ScheduleEvent[] {

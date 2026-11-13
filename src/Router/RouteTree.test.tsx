@@ -27,7 +27,11 @@ function CurrentPath() {
 }
 
 describe('server route rendering', () => {
-  afterEach(() => { cleanup(); localStorage.clear(); vi.restoreAllMocks(); });
+  afterEach(() => {
+    cleanup();
+    localStorage.clear();
+    vi.restoreAllMocks();
+  });
 
   it.each([
     ['/auth/login', 'С возвращением', 'auth-login-submit'],

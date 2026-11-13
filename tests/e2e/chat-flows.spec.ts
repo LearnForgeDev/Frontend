@@ -45,7 +45,9 @@ test('CHAT-04: создание группы через UI сохраняет н
   expect(response.ok()).toBe(true);
   const branchId = await response.json() as string;
   expect(branchId).toMatch(/^[0-9a-f-]{36}$/);
-  actor.cleanup.push(async () => { expect((await actor.page.request.delete(`/api/ApiBreanches/${SCHOOL_ID}/${branchId}`)).ok()).toBe(true); });
+  actor.cleanup.push(async () => {
+    expect((await actor.page.request.delete(`/api/ApiBreanches/${SCHOOL_ID}/${branchId}`)).ok()).toBe(true);
+  });
   await expect(dialog).not.toBeVisible();
   await actor.page.getByTestId(`chat-branch-${branchId}`).click();
   await expect(actor.page.getByTestId('chat-status')).toHaveText('На связи');
@@ -90,7 +92,11 @@ test('CHAT-07 CHAT-08 CHAT-09 JOURNEY-05: вложение доставляет�
   await recipient.page.getByText(file.fileName, { exact: true }).click();
   const downloaded = await download;
   expect(downloaded.suggestedFilename()).toBe(file.fileName);
-  expect(await readFile((await downloaded.path())!)).toEqual(Buffer.from('Содержимое материала'));
+  const downloadPath = await downloaded.path();
+  if (!downloadPath) {
+    throw new Error('The chat attachment download has no local path.');
+  }
+  expect(await readFile(downloadPath)).toEqual(Buffer.from('Содержимое материала'));
   await openGroup(recipient);
   await expect(recipient.page.getByText(file.fileName, { exact: true })).toBeVisible();
 });
@@ -139,10 +145,13 @@ test('CHAT-11 CALL-02: создание звонка из группы отпр�
   const join = recipient.page.getByTestId('chat-call-join').and(recipient.page.locator(`a[href*="room=${encodeURIComponent(room)}"]`));
   await expect(join).toBeVisible();
   const href = await join.getAttribute('href');
+  if (!href) {
+    throw new Error('The call invitation link has no destination.');
+  }
   expect(href).toContain(`${SCHOOL_PATH}/calls?`);
-  expect(new URL(href!).searchParams.get('room')).toBe(room);
+  expect(new URL(href).searchParams.get('room')).toBe(room);
   await join.click();
-  await expect(recipient.page).toHaveURL(href!);
+  await expect(recipient.page).toHaveURL(href);
 });
 
 test('CHAT-11: отказ токена не отправляет приглашение', { tag: '@ui-errors' }, async ({ actors }) => {

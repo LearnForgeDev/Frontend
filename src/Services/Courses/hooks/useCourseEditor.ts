@@ -2,7 +2,7 @@ import { useReducer, useRef } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { lessonsEndpoints, studentsEndpoints } from '@/Endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import type { CourseDetail, CourseInput } from '../Courses.types';
+import type { CourseDetail, CourseInput } from '../Courses.type';
 import { useToast } from '@/Storage/useToastStore';
 import { getLessonOptions, getStudentOptions } from '../utils/courseOptions';
 import { canEditCourseProgram, toCourseDetail } from '../utils/courseMapping';
@@ -30,7 +30,10 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
           studentsEndpoints.getStudentGroups(schoolPublicId),
         ]);
         return { lessons, students, groups };
-      } catch (error) { toast.error(EDITOR_OPTIONS_ERROR); throw error; }
+      } catch (error) {
+        toast.error(EDITOR_OPTIONS_ERROR);
+        throw error;
+      }
     },
     staleTime: COURSE_QUERY_STALE_TIME, retry: false,
   });
@@ -71,7 +74,9 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
     const input = getCourseInput(form);
     const error = validateCourse(input);
     dispatch({ type: 'error', error });
-    if (error || options.isPending || options.isError || mutation.isPending || mutation.error instanceof CourseCreationUncertainError) return;
+    if (error || options.isPending || options.isError || mutation.isPending || mutation.error instanceof CourseCreationUncertainError) {
+      return;
+    }
     mutation.mutate(input, { onSuccess: saved => onSaved(toCourseDetail(saved)) });
   };
   return {

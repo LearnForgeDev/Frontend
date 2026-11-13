@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useState } from 'react';
 import { Box, Typography, Switch, FormControlLabel, Divider, Paper } from '@mui/material';
 
 const SettingsPage = () => {
   const [blackjackOn, setBlackjackOn] = useState(false);
 
-  const handleBlackjackChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBlackjackChange = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       setBlackjackOn(false);
       window.open('https://youtu.be/ubPWaDWcOLU?si=Mx-ACQDo9Iyv1ezm', '_blank');

@@ -1,17 +1,8 @@
+import type { JoinWindowState } from './useJoinWindow.type';
+export type { JoinWindowState } from './useJoinWindow.type';
 import { useEffect, useState } from 'react';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import {
-  MAX_TIMER_DELAY_MS,
-  MILLISECONDS_PER_MINUTE,
-  STUDENT_JOIN_WINDOW_MINUTES,
-  TIMER_TRANSITION_TOLERANCE_MS,
-} from './useJoinWindow.const';
-
-export interface JoinWindowState {
-  canJoin: boolean;
-  isFuture: boolean;
-  isEnded: boolean;
-}
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
+import { MAX_TIMER_DELAY_MS, MILLISECONDS_PER_MINUTE, STUDENT_JOIN_WINDOW_MINUTES, TIMER_TRANSITION_TOLERANCE_MS } from './useJoinWindow.const';
 
 /** Keeps the meeting phase current at the student-access, start, and end boundaries. */
 export function useJoinWindow(event: ScheduleEvent, canManage: boolean): JoinWindowState {
@@ -23,7 +14,9 @@ export function useJoinWindow(event: ScheduleEvent, canManage: boolean): JoinWin
 
   useEffect(() => {
     const transitions = [studentOpensAt, startTs, endTs].filter((transition) => transition > nowTs);
-    if (transitions.length === 0) return;
+    if (transitions.length === 0) {
+      return;
+    }
 
     const nextTransition = Math.min(...transitions);
     const delay = Math.min(

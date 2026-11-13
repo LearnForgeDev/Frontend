@@ -1,4 +1,4 @@
-import type { CourseDetail, CourseStudent, CourseSummary } from '@/Services/Courses/Courses.types';
+import type { CourseDetail, CourseStudent, CourseSummary } from '@/Services/Courses/Courses.type';
 import {
   LESSON_PLURAL_FORMS,
   PERCENT_SCALE,
@@ -28,12 +28,14 @@ export function getStudentProgress(student: CourseStudent) {
 }
 
 export function getCourseProgressRows(course: CourseDetail) {
-  if (!course.canManage) return course.completedLessonCount === null ? [] : [{
+  if (!course.canManage) {
+    return course.completedLessonCount === null ? [] : [{
     userPublicId: 'current', displayName: 'Мой прогресс',
     completed: course.completedLessonCount, percentage: course.progressPercent ?? 0,
     label: `${course.completedLessonCount} из ${course.requiredItemCount}`,
     isComplete: course.requiredItemCount > 0 && course.completedLessonCount === course.requiredItemCount,
   }];
+  }
   return course.students.map(student => ({
     ...student, ...getStudentProgress(student),
     isComplete: student.totalCount > 0 && student.completedCount === student.totalCount,

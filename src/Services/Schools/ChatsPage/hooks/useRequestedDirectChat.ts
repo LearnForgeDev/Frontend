@@ -1,14 +1,6 @@
+import type { UseRequestedDirectChatOptions } from './useRequestedDirectChat.type';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import type { MemberDto } from '@/Endpoints/schools/types';
-import type { ChatThread } from '@/Services/Chat/Chat.types';
-
-type UseRequestedDirectChatOptions = {
-  members: MemberDto[];
-  directThreads: ChatThread[];
-  addDirectChat: (name: string, otherUserId: string) => ChatThread;
-  onOpenThread: (thread: ChatThread) => void;
-};
 
 export function useRequestedDirectChat({
   members,

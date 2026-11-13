@@ -1,21 +1,7 @@
+import type { ScheduleEventFormValues, ScheduleEventFormValidationResult } from './CreateEventModal.validation.type';
+export type { ScheduleEventFormValues, ScheduleEventFormValidationResult } from './CreateEventModal.validation.type';
 import { localDateTimeToIso } from '@/Services/Scheduling/utils/time.utils';
-import {
-  ERROR_INVALID_TIME_RANGE,
-  ERROR_MISSING_DATE,
-  ERROR_MISSING_TIME,
-  ERROR_MISSING_TITLE,
-} from './CreateEventModal.const';
-
-export interface ScheduleEventFormValues {
-  title: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-}
-
-export type ScheduleEventFormValidationResult =
-  | { error: string; startUtc?: never; endUtc?: never }
-  | { error: null; startUtc: string; endUtc: string };
+import { ERROR_INVALID_TIME_RANGE, ERROR_MISSING_DATE, ERROR_MISSING_TIME, ERROR_MISSING_TITLE } from './CreateEventModal.const';
 
 export function validateScheduleEventForm({
   title,

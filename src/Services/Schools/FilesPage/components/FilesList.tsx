@@ -1,15 +1,14 @@
+import type { Props } from './FilesList.type';
 import { Box, Button, Typography, CircularProgress, Alert, Paper, Card, CardActions, IconButton, Table, TableHead, TableRow, TableCell, TableBody, TableContainer } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
 import DeleteIcon from '@mui/icons-material/Delete';
 import type { ApiFile } from '@/Endpoints';
-import type { useFilesPage } from '../hooks/useFilesPage';
+
 import { formatFileSize, formatFileDate } from '../FilesPage.utils';
 import FileIcon from './FileIcon';
 import { styles } from '../FilesPage.styles';
-
-type Props = Pick<ReturnType<typeof useFilesPage>, 'files' | 'isLoading' | 'isError' | 'isSuccess' | 'errorMessage' | 'retryFiles' | 'search' | 'viewMode' | 'handleOpenPreview' | 'handleDownloadFile' | 'setDeleteConfirmFile'>;
 
 export default function FilesList({ files: filteredFiles, isLoading, isError, isSuccess, errorMessage, retryFiles, search, viewMode, handleOpenPreview, handleDownloadFile, setDeleteConfirmFile }: Props) {
   return (
@@ -71,7 +70,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, is
                     </IconButton>
                     <IconButton
                       size="small"
-                      onClick={() => handleDownloadFile(file)}
+                      onClick={() => { void handleDownloadFile(file); }}
                       data-testid="file-download" title="Скачать"
                     >
                       <DownloadIcon fontSize="small" />
@@ -125,7 +124,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, is
                         </IconButton>
                         <IconButton
                           size="small"
-                          onClick={() => handleDownloadFile(file)}
+                          onClick={() => { void handleDownloadFile(file); }}
                           data-testid="file-download" title="Скачать"
                         >
                           <DownloadIcon fontSize="small" />

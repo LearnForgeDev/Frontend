@@ -6,11 +6,11 @@ import { AuthFlowProvider } from '../contexts/AuthFlowContext';
 import LoginPage from '../Pages/LoginPage/LoginPage';
 import RegisterPage from '../Pages/RegisterPage/RegisterPage';
 import { AUTH_VALIDATION_MESSAGES } from './useAuthForm/useAuthForm.const';
-import type { AuthFormState, AuthMode } from './useAuthForm/useAuthForm.types';
+import type { AuthFormState, AuthMode } from './useAuthForm/useAuthForm.type';
 
 const mocks = vi.hoisted(() => ({ login: vi.fn(), register: vi.fn(), setUser: vi.fn(), toast: vi.fn() }));
 vi.mock('@/Endpoints', () => ({ authEndpoints: mocks }));
-vi.mock('@/Storage/UserContext/UserContext', () => ({ useUser: () => ({ setUser: mocks.setUser }) }));
+vi.mock('@/Services/Auth/hooks/useUser', () => ({ useUser: () => ({ setUser: mocks.setUser }) }));
 vi.mock('@/Storage/useToastStore', () => ({ useToast: () => ({ error: mocks.toast }) }));
 
 function renderForm(mode: AuthMode) {
@@ -27,26 +27,34 @@ function renderForm(mode: AuthMode) {
     </QueryClientProvider>,
   );
   const form = container.querySelector('form');
-  if (!form) throw new Error('Auth form is missing');
+  if (!form) {
+    throw new Error('Auth form is missing');
+  }
   return form;
 }
 
 function nativeInput(form: HTMLFormElement, name: keyof AuthFormState) {
   const input = form.elements.namedItem(name);
-  if (!(input instanceof HTMLInputElement)) throw new Error(`Named auth input ${name} is missing`);
+  if (!(input instanceof HTMLInputElement)) {
+    throw new Error(`Named auth input ${name} is missing`);
+  }
   return input;
 }
 
 function setNativeValues(form: HTMLFormElement, values: AuthFormState, mode: AuthMode) {
   nativeInput(form, 'name').value = values.name;
   nativeInput(form, 'password').value = values.password;
-  if (mode === 'register') nativeInput(form, 'confirmPassword').value = values.confirmPassword;
+  if (mode === 'register') {
+    nativeInput(form, 'confirmPassword').value = values.confirmPassword;
+  }
 }
 
 function expectNativeValues(form: HTMLFormElement, values: AuthFormState, mode: AuthMode) {
   expect(nativeInput(form, 'name').value).toBe(values.name);
   expect(nativeInput(form, 'password').value).toBe(values.password);
-  if (mode === 'register') expect(nativeInput(form, 'confirmPassword').value).toBe(values.confirmPassword);
+  if (mode === 'register') {
+    expect(nativeInput(form, 'confirmPassword').value).toBe(values.confirmPassword);
+  }
 }
 
 beforeEach(() => vi.resetAllMocks());

@@ -1,6 +1,6 @@
 import { expect } from '@playwright/test';
 import { SCHOOL_PATH } from './core.const';
-import type { Actor } from './flows.types';
+import type { Actor } from './flows.type';
 
 export async function openGroup(actor: Actor, name = 'Общий чат CI') {
   await actor.page.goto(`${SCHOOL_PATH}/chats`);

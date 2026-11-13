@@ -1,5 +1,5 @@
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import { isSameDay } from '@/Services/Scheduling/utils/time.utils';
 import { RECENT_LESSONS_LIMIT, TODAY_DATE_FORMAT } from './TodayPage.const';
 

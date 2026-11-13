@@ -4,7 +4,7 @@
  * Shorten string to given length
  * @param str - string to shorten
  * @param length - length to shorten to
- * 
+ *
  * @example
  * shortenString("Hello, world!", 5) // "Hello..."
  * shortenString("Hello", 10) // "Hello"
@@ -26,10 +26,10 @@ export const formatRoles = (roles: string[]) => {
 };
 
 /**
- * Creates a pseudo-random UUID. 
+ * Creates a pseudo-random UUID.
  * If length is 36 and crypto is available, uses crypto.randomUUID().
  * Otherwise, generates a random alphanumeric string of the specified length.
- * 
+ *
  * @param length - The length of the generated UUID (default is 36)
  */
 export const createUUID = (length: number = 36): string => {
@@ -50,7 +50,9 @@ export const createUUID = (length: number = 36): string => {
  * @returns Value of the query parameter or null if not found
  */
 export const extractQueryParam = (param: string): string | null => {
-    if (typeof window === 'undefined') return null;
+    if (typeof window === 'undefined') {
+      return null;
+    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const value = urlParams.get(param);

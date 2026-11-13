@@ -1,3 +1,4 @@
+import type { CourseWorkspaceProps } from './CourseWorkspace.type';
 import { Alert, Box, Button, Chip, Typography } from '@mui/material';
 import { ArrowBack, DeleteOutlined, EditOutlined } from '@mui/icons-material';
 import PillButtonGroup from '@/Assets/Components/PillButtonGroup/PillButtonGroup';
@@ -11,11 +12,6 @@ import { useCoursePage } from '../../hooks/useCoursePage';
 import { formatLessonCount, formatStudentCount } from '../../utils/courseFormatting';
 import { MANAGER_COURSE_TABS, STUDENT_COURSE_TABS } from './CourseWorkspace.const';
 import { styles } from './CourseWorkspace.styles';
-
-interface CourseWorkspaceProps {
-  schoolPublicId: string;
-  coursePublicId: string;
-}
 
 export default function CourseWorkspace({ schoolPublicId, coursePublicId }: CourseWorkspaceProps) {
   const view = useCoursePage(schoolPublicId, coursePublicId);

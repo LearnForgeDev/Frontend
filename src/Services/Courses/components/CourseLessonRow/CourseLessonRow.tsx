@@ -1,16 +1,8 @@
+import type { CourseLessonRowProps } from './CourseLessonRow.type';
 import { Box, Button, Checkbox, FormControlLabel, Typography } from '@mui/material';
 import { ArrowForward } from '@mui/icons-material';
-import type { CourseLesson } from '@/Services/Courses/Courses.types';
-import { styles } from './CourseLessonRow.styles';
 
-interface CourseLessonRowProps {
-  lesson: CourseLesson;
-  ordinal: number;
-  canManage: boolean;
-  isSavingProgress: boolean;
-  onOpen: () => void;
-  onToggleCompleted: () => void;
-}
+import { styles } from './CourseLessonRow.styles';
 
 export default function CourseLessonRow({ lesson, ordinal, canManage, isSavingProgress, onOpen, onToggleCompleted }: CourseLessonRowProps) {
   return <Box component="li" sx={styles.row}>

@@ -4,7 +4,7 @@ import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { EVENT_DURATION_MS, HOUR_MS } from './flows.const';
 import { createEditableLesson } from './lesson-editor.utils';
 import { INITIAL_LESSON_CONTENT } from './lesson-editor.const';
-import type { Actor, TestEvent, TestFile, TestLesson } from './flows.types';
+import type { Actor, TestEvent, TestFile, TestLesson } from './flows.type';
 
 export function uniqueName(prefix: string) {
   return `${prefix} ${randomUUID()}`;

@@ -23,7 +23,9 @@ function makeBlob(text: string): Blob {
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((done) => { resolve = done; });
+  const promise = new Promise<T>((done) => {
+    resolve = done;
+  });
   return { promise, resolve };
 }
 
@@ -124,8 +126,8 @@ describe('Ресурс изображения', () => {
     const create = vi.fn(() => `blob:preview-${Math.random()}`);
     const revoke = vi.fn();
     vi.stubGlobal('URL', class extends URL {
-      static createObjectURL = create;
-      static revokeObjectURL = revoke;
+      static override createObjectURL = create;
+      static override revokeObjectURL = revoke;
     });
     const view = render(<StrictMode><PreviewHarness blob={makeBlob('image')} /></StrictMode>);
     expect(view.getByAltText('Фото').getAttribute('aria-busy')).toBe('true');

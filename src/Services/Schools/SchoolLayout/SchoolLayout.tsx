@@ -11,7 +11,7 @@ import {
 import { adminPanelCommonStyles } from '../../AdminPanel/AdminPanelLayout/AdminPanelCommon.styles';
 import SchoolDrawerContent from './SchoolDrawerContent';
 import { useSchoolInfo } from '@/Services/Schools/hooks/useSchoolInfo';
-import { ChatProvider } from '@/Storage/useChatContext/useChatContext.tsx';
+import { ChatProvider } from '@/Services/Chat/components/ChatProvider/ChatProvider';
 import ChatWidget from '@/Services/Chat/components/ChatWidget/ChatWidget';
 
 const SchoolLayout = () => {
@@ -63,7 +63,7 @@ const SchoolLayout = () => {
         <Box component="main" sx={mainContentSx(isDesktop, isCallsPage)}>
           <Outlet />
         </Box>
-        
+
         {schoolPublicId && (
           <ChatWidget schoolPublicId={schoolPublicId} />
         )}

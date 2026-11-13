@@ -1,8 +1,8 @@
 import type { SimpleStudentDto } from '@/Endpoints/students';
-import type { Attendee, Member } from '../../Scheduling.types';
+import type { Attendee, Member } from '../../Scheduling.type';
 import { formatLocalDateInput, isoToLocalDateInput, isoToLocalTimeInput } from '../../utils/time.utils';
 import { DEFAULT_START_TIME, DEFAULT_END_TIME } from '../../components/CreateEventModal/CreateEventModal.const';
-import type { EventEditorAction, EventEditorForm, EventEditorOptions } from './useEventEditor.types';
+import type { EventEditorAction, EventEditorForm, EventEditorOptions } from './useEventEditor.type';
 
 export function createEventEditorForm({ event, initialDate, initialStartTime, initialEndTime }: EventEditorOptions): EventEditorForm {
   return {
@@ -18,18 +18,27 @@ export function createEventEditorForm({ event, initialDate, initialStartTime, in
 }
 
 export function eventEditorReducer(state: EventEditorForm, action: EventEditorAction): EventEditorForm {
-  if (action.type === 'field') return { ...state, [action.field]: action.value, error: null };
-  if (action.type === 'attendees') return { ...state, attendeeIds: [...new Set(action.ids)], withoutAttendees: false, error: null };
-  if (action.type === 'withoutAttendees') return { ...state, withoutAttendees: action.value, attendeeIds: [], error: null };
+  if (action.type === 'field') {
+    return { ...state, [action.field]: action.value, error: null };
+  }
+  if (action.type === 'attendees') {
+    return { ...state, attendeeIds: [...new Set(action.ids)], withoutAttendees: false, error: null };
+  }
+  if (action.type === 'withoutAttendees') {
+    return { ...state, withoutAttendees: action.value, attendeeIds: [], error: null };
+  }
   return { ...state, error: action.error };
 }
 
 export function getEventAttendeeOptions(students: SimpleStudentDto[], attendees: Attendee[] = []): Member[] {
   const options = new Map<string, Member>();
-  for (const attendee of attendees) options.set(attendee.userPublicId, attendee);
+  for (const attendee of attendees)
+    options.set(attendee.userPublicId, attendee);
   for (const student of students) {
     const userPublicId = student.publicId || student.userPublicId;
-    if (!userPublicId) continue;
+    if (!userPublicId) {
+      continue;
+    }
     const displayName = student.displayName || student.fullName || student.name || student.userName || student.studentName || student.user?.fullName || student.user?.name || student.user?.userName || userPublicId;
     options.set(userPublicId, { userPublicId, displayName });
   }

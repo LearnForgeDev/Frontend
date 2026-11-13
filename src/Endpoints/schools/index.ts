@@ -1,2 +1,2 @@
 export * from './schools.endpoints';
-export * from './types';
+export * from './schools.contract.type';

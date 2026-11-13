@@ -1,7 +1,8 @@
-import React from 'react';
+import type { FC } from 'react';
+
 import { Box, Typography, FormControlLabel, Checkbox, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 
-export const LessonsConfig: React.FC = () => {
+export const LessonsConfig: FC = () => {
     return (
         <Box>
             <Typography variant="h6" component="h3">Настройка уроков</Typography>

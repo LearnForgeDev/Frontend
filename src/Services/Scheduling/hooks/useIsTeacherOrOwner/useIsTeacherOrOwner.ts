@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { schoolsEndpoints } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
 
 /** Role names (from GET /api/ApiSchool/my-schools) that may manage a school. */
 const MANAGER_ROLES = new Set(['Teacher', 'Owner']);

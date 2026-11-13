@@ -2,7 +2,7 @@ import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { OTHER_SCHOOL_ID, OTHER_SCHOOL_PATH, HTTP_DENIED, ERROR_RESPONSE, VIEWPORTS } from './flows.const';
 import { createEvent, createLesson, readJson } from './flows.utils';
-import type { TestLesson } from './flows.types';
+import type { TestLesson } from './flows.type';
 
 test('NAV-01 NAV-02: корень школы и список сохраняют выбор школы', async ({ actors }) => {
   const { page } = await actors('teacher');
@@ -103,7 +103,8 @@ test('ACCESS-03 DEV-04: ученик не может изменить защищ
     page.request.post('/api/ApiAuth/invite', { data: { schoolPublicId: SCHOOL_ID, role: 0, maxUses: 1, expiresInMinutes: 60 } }),
     page.request.get('/api/ApiSchool/provisioning-requests'),
   ];
-  for (const response of await Promise.all(requests)) expect(HTTP_DENIED).toContain(response.status());
+  for (const response of await Promise.all(requests))
+    expect(HTTP_DENIED).toContain(response.status());
   await page.goto('/developer');
   await expect(page.getByRole('heading', { name: 'Страница не найдена', exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Заявки на школы', exact: true })).toHaveCount(0);
@@ -158,7 +159,8 @@ for (const role of ['owner', 'teacher', 'student']) {
     await expect(page).toHaveURL(/\/app\/profile$/);
     await expect(page.getByRole('main').first().getByText(identity.userName, { exact: true })).toBeVisible();
     const schools = await readJson<Array<{ schoolName: string }>>(await page.request.get('/api/ApiSchool/my-schools'));
-    for (const school of schools) await expect(page.getByRole('main').first().getByText(school.schoolName, { exact: true })).toBeVisible();
+    for (const school of schools)
+      await expect(page.getByRole('main').first().getByText(school.schoolName, { exact: true })).toBeVisible();
   });
 }
 

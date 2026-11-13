@@ -1,12 +1,8 @@
-import type { ReactNode } from 'react';
-import { Box, Button, Typography } from '@mui/material';
-import type { ProfileSectionItemData } from './ProfileSectionItem.types';
-import * as S from './ProfileSectionItem.styles';
+import type { ProfileSectionItemProps } from './ProfileSectionItem.type';
 
-type ProfileSectionItemProps = Omit<ProfileSectionItemData, 'id'> & {
-  icon: ReactNode;
-  empty?: boolean;
-};
+import { Box, Button, Typography } from '@mui/material';
+
+import * as S from './ProfileSectionItem.styles';
 
 export function ProfileSectionItem({ title, details, actionLabel, onAction, icon, empty = false }: ProfileSectionItemProps) {
   return (

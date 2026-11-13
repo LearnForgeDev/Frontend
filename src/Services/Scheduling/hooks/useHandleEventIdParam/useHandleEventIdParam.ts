@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext';
-import type { ScheduleEvent } from '../../Scheduling.types';
+import type { ScheduleEvent } from '../../Scheduling.type';
 import { useSchoolId } from '../useSchoolId/useSchoolId';
 
 export function useHandleEventIdParam(events: ScheduleEvent[], isSuccess: boolean) {
@@ -18,7 +18,9 @@ export function useHandleEventIdParam(events: ScheduleEvent[], isSuccess: boolea
       processedRef.current = null;
       return;
     }
-    if (!isSuccess || processedRef.current === targetKey || !targetEvent) return;
+    if (!isSuccess || processedRef.current === targetKey || !targetEvent) {
+      return;
+    }
     processedRef.current = targetKey;
     setSelectedEventId(targetEvent.id);
     setSelectedDate(new Date(targetEvent.start));

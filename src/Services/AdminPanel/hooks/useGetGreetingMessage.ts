@@ -1,4 +1,4 @@
-import { useUser } from "@/Storage/UserContext/UserContext";
+import { useUser } from "@/Services/Auth/hooks/useUser";
 import { getTimeOfDay } from "@/Services/AdminPanel/utils";
 
 export const useGetGreetingMessage = (): string => {

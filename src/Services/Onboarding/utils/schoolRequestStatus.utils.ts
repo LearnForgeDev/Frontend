@@ -1,19 +1,8 @@
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
-import {
-  SCHOOL_REQUEST_APPROVED_STATUSES,
-  SCHOOL_REQUEST_PENDING_STATUSES,
-  SCHOOL_REQUEST_REJECTED_STATUSES,
-} from '../onboarding.const';
-import type {
-  SchoolRequestPointer,
-  SchoolRequestStatus,
-} from '../types/onboarding.types';
-
-export type SchoolRequestViewState =
-  | 'approved'
-  | 'pending'
-  | 'provisioning'
-  | 'rejected';
+import type { SchoolRequestViewState } from './schoolRequestStatus.utils.type';
+export type { SchoolRequestViewState } from './schoolRequestStatus.utils.type';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
+import { SCHOOL_REQUEST_APPROVED_STATUSES, SCHOOL_REQUEST_PENDING_STATUSES, SCHOOL_REQUEST_REJECTED_STATUSES } from '../onboarding.const';
+import type { SchoolRequestPointer, SchoolRequestStatus } from '../types/onboarding.type';
 
 export function getSchoolRequestViewState(status?: string): SchoolRequestViewState {
   if (status && SCHOOL_REQUEST_APPROVED_STATUSES.has(status)) {

@@ -1,15 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
 import { lessonsEndpoints } from '@/Endpoints';
 import { useLessonsContext } from '@/Storage/LessonsContext/LessonsContext.tsx';
-import type { UseLessonsReturn } from '@/Services/Lessons/hooks/useLessons/useLessons.types';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { UseLessonsReturn } from '@/Services/Lessons/hooks/useLessons/useLessons.type';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
 import type { AppError } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 
 export function useLessons(): UseLessonsReturn {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
 
-  if (!schoolPublicId) throw new Error('No active school public id');
+  if (!schoolPublicId) {
+    throw new Error('No active school public id');
+  }
 
   const { search: searchQuery, sort, order: sortOrder } = useLessonsContext();
 
@@ -48,6 +50,6 @@ export function useLessons(): UseLessonsReturn {
     isLoading: isLoadingLessons,
     isError: isErrorLessons,
     error: errorLessons,
-    refetch: refetchLessons,
+    refetch: () => { void refetchLessons(); },
   };
 }

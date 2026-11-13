@@ -1,10 +1,9 @@
+import type { SchoolSetupProps } from './SchoolSetup.type';
 import { Alert, Box, Button, Paper, Typography } from '@mui/material';
 import { useOnboardingSchools } from '../../hooks/useOnboardingSchools';
 import JoinSchoolForm from '../JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from '../RequestSchoolForm/RequestSchoolForm';
 import * as S from './SchoolSetup.styles';
-
-type SchoolSetupProps = { inviteToken: string };
 
 export default function SchoolSetup({ inviteToken }: SchoolSetupProps) {
   const schoolsQuery = useOnboardingSchools();

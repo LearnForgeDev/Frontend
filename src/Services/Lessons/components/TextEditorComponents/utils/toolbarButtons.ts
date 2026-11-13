@@ -22,7 +22,7 @@ import YoutubeIcon from '@/Assets/Art/images/toolbarIcons/youtube.svg';
 import EquationIcon from '@/Assets/Art/images/toolbarIcons/plus-slash-minus.svg';
 import JustifyIcon from '@/Assets/Art/images/toolbarIcons/justify.svg';
 
-import type {PluginItem} from '@/Services/Lessons/lessonTypes';
+import type {PluginItem} from '@/Services/Lessons/Lessons.type';
 
 export const eventTypes = {
   paragraph: "paragraph",

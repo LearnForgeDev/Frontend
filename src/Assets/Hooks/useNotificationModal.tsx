@@ -1,13 +1,10 @@
-import { useCallback, useEffect, useRef, type ReactElement } from 'react';
+import type { CleanupFn, RenderWithClose } from './useNotificationModal.type';
+import { useCallback, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { Modal } from '../Components/Modal/Modal';
 import Notification from '../Components/Notification/Notification';
 import type { ModalTriggerProps, NotificationProps } from '@/Assets/Types/commonTypes';
-
-type CleanupFn = () => void;
-
-type RenderWithClose = (onClose: () => void) => ReactElement;
 
 export default function useNotificationModal() {
   const activeCleanupsRef = useRef<Set<CleanupFn>>(new Set());
@@ -91,4 +88,3 @@ export default function useNotificationModal() {
     closeAll,
   };
 }
-

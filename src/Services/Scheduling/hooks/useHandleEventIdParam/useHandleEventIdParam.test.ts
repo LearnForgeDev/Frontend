@@ -1,7 +1,7 @@
 import { cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useHandleEventIdParam } from './useHandleEventIdParam';
-import type { ScheduleEvent } from '../../Scheduling.types';
+import type { ScheduleEvent } from '../../Scheduling.type';
 
 const setSelectedEventId = vi.fn();
 const setSelectedDate = vi.fn();
@@ -15,7 +15,10 @@ const event: ScheduleEvent = {
   start: '2026-10-21T10:00:00', end: '2026-10-21T11:00:00',
 };
 
-beforeEach(() => { vi.clearAllMocks(); searchParams = new URLSearchParams('eventId=lesson'); });
+beforeEach(() => {
+  vi.clearAllMocks();
+  searchParams = new URLSearchParams('eventId=lesson');
+});
 afterEach(cleanup);
 
 describe('Ссылка на занятие', () => {

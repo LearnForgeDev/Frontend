@@ -1,17 +1,18 @@
+import type { CourseProgressPanelProps } from './CourseProgressPanel.type';
 import { Box, Chip, LinearProgress, Typography } from '@mui/material';
-import type { CourseDetail } from '@/Services/Courses/Courses.types';
+
 import { getCourseProgressRows } from '../../utils/courseFormatting';
 import CourseState from '../CourseState/CourseState';
 import { styles } from './CourseProgressPanel.styles';
 
-interface CourseProgressPanelProps {
-  course: CourseDetail;
-}
-
 export default function CourseProgressPanel({ course }: CourseProgressPanelProps) {
   const rows = getCourseProgressRows(course);
-  if (!course.raw.items.length && !course.requiredItemCount) return <CourseState kind="empty" title="Прогресс появится вместе с программой" />;
-  if (!rows.length) return <CourseState kind="empty" title="Пока нет данных о прогрессе" description="Прогресс появится после добавления учеников на курс." />;
+  if (!course.raw.items.length && !course.requiredItemCount) {
+    return <CourseState kind="empty" title="Прогресс появится вместе с программой" />;
+  }
+  if (!rows.length) {
+    return <CourseState kind="empty" title="Пока нет данных о прогрессе" description="Прогресс появится после добавления учеников на курс." />;
+  }
   return <Box sx={styles.panel}>
     <Typography component="h2" variant="h6" sx={styles.title}>{course.canManage ? 'Прогресс учеников' : 'Мой прогресс'}</Typography>
     <Box component="ul" sx={styles.list}>

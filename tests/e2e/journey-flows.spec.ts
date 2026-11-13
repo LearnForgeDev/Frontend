@@ -6,7 +6,7 @@ import { openGroup } from './chat-flows.utils';
 import { MOBILE_USER_AGENT } from './flows.const';
 import { INITIAL_LESSON_CONTENT } from './lesson-editor.const';
 import { SCHOOL_REQUEST_STORAGE_KEY } from '../../src/Services/Onboarding/onboarding.const';
-import type { TestEvent } from './flows.types';
+import type { TestEvent } from './flows.type';
 
 test('COMMON-05 JOURNEY-06: смена аккаунта изолирует черновик урока', async ({ actors }) => {
   const owner = await actors();
@@ -70,7 +70,9 @@ test('SCHEDULE-03 JOURNEY-04: UI сохраняет выбранного уче�
   const response = await created;
   expect(response.ok()).toBe(true);
   const event = await response.json() as TestEvent;
-  teacher.cleanup.push(async () => { expect((await teacher.page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}`)).ok()).toBe(true); });
+  teacher.cleanup.push(async () => {
+    expect((await teacher.page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}`)).ok()).toBe(true);
+  });
   const events = await readJson<TestEvent[]>(await teacher.page.request.get(`/api/ApiSchedule/${SCHOOL_ID}/events`));
   expect(events.find(item => item.id === event.id)?.attendees.map(item => item.userPublicId)).toEqual([student.identity.userPublicId]);
   await student.page.goto(`${SCHOOL_PATH}/schedule?eventId=${event.id}`);

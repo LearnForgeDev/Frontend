@@ -63,7 +63,9 @@ export function useFilesPage(schoolPublicId: string) {
     });
 
   const handleUploadFiles = async (selectedFiles: FileList | null) => {
-    if (!selectedFiles || selectedFiles.length === 0) return;
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return;
+    }
 
     let successCount = 0;
     let failCount = 0;
@@ -157,7 +159,9 @@ export function useFilesPage(schoolPublicId: string) {
   };
 
   const handleDeleteConfirm = async () => {
-    if (!deleteConfirmFile) return;
+    if (!deleteConfirmFile) {
+      return;
+    }
 
     try {
       await deleteFile(deleteConfirmFile.publicId);
@@ -232,7 +236,7 @@ export function useFilesPage(schoolPublicId: string) {
     setDragActive(false);
 
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleUploadFiles(e.dataTransfer.files);
+      void handleUploadFiles(e.dataTransfer.files);
     }
   };
 

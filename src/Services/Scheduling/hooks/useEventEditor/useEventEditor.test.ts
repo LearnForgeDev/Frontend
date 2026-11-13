@@ -1,7 +1,7 @@
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useEventEditor } from './useEventEditor';
-import type { ScheduleEvent } from '../../Scheduling.types';
+import type { ScheduleEvent } from '../../Scheduling.type';
 
 const createEvent = { mutate: vi.fn(), isPending: false };
 const updateEvent = { mutate: vi.fn(), isPending: false };
@@ -19,7 +19,11 @@ const event: ScheduleEvent = {
   attendees: [{ userPublicId: 'anna', displayName: 'Анна', role: 0, avatarUrl: null }],
 };
 
-beforeEach(() => { vi.clearAllMocks(); createEvent.isPending = false; students.isError = false; });
+beforeEach(() => {
+  vi.clearAllMocks();
+  createEvent.isPending = false;
+  students.isError = false;
+});
 afterEach(cleanup);
 
 describe('Выбор аудитории занятия', () => {
@@ -44,7 +48,10 @@ describe('Выбор аудитории занятия', () => {
 
   it('разрешает явно выбранное занятие без учеников', () => {
     const { result } = renderHook(() => useEventEditor(options));
-    act(() => { result.current.setField('title', 'Подготовка'); result.current.setWithoutAttendees(true); });
+    act(() => {
+      result.current.setField('title', 'Подготовка');
+      result.current.setWithoutAttendees(true);
+    });
     act(() => result.current.submit());
     expect(createEvent.mutate).toHaveBeenCalledWith(expect.objectContaining({ attendeeUserPublicIds: [] }), expect.any(Object));
   });
@@ -59,7 +66,10 @@ describe('Выбор аудитории занятия', () => {
 
   it('ошибка загрузки и выполняющееся сохранение блокируют отправку без потери формы', () => {
     const { result, rerender } = renderHook(() => useEventEditor(options));
-    act(() => { result.current.setField('title', 'Математика'); result.current.selectAllStudents(); });
+    act(() => {
+      result.current.setField('title', 'Математика');
+      result.current.selectAllStudents();
+    });
     students.isError = true;
     rerender();
     act(() => result.current.submit());
