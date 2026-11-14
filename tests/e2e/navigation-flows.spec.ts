@@ -199,5 +199,7 @@ test('LESSON-01 FILE-01 SCHEDULE-01: пустые разделы реально�
   await expect(page.getByText('Файлы не найдены', { exact: true })).toBeVisible();
   await page.goto(`${OTHER_SCHOOL_PATH}/schedule`);
   await page.getByRole('button', { name: 'События', exact: true }).click();
-  await expect(page.getByText('На этот день занятий нет.', { exact: true })).toBeVisible();
+  const calendar = page.getByTestId('schedule-calendar');
+  await expect(calendar.getByRole('status')).toHaveText('На эту неделю занятий нет.');
+  await expect(calendar.getByRole('listitem')).toHaveCount(0);
 });

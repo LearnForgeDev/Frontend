@@ -19,8 +19,11 @@ export const switcherSx: SxProps<Theme> = {
 export const compactSwitcherSx: SxProps<Theme> = {
   ...switcherSx,
   width: 'auto',
+  minWidth: 0,
+  maxWidth: '100%',
   minHeight: 40,
   px: 1.25,
+  '& .MuiButton-endIcon': { flexShrink: 0 },
 };
 
 export const iconSwitcherSx: SxProps<Theme> = {
@@ -37,6 +40,7 @@ export const titleRowSx: SxProps<Theme> = {
   alignItems: 'center',
   gap: 1.1,
   minWidth: 0,
+  '& .MuiSvgIcon-root': { flexShrink: 0 },
 };
 
 export const textSx: SxProps<Theme> = { minWidth: 0, textAlign: 'left' };

@@ -8,7 +8,7 @@ test.use({ ...devices['Pixel 5'] });
 test('телефон: создание занятия, предыдущий день и возврат к сегодня', async ({ page }, testInfo) => {
   await login(page, 'teacher');
   await page.goto(`${SCHOOL_PATH}/schedule`);
-  await page.getByTestId('schedule-create-mobile').click();
+  await page.getByTestId('schedule-create').click();
   const title = `Мобильное занятие ${Date.now()}`;
   await page.getByLabel(/^Название/i).fill(title);
   await page.getByRole('checkbox', { name: 'Занятие без учеников' }).check();
@@ -17,10 +17,10 @@ test('телефон: создание занятия, предыдущий де
   const response = await created;
   expect(response.ok(), await response.text()).toBe(true);
   const saved = await response.json();
-  const calendar = page.getByRole('main').getByRole('main');
-  const calendarEvent = calendar.getByRole('button').filter({ has: page.getByText(title, { exact: true }) });
+  const calendar = page.getByTestId('schedule-calendar');
+  const calendarEvent = calendar.getByRole('heading', { name: title, exact: true });
   await expect(calendarEvent).toBeVisible();
-  await page.getByRole('button', { name: 'Предыдущий период', exact: true }).click();
+  await page.getByTestId('schedule-previous').click();
   await expect(calendarEvent).toHaveCount(0);
   await page.getByTestId('schedule-today').click();
   await expect(calendarEvent).toBeVisible();
