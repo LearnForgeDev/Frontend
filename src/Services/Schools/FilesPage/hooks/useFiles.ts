@@ -1,16 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { filesEndpoints } from '@/Endpoints';
 import type { ApiFile } from '@/Endpoints';
+import { getRequestErrorMessage } from '@/Endpoints/factory/factory.utils';
 
 export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
   const queryClient = useQueryClient();
+  const enabled = Boolean(schoolPublicId);
 
-  const { data: files = [], isLoading, isError, refetch } = useQuery<ApiFile[]>({
+  const query = useQuery<ApiFile[]>({
     queryKey: ['files', schoolPublicId, bucketType],
     queryFn: () => filesEndpoints.listFiles(schoolPublicId, bucketType),
-    enabled: !!schoolPublicId,
+    enabled,
     staleTime: 60 * 1000,
   });
+  const files = enabled ? query.data ?? [] : [];
+  const isLoading = enabled && (query.isLoading || (query.isError && query.isFetching));
+  const isError = enabled && query.isError && !query.isFetching;
 
   const invalidateAndRefetchFiles = async () => {
     await queryClient.invalidateQueries({ queryKey: ['files'] });
@@ -41,7 +46,10 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
     files,
     isLoading,
     isError,
-    refetch,
+    isSuccess: enabled && query.isSuccess,
+    errorMessage: isError ? getRequestErrorMessage(query.error) : null,
+    retryFiles: () => { void query.refetch(); },
+    refetch: query.refetch,
     uploadFile: (file: File, bucket?: string, onProgress?: (percent: number) => void, signal?: AbortSignal) =>
       uploadMutation.mutateAsync({ file, bucket, onProgress, signal }),
     isUploading: uploadMutation.isPending,

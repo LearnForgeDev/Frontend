@@ -13,6 +13,14 @@ establishes the usable file record. Preserve checksum, progress and cancellation
 handling in the existing transport; do not replace it with a component-level request.
 
 Lists use a school and category/bucket scope. Download obtains authorized file bytes.
+An absent school disables listing without showing an error or a confirmed empty list.
+Errors describe the HTTP outcome: denied access is not presented as a connection
+failure. Explicit retry keeps the same school/category; cached failures are replaced
+by a loading state while that retry is actually in flight. Empty results appear only
+after successful loading.
+Membership visibility does not replace backend authorization: file access also
+requires the member's tenant identity. A denial stays a denial until a real retry
+succeeds; the frontend does not refresh credentials or invent access after HTTP 403.
 Preview fetches supported text/image/PDF content; unsupported formats do not trigger
 a preview download. PDF data is checked for its signature, and media rendering
 failure is distinct from successful HTTP delivery.
@@ -38,6 +46,7 @@ content-safety validator. Access to lesson/chat files still requires their domai
 
 - Preview hook tests cover cancellation/races, offline retry, unsupported types, PDF validation and object-URL cleanup.
 - File helpers cover checksums/content utilities.
+- File-list checks cover disabled/idle scope, cached failure while retrying, access-denied versus transport errors, explicit retry and confirmed empty results.
 - Core browser tests cover real object-storage upload/content/deletion.
 - Browser flows also cover valid image/text preview, UI download/delete, cancellation, multiple/drop uploads and access refusal. Deliberately invalid PNG/PDF cases establish error/retry; they do not prove valid PDF rendering.
 

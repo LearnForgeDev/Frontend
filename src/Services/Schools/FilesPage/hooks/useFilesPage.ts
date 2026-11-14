@@ -24,6 +24,9 @@ export function useFilesPage(schoolPublicId: string) {
     files,
     isLoading,
     isError,
+    isSuccess,
+    errorMessage,
+    retryFiles,
     refetch,
     uploadFile,
     isUploading,
@@ -234,7 +237,7 @@ export function useFilesPage(schoolPublicId: string) {
   };
 
   return {
-    files: filteredFiles, isLoading, isError, search, setSearch, filterType, setFilterType, viewMode, setViewMode,
+    files: filteredFiles, isLoading, isError, isSuccess, errorMessage, retryFiles, search, setSearch, filterType, setFilterType, viewMode, setViewMode,
     deleteConfirmFile, setDeleteConfirmFile, previewFile, dragActive, uploadItems, fileInputRef, cameraInputRef,
     isMobile, isUploading, handleUploadFiles, handleCancelUpload, handleDeleteConfirm,
     handleOpenPreview, handleClosePreview, handleDownloadFile, handleDrag, handleDrop,

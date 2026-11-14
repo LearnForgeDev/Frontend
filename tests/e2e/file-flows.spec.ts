@@ -107,11 +107,11 @@ test('FILE-09: ошибка списка не выглядит пустым со
   const fileList = (url: URL) => url.pathname === `/api/ApiFiles/${SCHOOL_ID}`;
   await page.route(fileList, route => route.fulfill(ERROR_RESPONSE));
   await page.goto(`${SCHOOL_PATH}/files`);
-  await expect(page.getByText('Не удалось получить список файлов школы. Проверьте соединение.')).toBeVisible();
+  await expect(page.getByText('Сервер временно недоступен. Попробуйте ещё раз чуть позже.')).toBeVisible();
   await expect(page.getByText('Файлы не найдены', { exact: true })).toHaveCount(0);
   await page.unroute(fileList);
   await page.reload();
-  await expect(page.getByText('Не удалось получить список файлов школы. Проверьте соединение.')).toHaveCount(0);
+  await expect(page.getByText('Сервер временно недоступен. Попробуйте ещё раз чуть позже.')).toHaveCount(0);
   await expect(page.getByTestId('files-upload')).toBeVisible();
 });
 

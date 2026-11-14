@@ -1,4 +1,4 @@
-import { Box, Typography, CircularProgress, Alert, Paper, Card, CardActions, IconButton, Table, TableHead, TableRow, TableCell, TableBody, TableContainer } from '@mui/material';
+import { Box, Button, Typography, CircularProgress, Alert, Paper, Card, CardActions, IconButton, Table, TableHead, TableRow, TableCell, TableBody, TableContainer } from '@mui/material';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -9,24 +9,24 @@ import { formatFileSize, formatFileDate } from '../FilesPage.utils';
 import FileIcon from './FileIcon';
 import { styles } from '../FilesPage.styles';
 
-type Props = Pick<ReturnType<typeof useFilesPage>, 'files' | 'isLoading' | 'isError' | 'search' | 'viewMode' | 'handleOpenPreview' | 'handleDownloadFile' | 'setDeleteConfirmFile'>;
+type Props = Pick<ReturnType<typeof useFilesPage>, 'files' | 'isLoading' | 'isError' | 'isSuccess' | 'errorMessage' | 'retryFiles' | 'search' | 'viewMode' | 'handleOpenPreview' | 'handleDownloadFile' | 'setDeleteConfirmFile'>;
 
-export default function FilesList({ files: filteredFiles, isLoading, isError, search, viewMode, handleOpenPreview, handleDownloadFile, setDeleteConfirmFile }: Props) {
+export default function FilesList({ files: filteredFiles, isLoading, isError, isSuccess, errorMessage, retryFiles, search, viewMode, handleOpenPreview, handleDownloadFile, setDeleteConfirmFile }: Props) {
   return (
     <>
       {isLoading && (
-        <Box sx={styles.loading}>
+        <Box sx={styles.loading} role="status" aria-label="Загружаем файлы">
           <CircularProgress />
         </Box>
       )}
 
       {isError && (
-        <Alert severity="error">
-          Не удалось получить список файлов школы. Проверьте соединение.
+        <Alert severity="error" action={<Button color="inherit" onClick={retryFiles}>Повторить</Button>}>
+          {errorMessage}
         </Alert>
       )}
 
-      {!isLoading && !isError && filteredFiles.length === 0 && (
+      {isSuccess && !isLoading && !isError && filteredFiles.length === 0 && (
         <Paper sx={styles.empty}>
           <InsertDriveFileIcon sx={styles.emptyIcon} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -38,7 +38,7 @@ export default function FilesList({ files: filteredFiles, isLoading, isError, se
         </Paper>
       )}
 
-      {!isLoading && !isError && filteredFiles.length > 0 && (
+      {isSuccess && !isLoading && !isError && filteredFiles.length > 0 && (
         viewMode === 'grid' ? (
           <Box sx={styles.fileGrid}>
             {filteredFiles.map((file: ApiFile) => {
