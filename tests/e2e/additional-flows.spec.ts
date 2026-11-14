@@ -6,15 +6,24 @@ import type { TestFile } from './flows.type';
 
 test('SCHEDULE-04 COMMON-04: свободный слот задаёт дату и время, Escape закрывает форму', async ({ actors }) => {
   const { page } = await actors('teacher');
+  await page.clock.setFixedTime(new Date());
+  const selectedDate = await page.evaluate(() => {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate();
+    return {
+      slotId: `schedule-slot-${year}-${month}-${day}-10`,
+      input: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`,
+    };
+  });
   await page.goto(`${SCHOOL_PATH}/schedule`);
-  await page.getByRole('button', { name: 'День', exact: true }).click();
-  const slot = page.getByTestId(/^schedule-slot-.*-10$/).first();
-  const slotId = await slot.getAttribute('data-testid');
-  expect(slotId).toBeTruthy();
-  const [, , year, month, day] = slotId!.split('-');
+  await page.getByRole('button', { name: 'Неделя', exact: true }).click();
+  const slot = page.getByTestId('schedule-calendar').getByTestId(selectedDate.slotId);
+  await expect(slot).toHaveCount(1);
   await slot.click();
   const dialog = page.getByRole('dialog');
-  await expect(dialog.getByLabel('Дата занятия')).toHaveValue(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`);
+  await expect(dialog.getByLabel('Дата занятия')).toHaveValue(selectedDate.input);
   await expect(dialog.getByLabel('Время начала')).toHaveValue('10:00');
   await expect(dialog.getByLabel('Время окончания')).toHaveValue('11:00');
   await dialog.press('Escape');
