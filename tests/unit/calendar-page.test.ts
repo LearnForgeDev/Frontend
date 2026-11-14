@@ -113,6 +113,30 @@ it('defaults creation to the selected day and retains the full-day time inputs a
   expect(screen.getByRole('checkbox', { name: 'Занятие без учеников' })).toHaveProperty('checked', false);
 });
 
+it('limits the inline selection to the displayed day or week', async () => {
+  renderCalendar();
+  const calendar = screen.getByTestId('schedule-calendar');
+  fireEvent.click(within(calendar).getByRole('button', { name: new RegExp(data.events[6].title) }));
+  expect(screen.getByTestId('schedule-selected-event').textContent).toContain(data.events[6].title);
+  fireEvent.click(screen.getByRole('button', { name: /^День$/ }));
+  expect(screen.queryByTestId('schedule-selected-event')).toBeNull();
+  fireEvent.click(within(calendar).getByRole('button', { name: 'Открыть занятие' }));
+  expect(screen.getByTestId('schedule-selected-event').textContent).toContain(data.events[2].title);
+  fireEvent.click(within(screen.getByTestId('schedule-selected-event')).getByRole('button', { name: 'Подробнее' }));
+  const dialog = await screen.findByRole('dialog', { name: 'Детали занятия' });
+  fireEvent.click(within(dialog).getByTestId('schedule-event-close'));
+  await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  expect(screen.getByTestId('schedule-selected-event').textContent).toContain(data.events[2].title);
+  fireEvent.click(screen.getByTestId('schedule-next'));
+  expect(screen.queryByTestId('schedule-selected-event')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: /^Неделя$/ }));
+  expect(screen.getByTestId('schedule-selected-event').textContent).toContain(data.events[2].title);
+  fireEvent.click(screen.getByTestId('schedule-previous'));
+  expect(screen.queryByTestId('schedule-selected-event')).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: /^События$/ }));
+  expect(screen.queryByTestId('schedule-selected-event')).toBeNull();
+});
+
 it('opens creation from the final desktop hour without restricting the full-day grid', () => {
   renderCalendar();
   fireEvent.click(screen.getByTestId('schedule-slot-2026-11-18-23'));

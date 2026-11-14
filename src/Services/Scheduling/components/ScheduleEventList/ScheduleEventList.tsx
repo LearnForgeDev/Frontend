@@ -7,7 +7,7 @@ import type { ScheduleEventListProps } from './ScheduleEventList.type';
 export function ScheduleEventList({ events, dateLabel, onSelectEvent, emptyText = 'На этот день занятий нет.' }: ScheduleEventListProps) {
   return (
     <Box component="section" aria-label={dateLabel}>
-      <Typography component="h2" sx={{ fontSize: '1.2rem', fontWeight: 800, mb: 2, textTransform: 'capitalize' }}>{dateLabel}</Typography>
+      <Typography component="h2" sx={{ fontSize: '1.2rem', fontWeight: 800, mb: 2, '&::first-letter': { textTransform: 'uppercase' } }}>{dateLabel}</Typography>
       {events.length === 0 && <Typography color="text.secondary" role="status">{emptyText}</Typography>}
       <Box component="ul" sx={{ m: 0, p: 0, listStyle: 'none' }}>
         {events.map(event => (

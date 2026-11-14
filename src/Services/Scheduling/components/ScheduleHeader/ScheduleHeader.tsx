@@ -1,4 +1,3 @@
-import type { ScheduleHeaderProps } from './ScheduleHeader.type';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';

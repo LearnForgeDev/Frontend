@@ -1,7 +1,7 @@
 import { devices } from '@playwright/test';
 import type { Locator, Page, TestInfo } from '@playwright/test';
 import { test, expect } from './fixtures';
-import type { Actor, TestEvent } from './flows.types';
+import type { Actor, TestEvent } from './flows.type';
 import { createEvent, uniqueName } from './flows.utils';
 import { SCHOOL_PATH } from './core.const';
 

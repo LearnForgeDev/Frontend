@@ -20,6 +20,10 @@ export function useSchedulePage() {
   const [summaryEventId, setSummaryEventId] = useState<string | null>(null);
   const link = useHandleEventIdParam(schedule.events, schedule.isSuccess);
   const selectedEvent = schedule.events.find(event => event.id === context.selectedEventId) ?? null;
+  const agendaEvents = getAgendaEvents(schedule.events, context.selectedDate);
+  const weekAgendaEvents = getWeekAgendaEvents(schedule.events, context.selectedDate);
+  const visibleEvents = context.view === 'day' ? agendaEvents : weekAgendaEvents;
+  const summaryEvent = visibleEvents.find(event => event.id === (context.selectedEventId ?? summaryEventId)) ?? null;
   const dialogEvent = dialog && dialog.type !== 'create'
     ? schedule.events.find(event => event.id === dialog.eventId) ?? null : null;
   const closeDialog = () => setDialog(null);
@@ -65,13 +69,13 @@ export function useSchedulePage() {
     requestDelete, confirmDelete, isDeleting: deleteEvent.isPending, deleteFailed: deleteEvent.isError,
     isLinkUnavailable: link.isUnavailable, dismissLink: link.dismiss,
     closeDetails, openDetails,
-    summaryEvent: selectedEvent ?? schedule.events.find(event => event.id === summaryEventId) ?? null,
+    summaryEvent,
     view: context.view, selectedDate: context.selectedDate,
-    agendaEvents: getAgendaEvents(schedule.events, context.selectedDate),
+    agendaEvents,
     agendaDateLabel: formatAgendaDate(context.selectedDate),
-    weekAgendaEvents: getWeekAgendaEvents(schedule.events, context.selectedDate),
+    weekAgendaEvents,
     gridProps: {
-      events: schedule.events, onSelectEvent: selectEvent, selectedEventId: context.selectedEventId ?? summaryEventId,
+      events: schedule.events, onSelectEvent: selectEvent, selectedEventId: summaryEvent?.id ?? null,
       onSelectTimeSlot: canManage ? openTimeSlot : undefined,
     },
   };

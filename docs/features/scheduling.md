@@ -26,6 +26,10 @@ existing description, attendees, calendar export and meeting controls. Teaching
 users can edit or request deletion directly from the summary. Deep links retain the
 existing details-dialog behavior. The summary stores only an event ID and follows
 current query data after writes, rather than retaining a second event record.
+It is shown only while that record belongs to the current school's displayed day
+or week. Navigation and view changes hide summaries outside that period; closing
+details or editing retains a summary while the event remains visible. Date headings
+capitalize only the first letter, keeping Russian month names and year suffixes lowercase.
 
 Creation defaults to the selected date and keeps the form's full time choices. The
 Day list replaces its former timeline; desktop Week retains hour-slot creation.
