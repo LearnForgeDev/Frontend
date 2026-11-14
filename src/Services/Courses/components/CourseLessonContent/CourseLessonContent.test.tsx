@@ -7,7 +7,9 @@ import CourseLessonContent from './CourseLessonContent';
 
 const logoutToLogin = vi.hoisted(() => vi.fn());
 vi.mock('@/Services/Auth/hooks/useLogout/useLogout', () => ({ logoutToLogin }));
-vi.mock('@/Services/Lessons/components/TextEditor/TextEditor', () => { throw new Error('Editor chunk failed to download'); });
+vi.mock('@/Services/Lessons/components/TextEditor/TextEditor', () => {
+  throw new Error('Editor chunk failed to download');
+});
 vi.mock('@/Services/Lessons/hooks/useLessonEditing', () => ({
   useLessonEditing: () => ({ hasConflict: false, storageFailed: false, status: 'saved', recordDraft: vi.fn(), saveDocument: vi.fn() }),
 }));

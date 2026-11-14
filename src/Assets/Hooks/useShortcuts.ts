@@ -1,10 +1,5 @@
-import { useCallback, useRef, useLayoutEffect, useState, useEffect } from 'react'
-
-type ModifierKey = 'Control' | 'Alt' | 'Command' | 'Shift'
-
-interface ShortcutOptions {
-  disableTextInputs?: boolean
-}
+import type { ModifierKey, ShortcutOptions } from './useShortcuts.type';
+import { useCallback, useRef, useLayoutEffect, useState, useEffect } from 'react';
 
 export const useShortcut = (
   shortcut: string,

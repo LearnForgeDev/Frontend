@@ -1,14 +1,10 @@
+import type { FolderBreadcrumbProps } from './FolderBreadcrumb.type';
+export type { FolderBreadcrumbProps } from './FolderBreadcrumb.type';
 import { Breadcrumbs, Link, Typography, Box } from '@mui/material';
 import NavigateNextIcon from '@mui/icons-material/NavigateNext';
-import type { LessonFolder } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
 import { getBreadcrumbPath } from '@/Services/Lessons/components/FileManager/utils';
 import { styles } from './FolderBreadcrumb.styles';
-
-export interface FolderBreadcrumbProps {
-  folders: LessonFolder[];
-  currentFolderId: string | null;
-  onNavigate: (id: string | null) => void;
-}
 
 export default function FolderBreadcrumb({ folders, currentFolderId, onNavigate }: FolderBreadcrumbProps) {
   const path = getBreadcrumbPath(folders, currentFolderId);

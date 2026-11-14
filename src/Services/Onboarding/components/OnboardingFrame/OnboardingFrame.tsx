@@ -1,15 +1,11 @@
-import type { ReactNode } from 'react';
+import type { OnboardingFrameProps } from './OnboardingFrame.type';
+
 import { Box, Button, Step, StepLabel, Stepper, Typography } from '@mui/material';
 import ProfileButton from '@/Services/Profile/components/ProfileButton/ProfileButton';
 import { useLogout } from '@/Services/Auth/hooks/useLogout/useLogout';
-import { ONBOARDING_CURRENT_STEP, ONBOARDING_STEPS } from './OnboardingFrame.const';
+import { ONBOARDING_STEPS } from './OnboardingFrame.const';
 import { getOnboardingActiveStep } from './OnboardingFrame.utils';
 import * as S from './OnboardingFrame.styles';
-
-type OnboardingFrameProps = {
-  children: ReactNode;
-  stage: keyof typeof ONBOARDING_CURRENT_STEP;
-};
 
 export default function OnboardingFrame({ children, stage }: OnboardingFrameProps) {
   const activeStep = getOnboardingActiveStep(stage);

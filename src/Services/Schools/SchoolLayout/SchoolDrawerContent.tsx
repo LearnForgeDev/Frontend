@@ -1,27 +1,8 @@
+import type { SchoolDrawerContentProps } from './SchoolDrawerContent.type';
 import { Box, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import { NavLink } from 'react-router-dom';
-import {
-  backLinkIconSx,
-  backLinkSx,
-  drawerContentSx,
-  drawerHeaderSx,
-  navFooterSx,
-  navListSx,
-} from '../../AdminPanel/AdminPanelLayout/AdminPanelLayout.styles';
-import {
-  schoolDrawerSectionTitleSx,
-  schoolDrawerSubtitleSx,
-  schoolDrawerTitleSx,
-  schoolNavIconSx,
-  schoolNavItemSx,
-} from './SchoolLayout.styles';
-
-type SchoolDrawerContentProps = {
-  schoolPublicId: string;
-  schoolName: string;
-  pathname: string;
-  onCloseMenu: () => void;
-};
+import { backLinkIconSx, backLinkSx, drawerContentSx, drawerHeaderSx, navFooterSx, navListSx } from '../../AdminPanel/AdminPanelLayout/AdminPanelLayout.styles';
+import { schoolDrawerSectionTitleSx, schoolDrawerSubtitleSx, schoolDrawerTitleSx, schoolNavIconSx, schoolNavItemSx } from './SchoolLayout.styles';
 
 export default function SchoolDrawerContent({
   schoolPublicId,
@@ -112,8 +93,6 @@ export default function SchoolDrawerContent({
           </ListItemIcon>
           <ListItemText primary="Чаты" />
         </ListItemButton>
-
-
 
         <ListItemButton
           component={NavLink}

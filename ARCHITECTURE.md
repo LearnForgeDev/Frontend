@@ -59,6 +59,13 @@ running browser application's transient scope.
 Full document requests still receive server redirects and HTTP status. Route state,
 query parameters, fragments, and relative navigation pass through the routing bridge.
 
+The bridge uses the declarative React Router contract: navigation dispatch returns
+`void`; Next.js completion remains owned by the bridge. Tests use the same contract
+through `MemoryRouter` or static rendering. The erased navigation overload follows
+the [React Router guidance](https://reactrouter.com/api/hooks/useNavigate#return-type-augmentation).
+Introducing a data router requires revisiting that contract rather than hiding an
+asynchronous navigation result.
+
 The school identifier in the route selects the resource scope. Membership guards
 control entry into that school's workspace, and capability guards limit teaching
 screens. Failed membership reads remain distinct from a confirmed empty school list.

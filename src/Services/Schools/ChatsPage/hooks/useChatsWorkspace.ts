@@ -1,9 +1,10 @@
+export type { ChatsWorkspaceState } from './useChatsWorkspace.type';
 import { useCallback, useState } from 'react';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { useToast } from '@/Storage/useToastStore';
 import { getIsMobileDevice } from '@/Assets/device.utils';
-import type { ChatThread, ChatType } from '@/Services/Chat/Chat.types';
-import type { MemberDto } from '@/Endpoints/schools/types';
+import type { ChatThread, ChatType } from '@/Services/Chat/Chat.type';
+import type { MemberDto } from '@/Endpoints/schools/schools.contract.type';
 import { useChats } from './useChats';
 import { useRequestedDirectChat } from './useRequestedDirectChat';
 import { isChatGroupNameValid } from '../validation/chatGroup';
@@ -28,7 +29,9 @@ export function useChatsWorkspace(schoolPublicId: string) {
   const currentThreads = activeTab === 'branch' ? chats.branchThreads : chats.directThreads;
 
   const createGroup = async () => {
-    if (!isChatGroupNameValid(groupName) || chats.isCreatingBranch) return;
+    if (!isChatGroupNameValid(groupName) || chats.isCreatingBranch) {
+      return;
+    }
     try {
       const branch = await chats.createBranch({ name: groupName.trim(), description: groupDesc.trim() });
       setActiveReference({ id: branch.publicId, type: 'branch' });
@@ -41,7 +44,9 @@ export function useChatsWorkspace(schoolPublicId: string) {
     }
   };
   const createDirect = () => {
-    if (!selectedMember) return;
+    if (!selectedMember) {
+      return;
+    }
     openThread(chats.addDirectChat(selectedMember.displayName, selectedMember.userPublicId));
     setSelectedMember(null);
     setDialog(null);
@@ -57,5 +62,3 @@ export function useChatsWorkspace(schoolPublicId: string) {
     createGroup, createDirect, closeThread: () => setActiveReference(null),
   };
 }
-
-export type ChatsWorkspaceState = ReturnType<typeof useChatsWorkspace>;

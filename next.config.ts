@@ -36,7 +36,9 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     const backend = (process.env.CI_BACKEND_URL || process.env.BACKEND_URL)?.replace(/\/$/, '');
-    if (!backend) return [];
+    if (!backend) {
+      return [];
+    }
     return ['/api/:path*', '/Admin/:path*', '/SoftAdmin/:path*', '/css/site.css', '/lib/bootstrap/dist/css/bootstrap.min.css', '/health', '/chatHub/:path*', '/directChatHub/:path*']
       .map((source) => ({ source, destination: `${backend}${source}` }));
   },

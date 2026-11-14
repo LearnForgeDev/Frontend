@@ -52,7 +52,9 @@ export function parseYoutubeId (url: string): string | null {
   if (serverName === 'www.youtube.com' || serverName === 'youtube.com') {
     const urlObj = new URL(url);
     const id = urlObj.searchParams.get('v');
-    if (id !== null) return id
+    if (id !== null) {
+      return id
+    }
 
     const pathParts = urlObj.pathname.split('/');
     if (pathParts[1] === 'shorts' && pathParts[2]) {
@@ -71,6 +73,8 @@ export function isRutubeUrl (url: string): boolean {
 
 export function parseRutubeId (url: string): string | null {
   const id = url.split('/')[4];
-  if (id) return id;
+  if (id) {
+    return id;
+  }
   return null;
 }

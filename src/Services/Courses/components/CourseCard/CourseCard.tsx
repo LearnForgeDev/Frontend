@@ -1,13 +1,9 @@
+import type { CourseCardProps } from './CourseCard.type';
 import { Box, Card, CardActionArea, LinearProgress, Typography } from '@mui/material';
 import { AutoStoriesOutlined, GroupOutlined, SchoolOutlined } from '@mui/icons-material';
-import type { CourseSummary } from '@/Services/Courses/Courses.types';
+
 import { formatLessonCount, formatStudentCount, getCourseProgressLabel } from '../../utils/courseFormatting';
 import { styles } from './CourseCard.styles';
-
-interface CourseCardProps {
-  course: CourseSummary;
-  onOpen: () => void;
-}
 
 export default function CourseCard({ course, onOpen }: CourseCardProps) {
   return (

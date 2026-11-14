@@ -1,14 +1,20 @@
 import { AuthRole } from '@/Assets/Types/commonTypes';
-import type { SchoolInvite } from '@/Endpoints/invites/types';
+import type { SchoolInvite } from '@/Endpoints/invites/invites.contract.type';
 
 export function getInviteUrl(token: string) {
   return `${window.location.origin}/onboarding?invite=${encodeURIComponent(token)}`;
 }
 
 export function getInviteStatus(invite: SchoolInvite) {
-  if (invite.revokedAt) return 'Удалена';
-  if (Date.parse(invite.expiresAt) <= Date.now()) return 'Истекла';
-  if (invite.usedCount >= invite.maxUses) return 'Лимит исчерпан';
+  if (invite.revokedAt) {
+    return 'Удалена';
+  }
+  if (Date.parse(invite.expiresAt) <= Date.now()) {
+    return 'Истекла';
+  }
+  if (invite.usedCount >= invite.maxUses) {
+    return 'Лимит исчерпан';
+  }
   return 'Активна';
 }
 

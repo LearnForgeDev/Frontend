@@ -4,7 +4,7 @@ import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { useToast } from '@/Storage/useToastStore';
 import { useSaveLesson } from './useSaveLesson';
 import { clearSavedLessonDraft, readLessonDraft, removeLessonDraft, writeLessonDraft } from './useLessonEditor/useLessonEditor.utils';
-import type { Lesson } from '../components/FileManager/FileManager.types';
+import type { Lesson } from '../components/FileManager/FileManager.type';
 
 export function useLessonEditing(schoolPublicId: string, lesson: Lesson, isEditMode: boolean) {
   const userPublicId = useGlobalContext(state => state.auth.user?.userPublicId) ?? '';
@@ -32,7 +32,9 @@ export function useLessonEditing(schoolPublicId: string, lesson: Lesson, isEditM
   };
 
   const saveDocument = async (document: SerializedDocument) => {
-    if (save.isSaving || hasConflict) return;
+    if (save.isSaving || hasConflict) {
+      return;
+    }
     remember(document);
     try {
       const saved = await save.mutateAsync({ title: lesson.title, content: document, expectedStorageKey: storageKey });

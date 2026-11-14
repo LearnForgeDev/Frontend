@@ -1,5 +1,5 @@
 import {createContext, useContext} from 'react';
-import type {ServiceContext} from '@/Assets/Types/serviceTypes';
+import type {ServiceContext} from '@/Assets/Types/serviceTypes.type';
 
 export const ServicesContext = createContext<ServiceContext>({
     selectedServices: [],

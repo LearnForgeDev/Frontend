@@ -1,3 +1,4 @@
+import type { CommandPayload } from './EquationsPlugin.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,33 +7,15 @@
  *
  */
 
-import type {JSX} from 'react';
+import type { JSX } from 'react';
 
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $wrapNodeInElement } from '@lexical/utils';
+import { $createParagraphNode, $insertNodes, $isRootOrShadowRoot, COMMAND_PRIORITY_EDITOR, createCommand, type LexicalCommand, type LexicalEditor } from 'lexical';
+import { useCallback, useEffect } from 'react';
 
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$wrapNodeInElement} from '@lexical/utils';
-import {
-  $createParagraphNode,
-  $insertNodes,
-  $isRootOrShadowRoot,
-  COMMAND_PRIORITY_EDITOR,
-  createCommand,
-  type LexicalCommand,
-  type LexicalEditor,
-} from 'lexical';
-import {
-  useCallback,
-  useEffect
-} from 'react';
-
-
-import {$createEquationNode, EquationNode} from '../nodes/EquationNode.tsx';
+import { $createEquationNode, EquationNode } from '../nodes/EquationNode.tsx';
 import KatexEquationModal from '../ui/modals/KatexEquationModal.tsx';
-
-type CommandPayload = {
-  equation: string;
-  inline: boolean;
-};
 
 export const INSERT_EQUATION_COMMAND: LexicalCommand<CommandPayload> =
   createCommand('INSERT_EQUATION_COMMAND');

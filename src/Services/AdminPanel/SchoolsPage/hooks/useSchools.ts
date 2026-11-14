@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { schoolsEndpoints } from '@/Endpoints';
-import { useUser } from '@/Storage/UserContext/UserContext.tsx';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 
 export function useSchools() {
     const { user } = useUser();

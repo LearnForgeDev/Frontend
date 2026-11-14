@@ -1,27 +1,12 @@
-import React, {useCallback, useEffect, type JSX} from 'react';
+import type { FileComponentProps } from './FileComponent.type';
+import React, { useCallback, useEffect, type JSX } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import {
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
-  CLICK_COMMAND,
-  COMMAND_PRIORITY_LOW,
-  KEY_BACKSPACE_COMMAND,
-  KEY_DELETE_COMMAND,
-  type NodeKey,
-} from "lexical";
+import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, KEY_BACKSPACE_COMMAND, KEY_DELETE_COMMAND } from "lexical";
 import { $isFileNode } from './FileNode.tsx';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import DownloadIcon from '@mui/icons-material/Download';
-
-interface FileComponentProps {
-  fileName: string;
-  url: string;
-  sizeBytes?: number;
-  nodeKey: NodeKey;
-}
 
 export default function FileComponent({
   fileName,
@@ -79,9 +64,15 @@ export default function FileComponent({
   }, [clearSelection, editor, onDelete, setSelected]);
 
   const formatSize = (bytes?: number) => {
-    if (!bytes) return '';
-    if (bytes < 1024) return bytes + ' B';
-    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    if (!bytes) {
+      return '';
+    }
+    if (bytes < 1024) {
+      return bytes + ' B';
+    }
+    if (bytes < 1024 * 1024) {
+      return (bytes / 1024).toFixed(1) + ' KB';
+    }
     return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   }
 

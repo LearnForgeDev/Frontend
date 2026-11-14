@@ -8,6 +8,10 @@
     ]
   },
   "include": [
-    "tests/**/*.ts"
+    "tests/**/*.ts",
+    "tests/**/*.tsx",
+    "tests/**/*.mts",
+    "tests/**/*.cts",
+    "src/**/*.type.ts"
   ]
 }

@@ -7,7 +7,7 @@ export async function calculateContentMd5Base64(content: Blob | File | string | 
   let arrayBuffer: ArrayBuffer;
 
   if (typeof content === 'string') {
-    arrayBuffer = new TextEncoder().encode(content).buffer as ArrayBuffer;
+    arrayBuffer = new TextEncoder().encode(content).buffer;
   } else if (content instanceof ArrayBuffer) {
     arrayBuffer = content;
   } else {

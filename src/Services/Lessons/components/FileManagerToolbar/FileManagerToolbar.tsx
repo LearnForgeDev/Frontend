@@ -1,15 +1,8 @@
+import type { FileManagerToolbarProps } from './FileManagerToolbar.type';
+export type { FileManagerToolbarProps } from './FileManagerToolbar.type';
+import type { ChangeEvent, MouseEvent } from 'react';
 import { useState, useEffect } from 'react';
-import {
-  Box,
-  TextField,
-  InputAdornment,
-  IconButton,
-  Select,
-  MenuItem,
-  ToggleButtonGroup,
-  ToggleButton,
-  type SelectChangeEvent,
-} from '@mui/material';
+import { Box, TextField, InputAdornment, IconButton, Select, MenuItem, ToggleButtonGroup, ToggleButton, type SelectChangeEvent } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import CloseIcon from '@mui/icons-material/Close';
 import GridViewIcon from '@mui/icons-material/GridView';
@@ -20,16 +13,10 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useLessonsContext } from '@/Storage/LessonsContext/LessonsContext.tsx';
 import FolderBreadcrumb from '../FolderBreadcrumb/FolderBreadcrumb';
-import type { LessonFolder } from '../FileManager/FileManager.types';
+
 import { FILE_MANAGER_CONSTANTS, SORT_OPTIONS } from '../FileManager/FileManager.const';
 import { styles } from './FileManagerToolbar.styles';
 import { getIsMobileDevice } from '@/Assets/device.utils';
-
-export interface FileManagerToolbarProps {
-  folders: LessonFolder[];
-  onNewFolder: () => void;
-  onNewLesson: () => void;
-}
 
 export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }: FileManagerToolbarProps) {
   const {
@@ -46,14 +33,13 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
   } = useLessonsContext();
 
   const isMobile = getIsMobileDevice();
-  const [localSearch, setLocalSearch] = useState(search);
+  const [searchState, setSearchState] = useState({ source: search, value: search });
+  if (searchState.source !== search) {
+    setSearchState({ source: search, value: search });
+  }
+  const localSearch = searchState.value;
+  const setLocalSearch = (value: string) => setSearchState({ source: search, value });
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-
-  // Sync context search changes
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setLocalSearch(search);
-  }, [search]);
 
   // Debounced search logic
   useEffect(() => {
@@ -64,7 +50,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
     return () => clearTimeout(handler);
   }, [localSearch, setSearch]);
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLocalSearch(e.target.value);
   };
 
@@ -77,7 +63,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
   };
 
   const handleViewChange = (
-    _e: React.MouseEvent<HTMLElement>,
+    _e: MouseEvent<HTMLElement>,
     nextView: 'grid' | 'list' | null
   ) => {
     if (nextView !== null) {

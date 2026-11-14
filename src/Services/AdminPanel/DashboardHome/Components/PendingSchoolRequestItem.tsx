@@ -1,12 +1,8 @@
+import type { Props } from './PendingSchoolRequestItem.type';
 import { Box, Typography } from '@mui/material';
 import ClockIcon from '@/Assets/Art/images/ClockIcon.tsx';
 import StatusIcon from '@/Assets/Components/StatusIcon/StatusIcon';
 import * as S from './PendingSchoolRequestWidget.styles';
-import type { SchoolRequestStatusDto } from '@/Endpoints';
-
-type Props = {
-  req: SchoolRequestStatusDto;
-};
 
 const getStatusText = (status: string) => {
   const STATUS_MAP: Record<string, string> = {

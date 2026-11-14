@@ -1,16 +1,12 @@
+import type { ScheduleSidebarProps } from './ScheduleSidebar.type';
+export type { ScheduleSidebarProps } from './ScheduleSidebar.type';
 import { Box, Button, Divider, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
 import { MiniCalendar } from '@/Services/Scheduling/components/MiniCalendar/MiniCalendar';
 import { UpcomingEventsList } from '@/Services/Scheduling/components/UpcomingEventsList/UpcomingEventsList';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-import { styles } from './ScheduleSidebar.styles';
 
-export interface ScheduleSidebarProps {
-  events: ScheduleEvent[];
-  canManage: boolean;
-  onOpenCreateModal: () => void;
-}
+import { styles } from './ScheduleSidebar.styles';
 
 export function ScheduleSidebar({ events, canManage, onOpenCreateModal }: ScheduleSidebarProps) {
   const { selectedDate, setSelectedDate, selectedEventId, setSelectedEventId } = useSchedulingContext();

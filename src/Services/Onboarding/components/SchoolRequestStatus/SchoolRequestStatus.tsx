@@ -1,12 +1,8 @@
+import type { SchoolRequestStatusProps } from './SchoolRequestStatus.type';
 import { Box, Typography } from '@mui/material';
-import type { SchoolRequestViewState } from '../../utils/schoolRequestStatus.utils';
+
 import { SCHOOL_REQUEST_STATUS_CONTENT } from './SchoolRequestStatus.const';
 import * as S from './SchoolRequestStatus.styles';
-
-type SchoolRequestStatusProps = {
-  schoolName: string;
-  viewState: SchoolRequestViewState;
-};
 
 export default function SchoolRequestStatus({
   schoolName,

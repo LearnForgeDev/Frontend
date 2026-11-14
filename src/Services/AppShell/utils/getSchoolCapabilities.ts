@@ -1,5 +1,5 @@
-import type { SchoolRole } from '@/Endpoints/schools/types';
-import type { SchoolCapabilities } from '../AppShell.types';
+import type { SchoolRole } from '@/Endpoints/schools/schools.contract.type';
+import type { SchoolCapabilities } from '../AppShell.type';
 
 export function getSchoolCapabilities(roles: SchoolRole[]): SchoolCapabilities {
   const isOwner = roles.includes('Owner');

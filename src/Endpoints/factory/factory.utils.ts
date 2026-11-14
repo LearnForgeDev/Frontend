@@ -3,19 +3,29 @@ import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import { HTTP_STATUS, REQUEST_ERROR_MESSAGES, SAFE_RETRY_METHODS } from './factory.const';
 
 export function shouldRetryRequest(failureCount: number, error: unknown, retryCount: number): boolean {
-  if (failureCount >= retryCount || !isAxiosError(error)) return false;
-  if (!SAFE_RETRY_METHODS.includes(error.config?.method?.toLowerCase() ?? '')) return false;
-  if (error.code === 'ERR_CANCELED') return false;
+  if (failureCount >= retryCount || !isAxiosError(error)) {
+    return false;
+  }
+  if (!SAFE_RETRY_METHODS.includes(error.config?.method?.toLowerCase() ?? '')) {
+    return false;
+  }
+  if (error.code === 'ERR_CANCELED') {
+    return false;
+  }
 
   const status = error.response?.status ?? error.status;
   return !status || status >= HTTP_STATUS.SERVER_ERROR;
 }
 
 export function getRequestErrorMessage(error: unknown, fallback: string = REQUEST_ERROR_MESSAGES.generic): string {
-  if (!isAxiosError(error)) return fallback;
+  if (!isAxiosError(error)) {
+    return fallback;
+  }
 
   const status = error.response?.status ?? error.status;
-  if (!status || status >= HTTP_STATUS.SERVER_ERROR) return REQUEST_ERROR_MESSAGES.unavailable;
+  if (!status || status >= HTTP_STATUS.SERVER_ERROR) {
+    return REQUEST_ERROR_MESSAGES.unavailable;
+  }
 
   switch (status) {
     case HTTP_STATUS.UNAUTHORIZED:
@@ -41,7 +51,9 @@ export function matchesRefreshedSession(
   refreshed: UserIdentity,
   authenticatedUserPublicId?: string,
 ): boolean {
-  if (!stored || authenticatedUserPublicId !== refreshed.userPublicId) return false;
+  if (!stored || authenticatedUserPublicId !== refreshed.userPublicId) {
+    return false;
+  }
   try {
     const current: unknown = JSON.parse(stored);
     return Boolean(
@@ -62,7 +74,9 @@ export function createUnauthenticatedError() {
 }
 
 export function isRejectedAuthentication(error: unknown): boolean {
-  if (!isAxiosError(error)) return false;
+  if (!isAxiosError(error)) {
+    return false;
+  }
   const status = error.response?.status ?? error.status;
   return status === HTTP_STATUS.UNAUTHORIZED || status === HTTP_STATUS.FORBIDDEN;
 }

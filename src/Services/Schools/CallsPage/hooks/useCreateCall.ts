@@ -1,14 +1,10 @@
+import type { UseCreateCallOptions } from './useCreateCall.type';
 import { useMutation } from '@tanstack/react-query';
 import { meetEndpoints } from '@/Endpoints';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import type { AppError } from '@/Endpoints';
 import type { CreateJitsiTokenRequest } from '@/Endpoints';
 import { ROOM_NOT_CREATED_MESSAGE } from '../CallsPage.constants';
-
-interface UseCreateCallOptions {
-  errorTitle?: string;
-  errorSubtitle?: string;
-}
 
 export function useCreateCall(options: UseCreateCallOptions = {}) {
   const showNotification = useGlobalNotificationStore((s) => s.pushNotification);

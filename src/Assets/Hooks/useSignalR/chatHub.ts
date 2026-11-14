@@ -1,19 +1,13 @@
+import type { ChatHubParams, ChatConnectionStatus } from './chatHub.type';
+export type { ChatHubParams, ChatConnectionStatus } from './chatHub.type';
 import { useEffect, useState } from 'react';
-import { HubConnectionBuilder, HubConnection } from '@microsoft/signalr';
-import type { ChatType } from '@/Services/Chat/Chat.types';
+import type { HubConnection } from '@microsoft/signalr';
+import { HubConnectionBuilder } from '@microsoft/signalr';
+
 import { RECONNECT_DELAYS_MS } from '@/Services/Chat/Chat.const';
 import config from '../../../config';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('chatHub');
-
-
-export interface ChatHubParams {
-  type: ChatType;
-  schoolPublicId: string;
-  threadId: string; // branchId or otherUserId
-}
-
-export type ChatConnectionStatus = 'connecting' | 'connected' | 'reconnecting' | 'disconnected';
 
 export function useChatHubConnection(params: ChatHubParams) {
   const [connection, setConnection] = useState<HubConnection | null>(null);
@@ -22,7 +16,9 @@ export function useChatHubConnection(params: ChatHubParams) {
   const { type, schoolPublicId, threadId } = params;
 
   useEffect(() => {
-    if (!schoolPublicId || !threadId) return;
+    if (!schoolPublicId || !threadId) {
+      return;
+    }
 
     const baseUrl = config.endpointUrl || '';
 
@@ -52,11 +48,13 @@ export function useChatHubConnection(params: ChatHubParams) {
     newConnection.onreconnected(() => setStatus('connected'));
     newConnection.onclose(() => setStatus('disconnected'));
 
-    startConnection();
+    void startConnection();
 
     return () => {
-      newConnection.stop().then(() => {
+      void newConnection.stop().then(() => {
         setStatus('disconnected');
+      }).catch((error) => {
+        logger.logEventForDebug(DebugSeverity.DANGER, 'SignalR disconnect error:', error);
       });
     };
   }, [type, schoolPublicId, threadId]);

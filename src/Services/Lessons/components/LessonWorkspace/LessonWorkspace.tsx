@@ -1,3 +1,4 @@
+import type { LessonWorkspaceProps } from './LessonWorkspace.type';
 import { useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
@@ -9,11 +10,6 @@ import { useSaveLesson } from '../../hooks/useSaveLesson';
 import LessonEditorContainer from '../LessonEditorContainer/LessonEditorContainer';
 import LessonEditorStatus from '../LessonEditorStatus/LessonEditorStatus';
 import RenameLessonDialog from '../RenameLessonDialog/RenameLessonDialog';
-
-interface LessonWorkspaceProps {
-  lessonId: string;
-  requestedEditMode: boolean;
-}
 
 export default function LessonWorkspace({ lessonId, requestedEditMode }: LessonWorkspaceProps) {
   const view = useLessonEditor({ lessonId });

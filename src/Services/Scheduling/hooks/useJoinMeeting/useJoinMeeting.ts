@@ -1,7 +1,7 @@
 import { useMutation, type UseMutationResult } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 /**
  * Navigates to the embedded CallsPage (/app/schools/:schoolPublicId/calls?room=...)

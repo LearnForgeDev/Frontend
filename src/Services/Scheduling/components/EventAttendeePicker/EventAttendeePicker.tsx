@@ -1,18 +1,8 @@
+import type { EventAttendeePickerProps } from './EventAttendeePicker.type';
 import { Autocomplete, Box, Button, Checkbox, FormControlLabel, TextField, Typography } from '@mui/material';
-import type { Member } from '../../Scheduling.types';
+
 import { ATTENDEE_PICKER_TEXT as text } from './EventAttendeePicker.const';
 import { styles } from './EventAttendeePicker.styles';
-
-interface EventAttendeePickerProps {
-  options: Member[];
-  selected: Member[];
-  disabled: boolean;
-  hasStudents: boolean;
-  withoutAttendees: boolean;
-  onChange: (ids: string[]) => void;
-  onSelectAll: () => void;
-  onWithoutAttendeesChange: (value: boolean) => void;
-}
 
 export function EventAttendeePicker({ options, selected, disabled, hasStudents, withoutAttendees, onChange, onSelectAll, onWithoutAttendeesChange }: EventAttendeePickerProps) {
   return <Box sx={styles.root}>

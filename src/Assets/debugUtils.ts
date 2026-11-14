@@ -10,7 +10,9 @@ export const createDebugger = (context: string) => {
             const isDev = process.env.NODE_ENV !== 'production';
             const isDebugParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('debug') === 'true';
 
-            if (!isDev && !isDebugParam) return;
+            if (!isDev && !isDebugParam) {
+              return;
+            }
 
             let color = 'color: gray';
             let consoleMethod = console.log;

@@ -1,4 +1,4 @@
-import type {lessonCompactObject} from '@/Services/Lessons/lessonTypes';
+import type {lessonCompactObject} from '@/Services/Lessons/Lessons.type';
 import LessonItemIcon from '@/Assets/Art/images/LessonItemIcon.tsx';
 import { Box, Typography, IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -41,8 +41,8 @@ export function LessonItem(
             <EditIcon fontSize="small" />
           </IconButton>
           <IconButton
-            className="delete-lesson-button" 
-            aria-label={`Удалить ${title}`} 
+            className="delete-lesson-button"
+            aria-label={`Удалить ${title}`}
             onClick={(event: MouseEvent<HTMLButtonElement>) => {
               event.stopPropagation();
             }}

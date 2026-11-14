@@ -1,7 +1,7 @@
 import { Alert, Box, Button, Skeleton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useLessonsWorkspace } from '../../hooks/useLessonsWorkspace';
-import type { LessonsMainPageProps } from '../../LessonsMainPage.types';
+import type { LessonsMainPageProps } from '../../LessonsMainPage.type';
 import LessonCard from '../LessonCard/LessonCard';
 import RenameLessonDialog from '../RenameLessonDialog/RenameLessonDialog';
 import { LESSON_LOADING_CARD_COUNT, LESSON_LOADING_CARD_HEIGHT } from './LessonsWorkspace.const';
@@ -12,7 +12,7 @@ export default function LessonsWorkspace(props: LessonsMainPageProps) {
   return <Box className="lessons-main-page" sx={styles.root}>
     <Box component="header" sx={styles.header}>
       <Typography variant="h4" component="h1" sx={styles.title}>Мои уроки</Typography>
-      {props.canManageLessons && <Button data-testid="lesson-create" variant="contained" startIcon={<AddIcon />} onClick={view.createLesson} disabled={view.isCreating}>Создать урок</Button>}
+      {props.canManageLessons && <Button data-testid="lesson-create" variant="contained" startIcon={<AddIcon />} onClick={() => void view.createLesson()} disabled={view.isCreating}>Создать урок</Button>}
     </Box>
     <Box component="main" sx={styles.content}>
       {view.isLoading ? <Box sx={styles.grid}>

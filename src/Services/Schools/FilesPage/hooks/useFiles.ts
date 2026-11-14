@@ -48,7 +48,9 @@ export function useFiles(schoolPublicId: string, bucketType: string = 'files') {
     isError,
     isSuccess: enabled && query.isSuccess,
     errorMessage: isError ? getRequestErrorMessage(query.error) : null,
-    retryFiles: () => { void query.refetch(); },
+    retryFiles: () => {
+      void query.refetch();
+    },
     refetch: query.refetch,
     uploadFile: (file: File, bucket?: string, onProgress?: (percent: number) => void, signal?: AbortSignal) =>
       uploadMutation.mutateAsync({ file, bucket, onProgress, signal }),

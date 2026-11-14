@@ -1,20 +1,13 @@
+import type { LessonListItemProps } from './LessonListItem.type';
+export type { LessonListItemProps } from './LessonListItem.type';
+import type { MouseEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { Box, Typography, Chip, IconButton, type SxProps, type Theme } from '@mui/material';
 import ArticleIcon from '@mui/icons-material/Article';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
 import ContextMenu from '@/Services/Lessons/components/ContextMenu/ContextMenu';
 import { styles } from './LessonListItem.styles';
-
-export interface LessonListItemProps {
-  lesson: Lesson;
-  selected: boolean;
-  onClick: (e: React.MouseEvent) => void;
-  onOpen: () => void;
-  onRename: () => void;
-  onMove: () => void;
-  onDelete: () => void;
-}
 
 export default function LessonListItem({
   lesson,
@@ -27,12 +20,12 @@ export default function LessonListItem({
 }: LessonListItemProps) {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const handleKebabClick = (e: React.MouseEvent) => {
+  const handleKebabClick = (e: MouseEvent) => {
     e.stopPropagation();
     setMenuAnchor(e.currentTarget as HTMLElement);
   };
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
     setMenuAnchor(e.currentTarget as HTMLElement);
   };
@@ -41,7 +34,7 @@ export default function LessonListItem({
     setMenuAnchor(null);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter') {
       onOpen();
     }
@@ -49,7 +42,7 @@ export default function LessonListItem({
 
   const isPublished = lesson.status === 'published';
   const formattedDate = lesson.updatedAt ? new Date(lesson.updatedAt).toLocaleDateString() : '—';
-  
+
   // Calculate mock word count or derived word count from content
   const mockWordCount = lesson.content ? Math.floor(JSON.stringify(lesson.content).length / 12) + 15 : 120;
 

@@ -1,11 +1,13 @@
-import type { LessonFolder } from './FileManager.types';
+import type { LessonFolder } from './FileManager.type';
 
 /**
  * Derives the ancestor chain from a list of folders to compile breadcrumbs.
  * Avoids infinite loops in cyclic folder hierarchies by utilizing a visited Set.
  */
 export function getBreadcrumbPath(folders: LessonFolder[], currentId: string | null): LessonFolder[] {
-  if (!currentId) return [];
+  if (!currentId) {
+    return [];
+  }
 
   const path: LessonFolder[] = [];
   const visited = new Set<string>();

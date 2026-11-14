@@ -1,8 +1,9 @@
+import type { ActiveChatViewProps } from './ActiveChatView.type';
 import { Avatar, Box, Chip, IconButton, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
-import type { ChatThread } from '@/Services/Chat/Chat.types';
+
 import { useActiveChat } from '@/Services/Chat/hooks/useActiveChat/useActiveChat';
 import ChatCallInviteButton from '@/Services/Chat/components/ChatCallInviteButton/ChatCallInviteButton';
 import ChatInput from '@/Services/Chat/components/ChatThreadView/ChatInput';
@@ -12,12 +13,6 @@ import ChatImagePreview from '@/Services/Chat/components/ChatThreadView/ChatImag
 import { formatChatMessageTime, getChatStatusColor, getChatStatusLabel } from '@/Services/Chat/components/ChatThreadView/ChatThreadView.utils';
 import { styles as pageStyles } from '../../ChatsPage.styles';
 import { styles } from './ActiveChatView.styles';
-
-interface ActiveChatViewProps {
-  activeThread: ChatThread;
-  isMobile: boolean;
-  onBack: () => void;
-}
 
 export default function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps) {
   const { messages, status, call, downloadFile, messagesEndRef, previewImage, previewImageFileId, closePreview, sendMessage } = useActiveChat(activeThread);

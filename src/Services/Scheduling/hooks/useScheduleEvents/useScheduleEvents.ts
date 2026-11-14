@@ -2,10 +2,10 @@ import { useQuery } from '@tanstack/react-query';
 import { scheduleEndpoints } from '@/Endpoints';
 import { scheduleEventDtoToEvent } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import type { ScheduleEventDto } from '@/Endpoints/schedule/types';
 import type { AppError } from '@/Endpoints';
-import type { UseScheduleEventsReturn } from './useScheduleEvents.types';
+import type { UseScheduleEventsReturn } from './useScheduleEvents.type';
 
 
 export function useScheduleEvents(schoolPublicId?: string): UseScheduleEventsReturn {
@@ -26,6 +26,6 @@ export function useScheduleEvents(schoolPublicId?: string): UseScheduleEventsRet
     isError,
     isSuccess,
     error: error ?? null,
-    refetch,
+    refetch: () => { void refetch(); },
   };
 }

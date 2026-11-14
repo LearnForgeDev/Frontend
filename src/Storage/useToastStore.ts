@@ -1,3 +1,5 @@
+import type { ToastState } from './useToastStore.type';
+export type { ToastMessage } from './useToastStore.type';
 import { create } from 'zustand';
 import { createUUID } from '@/Assets/globalUtils';
 
@@ -7,19 +9,6 @@ export enum ToastSeverity {
   SUCCESS = 0,
   WARNING = 1,
   ERROR = 2,
-}
-
-export interface ToastMessage {
-  id: string;
-  message: string;
-  severity: ToastSeverity;
-  visible?: boolean;
-}
-
-interface ToastState {
-  toasts: ToastMessage[];
-  addToast: (message: string, severity: ToastSeverity) => void;
-  removeToast: (id: string) => void;
 }
 
 export const useToastStore = create<ToastState>((set) => ({
@@ -34,7 +23,7 @@ export const useToastStore = create<ToastState>((set) => ({
       set((state) => ({
         toasts: state.toasts.map((t) => t.id === id ? { ...t, visible: false } : t),
       }));
-      
+
       setTimeout(() => {
         set((state) => ({
           toasts: state.toasts.filter((t) => t.id !== id),
@@ -60,6 +49,6 @@ export const useToast = () => {
 // Break circular dependency by dynamically importing the container
 // after the store's exports are fully defined.
 if (typeof window !== 'undefined') {
-  import('@/Assets/Components/GlobalToastContainer/GlobalToastContainer');
+  void import('@/Assets/Components/GlobalToastContainer/GlobalToastContainer')
+    .catch(error => console.error('Failed to load the toast container', error));
 }
-

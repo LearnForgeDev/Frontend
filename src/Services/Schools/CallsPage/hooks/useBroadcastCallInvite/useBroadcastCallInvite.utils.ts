@@ -1,4 +1,4 @@
-import type { MemberDto } from '@/Endpoints/schools/types';
+import type { MemberDto } from '@/Endpoints/schools/schools.contract.type';
 import {
   CALL_INVITE_LINK_LABEL,
   CALL_INVITE_MESSAGE_PREFIX,

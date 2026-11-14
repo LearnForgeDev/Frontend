@@ -1,26 +1,8 @@
+import type { NotificationConfig, GlobalNotificationState } from './globalNotificationStore.type';
+export type { NotificationConfig } from './globalNotificationStore.type';
 import { create } from 'zustand';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('globalNotificationStore');
-
-
-export interface NotificationConfig {
-  id: string;
-  title: string;
-  subtitle?: string;
-  icon?: string;
-  time?: number;
-  priority?: 'low' | 'medium' | 'high';
-  saveNotification?: boolean;
-  shouldDisplayGlobally?: boolean;
-}
-
-interface GlobalNotificationState {
-  notifications: NotificationConfig[];
-  pushNotification: (notification: NotificationConfig) => void;
-  removeNotification: (id: string) => void;
-  clearNotifications: () => void;
-  isNotificationsEmpty: () => boolean;
-}
 
 const STORAGE_KEYS = {
   HIGH: 'high_priority_notifications',
@@ -50,7 +32,7 @@ const saveNotificationsToStorage = (notifications: NotificationConfig[]) => {
     } else {
       localStorage.removeItem(STORAGE_KEYS.HIGH);
     }
-    
+
     if (lowMed.length > 0) {
       sessionStorage.setItem(STORAGE_KEYS.LOW_MED, JSON.stringify(lowMed));
     } else {

@@ -1,21 +1,7 @@
-import { useCallback, useState, useEffect, type RefObject } from 'react';
+import type { UseResizableOptions } from './useResizable.type';
+import type { MouseEvent as ReactMouseEvent } from 'react';
+import { useCallback, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type { LexicalCommand, NodeKey } from 'lexical';
-
-interface UseResizableOptions {
-  nodeKey: NodeKey;
-  width?: number;
-  height?: number;
-  elementRef: RefObject<HTMLElement>;
-  resizeCommand: LexicalCommand<{
-    nodeKey: NodeKey;
-    width: number;
-    height: number;
-  }>;
-  maintainAspectRatio?: boolean;
-  minWidth?: number;
-  minHeight?: number;
-}
 
 export function useResizable({
   nodeKey,
@@ -29,11 +15,15 @@ export function useResizable({
 }: UseResizableOptions) {
   const [editor] = useLexicalComposerContext();
   const [isResizing, setIsResizing] = useState(false);
-  const [currentWidth, setCurrentWidth] = useState(width);
-  const [currentHeight, setCurrentHeight] = useState(height);
+  const [size, setSize] = useState({ width, height, sourceWidth: width, sourceHeight: height });
+  if (size.sourceWidth !== width || size.sourceHeight !== height) {
+    setSize({ width, height, sourceWidth: width, sourceHeight: height });
+  }
+  const currentWidth = size.width;
+  const currentHeight = size.height;
 
   const handleResizeStart = useCallback(
-    (e: React.MouseEvent, direction: string) => {
+    (e: ReactMouseEvent, direction: string) => {
       e.preventDefault();
       e.stopPropagation();
       setIsResizing(true);
@@ -76,8 +66,7 @@ export function useResizable({
           }
         }
 
-        setCurrentWidth(Math.round(newWidth));
-        setCurrentHeight(Math.round(newHeight));
+        setSize({ width: Math.round(newWidth), height: Math.round(newHeight), sourceWidth: width, sourceHeight: height });
       };
 
       const onMouseUp = () => {
@@ -106,14 +95,10 @@ export function useResizable({
       maintainAspectRatio,
       minWidth,
       minHeight,
+      width,
+      height,
     ]
   );
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCurrentWidth(width);
-    setCurrentHeight(height);
-  }, [width, height]);
 
   return {
     isResizing,
@@ -122,4 +107,3 @@ export function useResizable({
     handleResizeStart,
   };
 }
-

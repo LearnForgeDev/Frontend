@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { filesEndpoints } from '@/Endpoints';
 import { useToast } from '@/Storage/useToastStore';
 import { useLessonQuery } from '../useLessonQuery';
-import type { UseLessonEditorProps } from './useLessonEditor.types';
+import type { UseLessonEditorProps } from './useLessonEditor.type';
 import { normalizeLessonDocument } from './useLessonEditor.utils';
 
 export const useLessonEditor = ({ lessonId }: UseLessonEditorProps) => {
@@ -16,10 +16,14 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps) => {
     queryKey: ['lesson-content', schoolPublicId, String(lessonId), file?.storageKey],
     queryFn: async () => {
       try {
-        if (!file) throw new Error('Содержимое урока недоступно');
+        if (!file) {
+          throw new Error('Содержимое урока недоступно');
+        }
         const content = await filesEndpoints.getFileContent(schoolPublicId, file.publicId);
         const document = normalizeLessonDocument(typeof content === 'string' ? JSON.parse(content) : content);
-        if (!document) throw new Error('Не удалось прочитать урок');
+        if (!document) {
+          throw new Error('Не удалось прочитать урок');
+        }
         return document;
       } catch (error) {
         toast.error('Не удалось загрузить содержимое урока.');

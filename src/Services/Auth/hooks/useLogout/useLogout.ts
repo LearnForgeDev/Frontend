@@ -1,4 +1,4 @@
-import { useUser } from '@/Storage/UserContext/UserContext';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 
 export function logoutToLogin(clearSession = () => useGlobalContext.getState().auth.logout()) {

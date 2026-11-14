@@ -1,8 +1,10 @@
 import { SCHOOL_REQUEST_STORAGE_KEY } from '../onboarding.const';
-import type { SchoolRequestPointer } from '../types/onboarding.types';
+import type { SchoolRequestPointer } from '../types/onboarding.type';
 
 function isSchoolRequestPointer(value: unknown): value is SchoolRequestPointer {
-  if (!value || typeof value !== 'object') return false;
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
   const pointer = value as Partial<SchoolRequestPointer>;
   return typeof pointer.requestPublicId === 'string' &&
     typeof pointer.schoolName === 'string' &&
@@ -15,14 +17,22 @@ function getStorageKey(userPublicId: string): string {
 }
 
 export function readSchoolRequestPointer(userPublicId?: string): SchoolRequestPointer | null {
-  if (!userPublicId) return null;
+  if (!userPublicId) {
+    return null;
+  }
   try {
     const scopedPointer = localStorage.getItem(getStorageKey(userPublicId));
     const stored = scopedPointer ?? localStorage.getItem(SCHOOL_REQUEST_STORAGE_KEY);
     const pointer: unknown = stored ? JSON.parse(stored) : null;
-    if (!isSchoolRequestPointer(pointer)) return null;
-    if (scopedPointer) return pointer;
-    if (pointer.userPublicId !== userPublicId) return null;
+    if (!isSchoolRequestPointer(pointer)) {
+      return null;
+    }
+    if (scopedPointer) {
+      return pointer;
+    }
+    if (pointer.userPublicId !== userPublicId) {
+      return null;
+    }
     localStorage.setItem(getStorageKey(userPublicId), JSON.stringify(pointer));
     localStorage.removeItem(SCHOOL_REQUEST_STORAGE_KEY);
     return pointer;
@@ -32,7 +42,9 @@ export function readSchoolRequestPointer(userPublicId?: string): SchoolRequestPo
 }
 
 export function saveSchoolRequestPointer(userPublicId: string, pointer: SchoolRequestPointer): void {
-  if (!userPublicId) return;
+  if (!userPublicId) {
+    return;
+  }
   try {
     localStorage.setItem(getStorageKey(userPublicId), JSON.stringify(pointer));
   } catch {
@@ -41,7 +53,9 @@ export function saveSchoolRequestPointer(userPublicId: string, pointer: SchoolRe
 }
 
 export function clearSchoolRequestPointer(userPublicId?: string, requestPublicId?: string): void {
-  if (!userPublicId) return;
+  if (!userPublicId) {
+    return;
+  }
   try {
     const pointer = readSchoolRequestPointer(userPublicId);
     if (!requestPublicId || pointer?.requestPublicId === requestPublicId) {

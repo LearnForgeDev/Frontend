@@ -1,15 +1,7 @@
+import type { DeleteEventDialogProps } from './DeleteEventDialog.type';
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Typography } from '@mui/material';
 import { DELETE_EVENT_TEXT as text } from './DeleteEventDialog.const';
 import { styles } from './DeleteEventDialog.styles';
-
-interface DeleteEventDialogProps {
-  title: string;
-  dateLabel: string;
-  isPending: boolean;
-  hasError: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
-}
 
 export function DeleteEventDialog({ title, dateLabel, isPending, hasError, onCancel, onConfirm }: DeleteEventDialogProps) {
   return <Dialog open onClose={isPending ? undefined : onCancel} aria-labelledby="delete-event-title">

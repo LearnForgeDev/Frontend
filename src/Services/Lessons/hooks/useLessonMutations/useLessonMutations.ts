@@ -4,8 +4,8 @@ import type { AppError } from '@/Endpoints';
 import type {
   CreateLessonVars,
   DeleteLessonVars,
-} from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.types';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+} from '@/Services/Lessons/hooks/useLessonMutations/useLessonMutations.type';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
 import { useParams } from 'react-router-dom';
 
 export function useLessonMutations() {
@@ -20,9 +20,7 @@ export function useLessonMutations() {
     mutationFn: async (vars: CreateLessonVars): Promise<Lesson> => {
       return lessonsEndpoints.createLesson(schoolPublicId, vars);
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] }),
   });
 
   const deleteLesson = useMutation<void, AppError, DeleteLessonVars, { previousData: Lesson[] | undefined }>({
@@ -33,7 +31,9 @@ export function useLessonMutations() {
 
       if (previousData) {
         queryClient.setQueryData<Lesson[]>(['lessons', schoolPublicId], (old) => {
-          if (!old) return old;
+          if (!old) {
+            return old;
+          }
           return old.filter((lesson) => lesson.id !== id);
         });
       }
@@ -45,9 +45,7 @@ export function useLessonMutations() {
         queryClient.setQueryData(['lessons', schoolPublicId], context.previousData);
       }
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] }),
   });
 
   return {

@@ -23,7 +23,9 @@ export function useFilePreview(schoolPublicId: string, file: ApiFile) {
         signal.throwIfAborted();
         return { blob: category === 'pdf' ? new Blob([blob], { type: PDF_CONTENT_TYPE }) : blob, text };
       } catch (error) {
-        if (!signal.aborted) showError(FILE_PREVIEW_TEXT.error);
+        if (!signal.aborted) {
+          showError(FILE_PREVIEW_TEXT.error);
+        }
         throw error;
       }
     },

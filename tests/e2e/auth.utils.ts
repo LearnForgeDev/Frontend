@@ -1,7 +1,7 @@
 import type { Page } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { CI_PASSWORD, SCHOOL_ID } from './core.const';
-import type { TestIdentity } from './flows.types';
+import type { TestIdentity } from './flows.type';
 
 async function storeIdentity(page: Page, identity: TestIdentity, school: string | null) {
   const claims = JSON.parse(Buffer.from(identity.jwtToken.split('.')[1], 'base64url').toString());
@@ -38,7 +38,9 @@ export async function expireStoredJwt(page: Page, refreshToken?: string) {
     }
     const parts = identity.jwtToken.split('.');
     const claims: unknown = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
-    if (!claims || typeof claims !== 'object') throw new Error('Expected JWT claims');
+    if (!claims || typeof claims !== 'object') {
+      throw new Error('Expected JWT claims');
+    }
     parts[1] = btoa(JSON.stringify({ ...claims, exp: 1 })).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     localStorage.setItem('user_identity', JSON.stringify({
       ...identity,

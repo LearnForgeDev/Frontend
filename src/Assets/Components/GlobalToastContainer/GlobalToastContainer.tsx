@@ -70,7 +70,9 @@ const Toast = ({ toast }: { toast: ToastMessage }) => {
 export default function GlobalToastContainer() {
   const toasts = useToastStore((state) => state.toasts);
 
-  if (toasts.length === 0) return null;
+  if (toasts.length === 0) {
+    return null;
+  }
 
   return (
     <Box
@@ -104,6 +106,5 @@ if (typeof window !== 'undefined') {
     }
     const root = createRoot(toastRoot);
     root.render(<GlobalToastContainer />);
-  });
+  }).catch(error => console.error('Failed to mount the toast container', error));
 }
-

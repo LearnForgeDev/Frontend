@@ -1,3 +1,5 @@
+import type { MiniCalendarProps } from './MiniCalendar.type';
+export type { MiniCalendarProps } from './MiniCalendar.type';
 import { useState } from 'react';
 import { Box, IconButton, Typography, ButtonBase } from '@mui/material';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -5,11 +7,6 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { MONTH_NAMES_NOMINATIVE, WEEKDAY_SHORT_NAMES } from '@/Services/Scheduling/Scheduling.const';
 import { getMonthCalendarGrid, isSameDay, isToday } from '@/Services/Scheduling/utils/time.utils';
 import { styles } from './MiniCalendar.styles';
-
-export interface MiniCalendarProps {
-  selectedDate: Date;
-  onSelectDate: (date: Date) => void;
-}
 
 export function MiniCalendar({ selectedDate, onSelectDate }: MiniCalendarProps) {
   const currentSelectedKey = `${selectedDate.getFullYear()}-${selectedDate.getMonth()}`;

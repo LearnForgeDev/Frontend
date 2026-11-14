@@ -1,57 +1,9 @@
-import { createContext, useContext, useState, useMemo, type ReactNode } from 'react';
+import { LessonsContext } from '@/Services/Lessons/LessonsContext.context';
+import type { LessonsContextValue } from './LessonsContext.type';
+export type { LessonsContextValue } from './LessonsContext.type';
+import { useContext } from 'react';
 
-export interface LessonsContextValue {
-  search: string;
-  setSearch: (search: string) => void;
-  sort: string;
-  setSort: (sort: string) => void;
-  order: 'asc' | 'desc';
-  setOrder: (order: 'asc' | 'desc') => void;
-  view: 'grid' | 'list';
-  setView: (view: 'grid' | 'list') => void;
-  selectedItemId: string | null;
-  setSelectedItemId: (id: string | null) => void;
-  selectedItemType: 'folder' | 'lesson' | null;
-  setSelectedItemType: (type: 'folder' | 'lesson' | null) => void;
-  folderId: string | null;
-  setFolderId: (id: string | null) => void;
-}
 
-const LessonsContext = createContext<LessonsContextValue | undefined>(undefined);
-
-export function LessonsProvider({ children }: { children: ReactNode }) {
-  const [search, setSearch] = useState<string>('');
-  const [sort, setSort] = useState<string>('title');
-  const [order, setOrder] = useState<'asc' | 'desc'>('asc');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemType, setSelectedItemType] = useState<'folder' | 'lesson' | null>(null);
-  const [folderId, setFolderId] = useState<string | null>(null);
-
-  const value = useMemo<LessonsContextValue>(
-    () => ({
-      search,
-      setSearch,
-      sort,
-      setSort,
-      order,
-      setOrder,
-      view,
-      setView,
-      selectedItemId,
-      setSelectedItemId,
-      selectedItemType,
-      setSelectedItemType,
-      folderId,
-      setFolderId,
-    }),
-    [search, sort, order, view, selectedItemId, selectedItemType, folderId]
-  );
-
-  return <LessonsContext.Provider value={value}>{children}</LessonsContext.Provider>;
-}
-
-// eslint-disable-next-line react-refresh/only-export-components
 export function useLessonsContext(): LessonsContextValue {
   const context = useContext(LessonsContext);
   if (!context) {

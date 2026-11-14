@@ -42,6 +42,9 @@ before inventing an optional property or guessing a response shape.
 
 Use descriptive names and named types for complex shapes. Keep callbacks about
 intent, such as `onSave` or `onCancel`. Use stable entity identities as list keys.
+Declare named props and other types in adjacent `.type.ts` sidecars. Use type-only
+named React imports, such as `ReactNode` and `FormEventHandler`, rather than
+`React.ReactNode` or `React.FormEventHandler`.
 A type assertion is not validation. Browser storage and genuinely untyped external
 input still require parsing/narrowing; this does not justify weakening typed endpoints.
 

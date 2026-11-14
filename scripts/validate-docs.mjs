@@ -12,9 +12,15 @@ const owners = {
 const schoolPages = { FilesPage: 'files', CallsPage: 'calls', ChatsPage: 'chat', StudentsPage: 'students-invitations', LessonsPage: 'lessons-editor' };
 
 export function getFeatureDocument(path) {
-  if (!/^src\/(?:Services|Storage|Endpoints)\/.*\.[jt]sx?$/.test(path) || /(?:\.test|\.styles)\.[jt]sx?$/.test(path) || posix.basename(path) === 'index.ts') return null;
+  if (!/^src\/(?:Services|Storage|Endpoints)\/.*\.(?:[cm]?[jt]s|[jt]sx)$/.test(path)
+    || /(?:\.test|\.styles)\.(?:[cm]?[jt]s|[jt]sx)$/.test(path)
+    || /^index\.(?:[cm]?[jt]s|[jt]sx)$/.test(posix.basename(path))) {
+    return null;
+  }
   const [, root, feature, page] = path.split('/');
-  if (!page || ['factory', 'checkhealth'].includes(feature.toLowerCase())) return 'ARCHITECTURE.md';
+  if (!page || ['factory', 'checkhealth'].includes(feature.toLowerCase())) {
+    return 'ARCHITECTURE.md';
+  }
   const name = root === 'Services' && feature === 'Schools' && schoolPages[page]
     ? schoolPages[page]
     : owners[feature.toLowerCase()] ?? feature.replace(/([A-Z]+)([A-Z][a-z])/g, '$1-$2').replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
@@ -26,8 +32,12 @@ function prose(text) {
   return text.split(/\r?\n/).map(line => {
     const marker = line.match(/^\s*(`{3,}|~{3,})/);
     if (marker) {
-      if (!fence) fence = marker[1];
-      else if (marker[1][0] === fence[0] && marker[1].length >= fence.length) fence = null;
+      if (!fence) {
+        fence = marker[1];
+      }
+      else if (marker[1][0] === fence[0] && marker[1].length >= fence.length) {
+        fence = null;
+      }
       return '';
     }
     return fence ? '' : line.replace(/(`+).*?\1/g, '');
@@ -52,7 +62,9 @@ function destination(text, start) {
   let depth = 0;
   const angle = text[start] === '<';
   let target = '';
-  if (angle) end++;
+  if (angle) {
+    end++;
+  }
   while (end < text.length) {
     const char = text[end];
     if (char === '\\' && /[!-/:-@\[-`{-~]/.test(text[end + 1] ?? '')) {
@@ -60,11 +72,21 @@ function destination(text, start) {
       end += 2;
       continue;
     }
-    if (angle && char === '>') return { target, end: end + 1 };
-    if (angle && /[<\r\n]/.test(char)) return null;
-    if (!angle && (/\s/.test(char) || (char === ')' && depth === 0))) break;
-    if (!angle && char === '(') depth++;
-    if (!angle && char === ')') depth--;
+    if (angle && char === '>') {
+      return { target, end: end + 1 };
+    }
+    if (angle && /[<\r\n]/.test(char)) {
+      return null;
+    }
+    if (!angle && (/\s/.test(char) || (char === ')' && depth === 0))) {
+      break;
+    }
+    if (!angle && char === '(') {
+      depth++;
+    }
+    if (!angle && char === ')') {
+      depth--;
+    }
     target += char;
     end++;
   }
@@ -75,9 +97,13 @@ function inlineLinks(text) {
   const result = [];
   for (const match of text.matchAll(/(?<!\\)!?\[([^\]\n]*)\]\(\s*/g)) {
     const parsed = destination(text, match.index + match[0].length);
-    if (!parsed) continue;
+    if (!parsed) {
+      continue;
+    }
     const close = text.slice(parsed.end).match(/^\s*(?:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\((?:\\.|[^)\\])*\))\s*)?\)/);
-    if (close) result.push({ target: parsed.target, label: match[1], start: match.index, end: parsed.end + close[0].length });
+    if (close) {
+      result.push({ target: parsed.target, label: match[1], start: match.index, end: parsed.end + close[0].length });
+    }
   }
   return result;
 }
@@ -86,14 +112,17 @@ function links(text) {
   const references = new Map();
   for (const match of text.matchAll(/^ {0,3}\[([^\]]+)\]:\s*/gm)) {
     const parsed = destination(text, match.index + match[0].length);
-    if (parsed && parsed.end > match.index + match[0].length) references.set(match[1].toLowerCase(), parsed.target);
+    if (parsed && parsed.end > match.index + match[0].length) {
+      references.set(match[1].toLowerCase(), parsed.target);
+    }
   }
   const targets = inlineLinks(text).map(link => link.target);
   for (const [, label, reference] of text.matchAll(/!?\[([^\]]+)\]\[([^\]]*)\]/g)) {
     const target = references.get((reference || label).toLowerCase());
     targets.push(target ?? `!missing-reference:${reference || label}`);
   }
-  for (const target of references.values()) targets.push(target);
+  for (const target of references.values())
+    targets.push(target);
   return targets;
 }
 
@@ -111,13 +140,17 @@ export function getDocumentationErrors({ documents, paths, check = 'all' }) {
   const fragments = new Map([...documents].map(([path, text]) => [path, headings(text.replace(/^\s*(`{3,}|~{3,})[^\n]*\n[\s\S]*?^\s*\1\s*$/gm, ''))]));
   for (const [path, text] of check === 'coverage' ? [] : documents) {
     const lines = text.replace(/\r?\n$/, '').split(/\r?\n/).length;
-    if (lines >= 300) errors.push(`${path}: ${lines} lines; documentation must be shorter than 300 lines.`);
+    if (lines >= 300) {
+      errors.push(`${path}: ${lines} lines; documentation must be shorter than 300 lines.`);
+    }
     for (const target of links(content.get(path))) {
       if (target.startsWith('!missing-reference:')) {
         errors.push(`${path}: undefined link reference ${target.slice(19)}.`);
         continue;
       }
-      if (/^[a-z][a-z\d+.-]*:/i.test(target) || target.startsWith('//')) continue;
+      if (/^[a-z][a-z\d+.-]*:/i.test(target) || target.startsWith('//')) {
+        continue;
+      }
       const [location, fragment] = target.split('#');
       let destination;
       let anchor;
@@ -128,11 +161,17 @@ export function getDocumentationErrors({ documents, paths, check = 'all' }) {
         errors.push(`${path}: invalid URL encoding in ${target}.`);
         continue;
       }
-      if (location.startsWith('/') || !targets.has(destination)) errors.push(`${path}: broken local link ${target}.`);
-      else if (anchor && documents.has(destination) && !fragments.get(destination).has(anchor)) errors.push(`${path}: missing heading in ${target}.`);
+      if (location.startsWith('/') || !targets.has(destination)) {
+        errors.push(`${path}: broken local link ${target}.`);
+      }
+      else if (anchor && documents.has(destination) && !fragments.get(destination).has(anchor)) {
+        errors.push(`${path}: missing heading in ${target}.`);
+      }
     }
   }
-  if (check === 'content') return errors;
+  if (check === 'content') {
+    return errors;
+  }
   const ownersByPath = new Map(paths.map(path => [path, getFeatureDocument(path)]).filter(([, document]) => document));
   for (const document of new Set(ownersByPath.values())) {
     if (!documents.has(document) || !content.get(document).replace(/^\s*#.*$/gm, '').trim()) {
@@ -151,9 +190,15 @@ function run() {
   while (args.length) {
     const option = args.shift();
     const value = args.shift();
-    if (option === '--base' && value && !base) base = git(['rev-parse', '--verify', '--end-of-options', `${value}^{commit}`]).trim();
-    else if (option === '--check' && ['all', 'content', 'coverage'].includes(value)) check = value;
-    else throw new Error('Usage: npm run validate:docs -- [--base REF] [--check all|content|coverage]');
+    if (option === '--base' && value && !base) {
+      base = git(['rev-parse', '--verify', '--end-of-options', `${value}^{commit}`]).trim();
+    }
+    else if (option === '--check' && ['all', 'content', 'coverage'].includes(value)) {
+      check = value;
+    }
+    else {
+      throw new Error('Usage: npm run validate:docs -- [--base REF] [--check all|content|coverage]');
+    }
   }
   const paths = git(base ? ['ls-tree', '-r', '--name-only', '-z', 'HEAD'] : ['ls-files', '--cached', '--full-name', '-z']).split('\0').filter(Boolean);
   const documents = new Map(paths.filter(path => path.endsWith('.md')).map(path => [path, git(['show', `${base ? 'HEAD' : ''}:${path}`])]));

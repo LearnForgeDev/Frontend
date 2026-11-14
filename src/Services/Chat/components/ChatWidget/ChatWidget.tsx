@@ -1,3 +1,4 @@
+import type { ChatWidgetProps } from './ChatWidget.type';
 import { Fab, Zoom, Box } from '@mui/material';
 import ChatIcon from '@mui/icons-material/Chat';
 import CloseIcon from '@mui/icons-material/Close';
@@ -5,10 +6,6 @@ import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import ChatMiniPanel from './ChatMiniPanel';
 import { widgetStyles } from './ChatWidget.styles';
 import { CSS } from '@/Services/Chat/Chat.const';
-
-interface ChatWidgetProps {
-  schoolPublicId: string;
-}
 
 export default function ChatWidget({ schoolPublicId }: ChatWidgetProps) {
   const { isMiniOpen, setMiniOpen } = useChatContext();

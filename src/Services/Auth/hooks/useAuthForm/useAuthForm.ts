@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints';
 import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
-import { useUser } from '@/Storage/UserContext/UserContext';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import { useToast } from '@/Storage/useToastStore';
 import { getAuthErrorMessage } from '../../contexts/AuthFlowContext.utils';
 import { AUTH_ERROR_MESSAGES } from '../../contexts/AuthFlowContext.const';
@@ -12,7 +12,7 @@ import { AUTH_RETURN_PARAM } from '../../Pages/AuthLayout/AuthLayout.const';
 import { validateAuthForm } from '../../validation/auth.validation';
 import { storePasswordCredential } from '../../auth.credentials';
 import { INITIAL_AUTH_FORM } from './useAuthForm.const';
-import type { AuthFormState, AuthMode } from './useAuthForm.types';
+import type { AuthFormState, AuthMode } from './useAuthForm.type';
 
 function readTextField(value: FormDataEntryValue | null): string {
   return typeof value === 'string' ? value : '';

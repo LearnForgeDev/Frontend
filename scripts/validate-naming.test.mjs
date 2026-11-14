@@ -11,7 +11,7 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
   const valid = [
     'src/Services/Auth/AuthPage.tsx',
     'src/Services/Auth/components/LoginForm/LoginForm.tsx',
-    'src/Services/Auth/components/LoginForm/LoginForm.types.ts',
+    'src/Services/Auth/components/LoginForm/LoginForm.type.ts',
     'src/Services/Auth/components/LoginForm/LoginForm.test.tsx',
     'src/Services/Auth/components/LoginForm/index.ts',
     'src/Services/Auth/hooks/useAuth.ts',
@@ -20,7 +20,12 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     'src/Services/Auth/hooks/index.ts',
     'src/Services/Auth/validation/auth.validation.ts',
     'src/Endpoints/Auth/auth.ts',
-    'src/Endpoints/Auth/auth.types.ts',
+    'src/Endpoints/Auth/auth.type.ts',
+    'src/Endpoints/auth/auth.type.ts',
+    'src/Services/Chat/hooks/useChatDraft/useChatDraft.type.ts',
+    'tests/e2e/flows.type.ts',
+    'tests/unit/auth-session.type.ts',
+    'next.config.type.ts',
     'src/Endpoints/Auth/auth.test.ts',
     'src/Storage/Auth/auth.slice.ts',
     'src/Storage/Auth/auth.selectors.ts',
@@ -53,6 +58,14 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     'src/Services/Auth/components/loginForm/loginForm.tsx',
     'src/Services/Auth/components/LoginForm/types.ts',
     'src/Services/Auth/components/LoginForm/LoginForm.types.tsx',
+    'src/Services/Auth/components/LoginForm/LoginForm.types.ts',
+    'src/Services/Auth/bad_name.type.ts',
+    'src/Services/Auth/bad name.type.ts',
+    'src/Services/Auth/ProbePage.type.tsx',
+    'src/services/bad/components/invalid/Anything.type.ts',
+    'scripts/nested/unowned.type.ts',
+    'src/Services/Auth/Unowned.type.ts',
+    'tests/e2e/BadName.type.ts',
     'src/Services/Auth/components/bad_name/index.ts',
     'src/Services/Auth/components/LoginForm/hooks/useFields.ts',
     'src/Services/Auth/components/LoginForm/hooks/useFields/useFields.ts',
@@ -90,8 +103,20 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     'docs/features/nested/auth.md',
     'scripts/validateNaming.mjs',
   ];
-  for (const path of valid) assert.equal(getNamingError(path), null, path);
-  for (const path of invalid) assert.equal(typeof getNamingError(path), 'string', path);
+  const owners = new Set([...valid, 'src/Endpoints/auth/auth.endpoints.ts', 'src/Services/Chat/hooks/useChatDraft/useChatDraft.ts', 'tests/e2e/flows.utils.ts', 'next.config.ts']);
+  for (const path of valid)
+    assert.equal(getNamingError(path, owners), null, path);
+  for (const path of invalid)
+    assert.equal(typeof getNamingError(path, owners), 'string', path);
+  for (const extension of ['js', 'jsx', 'mjs', 'cjs', 'ts', 'tsx', 'mts', 'cts']) {
+    const source = ['jsx', 'tsx'].includes(extension) ? 'AuthPage' : 'auth.validation';
+    assert.equal(getNamingError(`src/Services/Auth/${source}.${extension}`), null);
+    assert.equal(getNamingError(`tests/unit/auth-session.test.${extension}`), null);
+    assert.equal(typeof getNamingError(`src/services/Auth/${source}.${extension}`), 'string');
+    assert.equal(typeof getNamingError(`src/Services/Auth/ProbePage.type.${extension}`), 'string');
+  }
+  assert.equal(getNamingError('src/Assets/Types/landing.type.ts'), null);
+  assert.equal(typeof getNamingError('scripts/unowned.type.ts'), 'string');
 
   const directory = mkdtempSync(join(tmpdir(), 'learnforge-naming-'));
   const script = fileURLToPath(new URL('./validate-naming.mjs', import.meta.url));
@@ -118,6 +143,20 @@ test('naming rules reject misplaced roles and the staged CLI protects new paths'
     write('src/Services/Auth/AuthPage.tsx');
     git('add', 'src/Services/Auth/AuthPage.tsx');
     assert.equal(check('--staged').status, 0, 'a new canonical page passes');
+    write('src/Services/Auth/Legacy/legacy.contract.type.ts');
+    write('src/Services/Auth/Legacy/legacy.contract.ts');
+    git('add', 'src/Services/Auth/Legacy/legacy.contract.type.ts');
+    assert.equal(check().status, 1, 'an unstaged owner cannot justify a legacy sidecar');
+    git('add', 'src/Services/Auth/Legacy/legacy.contract.ts');
+    assert.equal(check().status, 0, 'a staged adjacent owner justifies its sidecar');
+    git('commit', '-m', 'Tracked legacy owner and sidecar');
+    assert.equal(check().status, 0, 'the index contains no new paths');
+    write('src/Services/Auth/Legacy/legacy.contract.test.type.ts');
+    git('add', 'src/Services/Auth/Legacy/legacy.contract.test.type.ts');
+    assert.equal(check().status, 1, 'a similarly prefixed owner does not justify an unrelated sidecar');
+    git('rm', '--cached', 'src/Services/Auth/Legacy/legacy.contract.test.type.ts');
+    git('rm', 'src/Services/Auth/Legacy/legacy.contract.type.ts', 'src/Services/Auth/Legacy/legacy.contract.ts');
+    git('commit', '-m', 'Remove fixture owner');
     write('src/Services/Auth/hooks/useAuth/useAuth.ts');
     git('add', 'src/Services/Auth/hooks/useAuth/useAuth.ts');
     const rejected = check();

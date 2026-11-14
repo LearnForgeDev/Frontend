@@ -4,7 +4,7 @@ import { useScheduleMutations } from '../useScheduleMutations/useScheduleMutatio
 import { validateScheduleEventForm } from '../../components/CreateEventModal/CreateEventModal.validation';
 import { ERROR_EMPTY_AUDIENCE } from '../../components/CreateEventModal/CreateEventModal.const';
 import { createEventEditorForm, eventEditorReducer, getEventAttendeeOptions } from './useEventEditor.utils';
-import type { EventEditorField, EventEditorOptions } from './useEventEditor.types';
+import type { EventEditorField, EventEditorOptions } from './useEventEditor.type';
 
 export function useEventEditor(options: EventEditorOptions) {
   const { event, onClose } = options;
@@ -17,11 +17,15 @@ export function useEventEditor(options: EventEditorOptions) {
   const isAudienceUnavailable = students.isLoading || students.isError;
 
   const submit = () => {
-    if (mutation.isPending || isAudienceUnavailable) return;
+    if (mutation.isPending || isAudienceUnavailable) {
+      return;
+    }
     const validation = validateScheduleEventForm(form);
     const error = validation.error ?? (!form.attendeeIds.length && !form.withoutAttendees ? ERROR_EMPTY_AUDIENCE : null);
     dispatch({ type: 'error', error });
-    if (error || validation.error !== null) return;
+    if (error || validation.error !== null) {
+      return;
+    }
     const input = {
       title: form.title.trim(),
       description: form.description.trim() || null,
@@ -30,8 +34,12 @@ export function useEventEditor(options: EventEditorOptions) {
       room: event?.room,
       attendeeUserPublicIds: form.attendeeIds,
     };
-    if (event) updateEvent.mutate({ eventId: event.id, input }, { onSuccess: onClose });
-    else createEvent.mutate(input, { onSuccess: onClose });
+    if (event) {
+      updateEvent.mutate({ eventId: event.id, input }, { onSuccess: onClose });
+    }
+    else {
+      createEvent.mutate(input, { onSuccess: onClose });
+    }
   };
 
   return {

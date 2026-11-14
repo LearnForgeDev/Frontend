@@ -7,7 +7,9 @@ export function useAcceptInvite(inviteToken: string, knownSchoolPublicIds: strin
   const toast = useToast();
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    if (!inviteToken) return;
+    if (!inviteToken) {
+      return;
+    }
     joinSchool.mutate({ inviteToken, knownSchoolPublicIds }, {
       onError: () => toast.error('Не удалось вступить. Ссылка могла истечь или исчерпать лимит.'),
     });

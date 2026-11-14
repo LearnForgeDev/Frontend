@@ -1,7 +1,7 @@
 import { expect } from '@playwright/test';
-import type { SchoolInvite } from '../../src/Endpoints/invites/types';
+import type { SchoolInvite } from '../../src/Endpoints/invites/invites.contract.type';
 import { SCHOOL_ID } from './core.const';
-import type { Actor } from './flows.types';
+import type { Actor } from './flows.type';
 import { readJson } from './flows.utils';
 
 export const inviteEndpoint = `/api/ApiAuth/invites/${SCHOOL_ID}`;
@@ -23,7 +23,9 @@ export async function createInvite(actor: Actor, maxUses = 5, role = 0) {
   expect(invite).toBeTruthy();
   actor.cleanup.push(async () => {
     const current = await readInvite(actor, invite!.id);
-    if (!current.revokedAt) expect((await actor.page.request.delete(`${inviteEndpoint}/${current.id}`)).ok()).toBe(true);
+    if (!current.revokedAt) {
+      expect((await actor.page.request.delete(`${inviteEndpoint}/${current.id}`)).ok()).toBe(true);
+    }
   });
   return { ...invite!, token: result.inviteToken };
 }

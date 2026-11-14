@@ -1,5 +1,5 @@
 import { MESSAGE_MAX_LENGTH } from '../../Chat.const';
-import type { ChatDraft, ChatDraftAction } from './useChatDraft.types';
+import type { ChatDraft, ChatDraftAction } from './useChatDraft.type';
 
 export function createChatDraft(): ChatDraft {
   return { text: '', textRevision: 0, files: [], error: null };
@@ -13,14 +13,23 @@ export function canSendChatDraft(draft: ChatDraft): boolean {
 export function chatDraftReducer(state: Record<string, ChatDraft>, action: ChatDraftAction): Record<string, ChatDraft> {
   const key = action.type === 'sent' ? action.snapshot.key : action.key;
   const draft = state[key] ?? createChatDraft();
-  if (action.type === 'text') return { ...state, [key]: { ...draft, text: action.text, textRevision: draft.textRevision + 1, error: null } };
+  if (action.type === 'text') {
+    return { ...state, [key]: { ...draft, text: action.text, textRevision: draft.textRevision + 1, error: null } };
+  }
   if (action.type === 'files') {
     const files = new Map(draft.files.map(file => [file.publicId, file]));
-    for (const file of action.files) if (!files.has(file.publicId)) files.set(file.publicId, file);
+    for (const file of action.files)
+      if (!files.has(file.publicId)) {
+      files.set(file.publicId, file);
+    }
     return { ...state, [key]: { ...draft, files: [...files.values()], error: null } };
   }
-  if (action.type === 'removeFile') return { ...state, [key]: { ...draft, files: draft.files.filter(file => file.selectionId !== action.selectionId), error: null } };
-  if (action.type === 'error') return { ...state, [key]: { ...draft, error: action.error } };
+  if (action.type === 'removeFile') {
+    return { ...state, [key]: { ...draft, files: draft.files.filter(file => file.selectionId !== action.selectionId), error: null } };
+  }
+  if (action.type === 'error') {
+    return { ...state, [key]: { ...draft, error: action.error } };
+  }
   const sentSelections = new Set(action.snapshot.files.map(file => file.selectionId));
   return {
     ...state,

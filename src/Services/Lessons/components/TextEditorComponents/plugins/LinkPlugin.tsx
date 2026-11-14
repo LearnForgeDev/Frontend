@@ -1,3 +1,4 @@
+import type { Props } from './LinkPlugin.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,17 +7,13 @@
  *
  */
 
-import type {JSX} from 'react';
+import type { JSX } from 'react';
 
-import {LinkPlugin as LexicalLinkPlugin} from '@lexical/react/LexicalLinkPlugin';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useEffect} from 'react';
+import { LinkPlugin as LexicalLinkPlugin } from '@lexical/react/LexicalLinkPlugin';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useEffect } from 'react';
 
-import {validateUrl} from '../utils/url.ts';
-
-type Props = {
-  hasLinkAttributes?: boolean;
-};
+import { validateUrl } from '../utils/url.ts';
 
 export default function LinkPlugin({
                                      hasLinkAttributes = false,
@@ -44,6 +41,7 @@ export default function LinkPlugin({
         editorElement.removeEventListener('click', handleClick);
       };
     }
+    return undefined;
   }, [editor]);
 
   return (

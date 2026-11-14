@@ -1,4 +1,4 @@
-import type {PluginItem} from '@/Services/Lessons/lessonTypes';
+import type {PluginItem} from '@/Services/Lessons/Lessons.type';
 
 export default function DefaultButton({
   button,

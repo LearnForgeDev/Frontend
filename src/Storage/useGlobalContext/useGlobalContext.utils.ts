@@ -1,12 +1,8 @@
+import type { StoredUserIdentity } from './useGlobalContext.utils.type';
 import type { UserIdentity } from '@/Assets/Types/commonTypes';
 import type { User } from './useGlobalContext';
 
 import { USER_STORAGE_KEY } from '../UserContext/UserContext.const';
-
-type StoredUserIdentity = Partial<UserIdentity> & {
-  activeSchoolPublicId?: string;
-  roles?: User['roles'];
-};
 
 const getStoredUserIdentity = (): StoredUserIdentity => {
   try {

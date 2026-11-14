@@ -1,10 +1,7 @@
+import type { RequestSchoolFormProps } from './RequestSchoolForm.type';
 import { Button, TextField, Typography } from '@mui/material';
 import { useRequestSchoolForm } from '../../hooks/useRequestSchoolForm';
 import * as S from './RequestSchoolForm.styles';
-
-type RequestSchoolFormProps = {
-  initialSchoolName?: string;
-};
 
 export default function RequestSchoolForm({
   initialSchoolName = '',

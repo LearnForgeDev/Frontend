@@ -2,8 +2,8 @@ import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-li
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { resolveSchoolSelection } from '@/Services/Schools/schools.selection';
 import ProfilePage from './ProfilePage';

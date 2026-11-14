@@ -21,7 +21,7 @@ export default function AppEntryPage() {
       <Box sx={{ maxWidth: 560, mx: 'auto', py: 8 }}>
         <Alert
           severity="error"
-          action={<Button color="inherit" onClick={() => schoolsQuery.refetch()}>Повторить</Button>}
+          action={<Button color="inherit" onClick={() => void schoolsQuery.refetch()}>Повторить</Button>}
         >
           Не удалось загрузить список школ.
         </Alert>

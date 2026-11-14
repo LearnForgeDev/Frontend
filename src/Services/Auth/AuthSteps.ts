@@ -1,59 +1,11 @@
-import type { ChangeEvent, ElementType, MouseEventHandler } from 'react';
+import type { RegisterSteps, LoginSteps, RegisterStepsOptions, LoginStepsOptions } from './AuthSteps.type';
+export type { RegisterFormData, RegisterFormFieldName, LoginFormFieldName, AuthStepComponent, AuthFlowStep, RegisterFlowStep, LoginFlowStep, RegisterSteps, LoginSteps } from './AuthSteps.type';
+import type { ChangeEvent } from 'react';
 import { Button } from '@mui/material';
 
 import { AuthCredentialsStep } from './Components/CommonAuthStepComponents.tsx';
 import LoginField from './Components/LoginField';
 import PasswordField from './Components/PasswordField';
-export type RegisterFormData = {
-  name: string;
-  password: string;
-  confirmPassword: string;
-};
-
-export type RegisterFormFieldName = keyof RegisterFormData | "credentials";
-export type LoginFormFieldName = "credentials";
-
-type ComponentProps = Record<string, unknown>;
-type ValueChangeHandler<TValue> = {
-  bivarianceHack: (value: TValue) => void;
-}["bivarianceHack"];
-
-export type AuthStepComponent<TFieldName extends string, TValue = string> = {
-  formFieldName: TFieldName;
-  componentKey: string;
-  component: ElementType;
-  value?: TValue;
-  onChangeOnValue?: ValueChangeHandler<TValue>;
-  props?: ComponentProps;
-};
-
-export type AuthFlowStep<TFieldName extends string, TValue = string> = {
-  title: string;
-  components: Array<AuthStepComponent<TFieldName, TValue>>;
-};
-
-export type RegisterFlowStep = AuthFlowStep<RegisterFormFieldName, string>;
-export type LoginFlowStep = AuthFlowStep<LoginFormFieldName, string>;
-
-export type RegisterSteps = RegisterFlowStep[];
-export type LoginSteps = LoginFlowStep[];
-
-type RegisterStepsOptions = {
-  formData: RegisterFormData;
-  isLoading: boolean;
-  onNameChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onConfirmPasswordChange: (value: string) => void;
-};
-
-type LoginStepsOptions = {
-  name: string;
-  password: string;
-  isLoading: boolean;
-  onNameChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onSubmit: MouseEventHandler<HTMLButtonElement>;
-};
 
 export function getLoginSteps({
   name,

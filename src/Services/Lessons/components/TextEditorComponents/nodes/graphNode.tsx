@@ -1,33 +1,17 @@
-import {
-  DecoratorNode,
-  type DOMConversionMap,
-  type DOMExportOutput,
-  type EditorConfig,
-  type LexicalNode,
-  type NodeKey,
-  type SerializedLexicalNode,
-  type Spread,
-} from 'lexical';
-import type {JSX} from 'react';
+import type { GraphPayload, SerializedGraphNode } from './graphNode.type';
+export type { GraphPayload, SerializedGraphNode } from './graphNode.type';
+import { DecoratorNode, type DOMConversionMap, type DOMExportOutput, type EditorConfig, type LexicalNode, type NodeKey } from 'lexical';
+import type { JSX } from 'react';
 import * as React from 'react';
 
 const GraphComponent = React.lazy(() => import('./GraphNodeComponent.tsx'));
 
-export interface GraphPayload {
-  key?: NodeKey;
-}
-
-export type SerializedGraphNode = Spread<
-  object,
-  SerializedLexicalNode
->;
-
 export class GraphNode extends DecoratorNode<JSX.Element> {
-  static getType(): string {
+  static override getType(): string {
     return "graph";
   }
 
-  static clone(node: GraphNode): GraphNode {
+  static override clone(node: GraphNode): GraphNode {
     return new GraphNode(node.__key);
   }
 
@@ -35,7 +19,7 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     super(key);
   }
 
-  createDOM(config: EditorConfig): HTMLElement {
+  override createDOM(config: EditorConfig): HTMLElement {
     const span = document.createElement("span");
     const className = config.theme.graph;
     if (className !== undefined) {
@@ -44,17 +28,17 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     return span;
   }
 
-  updateDOM(): false {
+  override updateDOM(): false {
     return false;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement("div");
     element.className = "graph-node";
     return { element };
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       div: (node: Node) => {
         if ((node as HTMLElement).className === "graph-node") {
@@ -71,18 +55,18 @@ export class GraphNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  exportJSON(): SerializedGraphNode {
+  override exportJSON(): SerializedGraphNode {
     return {
       type: "graph",
       version: 1,
     };
   }
 
-  static importJSON(): GraphNode {
+  static override importJSON(): GraphNode {
     return $createGraphNode();
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return (
       <React.Suspense fallback={null}>
         <GraphComponent

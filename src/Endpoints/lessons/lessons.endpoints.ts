@@ -1,5 +1,5 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
 import type { CreateLessonRequest, UpdateLessonRequest } from './types';
 
 const apiClient = createApiClient({});

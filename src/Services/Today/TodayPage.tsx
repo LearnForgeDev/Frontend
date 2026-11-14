@@ -1,4 +1,4 @@
-import { LessonsProvider } from '@/Storage/LessonsContext/LessonsContext';
+import { LessonsProvider } from '@/Services/Lessons/components/LessonsProvider/LessonsProvider';
 import TodayPageContent from './TodayPageContent';
 
 export default function TodayPage() {

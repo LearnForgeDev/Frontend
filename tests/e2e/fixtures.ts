@@ -1,20 +1,27 @@
 import { expect, test as base, type BrowserContext } from '@playwright/test';
+import type { Page } from '@playwright/test';
 import { login, register } from './auth.utils';
 import { BASE_URL } from './flows.const';
-import type { Actor, CreateActor } from './flows.types';
+import type { Actor, CreateActor } from './flows.type';
 
 function watchProduction(context: BrowserContext) {
   const errors: string[] = [];
-  const attach = (page: import('@playwright/test').Page) => {
+  const attach = (page: Page) => {
     page.on('pageerror', error => errors.push(error.message));
     page.on('console', message => {
-      if (message.type() === 'error' && /hydrat|server.rendered|did not match|React error #4(?:18|19|21|23|25)/i.test(message.text())) errors.push(message.text());
+      if (message.type() === 'error' && /hydrat|server.rendered|did not match|React error #4(?:18|19|21|23|25)/i.test(message.text())) {
+        errors.push(message.text());
+      }
     });
     page.on('requestfailed', request => {
-      if (request.url().startsWith(BASE_URL + '/') && ['script', 'stylesheet'].includes(request.resourceType())) errors.push(`${request.failure()?.errorText} ${request.url()}`);
+      if (request.url().startsWith(BASE_URL + '/') && ['script', 'stylesheet'].includes(request.resourceType())) {
+        errors.push(`${request.failure()?.errorText} ${request.url()}`);
+      }
     });
     page.on('response', response => {
-      if (response.url().startsWith(BASE_URL + '/') && /\.(js|css)(\?|$)/.test(response.url()) && response.status() >= 400) errors.push(`${response.status()} ${response.url()}`);
+      if (response.url().startsWith(BASE_URL + '/') && /\.(js|css)(\?|$)/.test(response.url()) && response.status() >= 400) {
+        errors.push(`${response.status()} ${response.url()}`);
+      }
     });
   };
   context.pages().forEach(attach);
@@ -49,7 +56,11 @@ export const test = base.extend<{ productionErrors: void; actors: CreateActor }>
         failures.push(error);
       }
       for (const cleanup of actor.cleanup.reverse()) {
-        try { await cleanup(); } catch (error) { failures.push(error); }
+        try {
+          await cleanup();
+        } catch (error) {
+          failures.push(error);
+        }
       }
       try {
         expect(errors, 'Ошибки production-сборки участника').toEqual([]);

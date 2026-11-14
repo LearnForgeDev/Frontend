@@ -1,6 +1,6 @@
 import type { SerializedDocument } from '@lexical/file';
 import type { SerializedEditorState } from 'lexical';
-import type { LessonDraft, LessonDraftScope } from './useLessonEditor.types';
+import type { LessonDraft, LessonDraftScope } from './useLessonEditor.type';
 import {
   LESSON_DRAFT_STORAGE_PREFIX,
   LEXICAL_DOCUMENT_SOURCE,
@@ -49,9 +49,13 @@ const getLessonDraftKey = (scope: LessonDraftScope): string => (
 export const readLessonDraft = (scope: LessonDraftScope): LessonDraft | undefined => {
   try {
     const serializedDraft = localStorage.getItem(getLessonDraftKey(scope));
-    if (!serializedDraft) return undefined;
+    if (!serializedDraft) {
+      return undefined;
+    }
     const value: unknown = JSON.parse(serializedDraft);
-    if (!isRecord(value)) return undefined;
+    if (!isRecord(value)) {
+      return undefined;
+    }
     const document = normalizeLessonDocument(value.document ?? value);
     return document ? { document, storageKey: typeof value.storageKey === 'string' ? value.storageKey : undefined } : undefined;
   } catch {
@@ -78,7 +82,9 @@ export const clearSavedLessonDraft = (scope: LessonDraftScope, document: Seriali
 
 export const isLessonDocumentEmpty = (document: SerializedDocument): boolean => (
   document.editorState.root.children.every(node => {
-    if (node.type !== 'paragraph') return false;
+    if (node.type !== 'paragraph') {
+      return false;
+    }
     const children = (node as { children?: { type: string; text?: string }[] }).children ?? [];
     return children.every(child => child.type === 'text' && !child.text?.trim());
   })

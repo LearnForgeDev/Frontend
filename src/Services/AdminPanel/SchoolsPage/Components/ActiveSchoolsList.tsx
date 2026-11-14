@@ -1,16 +1,10 @@
+import type { ActiveSchoolsListProps } from './ActiveSchoolsList.type';
 import { Box, Button, Skeleton, Typography } from '@mui/material';
 import ArrowForwardRoundedIcon from '@mui/icons-material/ArrowForwardRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
-import type { UserSchoolInfo } from '@/Endpoints';
+
 import { formatRoles } from '@/Assets/globalUtils';
 import * as S from './ActiveSchoolsList.styles';
-
-type ActiveSchoolsListProps = {
-  schools: UserSchoolInfo[];
-  isLoading: boolean;
-  activeSchoolPublicId?: string;
-  onNavigateToSchool: (school: UserSchoolInfo) => void;
-};
 
 export default function ActiveSchoolsList({
   schools,

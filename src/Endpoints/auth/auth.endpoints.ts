@@ -12,10 +12,10 @@ import type {
     InviteParams,
     JoinSchoolByInviteParams,
     SchoolRequestStatusDto
-} from './types';
+} from './auth.contract.type';
 import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
 
-export * from './types';
+export * from './auth.contract.type';
 
 const apiClient = createApiClient({ staleTime: 0 });
 const queryFn = createQueryFn();
@@ -32,7 +32,9 @@ export const authEndpoints = {
         });
 
         const user = normalizeRestoredSession(response.data);
-        if (!user) throw createUnauthenticatedError();
+        if (!user) {
+          throw createUnauthenticatedError();
+        }
         return user;
     },
 
@@ -44,7 +46,9 @@ export const authEndpoints = {
         });
 
         const user = normalizeRestoredSession(response.data);
-        if (!user) throw createUnauthenticatedError();
+        if (!user) {
+          throw createUnauthenticatedError();
+        }
         return user;
     },
 
@@ -104,7 +108,9 @@ export const authEndpoints = {
             queryFn: () => joinSchoolQueryFn.post<UserIdentity>(queryKey[0], dto)
         });
         const user = normalizeRestoredSession(response.data);
-        if (!user) throw createUnauthenticatedError();
+        if (!user) {
+          throw createUnauthenticatedError();
+        }
         return user;
     },
 

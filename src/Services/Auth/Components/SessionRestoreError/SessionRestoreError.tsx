@@ -1,13 +1,8 @@
+import type { SessionRestoreErrorProps } from './SessionRestoreError.type';
 import { Button, Typography } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { SESSION_RESTORE_ERROR } from '../../hooks/useRestoreSession/useRestoreSession.const';
 import { ErrorContainer } from './SessionRestoreError.styles';
-
-type SessionRestoreErrorProps = {
-  onRetry: () => void;
-  onLogout: () => void;
-  isPending: boolean;
-};
 
 export default function SessionRestoreError({ onRetry, onLogout, isPending }: SessionRestoreErrorProps) {
   return (

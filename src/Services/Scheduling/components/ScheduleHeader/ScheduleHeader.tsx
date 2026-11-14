@@ -1,3 +1,4 @@
+import type { ScheduleHeaderProps } from './ScheduleHeader.type';
 import { Box, Button, IconButton, Typography } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
@@ -6,11 +7,6 @@ import { ViewToggle } from '../ScheduleGrid/ViewToggle';
 import { useScheduleNavigation } from '../../hooks/useScheduleNavigation/useScheduleNavigation';
 import { HEADER_TITLE_TEXT, TODAY_BUTTON_TEXT, NEW_EVENT_TEXT, PREVIOUS_PERIOD_TEXT, NEXT_PERIOD_TEXT } from './ScheduleHeader.const';
 import { styles } from './ScheduleHeader.styles';
-
-interface ScheduleHeaderProps {
-  canManage: boolean;
-  onCreate: () => void;
-}
 
 export function ScheduleHeader({ canManage, onCreate }: ScheduleHeaderProps) {
   const navigation = useScheduleNavigation();

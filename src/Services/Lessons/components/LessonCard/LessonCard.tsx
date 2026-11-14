@@ -1,21 +1,13 @@
+import type { LessonCardProps } from './LessonCard.type';
+export type { LessonCardProps } from './LessonCard.type';
+import type { MouseEvent, KeyboardEvent } from 'react';
 import { useState } from 'react';
 import { Card, CardContent, Typography, Box, IconButton, type SxProps, type Theme } from '@mui/material';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import ArticleIcon from '@mui/icons-material/Article';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+
 import ContextMenu from '@/Services/Lessons/components/ContextMenu/ContextMenu';
 import { styles } from './LessonCard.styles';
-
-export interface LessonCardProps {
-  lesson: Lesson;
-  selected: boolean;
-  onClick: (e: React.MouseEvent) => void;
-  onOpen: () => void;
-  onRename: () => void;
-  onMove?: () => void;
-  onDelete: () => void;
-  canManage?: boolean;
-}
 
 export default function LessonCard({
   lesson,
@@ -29,12 +21,12 @@ export default function LessonCard({
 }: LessonCardProps) {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const handleKebabClick = (e: React.MouseEvent) => {
+  const handleKebabClick = (e: MouseEvent) => {
     e.stopPropagation();
     setMenuAnchor(e.currentTarget as HTMLElement);
   };
 
-  const handleContextMenu = (e: React.MouseEvent) => {
+  const handleContextMenu = (e: MouseEvent) => {
     e.preventDefault();
     setMenuAnchor(e.currentTarget as HTMLElement);
   };
@@ -43,7 +35,7 @@ export default function LessonCard({
     setMenuAnchor(null);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: KeyboardEvent) => {
     if (e.target === e.currentTarget && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
       onOpen();

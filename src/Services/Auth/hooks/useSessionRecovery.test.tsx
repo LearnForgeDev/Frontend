@@ -130,8 +130,12 @@ describe('Session recovery', () => {
   });
 
   it.each(['pending', 'failed'])('keeps login reachable while restore is %s', async (state) => {
-    if (state === 'pending') mocks.refreshToken.mockImplementation(() => new Promise(() => {}));
-    else mocks.refreshToken.mockRejectedValue(new Error('offline'));
+    if (state === 'pending') {
+      mocks.refreshToken.mockImplementation(() => new Promise(() => {}));
+    }
+    else {
+      mocks.refreshToken.mockRejectedValue(new Error('offline'));
+    }
 
     renderRoute('/auth/login');
 
@@ -164,12 +168,16 @@ describe('Session recovery', () => {
 
   it('discards a pending restore and does not accept its late identity', async () => {
     let finish!: (identity: UserIdentity) => void;
-    mocks.refreshToken.mockImplementation(() => new Promise<UserIdentity>((resolve) => { finish = resolve; }));
+    mocks.refreshToken.mockImplementation(() => new Promise<UserIdentity>((resolve) => {
+      finish = resolve;
+    }));
     const { result } = renderHook(() => useRestoreSession(), { wrapper: makeWrapper() });
     await waitFor(() => expect(mocks.refreshToken).toHaveBeenCalledOnce());
 
     act(() => result.current.clearUser());
-    await act(async () => { finish(makeIdentity()); });
+    await act(async () => {
+      finish(makeIdentity());
+    });
 
     expect(result.current.user).toBeNull();
     await waitFor(() => expect(result.current.isPending).toBe(false));

@@ -2,12 +2,16 @@
  * Formats an ISO date string into a relative human-readable string.
  */
 export function formatRelativeTime(iso: string): string {
-  if (!iso) return '';
+  if (!iso) {
+    return '';
+  }
   const date = new Date(iso);
   const now = new Date();
   const diffMs = now.getTime() - date.getTime();
 
-  if (isNaN(diffMs)) return '';
+  if (isNaN(diffMs)) {
+    return '';
+  }
 
   const diffSecs = Math.floor(diffMs / 1000);
   const diffMins = Math.floor(diffSecs / 60);

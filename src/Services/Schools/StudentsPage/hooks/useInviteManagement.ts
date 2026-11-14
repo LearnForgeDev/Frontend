@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { invitesEndpoints } from '@/Endpoints/invites/invites.endpoints';
-import type { UpdateInvite } from '@/Endpoints/invites/types';
+import type { UpdateInvite } from '@/Endpoints/invites/invites.contract.type';
 import { useToast } from '@/Storage/useToastStore';
 import { INVITES_QUERY_KEY } from '../Components/InviteWidget.const';
 import { useCopyInvite } from './useCopyInvite';
@@ -13,7 +13,10 @@ export function useInviteManagement(schoolPublicId: string) {
   const invites = useQuery({ queryKey, queryFn: () => invitesEndpoints.list(schoolPublicId) });
   const update = useMutation({
     mutationFn: ({ id, input }: { id: number; input: UpdateInvite }) => invitesEndpoints.update(schoolPublicId, id, input),
-    onSuccess: async () => { await refresh(); toast.success('Приглашение сохранено'); },
+    onSuccess: async () => {
+      await refresh();
+      toast.success('Приглашение сохранено');
+    },
     onError: () => toast.error('Не удалось сохранить приглашение. Проверьте срок и лимит.'),
   });
   const revoke = useMutation({

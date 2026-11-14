@@ -1,12 +1,8 @@
+import type { NotificationsPopoverProps } from './NotificationsPopover.type';
 import { Popover, Box, Typography, Button, Divider } from '@mui/material';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
 import PendingSchoolRequestWidget from '../DashboardHome/Components/PendingSchoolRequestWidget';
 import Notification from '@/Assets/Components/Notification/Notification';
-
-interface NotificationsPopoverProps {
-  anchorEl: HTMLElement | null;
-  onClose: () => void;
-}
 
 export default function NotificationsPopover({ anchorEl, onClose }: NotificationsPopoverProps) {
   const open = Boolean(anchorEl);
@@ -58,7 +54,7 @@ export default function NotificationsPopover({ anchorEl, onClose }: Notification
       </Box>
       <Divider />
       <Box sx={{ overflowY: 'auto', p: 2, flex: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
-        
+
         {/* Render standard notifications */}
         {barNotifications.length > 0 ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>

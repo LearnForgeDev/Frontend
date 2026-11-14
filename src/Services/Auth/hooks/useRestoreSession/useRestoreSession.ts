@@ -24,24 +24,36 @@ export function useRestoreSession() {
         useGlobalContext.getState().auth.logout();
         return null;
       };
-      if (!stored) return clearInvalidSession();
+      if (!stored) {
+        return clearInvalidSession();
+      }
       const identity = readStoredSession(stored);
-      if (!identity) return clearInvalidSession();
+      if (!identity) {
+        return clearInvalidSession();
+      }
       const confirmedIdentity = normalizeRestoredSession(JSON.parse(stored));
       const auth = useGlobalContext.getState().auth;
-      if (auth.isAuthenticated && confirmedIdentity && confirmedIdentity.userPublicId === auth.user?.userPublicId) return confirmedIdentity;
+      if (auth.isAuthenticated && confirmedIdentity && confirmedIdentity.userPublicId === auth.user?.userPublicId) {
+        return confirmedIdentity;
+      }
       const currentSession = () => queryClient.getQueryData<UserIdentity | null>(SESSION_QUERY_KEY) ?? null;
       const isCurrent = () => revision.current === requestedRevision && getSessionStorageSnapshot() === stored;
       try {
         const response = await authEndpoints.refreshToken({ refreshToken: identity.refreshToken });
-        if (!isCurrent()) return currentSession();
+        if (!isCurrent()) {
+          return currentSession();
+        }
         const restoredUser = normalizeRestoredSession(response);
-        if (!restoredUser) return clearInvalidSession();
+        if (!restoredUser) {
+          return clearInvalidSession();
+        }
         const user = { ...restoredUser, activeSchoolPublicId: identity.activeSchoolPublicId };
         useGlobalContext.getState().auth.setUser(user);
         return user;
       } catch (error) {
-        if (!isCurrent()) return currentSession();
+        if (!isCurrent()) {
+          return currentSession();
+        }
         if (isAxiosError(error) && (error.response?.status === 401 || error.response?.status === 403)) {
           return clearInvalidSession();
         }
@@ -57,7 +69,9 @@ export function useRestoreSession() {
     refetchOnReconnect: false,
   });
   const { refetch } = session;
-  useEffect(() => { void refetch(); }, [refetch]);
+  useEffect(() => {
+    void refetch();
+  }, [refetch]);
 
   const setUser = (user: UserIdentity) => {
     revision.current += 1;

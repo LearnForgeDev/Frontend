@@ -1,3 +1,5 @@
+import type { ProfileCardProps } from './ProfileCard.type';
+export type { ProfileCardProps } from './ProfileCard.type';
 import { Box, Typography, Avatar, Button, Stack } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import EmailIcon from '@mui/icons-material/Email';
@@ -5,23 +7,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import { ContactItem } from './ContactItem';
 import { PROFILE_CARD_TEXT } from './ProfileCard.const';
 
-import {
-  profileCardSx,
-  avatarSx,
-  userNameSx,
-  userInfoStackSx,
-  contactIconSx,
-  logoutButtonSx,
-} from './ProfileCard.styles';
-
-export interface ProfileCardProps {
-  user: {
-    userName: string;
-    email?: string;
-    phone?: string;
-  };
-  onLogout: () => void;
-}
+import { profileCardSx, avatarSx, userNameSx, userInfoStackSx, contactIconSx, logoutButtonSx } from './ProfileCard.styles';
 
 export const ProfileCard = ({ user, onLogout }: ProfileCardProps) => {
   return (

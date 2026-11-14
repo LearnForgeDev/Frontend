@@ -1,8 +1,8 @@
 import type { CourseDto, CourseProgressDto, CourseRosterDto } from '@/Endpoints/courses';
-import type { CourseDetail, CourseSummary } from '../Courses.types';
+import type { CourseDetail, CourseSummary } from '../Courses.type';
 import { COURSE_ITEM_TYPES, COURSE_PROGRESS_STATUS } from './courseMapping.const';
 import { getCourseProgress } from './courseFormatting';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
 
 export function toCourseSummary(course: CourseDto, progress?: CourseProgressDto): CourseSummary {
   return {
@@ -43,6 +43,8 @@ export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, 
 }
 
 export function canEditCourseProgram(course?: CourseDetail) {
-  if (!course) return true;
+  if (!course) {
+    return true;
+  }
   return course.otherItems.length === 0 && new Set(course.lessons.map(item => item.lessonId)).size === course.lessons.length;
 }

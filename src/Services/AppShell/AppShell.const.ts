@@ -5,7 +5,7 @@ import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
-import type { AppNavigationItem } from './AppShell.types';
+import type { AppNavigationItem } from './AppShell.type';
 
 export const APP_SIDEBAR_WIDTH_PX = 272;
 export const APP_COLLAPSED_SIDEBAR_WIDTH_PX = 80;

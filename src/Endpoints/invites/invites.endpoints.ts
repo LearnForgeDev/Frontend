@@ -1,5 +1,5 @@
 import { createQueryFnWithRefresh } from '../factory/factory';
-import type { SchoolInvite, UpdateInvite } from './types';
+import type { SchoolInvite, UpdateInvite } from './invites.contract.type';
 
 const client = createQueryFnWithRefresh();
 

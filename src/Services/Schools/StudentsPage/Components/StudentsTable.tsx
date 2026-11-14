@@ -1,18 +1,10 @@
+import type { StudentsTableProps } from './StudentsTable.type';
 import { Alert, Avatar, Box, Button, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import ChatBubbleOutlineRoundedIcon from '@mui/icons-material/ChatBubbleOutlineRounded';
 import { ClipLoader } from 'react-spinners';
 import { useStudents } from '../hooks/useStudents';
-import {
-  getStudentDisplayName,
-  getStudentInitials,
-  getStudentPublicId,
-} from './StudentsTable.utils';
+import { getStudentDisplayName, getStudentInitials, getStudentPublicId } from './StudentsTable.utils';
 import * as S from './StudentsTable.styles';
-
-type StudentsTableProps = {
-  schoolPublicId: string;
-  onOpenChat: (studentPublicId: string) => void;
-};
 
 export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps) {
   const studentsQuery = useStudents(schoolPublicId);
@@ -29,7 +21,7 @@ export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps
     return (
       <Alert
         severity="error"
-        action={<Button color="inherit" onClick={() => studentsQuery.refetch()}>Повторить</Button>}
+        action={<Button color="inherit" onClick={() => void studentsQuery.refetch()}>Повторить</Button>}
       >
         Не удалось загрузить учеников.
       </Alert>

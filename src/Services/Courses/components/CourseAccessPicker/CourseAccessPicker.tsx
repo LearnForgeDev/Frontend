@@ -1,16 +1,8 @@
+import type { CourseAccessPickerProps } from './CourseAccessPicker.type';
 import { Autocomplete, Box, FormControlLabel, Radio, RadioGroup, TextField, Typography } from '@mui/material';
-import type { CourseInput } from '../../Courses.types';
-import type { StudentGroupDto } from '@/Endpoints/students';
-import { styles } from './CourseAccessPicker.styles';
+import type { CourseInput } from '../../Courses.type';
 
-interface CourseAccessPickerProps {
-  mode: CourseInput['accessMode'];
-  onModeChange: (mode: CourseInput['accessMode']) => void;
-  groups: StudentGroupDto[];
-  selectedGroupIds: number[];
-  onGroupsChange: (ids: number[]) => void;
-  disabled: boolean;
-}
+import { styles } from './CourseAccessPicker.styles';
 
 export default function CourseAccessPicker({ mode, onModeChange, groups, selectedGroupIds, onGroupsChange, disabled }: CourseAccessPickerProps) {
   return <Box sx={styles.root}>

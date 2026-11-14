@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { JITSI_SCRIPT_ID } from '../CallsPage.constants';
-import type { JitsiMeetExternalAPIConstructor } from '../typings';
 import { loadJitsiScript } from './loadJitsiScript';
 import { JITSI_SCRIPT_TIMEOUT_MS } from './loadJitsiScript.const';
 
@@ -18,7 +17,7 @@ describe('Восстановление клиента видеозвонка', (
     await rejection;
     expect(document.getElementById(JITSI_SCRIPT_ID)).toBeNull();
     const retry = loadJitsiScript('meet.test');
-    window.JitsiMeetExternalAPI = vi.fn() as unknown as JitsiMeetExternalAPIConstructor;
+    window.JitsiMeetExternalAPI = vi.fn();
     document.getElementById(JITSI_SCRIPT_ID)!.dispatchEvent(new Event('load'));
     await expect(retry).resolves.toBeUndefined();
   });

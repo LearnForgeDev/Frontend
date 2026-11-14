@@ -1,9 +1,6 @@
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
-
-export interface MeetingInterval {
-  startUtc: string;
-  endUtc: string;
-}
+import type { MeetingInterval } from './meeting.utils.type';
+export type { MeetingInterval } from './meeting.utils.type';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 export function moveMeetingToTimestamp(event: ScheduleEvent, startTimestamp: number): MeetingInterval {
   const duration = new Date(event.end).getTime() - new Date(event.start).getTime();

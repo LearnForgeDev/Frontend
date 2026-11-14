@@ -4,9 +4,13 @@ import { JITSI_SCRIPT_ERROR, JITSI_SCRIPT_TIMEOUT_MS } from './loadJitsiScript.c
 const pendingLoads = new Map<string, Promise<void>>();
 
 export function loadJitsiScript(domain: string): Promise<void> {
-  if (window.JitsiMeetExternalAPI) return Promise.resolve();
+  if (window.JitsiMeetExternalAPI) {
+    return Promise.resolve();
+  }
   const pending = pendingLoads.get(domain);
-  if (pending) return pending;
+  if (pending) {
+    return pending;
+  }
 
   const promise = new Promise<void>((resolve, reject) => {
     document.getElementById(JITSI_SCRIPT_ID)?.remove();

@@ -1,7 +1,7 @@
 import type { SimpleStudentDto } from '@/Endpoints/students';
-import type { CourseDetail, CourseStudentOption } from '@/Services/Courses/Courses.types';
-import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.types';
-import type { LessonOption } from '../Courses.types';
+import type { CourseDetail, CourseStudentOption } from '@/Services/Courses/Courses.type';
+import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
+import type { LessonOption } from '../Courses.type';
 
 export function getLessonOptions(lessons: Lesson[], course?: CourseDetail): LessonOption[] {
   const options = new Map<number, LessonOption>();
@@ -19,10 +19,13 @@ export function getLessonOptions(lessons: Lesson[], course?: CourseDetail): Less
 
 export function getStudentOptions(students: SimpleStudentDto[], course?: CourseDetail) {
   const options = new Map<string, CourseStudentOption>();
-  for (const student of course?.students ?? []) options.set(student.userPublicId, student);
+  for (const student of course?.students ?? [])
+    options.set(student.userPublicId, student);
   for (const student of students) {
     const userPublicId = student.publicId ?? student.userPublicId;
-    if (userPublicId) options.set(userPublicId, { userPublicId, displayName: student.name ?? student.userName ?? student.displayName ?? userPublicId });
+    if (userPublicId) {
+      options.set(userPublicId, { userPublicId, displayName: student.name ?? student.userName ?? student.displayName ?? userPublicId });
+    }
   }
   return [...options.values()];
 }

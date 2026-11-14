@@ -58,6 +58,24 @@ Naming validation covers new and renamed paths, using staged paths locally and t
 PR base in CI. An all-tracked-path audit also includes legacy violations. See
 [naming](naming.md) for conventions and executable configuration for scope.
 
+Lint first checks every tracked and unignored source file against the 400-physical-line
+limit and singular type-sidecar suffix, without a baseline. It then checks multiline
+braced conditionals, named type placement and imports across source, tests and scripts.
+The same gates include `.mts` and `.cts` modules. Inline lint configuration is disabled,
+and multiple statements on one line fail instead of bypassing the physical line limit.
+Test discovery, changed-line coverage, naming and feature ownership include all
+supported `.js`, `.jsx`, `.mjs`, `.cjs`, `.ts`, `.tsx`, `.mts` and `.cts` sources.
+Only the literal erased `.type.ts` sidecar receives the type-file coverage exemption;
+an executable file with a similar suffix still counts toward the unchanged 80% gate.
+Type-aware promise rules reject floating or misused promises and non-thenable awaits;
+unnecessary type assertions also fail. TypeScript keeps strict/no-unused checking and
+requires explicit coverage of return paths and explicit inherited-member overrides.
+Test compilation includes application type sidecars so ambient browser and routing
+contracts match the application project without emitting those declarations.
+Validator and custom-rule regressions use
+the existing Node test gate. Full lint and type checking belong in CI when the local
+toolchain or workload is unsuitable.
+
 CI runs documentation content, documentation coverage and validator regressions as
 separate jobs. The aggregate `ci` result fails when any required job fails or skips.
 Knowledge handoff remains required by [AGENTS.md](../../AGENTS.md). Automated checks

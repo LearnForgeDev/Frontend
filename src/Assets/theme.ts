@@ -1,32 +1,5 @@
 import { createTheme } from '@mui/material/styles';
 
-declare module '@mui/material/styles' {
-  interface TypographyVariants {
-    titleS: React.CSSProperties;
-    bodyM: React.CSSProperties;
-    bodyS: React.CSSProperties;
-  }
-  interface TypographyVariantsOptions {
-    titleS?: React.CSSProperties;
-    bodyM?: React.CSSProperties;
-    bodyS?: React.CSSProperties;
-  }
-  interface Palette {
-    brand: Palette['primary'];
-  }
-  interface PaletteOptions {
-    brand?: PaletteOptions['primary'];
-  }
-}
-
-declare module '@mui/material/Typography' {
-  interface TypographyPropsVariantOverrides {
-    titleS: true;
-    bodyM: true;
-    bodyS: true;
-  }
-}
-
 export const theme = createTheme({
   typography: {
     fontFamily: "'Manrope', 'Inter', sans-serif",

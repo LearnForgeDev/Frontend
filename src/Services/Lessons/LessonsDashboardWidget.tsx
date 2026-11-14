@@ -1,7 +1,8 @@
-import React from 'react';
+import type { FC } from 'react';
+
 import { Box, Typography } from '@mui/material';
 
-export const LessonsDashboardWidget: React.FC = () => {
+export const LessonsDashboardWidget: FC = () => {
     return (
         <Box className="lessons-widget-inner">
             <Typography variant="h6" component="h4">Статистика уроков</Typography>

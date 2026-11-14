@@ -1,3 +1,4 @@
+import type { EquationComponentProps } from './EquationComponent.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,33 +7,19 @@
  *
  */
 
-import type {JSX} from 'react';
+import type { JSX } from 'react';
 
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-import {mergeRegister} from '@lexical/utils';
-import {
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
-  COMMAND_PRIORITY_HIGH,
-  KEY_ESCAPE_COMMAND,
-  type NodeKey,
-  SELECTION_CHANGE_COMMAND,
-} from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalEditable } from '@lexical/react/useLexicalEditable';
+import { mergeRegister } from '@lexical/utils';
+import { $getNodeByKey, $getSelection, $isNodeSelection, COMMAND_PRIORITY_HIGH, KEY_ESCAPE_COMMAND, SELECTION_CHANGE_COMMAND } from 'lexical';
 
-import {useCallback, useEffect, useRef, useState} from 'react';
-import {ErrorBoundary} from 'react-error-boundary';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ErrorBoundary } from 'react-error-boundary';
 
 import EquationEditor from '../ui/EquationEditor.tsx';
 import KatexRenderer from '../ui/KatexRenderer.tsx';
-import {$isEquationNode} from './EquationNode.tsx';
-
-type EquationComponentProps = {
-  equation: string;
-  inline: boolean;
-  nodeKey: NodeKey;
-};
+import { $isEquationNode } from './EquationNode.tsx';
 
 export default function EquationComponent({
                                             equation,
@@ -61,12 +48,9 @@ export default function EquationComponent({
     [editor, equationValue, nodeKey],
   );
 
-  useEffect(() => {
-    if (!showEquationEditor && equationValue !== equation) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEquationValue(equation);
-    }
-  }, [showEquationEditor, equation, equationValue]);
+  if (!showEquationEditor && equationValue !== equation) {
+    setEquationValue(equation);
+  }
 
   useEffect(() => {
     if (!isEditable) {

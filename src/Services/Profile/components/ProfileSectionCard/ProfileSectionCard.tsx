@@ -1,24 +1,12 @@
-import type { ReactNode } from 'react';
+import type { ProfileSectionCardProps } from './ProfileSectionCard.type';
+
 import { Alert, Box, Paper } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { ProfileSectionHeader } from '../ProfileSectionHeader/ProfileSectionHeader';
 import { ProfileSectionItem } from '../ProfileSectionItem/ProfileSectionItem';
-import type { ProfileSectionItemData } from '../ProfileSectionItem/ProfileSectionItem.types';
+
 import { PROFILE_SECTION_LOADER_SIZE } from './ProfileSectionCard.const';
 import * as S from './ProfileSectionCard.styles';
-
-type ProfileSectionCardProps = {
-  title: string;
-  actionLabel: string;
-  actionIcon?: ReactNode;
-  onAction?: () => void;
-  itemIcon: ReactNode;
-  items: ProfileSectionItemData[];
-  isLoading: boolean;
-  isError: boolean;
-  errorText: string;
-  emptyText: string;
-};
 
 export function ProfileSectionCard({
   title,

@@ -34,7 +34,9 @@ describe('Заявки отдельных аккаунтов', () => {
   it('переживает повреждённое или недоступное хранилище', () => {
     localStorage.setItem(`${SCHOOL_REQUEST_STORAGE_KEY}:user-a`, '{');
     expect(readSchoolRequestPointer('user-a')).toBeNull();
-    vi.spyOn(localStorage, 'setItem').mockImplementation(() => { throw new Error('storage unavailable'); });
+    vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+      throw new Error('storage unavailable');
+    });
     expect(() => saveSchoolRequestPointer('user-a', pointer)).not.toThrow();
   });
 });

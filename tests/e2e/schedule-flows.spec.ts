@@ -94,7 +94,10 @@ test('SCHEDULE-09 SCHEDULE-10: прямая ссылка открывает со
   const event = await createEvent(actor);
   const dialog = await openEvent(actor.page, event.id);
   const href = await dialog.getByTestId('schedule-google-calendar').getAttribute('href');
-  expect(new URL(href!).searchParams.get('text')).toBe(event.title);
+  if (!href) {
+    throw new Error('The calendar link has no destination.');
+  }
+  expect(new URL(href).searchParams.get('text')).toBe(event.title);
   await dialog.getByTestId('schedule-event-close').click();
   await expect(dialog).not.toBeVisible();
   await actor.page.goto(`${SCHOOL_PATH}/schedule?eventId=missing`);
@@ -107,7 +110,8 @@ test('SCHEDULE-11: ученик видит событие без управле�
   const student = await actors('student');
   const event = await createEvent(teacher, { attendees: [{ userPublicId: student.identity.userPublicId, displayName: student.identity.userName }] });
   const dialog = await openEvent(student.page, event.id);
-  for (const id of ['schedule-event-edit', 'schedule-event-delete', 'schedule-start-now']) await expect(dialog.getByTestId(id)).toHaveCount(0);
+  for (const id of ['schedule-event-edit', 'schedule-event-delete', 'schedule-start-now'])
+    await expect(dialog.getByTestId(id)).toHaveCount(0);
   await expect(student.page.getByTestId('schedule-create')).toHaveCount(0);
   expect((await student.page.request.delete(`/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}`)).status()).toBe(403);
 });
@@ -137,7 +141,9 @@ test('SCHEDULE-14: offline save retains input, unlocks Cancel and does not repla
   await form.getByTestId('schedule-form-title').fill(title);
   let saveRequests = 0;
   actor.page.on('request', request => {
-    if (new URL(request.url()).pathname === `/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}` && request.method() === 'PATCH') saveRequests++;
+    if (new URL(request.url()).pathname === `/api/ApiSchedule/${SCHOOL_ID}/events/${event.id}` && request.method() === 'PATCH') {
+      saveRequests++;
+    }
   });
   await actor.context.setOffline(true);
   try {

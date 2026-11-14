@@ -1,16 +1,6 @@
+import type { InviteTokenWidgetProps } from './InviteTokenWidget.type';
 import { useState } from 'react';
-import {
-  Alert,
-  AppBar,
-  Box,
-  Button,
-  Dialog,
-  IconButton,
-  MenuItem,
-  TextField,
-  Toolbar,
-  Typography,
-} from '@mui/material';
+import { Alert, AppBar, Box, Button, Dialog, IconButton, MenuItem, TextField, Toolbar, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
@@ -19,17 +9,8 @@ import { useInviteCreationForm } from '@/Services/Schools/StudentsPage/hooks/use
 import { QRCodeSVG } from 'qrcode.react';
 import { AuthRole } from '@/Assets/Types/commonTypes';
 import { useCurrentSchool } from '@/Services/AppShell/hooks/useCurrentSchool';
-import {
-  MAX_INVITE_EXPIRATION_HOURS,
-  MAX_INVITE_USES,
-  MIN_INVITE_EXPIRATION_HOURS,
-  MIN_INVITE_USES,
-} from '@/Services/Schools/StudentsPage/Components/InviteWidget.const';
+import { MAX_INVITE_EXPIRATION_HOURS, MAX_INVITE_USES, MIN_INVITE_EXPIRATION_HOURS, MIN_INVITE_USES } from '@/Services/Schools/StudentsPage/Components/InviteWidget.const';
 import * as S from '@/Services/Schools/StudentsPage/Components/InviteWidget.styles';
-
-type InviteTokenWidgetProps = {
-  schoolPublicId: string;
-};
 
 export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
   const { capabilities } = useCurrentSchool();
@@ -72,7 +53,7 @@ export function InviteTokenWidget({ schoolPublicId }: InviteTokenWidgetProps) {
                 select
                 label="Роль"
                 value={role}
-                onChange={(event) => change({ role: Number(event.target.value) as AuthRole })}
+                onChange={(event) => change({ role: Number(event.target.value) })}
               >
                 <MenuItem value={AuthRole.STUDENT}>Ученик</MenuItem>
                 {capabilities.canManageSchool && <MenuItem value={AuthRole.TEACHER}>Преподаватель</MenuItem>}

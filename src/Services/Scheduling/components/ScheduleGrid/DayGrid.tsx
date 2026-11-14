@@ -4,7 +4,7 @@ import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingCont
 import { SLOT_HEIGHT_PX } from '@/Services/Scheduling/Scheduling.const';
 import { HourRail } from './HourRail';
 import { DayColumn } from './DayColumn';
-import type { GridProps } from './ScheduleGrid.types';
+import type { GridProps } from './ScheduleGrid.type';
 import { INITIAL_SCROLL_HOUR } from './ScheduleGrid.const';
 import { styles } from './ScheduleGrid.styles';
 

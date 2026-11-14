@@ -5,7 +5,7 @@ import type {
   PresignResponseDto,
   CompleteDirectUploadRequest,
   UpdateFileAccessRequest
-} from './types';
+} from './files.contract.type';
 import config from '../../config';
 import { calculateContentMd5Base64 } from './md5.utils';
 
@@ -14,7 +14,7 @@ const queryFn = createQueryFnWithRefresh();
 
 export const filesEndpoints = {
   async listFiles(schoolPublicId: string, category?: string): Promise<ApiFile[]> {
-    const queryPath = category 
+    const queryPath = category
       ? `/api/ApiFiles/${schoolPublicId}?category=${encodeURIComponent(category)}`
       : `/api/ApiFiles/${schoolPublicId}`;
     const queryKey = [queryPath];

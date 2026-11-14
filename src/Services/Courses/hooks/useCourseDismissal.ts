@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import type { CourseFormState } from '../Courses.types';
+import type { CourseFormState } from '../Courses.type';
 import { hasCourseChanges } from './useCourseDismissal.utils';
 
 export function useCourseDismissal(form: CourseFormState, isSaving: boolean, onClose: () => void) {
@@ -7,7 +7,9 @@ export function useCourseDismissal(form: CourseFormState, isSaving: boolean, onC
   const [needsConfirmation, setNeedsConfirmation] = useState(false);
 
   const requestClose = () => {
-    if (isSaving) return;
+    if (isSaving) {
+      return;
+    }
     if (hasCourseChanges(form, initial.current)) {
       setNeedsConfirmation(true);
       return;
@@ -16,7 +18,9 @@ export function useCourseDismissal(form: CourseFormState, isSaving: boolean, onC
   };
 
   const discard = () => {
-    if (!isSaving) onClose();
+    if (!isSaving) {
+      onClose();
+    }
   };
 
   return {

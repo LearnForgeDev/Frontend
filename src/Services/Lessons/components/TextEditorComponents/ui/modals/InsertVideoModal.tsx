@@ -71,7 +71,9 @@ export default function InsertVideoModal({onClose, editor}: {onClose: () => void
             setVideoUrl(e.target.value);
           }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') handleInsert(videoUrl.trim());
+            if (e.key === 'Enter') {
+              handleInsert(videoUrl.trim());
+            }
           }}
         />
         <button

@@ -1,4 +1,4 @@
-import type { ChatThread } from '@/Services/Chat/Chat.types';
+import type { ChatThread } from '@/Services/Chat/Chat.type';
 import {
   CHAT_CALL_INVITE_LABEL,
   CHAT_CALL_INVITE_MESSAGE_PREFIX,

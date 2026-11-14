@@ -1,13 +1,12 @@
+import type { Props } from './FilesToolbar.type';
 import { Box, Typography, Button, TextField, CircularProgress, FormControl, InputLabel, Select, MenuItem, ToggleButtonGroup, ToggleButton, InputAdornment } from '@mui/material';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import SearchIcon from '@mui/icons-material/Search';
 import GridViewIcon from '@mui/icons-material/GridView';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import PhotoCameraRoundedIcon from '@mui/icons-material/PhotoCameraRounded';
-import type { useFilesPage } from '../hooks/useFilesPage';
-import { styles } from '../FilesPage.styles';
 
-type Props = Pick<ReturnType<typeof useFilesPage>, 'fileInputRef' | 'cameraInputRef' | 'handleUploadFiles' | 'isMobile' | 'isUploading' | 'search' | 'setSearch' | 'filterType' | 'setFilterType' | 'viewMode' | 'setViewMode'>;
+import { styles } from '../FilesPage.styles';
 
 export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploadFiles, isMobile, isUploading, search, setSearch, filterType, setFilterType, viewMode, setViewMode }: Props) {
   return (
@@ -22,7 +21,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
             multiple
             hidden
             ref={fileInputRef}
-            onChange={(e) => handleUploadFiles(e.target.files)}
+            onChange={(e) => { void handleUploadFiles(e.target.files); }}
           />
           <input
             type="file"
@@ -30,7 +29,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
             data-testid="files-camera-input" capture="environment"
             hidden
             ref={cameraInputRef}
-            onChange={(event) => handleUploadFiles(event.target.files)}
+            onChange={(event) => { void handleUploadFiles(event.target.files); }}
           />
           {isMobile && (
             <Button
@@ -106,7 +105,6 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
           </ToggleButton>
         </ToggleButtonGroup>
       </Box>
-
 
     </>
   );

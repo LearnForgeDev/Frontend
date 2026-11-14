@@ -1,18 +1,8 @@
-import {TextField, IconButton, InputAdornment} from '@mui/material';
-import type { TextFieldProps } from '@mui/material';
+import type { PasswordFieldProps, InputSlotOwnerState } from './PasswordField.type';
+import { TextField, IconButton, InputAdornment } from '@mui/material';
+
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useState, type ReactNode } from 'react';
-
-type PasswordFieldProps = Omit<TextFieldProps, 'type'> & {
-    showToggle?: boolean;
-    toggleTestId?: string;
-};
-
-type InputSlotProps = NonNullable<TextFieldProps['slotProps']>['input'];
-type InputSlotPropsFunction = Extract<InputSlotProps, (ownerState: unknown) => unknown>;
-type InputSlotOwnerState = InputSlotPropsFunction extends (ownerState: infer TOwnerState) => unknown
-    ? TOwnerState
-    : unknown;
 
 export default function PasswordField({ showToggle = true, toggleTestId = 'auth-password-toggle', slotProps, ...props }: PasswordFieldProps) {
     const [isVisible, setIsVisible] = useState(false);
@@ -20,9 +10,8 @@ export default function PasswordField({ showToggle = true, toggleTestId = 'auth-
     const inputSlotProps = slotProps?.input;
     const resolvedInputProps = typeof inputSlotProps === 'function'
         ? (ownerState: InputSlotOwnerState) => {
-            // @ts-expect-error Не смотря на то, что у ownerState есть тип, ts его не воспринимает
             const inputProps = inputSlotProps(ownerState);
-            const existingAdornment = inputProps?.endAdornment as ReactNode | undefined;
+            const existingAdornment = inputProps?.endAdornment;
 
             return {
                 ...inputProps,

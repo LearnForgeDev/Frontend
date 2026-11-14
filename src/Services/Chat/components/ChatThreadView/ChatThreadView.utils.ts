@@ -1,4 +1,4 @@
-import type { ChatCallInvite, ChatMessageTextPart } from '@/Services/Chat/Chat.types';
+import type { ChatCallInvite, ChatMessageTextPart } from '@/Services/Chat/Chat.type';
 import type { ChatConnectionStatus } from '@/Assets/Hooks/useSignalR/chatHub';
 import type { ChipProps } from '@mui/material/Chip';
 
@@ -7,11 +7,15 @@ const IMAGE_FILE_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 const CALL_INVITE_TITLE_PREFIXES = ['Приглашение в звонок', 'Создан звонок'];
 
 export function formatChatMessageTime(dateStr: string): string {
-  if (!dateStr) return '';
+  if (!dateStr) {
+    return '';
+  }
 
   const date = new Date(dateStr);
 
-  if (Number.isNaN(date.getTime())) return '';
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
 
   const now = new Date();
   const isToday =
@@ -27,7 +31,9 @@ export function formatChatMessageTime(dateStr: string): string {
 }
 
 export function isImageFile(fileName?: string): boolean {
-  if (!fileName) return false;
+  if (!fileName) {
+    return false;
+  }
 
   const extension = fileName.split('.').pop()?.toLowerCase();
 

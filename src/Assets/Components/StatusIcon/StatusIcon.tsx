@@ -1,5 +1,5 @@
 import { Box, CircularProgress } from '@mui/material';
-import type { StatusIconProps } from './StatusIcon.types';
+import type { StatusIconProps } from './StatusIcon.type';
 import { STATUS_ICONS, STATUS_COLORS } from './StatusIcon.const';
 import { styles } from './StatusIcon.styles';
 

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useLessonMutations } from '../useLessonMutations/useLessonMutations';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNotification } from '@/Assets/Hooks/useNotification/useNotification';
-import type { UseCreateLessonFlowReturn } from './useCreateLessonFlow.types';
+import type { UseCreateLessonFlowReturn } from './useCreateLessonFlow.type';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
@@ -38,13 +38,13 @@ export function useCreateLessonFlow({
         description,
         lessonJsonFilePublicId: uploadedFile.publicId
       });
-      
+
       await queryClient.invalidateQueries({ queryKey: ['lessons', schoolPublicId] });
-      
+
       if (onSuccess) {
         onSuccess(newLesson.id, newLesson.title);
       }
-      
+
       createNotification('Урок успешно создан', undefined, 'success');
     } catch (error) {
       logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to create lesson flow', error);

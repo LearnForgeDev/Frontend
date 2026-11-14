@@ -29,23 +29,34 @@ export function getChangedLineCoverage({ lcov, patch, root = process.cwd() }) {
     } else if (line.startsWith('@@')) {
       number = Number(line.match(/\+(\d+)/)[1]);
     } else if (line.startsWith('+')) {
-      const eligible = /^src\/.*\.tsx?$/.test(file) && !/\.(?:test|types|styles|d)\.tsx?$/.test(file) && !file.startsWith('src/Assets/Art/');
+      const eligible = /^src\/.*\.(?:[cm]?[jt]s|[jt]sx)$/.test(file)
+        && !/\.test\.(?:[cm]?[jt]s|[jt]sx)$/.test(file)
+        && !file.endsWith('.type.ts') && !/\.(?:styles|d)\.ts$/.test(file)
+        && !file.startsWith('src/Assets/Art/');
       if (eligible) {
-        if (!records.has(file)) missing.add(file);
+        if (!records.has(file)) {
+          missing.add(file);
+        }
         else if (records.get(file).has(number)) {
           total++;
-          if (records.get(file).get(number) > 0) covered++;
+          if (records.get(file).get(number) > 0) {
+            covered++;
+          }
         }
       }
       number++;
-    } else if (line.startsWith(' ')) number++;
+    } else if (line.startsWith(' ')) {
+      number++;
+    }
   }
   return { covered, total, percent: total ? covered / total * 100 : null, missing: [...missing] };
 }
 
 function run() {
   const [option, ref, ...extra] = process.argv.slice(2);
-  if (option !== '--base' || !ref || extra.length) throw new Error('Usage: npm run validate:coverage -- --base REF');
+  if (option !== '--base' || !ref || extra.length) {
+    throw new Error('Usage: npm run validate:coverage -- --base REF');
+  }
   const base = execFileSync('git', ['rev-parse', '--verify', '--end-of-options', `${ref}^{commit}`], { encoding: 'utf8' }).trim();
   const patch = execFileSync('git', ['-c', 'core.quotePath=false', 'diff', '--no-ext-diff', '--no-renames', '--unified=0', base, 'HEAD', '--', 'src'], { encoding: 'utf8' });
   const result = getChangedLineCoverage({ lcov: readFileSync('coverage/lcov.info', 'utf8'), patch });
@@ -56,8 +67,12 @@ function run() {
     ...result.missing.map(path => `${path}: absent from the coverage report.`),
   ].join('\n');
   console.log(report);
-  if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Test coverage\n\n${report}\n`);
-  if (result.missing.length || (result.percent !== null && result.percent < MIN_CHANGED_LINE_COVERAGE)) process.exitCode = 1;
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Test coverage\n\n${report}\n`);
+  }
+  if (result.missing.length || (result.percent !== null && result.percent < MIN_CHANGED_LINE_COVERAGE)) {
+    process.exitCode = 1;
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

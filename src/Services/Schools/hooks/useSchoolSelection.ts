@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
 import { getSchoolCapabilities } from '@/Services/AppShell/utils/getSchoolCapabilities';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { resolveSchoolSelection } from '../schools.selection';

@@ -1,5 +1,5 @@
 import { createQueryFnWithRefresh } from '../factory/factory';
-import type { CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './types';
+import type { CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './courses.contract.type';
 
 const client = createQueryFnWithRefresh();
 const schoolPath = (schoolPublicId: string) => `/api/ApiCourses/${encodeURIComponent(schoolPublicId)}`;

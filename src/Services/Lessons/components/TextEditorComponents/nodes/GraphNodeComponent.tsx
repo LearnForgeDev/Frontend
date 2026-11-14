@@ -1,32 +1,13 @@
+import type { DesmosCalculator, DesmosWindow, GraphComponentProps } from './GraphNodeComponent.type';
 import { Box, Typography } from '@mui/material';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
 import { mergeRegister } from '@lexical/utils';
-import {
-  $getNodeByKey,
-  $getSelection,
-  $isNodeSelection,
-  CLICK_COMMAND,
-  COMMAND_PRIORITY_LOW,
-  KEY_DELETE_COMMAND,
-  type NodeKey,
-} from "lexical";
+import { $getNodeByKey, $getSelection, $isNodeSelection, CLICK_COMMAND, COMMAND_PRIORITY_LOW, KEY_DELETE_COMMAND } from "lexical";
 import { $isGraphNode } from './graphNode.tsx';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('GraphNodeComponent');
-
-
-type DesmosCalculator = {
-  destroy: () => void;
-  setExpression: (expression: { id: string; latex: string }) => void;
-};
-
-type DesmosWindow = Window & {
-  Desmos?: {
-    GraphingCalculator: (element: HTMLElement) => DesmosCalculator;
-  };
-};
 
 const DESMOS_SCRIPT_URL = 'https://cdn.jsdelivr.net/npm/desmos@1.5.4/build/desmos.min.js';
 
@@ -59,10 +40,6 @@ function loadDesmosScript(): Promise<void> {
   }
 
   return desmosScriptPromise;
-}
-
-interface GraphComponentProps {
-  nodeKey: NodeKey;
 }
 
 export default function GraphComponent({
@@ -160,7 +137,6 @@ export default function GraphComponent({
       }
     };
   }, []);
-
 
   return (
     <Box

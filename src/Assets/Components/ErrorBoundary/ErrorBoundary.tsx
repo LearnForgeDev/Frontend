@@ -1,7 +1,7 @@
 import { Component, type ErrorInfo } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 import { styles } from './ErrorBoundary.styles';
-import type { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundary.types';
+import type { ErrorBoundaryProps, ErrorBoundaryState } from './ErrorBoundary.type';
 import { ERROR_BOUNDARY_DEFAULTS } from './ErrorBoundary.const';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 import { logoutToLogin } from '@/Services/Auth/hooks/useLogout/useLogout';

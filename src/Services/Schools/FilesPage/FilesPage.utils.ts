@@ -6,7 +6,9 @@ export function getFileCategory(filename: string): string {
 }
 
 export function formatFileSize(bytes: number): string {
-  if (!bytes) return '0 Б';
+  if (!bytes) {
+    return '0 Б';
+  }
   const unit = Math.min(Math.floor(Math.log(bytes) / Math.log(FILE_SIZE_BASE)), FILE_SIZE_UNITS.length - 1);
   return `${parseFloat((bytes / Math.pow(FILE_SIZE_BASE, unit)).toFixed(FILE_SIZE_PRECISION))} ${FILE_SIZE_UNITS[unit]}`;
 }

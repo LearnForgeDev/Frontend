@@ -1,8 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { branchesEndpoints, schoolsEndpoints } from '@/Endpoints';
-import type { Branch } from '@/Endpoints/branches/types';
-import type { ChatThread } from '@/Services/Chat/Chat.types';
+import type { Branch } from '@/Endpoints/branches/branches.contract.type';
+import type { ChatThread } from '@/Services/Chat/Chat.type';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('useChats');
 

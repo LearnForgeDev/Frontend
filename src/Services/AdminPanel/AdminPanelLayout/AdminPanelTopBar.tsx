@@ -1,32 +1,18 @@
+import type { AdminPanelTopBarProps } from './AdminPanelTopBar.type';
+import type { MouseEvent } from 'react';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { AppBar, Box, IconButton, Toolbar, Typography, Badge } from '@mui/material';
-import {
-  appBarSx,
-  avatarSx,
-  crumbsSx,
-  crumbsTitleSx,
-  menuButtonSx,
-  toolbarSx,
-  topbarIconButtonSx,
-  topbarRightSx,
-} from './AdminPanelLayout.styles';
+import { appBarSx, avatarSx, crumbsSx, crumbsTitleSx, menuButtonSx, toolbarSx, topbarIconButtonSx, topbarRightSx } from './AdminPanelLayout.styles';
 import NotificationsPopover from './NotificationsPopover';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext.ts';
 import { useGlobalNotificationStore } from '@/Storage/globalNotificationStore';
-
-type AdminPanelTopBarProps = {
-  isDesktop: boolean;
-  pageTitle: string;
-  onToggleMenu: () => void;
-  hideMenuButton?: boolean;
-};
 
 export default function AdminPanelTopBar({ isDesktop, pageTitle, onToggleMenu, hideMenuButton }: AdminPanelTopBarProps) {
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState<HTMLElement | null>(null);
   const notifications = useGlobalNotificationStore((state) => state.notifications);
 
-  const handleOpenNotifications = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOpenNotifications = (event: MouseEvent<HTMLElement>) => {
     setNotificationsAnchorEl(event.currentTarget);
   };
 

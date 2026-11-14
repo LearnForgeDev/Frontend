@@ -1,3 +1,5 @@
+import type { SerializedEquationNode } from './EquationNode.type';
+export type { SerializedEquationNode } from './EquationNode.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,30 +8,14 @@
  *
  */
 
-import type {
-  DOMConversionMap,
-  DOMConversionOutput,
-  EditorConfig,
-  LexicalNode,
-  NodeKey,
-  SerializedLexicalNode,
-  Spread,
-} from 'lexical';
-import type {JSX} from 'react';
+import type { DOMConversionMap, DOMConversionOutput, LexicalNode, NodeKey } from 'lexical';
+import type { JSX } from 'react';
 
 import katex from 'katex';
-import {$applyNodeReplacement, DecoratorNode, type DOMExportOutput} from 'lexical';
+import { $applyNodeReplacement, DecoratorNode, type DOMExportOutput } from 'lexical';
 import * as React from 'react';
 
 const EquationComponent = React.lazy(() => import('./EquationComponent.tsx'));
-
-export type SerializedEquationNode = Spread<
-  {
-    equation: string;
-    inline: boolean;
-  },
-  SerializedLexicalNode
->;
 
 function $convertEquationElement(
   domNode: HTMLElement,
@@ -50,11 +36,11 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
   __equation: string;
   __inline: boolean;
 
-  static getType(): string {
+  static override getType(): string {
     return 'equation';
   }
 
-  static clone(node: EquationNode): EquationNode {
+  static override clone(node: EquationNode): EquationNode {
     return new EquationNode(node.__equation, node.__inline, node.__key);
   }
 
@@ -64,14 +50,14 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     this.__inline = inline ?? false;
   }
 
-  static importJSON(serializedNode: SerializedEquationNode): EquationNode {
+  static override importJSON(serializedNode: SerializedEquationNode): EquationNode {
     return $createEquationNode(
       serializedNode.equation,
       serializedNode.inline,
     ).updateFromJSON(serializedNode);
   }
 
-  exportJSON(): SerializedEquationNode {
+  override exportJSON(): SerializedEquationNode {
     return {
       ...super.exportJSON(),
       equation: this.getEquation(),
@@ -79,15 +65,15 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  createDOM(_config: EditorConfig): HTMLElement {
+
+  override createDOM(): HTMLElement {
     const element = document.createElement(this.__inline ? 'span' : 'div');
     // EquationNodes should implement `user-action:none` in their CSS to avoid issues with deletion on Android.
     element.className = 'editor-equation';
     return element;
   }
 
-  exportDOM(): DOMExportOutput {
+  override exportDOM(): DOMExportOutput {
     const element = document.createElement(this.__inline ? 'span' : 'div');
     // Encode the equation as base64 to avoid issues with special characters
     const equation = btoa(this.__equation);
@@ -104,7 +90,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     return {element};
   }
 
-  static importDOM(): DOMConversionMap | null {
+  static override importDOM(): DOMConversionMap | null {
     return {
       div: (domNode: HTMLElement) => {
         if (!domNode.hasAttribute('data-lexical-equation')) {
@@ -127,12 +113,12 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     };
   }
 
-  updateDOM(prevNode: this): boolean {
+  override updateDOM(prevNode: this): boolean {
     // If the inline property changes, replace the element
     return this.__inline !== prevNode.__inline;
   }
 
-  getTextContent(): string {
+  override getTextContent(): string {
     return this.__equation;
   }
 
@@ -145,7 +131,7 @@ export class EquationNode extends DecoratorNode<JSX.Element> {
     writable.__equation = equation;
   }
 
-  decorate(): JSX.Element {
+  override decorate(): JSX.Element {
     return (
       <EquationComponent
         equation={this.__equation}

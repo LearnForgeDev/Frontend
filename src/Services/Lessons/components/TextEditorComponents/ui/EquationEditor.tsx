@@ -1,3 +1,4 @@
+import type { BaseEquationEditorProps } from './EquationEditor.type';
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -6,17 +7,9 @@
  *
  */
 
-import type {JSX, Ref, RefObject} from 'react';
+import type { JSX, Ref, RefObject } from 'react';
 
-
-import {isHTMLElement} from 'lexical';
-import {type ChangeEvent, forwardRef} from 'react';
-
-type BaseEquationEditorProps = {
-  equation: string;
-  inline: boolean;
-  setEquation: (equation: string) => void;
-};
+import { type ChangeEvent, forwardRef } from 'react';
 
 function EquationEditor(
   {equation, setEquation, inline}: BaseEquationEditorProps,
@@ -26,8 +19,7 @@ function EquationEditor(
     setEquation((event.target as HTMLInputElement).value);
   };
 
-  // eslint-disable-next-line react-hooks/refs
-  return inline && isHTMLElement(forwardedRef) ? (
+  return inline ? (
     <span className="EquationEditor_inputBackground">
       <span className="EquationEditor_dollarSign">$</span>
       <input

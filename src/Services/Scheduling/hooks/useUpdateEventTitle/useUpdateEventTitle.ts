@@ -1,13 +1,17 @@
 import { useScheduleMutations } from '@/Services/Scheduling/hooks/useScheduleMutations/useScheduleMutations';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 
 export function useUpdateEventTitle(event: ScheduleEvent | null) {
   const { updateEvent } = useScheduleMutations();
 
   const saveTitle = (newTitle: string) => {
-    if (!event) return;
+    if (!event) {
+      return;
+    }
     const trimmed = newTitle.trim();
-    if (!trimmed || trimmed === event.title) return;
+    if (!trimmed || trimmed === event.title) {
+      return;
+    }
 
     updateEvent.mutate({
       eventId: event.id,

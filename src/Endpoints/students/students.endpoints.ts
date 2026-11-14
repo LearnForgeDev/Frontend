@@ -1,5 +1,5 @@
 import { createApiClient, createQueryFnWithRefresh } from '../factory/factory';
-import type { StudentDto, SimpleStudentDto, StudentGroupDto } from './types';
+import type { StudentDto, SimpleStudentDto, StudentGroupDto } from './students.contract.type';
 
 const apiClient = createApiClient({});
 const queryFn = createQueryFnWithRefresh();

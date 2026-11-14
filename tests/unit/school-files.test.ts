@@ -1,4 +1,5 @@
-import { createElement, type ReactNode } from 'react';
+import { createElement } from 'react';
+import type { ReactNode } from 'react';
 import { act, cleanup, fireEvent, render, renderHook, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AxiosError } from 'axios';
@@ -30,12 +31,16 @@ function renderList(state: Pick<ReturnType<typeof useFiles>, 'files' | 'isLoadin
   }));
 }
 
-beforeEach(() => { mocks.listFiles.mockReset(); });
+beforeEach(() => {
+  mocks.listFiles.mockReset();
+});
 afterEach(() => cleanup());
 
 it('does not show a disabled cached failure or report an idle list as empty', async () => {
   const { client, wrapper } = makeScope();
-  await client.fetchQuery({ queryKey: ['files', '', 'files'], queryFn: async () => { throw denied(); } }).catch(() => undefined);
+  await client.fetchQuery({ queryKey: ['files', '', 'files'], queryFn: async () => {
+    throw denied();
+  } }).catch(() => undefined);
   const { result } = renderHook(() => useFiles(''), { wrapper });
   expect(mocks.listFiles).not.toHaveBeenCalled();
   expect(result.current.isError).toBe(false);
@@ -65,7 +70,9 @@ it('reports denied access separately from connection failure and retries the sam
 
 it('reports an actual transport failure only after the request fails', async () => {
   let reject: (error: AxiosError) => void = () => undefined;
-  mocks.listFiles.mockImplementation(() => new Promise((_resolve, fail) => { reject = fail; }));
+  mocks.listFiles.mockImplementation(() => new Promise((_resolve, fail) => {
+    reject = fail;
+  }));
   const { wrapper } = makeScope();
   const { result } = renderHook(() => useFiles('school'), { wrapper });
   expect(result.current.isLoading).toBe(true);
@@ -84,7 +91,9 @@ it('shows loading instead of a cached error while a real retry is pending', asyn
   const first = renderHook(() => useFiles('school'), { wrapper });
   await waitFor(() => expect(first.result.current.isError).toBe(true));
   let resolve: (files: ApiFile[]) => void = () => undefined;
-  mocks.listFiles.mockImplementation(() => new Promise<ApiFile[]>(done => { resolve = done; }));
+  mocks.listFiles.mockImplementation(() => new Promise<ApiFile[]>(done => {
+    resolve = done;
+  }));
   act(() => first.result.current.retryFiles());
   await waitFor(() => expect(first.result.current.isLoading).toBe(true));
   expect(first.result.current.isError).toBe(false);

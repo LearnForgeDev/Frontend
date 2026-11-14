@@ -1,4 +1,6 @@
-import type { ScheduleEvent, Attendee, AttendeeRole } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEventDto } from './schedule.contract.type';
+export type { AttendeeDto, ScheduleEventDto, CreateScheduleEventModel } from './schedule.contract.type';
+import type { ScheduleEvent, Attendee } from '@/Services/Scheduling/Scheduling.type';
 
 /**
  * Request/response DTOs for the forward-declared `ApiSchedule` resource.
@@ -11,12 +13,6 @@ import type { ScheduleEvent, Attendee, AttendeeRole } from '@/Services/Schedulin
  */
 
 /** A single attendee as returned inside a ScheduleEvent. */
-export interface AttendeeDto {
-  userPublicId: string;
-  displayName: string;
-  role: AttendeeRole;
-  avatarUrl: string | null;
-}
 
 /**
  * Response item for `GET /api/ApiSchedule/{schoolPublicId}/events`.
@@ -24,27 +20,6 @@ export interface AttendeeDto {
  * `room` is the Jitsi room id handed to `POST /api/ApiMeet/token` (as `Room`)
  * to mint a join link — the bridge between the schedule and the Meet endpoint.
  */
-export interface ScheduleEventDto {
-  id: string;
-  schoolPublicId: string;
-  title: string;
-  description: string | null;
-  startUtc: string;
-  endUtc: string;
-  room: string;
-  hostUserPublicId: string;
-  attendees: AttendeeDto[];
-}
-
-export interface CreateScheduleEventModel {
-  title?: string | null;
-  description?: string | null;
-  startUtc: string;
-  endUtc: string;
-  room?: string | null;
-  attendeeUserPublicIds?: string[] | null;
-  schoolPublicId?: string | null;
-}
 
 export function scheduleEventDtoToEvent(dto: ScheduleEventDto): ScheduleEvent {
   return {

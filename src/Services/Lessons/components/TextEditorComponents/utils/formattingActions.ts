@@ -99,7 +99,9 @@ export default function formatText(
   };
 
   const insertImage = () => {
-    if (onOpenImageModal) onOpenImageModal();
+    if (onOpenImageModal) {
+      onOpenImageModal();
+    }
   }
 
   const insertGraphic = () => {
@@ -114,15 +116,21 @@ export default function formatText(
   }
 
   const insertVideo = () => {
-    if (onOpenVideoModal) onOpenVideoModal();
+    if (onOpenVideoModal) {
+      onOpenVideoModal();
+    }
   }
 
   const insertEquation = () => {
-    if (onOpenEquationModal) onOpenEquationModal();
+    if (onOpenEquationModal) {
+      onOpenEquationModal();
+    }
   }
 
   const insertFile = () => {
-    if (onOpenFileModal) onOpenFileModal();
+    if (onOpenFileModal) {
+      onOpenFileModal();
+    }
   }
 
   const formatTextCommands = new Set(["bold", "underline", "strikethrough",

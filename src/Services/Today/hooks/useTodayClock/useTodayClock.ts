@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '@/Services/Scheduling/Scheduling.type';
 import { getNextTodayRefreshAt } from './useTodayClock.utils';
 import { MIN_CLOCK_DELAY_MS } from './useTodayClock.const';
 
@@ -14,7 +14,9 @@ export function useTodayClock(events: ScheduleEvent[]): Date {
 
   useEffect(() => {
     const refreshWhenVisible = () => {
-      if (document.visibilityState === 'visible') setNow(new Date());
+      if (document.visibilityState === 'visible') {
+        setNow(new Date());
+      }
     };
     document.addEventListener('visibilitychange', refreshWhenVisible);
     return () => document.removeEventListener('visibilitychange', refreshWhenVisible);

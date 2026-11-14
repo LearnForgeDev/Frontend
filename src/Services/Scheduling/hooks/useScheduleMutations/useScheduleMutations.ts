@@ -1,22 +1,13 @@
-import { useMutation, useQueryClient, type UseMutationResult } from '@tanstack/react-query';
+import type { UpdateScheduleEventVars, UseScheduleMutationsReturn } from './useScheduleMutations.type';
+export type { UpdateScheduleEventVars, UseScheduleMutationsReturn } from './useScheduleMutations.type';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { scheduleEndpoints } from '@/Endpoints';
 import { scheduleEventDtoToEvent } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
 import { useToast } from '@/Storage/useToastStore';
 import { SCHEDULE_MUTATION_ERRORS } from './useScheduleMutations.const';
-import type { ScheduleEvent, CreateScheduleEventInput } from '@/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent, CreateScheduleEventInput } from '@/Services/Scheduling/Scheduling.type';
 import type { AppError } from '@/Endpoints';
-
-export interface UpdateScheduleEventVars {
-  eventId: string;
-  input: CreateScheduleEventInput;
-}
-
-export interface UseScheduleMutationsReturn {
-  createEvent: UseMutationResult<ScheduleEvent, AppError, CreateScheduleEventInput>;
-  updateEvent: UseMutationResult<ScheduleEvent, AppError, UpdateScheduleEventVars>;
-  deleteEvent: UseMutationResult<void, AppError, string>;
-}
 
 export function useScheduleMutations(): UseScheduleMutationsReturn {
   const schoolId = useSchoolId();

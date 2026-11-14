@@ -1,18 +1,11 @@
+import type { Props } from './InviteListItem.type';
 import { Box, Button, Chip, Dialog, DialogActions, DialogTitle, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import type { SchoolInvite, UpdateInvite } from '@/Endpoints/invites/types';
+
 import { useInviteEditor } from '../hooks/useInviteEditor';
 import { formatInviteDate, getInviteRole, getInviteStatus } from './InviteWidget.utils';
 import { MAX_INVITE_USES, MIN_INVITE_USES } from './InviteWidget.const';
 import * as S from './InviteWidget.styles';
-
-type Props = {
-  invite: SchoolInvite;
-  pending: boolean;
-  onSave: (input: UpdateInvite) => void;
-  onDelete: () => void;
-  onRotate: () => void;
-};
 
 export default function InviteListItem({ invite, pending, onSave, onDelete, onRotate }: Props) {
   const editor = useInviteEditor(invite, onSave);
@@ -50,7 +43,14 @@ export default function InviteListItem({ invite, pending, onSave, onDelete, onRo
         <DialogTitle>{confirm === 'delete' ? 'Удалить приглашение?' : 'Заменить ссылку? Старая перестанет работать.'}</DialogTitle>
         <DialogActions>
           <Button data-testid="invite-action-cancel" onClick={() => setConfirm(null)}>Отмена</Button>
-          <Button data-testid="invite-action-confirm" onClick={() => { if (confirm === 'delete') onDelete(); else onRotate(); setConfirm(null); }}>Подтвердить</Button>
+          <Button data-testid="invite-action-confirm" onClick={() => {
+            if (confirm === 'delete') {
+            onDelete();
+          } else {
+            onRotate();
+          }
+            setConfirm(null);
+          }}>Подтвердить</Button>
         </DialogActions>
       </Dialog>
     </Box>

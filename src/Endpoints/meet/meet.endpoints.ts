@@ -8,7 +8,7 @@ import type {
   EndJitsiRoomRequest,
   SaveWhiteboardArchivePointerRequest,
   WhiteboardArchiveResponse
-} from './types';
+} from './meet.contract.type';
 
 const apiClient = createApiClient({ staleTime: 0 });
 const queryFn = createQueryFnWithRefresh();

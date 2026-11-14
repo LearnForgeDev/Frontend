@@ -7,7 +7,10 @@ import { useCourseEditor } from './useCourseEditor';
 
 vi.mock('./saveCourse', () => ({ saveCourse: vi.fn() }));
 
-afterEach(() => { cleanup(); onlineManager.setOnline(true); });
+afterEach(() => {
+  cleanup();
+  onlineManager.setOnline(true);
+});
 
 it('снимает блокировку сохранения без сети и оставляет заполненную форму', async () => {
   const client = new QueryClient();

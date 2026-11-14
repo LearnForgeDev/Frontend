@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { studentsEndpoints, type AppError, type SimpleStudentDto } from '@/Endpoints';
 import { useSchoolId } from '@/Services/Scheduling/hooks/useSchoolId/useSchoolId';
-import type { UseSchoolStudentsReturn } from './useSchoolStudents.types';
+import type { UseSchoolStudentsReturn } from './useSchoolStudents.type';
 
 export function useSchoolStudents(): UseSchoolStudentsReturn {
   const schoolId = useSchoolId();

@@ -2,7 +2,7 @@ import { act, cleanup, renderHook } from '@testing-library/react';
 import type { PropsWithChildren } from 'react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { UserSchoolInfo } from '@/Endpoints/schools/types';
+import type { UserSchoolInfo } from '@/Endpoints/schools/schools.contract.type';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { resolveSchoolSelection } from '../schools.selection';
 import { useSchoolSelection } from './useSchoolSelection';

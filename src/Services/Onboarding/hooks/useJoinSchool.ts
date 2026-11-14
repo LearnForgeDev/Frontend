@@ -1,15 +1,11 @@
+import type { JoinSchoolVariables } from './useJoinSchool.type';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
-import { useUser } from '@/Storage/UserContext/UserContext';
+import { useUser } from '@/Services/Auth/hooks/useUser';
 import { normalizeRestoredSession } from '@/Endpoints/auth/utils';
-import type { JoinSchoolResult } from '../types/onboarding.types';
-
-type JoinSchoolVariables = {
-  inviteToken: string;
-  knownSchoolPublicIds: string[];
-};
+import type { JoinSchoolResult } from '../types/onboarding.type';
 
 export function useJoinSchool() {
   const navigate = useNavigate();
@@ -19,11 +15,15 @@ export function useJoinSchool() {
   return useMutation<JoinSchoolResult, Error, JoinSchoolVariables>({
     mutationFn: async ({ inviteToken, knownSchoolPublicIds }) => {
       const identity = normalizeRestoredSession(await authEndpoints.joinSchool({ inviteToken }));
-      if (!identity) throw new Error('Не удалось обновить сессию');
+      if (!identity) {
+        throw new Error('Не удалось обновить сессию');
+      }
       setUser(identity);
 
       const schools = await schoolsEndpoints.getMySchools().catch(() => null);
-      if (!schools) return { school: null };
+      if (!schools) {
+        return { school: null };
+      }
       const joinedSchool =
         schools.find(
           (school) => !knownSchoolPublicIds.includes(school.schoolPublicId),

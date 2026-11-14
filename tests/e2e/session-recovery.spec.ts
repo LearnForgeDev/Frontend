@@ -9,7 +9,11 @@ test('SESSION-05 SESSION-09: истёкший JWT запускает один re
   expect((await initialStudents).ok()).toBe(true);
   await expect(page.getByRole('heading', { name: /^Сегодня,/ })).toBeVisible();
   let refreshCount = 0;
-  page.on('request', request => { if (request.url().endsWith('/ApiAuth/refreshToken')) refreshCount++; });
+  page.on('request', request => {
+    if (request.url().endsWith('/ApiAuth/refreshToken')) {
+    refreshCount++;
+  }
+  });
   await expireStoredJwt(page);
   const students = page.waitForResponse(response => response.url().endsWith(`/ApiStudents/${SCHOOL_ID}`));
   const invites = page.waitForResponse(response => response.url().endsWith(`/ApiAuth/invites/${SCHOOL_ID}`));
@@ -28,8 +32,12 @@ test('SESSION-08: поздний ответ уроков не восстанав
   await expect(page.getByTestId('profile-open')).toBeVisible();
   let release!: () => void;
   let started!: () => void;
-  const gate = new Promise<void>(resolve => { release = resolve; });
-  const ready = new Promise<void>(resolve => { started = resolve; });
+  const gate = new Promise<void>(resolve => {
+    release = resolve;
+  });
+  const ready = new Promise<void>(resolve => {
+    started = resolve;
+  });
   await page.route(`**/api/ApiLessons/${SCHOOL_ID}/all`, async route => {
     const response = await route.fetch();
     started();

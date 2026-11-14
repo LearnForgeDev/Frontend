@@ -20,7 +20,7 @@ export default function SchoolAccessGuard() {
     return (
       <Alert
         severity="error"
-        action={<Button color="inherit" onClick={() => schoolsQuery.refetch()}>Повторить</Button>}
+        action={<Button color="inherit" onClick={() => void schoolsQuery.refetch()}>Повторить</Button>}
       >
         Не удалось проверить доступ к школе.
       </Alert>

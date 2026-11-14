@@ -44,7 +44,7 @@ export default function WaitingConfirmationPage() {
                 {isUnavailable ? WAITING_CONFIRMATION_TEXT.unavailableDescription : WAITING_CONFIRMATION_TEXT.errorDescription}
               </Typography>
               {!isUnavailable && (
-                <Button data-testid="onboarding-status-retry" variant="contained" onClick={() => statusQuery.refetch()}>
+                <Button data-testid="onboarding-status-retry" variant="contained" onClick={() => void statusQuery.refetch()}>
                   {WAITING_CONFIRMATION_TEXT.retry}
                 </Button>
               )}
@@ -74,7 +74,7 @@ export default function WaitingConfirmationPage() {
           />
           {approvedSchoolQuery.isError && (
             <Box sx={S.provisioningRetry}>
-              <Button onClick={() => approvedSchoolQuery.refetch()}>
+              <Button onClick={() => void approvedSchoolQuery.refetch()}>
                 Повторить проверку школы
               </Button>
             </Box>

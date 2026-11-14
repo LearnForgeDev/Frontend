@@ -16,7 +16,9 @@ import { styles } from './ChatThreadView.styles';
 export default function ChatThreadView() {
   const { activeThread, setActiveThread } = useChatContext();
   const { messages, status, call, downloadFile, messagesEndRef, previewImage, previewImageFileId, closePreview, sendMessage } = useActiveChat(activeThread);
-  if (!activeThread) return null;
+  if (!activeThread) {
+    return null;
+  }
   return <>
     <Box sx={widgetStyles.header}>
       <IconButton color="inherit" onClick={() => setActiveThread(null)} edge="start" aria-label="К списку чатов"><ArrowBackIcon /></IconButton>

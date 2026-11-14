@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { coursesEndpoints } from '@/Endpoints/courses';
 import { useToast } from '@/Storage/useToastStore';
-import type { CourseLesson, CourseTab } from '../Courses.types';
+import type { CourseLesson, CourseTab } from '../Courses.type';
 import { useCourseQuery } from './useCourseQueries';
 import { getCoursesPath, getCourseLessonPath } from '../utils/coursePath';
 import { COURSE_DELETE_ERROR, COURSE_PROGRESS_ERROR } from './useCoursePage.const';
@@ -46,7 +46,9 @@ export function useCoursePage(schoolPublicId: string, coursePublicId: string) {
     goBack: () => navigate(basePath), openLesson,
     closeDialog: () => setDialog(null),
     markLesson: (lesson: CourseLesson) => {
-      if (!progress.isPending && query.progressQuery.isSuccess) progress.mutate(lesson);
+      if (!progress.isPending && query.progressQuery.isSuccess) {
+        progress.mutate(lesson);
+      }
     },
   };
 }

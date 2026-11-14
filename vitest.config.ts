@@ -10,7 +10,7 @@ export default defineConfig({
         extends: true,
         test: {
           name: 'dom',
-          include: ['tests/unit/**/*.test.ts', 'src/**/*.test.{ts,tsx}'],
+          include: ['tests/unit/**/*.test.{js,jsx,mjs,cjs,ts,tsx,mts,cts}', 'src/**/*.test.{js,jsx,mjs,cjs,ts,tsx,mts,cts}'],
           exclude: ['src/Router/ApplicationSsr.test.tsx'],
           environment: 'jsdom',
           setupFiles: ['./tests/setup.mjs'],
@@ -26,8 +26,8 @@ export default defineConfig({
     restoreMocks: true,
     coverage: {
       provider: 'v8',
-      include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.types.ts', 'src/**/*.styles.ts', 'src/**/*.d.ts', 'src/Assets/Art/**'],
+      include: ['src/**/*.{js,jsx,mjs,cjs,ts,tsx,mts,cts}'],
+      exclude: ['src/**/*.test.{js,jsx,mjs,cjs,ts,tsx,mts,cts}', 'src/**/*.type.ts', 'src/**/*.styles.ts', 'src/**/*.d.ts', 'src/Assets/Art/**'],
       reporter: ['text-summary', 'json-summary', 'lcov', 'html'],
       reportsDirectory: 'coverage',
     },

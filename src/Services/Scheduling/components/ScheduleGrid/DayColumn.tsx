@@ -8,7 +8,7 @@ import {
   SLOT_HEIGHT_PX,
   WEEKDAY_SHORT_NAMES,
 } from '@/Services/Scheduling/Scheduling.const';
-import type { DayColumnProps } from './ScheduleGrid.types';
+import type { DayColumnProps } from './ScheduleGrid.type';
 import { styles } from './ScheduleGrid.styles';
 
 /** One day's stacked timeline of positioned event blocks. */

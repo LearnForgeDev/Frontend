@@ -1,35 +1,9 @@
+import type { CallsInviteDialogProps } from './CallsInviteDialog.type';
 import { useState } from 'react';
-import {
-  Button,
-  Checkbox,
-  CircularProgress,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  List,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import type { MemberDto } from '@/Endpoints/schools/types';
-import {
-  CALLS_INVITE_DIALOG_ALL_TEXT,
-  CALLS_INVITE_DIALOG_CANCEL_TEXT,
-  CALLS_INVITE_DIALOG_EMPTY_TEXT,
-  CALLS_INVITE_DIALOG_SUBMIT_TEXT,
-  CALLS_INVITE_DIALOG_TITLE,
-} from './CallsInviteDialog.const';
-import { styles } from './CallsInviteDialog.styles';
+import { Button, Checkbox, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 
-interface CallsInviteDialogProps {
-  open: boolean;
-  recipients: MemberDto[];
-  isPending: boolean;
-  onClose: () => void;
-  onInvite: (recipientUserPublicIds: string[]) => void;
-}
+import { CALLS_INVITE_DIALOG_ALL_TEXT, CALLS_INVITE_DIALOG_CANCEL_TEXT, CALLS_INVITE_DIALOG_EMPTY_TEXT, CALLS_INVITE_DIALOG_SUBMIT_TEXT, CALLS_INVITE_DIALOG_TITLE } from './CallsInviteDialog.const';
+import { styles } from './CallsInviteDialog.styles';
 
 export default function CallsInviteDialog({
   open,

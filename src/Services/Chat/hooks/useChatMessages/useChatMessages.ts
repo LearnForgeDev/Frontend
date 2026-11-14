@@ -25,7 +25,9 @@ export function useChatMessages(params: ChatHubParams) {
   });
 
   useEffect(() => {
-    if (!connection) return;
+    if (!connection) {
+      return;
+    }
     const refreshHistory = () => {
       void queryClient.invalidateQueries({ queryKey: ['chat-messages', schoolPublicId, type, threadId, userPublicId] });
     };
@@ -36,10 +38,14 @@ export function useChatMessages(params: ChatHubParams) {
   const send = useMutation({
     networkMode: 'always',
     mutationFn: async ({ text, filePublicIds }: { text: string; filePublicIds: string[] }) => {
-      if (!connection || status !== 'connected') throw new Error(CHAT_CONNECTION_ERROR);
+      if (!connection || status !== 'connected') {
+        throw new Error(CHAT_CONNECTION_ERROR);
+      }
       await connection.invoke(type === 'branch' ? 'SendMessageToBreanch' : 'SendMessageToDirect', schoolPublicId, threadId, text, filePublicIds);
     },
-    onSuccess: () => { void queryClient.invalidateQueries({ queryKey }); },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey });
+    },
   });
 
   return {

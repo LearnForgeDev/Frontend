@@ -9,6 +9,12 @@ mobile document editing is disabled by the current device check.
 
 ## Behavior and rules
 
+The equation editor follows its explicit inline flag: inline equations use a
+single-line input and block equations use a textarea. Forwarded object/callback
+refs attach to the chosen field; inspecting the ref container is not a DOM-type test.
+Image uploads remain pending through URL validation and insertion, and failures use
+the existing insertion error message before the upload action finishes.
+
 Lesson metadata and its referenced JSON file are loaded before mounting the editor.
 Missing metadata/content must not become a successful empty editable document.
 Rich document content supports formatting and custom media/math/graph nodes.

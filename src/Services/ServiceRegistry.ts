@@ -1,4 +1,4 @@
-import type { ServiceManifest } from '@/Assets/Types/serviceTypes';
+import type { ServiceManifest } from '@/Assets/Types/serviceTypes.type';
 
 class ServiceRegistry {
     private services: Map<string, ServiceManifest> = new Map();

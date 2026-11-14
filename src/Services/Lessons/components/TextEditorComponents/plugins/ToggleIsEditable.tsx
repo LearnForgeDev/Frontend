@@ -6,7 +6,9 @@ export default function ToggleIsEditable({isEditable}: { isEditable?: boolean })
   const [editor] = useLexicalComposerContext();
 
   useEffect(() => {
-    if (!editor) return;
+    if (!editor) {
+      return;
+    }
     const shouldBeEditable = Boolean(isEditable);
     if (editor.isEditable() !== shouldBeEditable) {
       editor.setEditable(shouldBeEditable);

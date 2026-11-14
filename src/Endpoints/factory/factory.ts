@@ -1,6 +1,7 @@
+import type { SessionRequestConfig, RequestSession } from './factory.type';
 import { QueryClient } from '@tanstack/react-query';
-import axios, { isAxiosError, type InternalAxiosRequestConfig } from 'axios';
-import type { UserIdentity } from '@/Assets/Types/commonTypes';
+import axios, { isAxiosError } from 'axios';
+
 import { USER_STORAGE_KEY } from '@/Storage/UserContext/UserContext.const';
 import { getJwtExpiry, normalizeRestoredSession } from '@/Endpoints/auth/utils';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
@@ -27,18 +28,13 @@ export function createApiClient({ retryCount = 0, staleTime = 0, sessionScoped =
   });
   if (sessionScoped) {
     useGlobalContext.subscribe((state, previous) => {
-      if (state.auth.user?.userPublicId !== previous.auth.user?.userPublicId) client.clear();
+      if (state.auth.user?.userPublicId !== previous.auth.user?.userPublicId) {
+        client.clear();
+      }
     });
   }
   return client;
 }
-
-type SessionRequestConfig = InternalAxiosRequestConfig & {
-  sessionIdentity?: RequestSession;
-  sessionRetried?: boolean;
-};
-
-type RequestSession = Pick<UserIdentity, 'jwtToken' | 'refreshToken' | 'userPublicId' | 'activeSchoolPublicId'>;
 
 function readRequestSession(): RequestSession {
   try {
@@ -80,12 +76,18 @@ function clearRequestSession(identity: RequestSession) {
 }
 
 function refreshRequestSession(identity: RequestSession): Promise<void> {
-  if (pendingSessionRefresh?.refreshToken === identity.refreshToken) return pendingSessionRefresh.promise;
+  if (pendingSessionRefresh?.refreshToken === identity.refreshToken) {
+    return pendingSessionRefresh.promise;
+  }
   const promise = applyRefreshedSession(identity).catch((error: unknown) => {
-    if (isRejectedAuthentication(error)) clearRequestSession(identity);
+    if (isRejectedAuthentication(error)) {
+      clearRequestSession(identity);
+    }
     throw error;
   }).finally(() => {
-    if (pendingSessionRefresh?.promise === promise) pendingSessionRefresh = undefined;
+    if (pendingSessionRefresh?.promise === promise) {
+      pendingSessionRefresh = undefined;
+    }
   });
   pendingSessionRefresh = { refreshToken: identity.refreshToken, promise };
   return promise;
@@ -95,11 +97,17 @@ async function applyRefreshedSession(identity: RequestSession) {
   const { authEndpoints } = await import('../auth/auth.endpoints');
   const refreshed = await authEndpoints.refreshToken({ refreshToken: identity.refreshToken });
   const user = normalizeRestoredSession(refreshed);
-  if (!user || user.userPublicId !== identity.userPublicId) throw createUnauthenticatedError();
+  if (!user || user.userPublicId !== identity.userPublicId) {
+    throw createUnauthenticatedError();
+  }
   const current = readRequestSession();
-  if (current.userPublicId !== identity.userPublicId) throw createUnauthenticatedError();
+  if (current.userPublicId !== identity.userPublicId) {
+    throw createUnauthenticatedError();
+  }
   if (current.jwtToken !== identity.jwtToken || current.refreshToken !== identity.refreshToken) {
-    if (matchesRefreshedSession(localStorage.getItem(USER_STORAGE_KEY), user, current.userPublicId)) return;
+    if (matchesRefreshedSession(localStorage.getItem(USER_STORAGE_KEY), user, current.userPublicId)) {
+      return;
+    }
     throw createUnauthenticatedError();
   }
   useGlobalContext.getState().auth.setUser({ ...user, activeSchoolPublicId: current.activeSchoolPublicId });
@@ -129,16 +137,24 @@ export function createQueryFnWithRefresh({ invalidateSessionOnRepeated401 = true
     }
     return response;
   }, async (error: unknown) => {
-    if (!isAxiosError(error) || error.response?.status !== HTTP_STATUS.UNAUTHORIZED) throw error;
+    if (!isAxiosError(error) || error.response?.status !== HTTP_STATUS.UNAUTHORIZED) {
+      throw error;
+    }
     const requestConfig = error.config as SessionRequestConfig | undefined;
-    if (!requestConfig?.sessionIdentity) throw error;
+    if (!requestConfig?.sessionIdentity) {
+      throw error;
+    }
     if (requestConfig.sessionRetried) {
-      if (invalidateSessionOnRepeated401) clearRequestSession(requestConfig.sessionIdentity);
+      if (invalidateSessionOnRepeated401) {
+        clearRequestSession(requestConfig.sessionIdentity);
+      }
       throw error;
     }
     const identity = readRequestSession();
     const requestedIdentity = requestConfig.sessionIdentity;
-    if (identity.userPublicId !== requestedIdentity.userPublicId) throw createUnauthenticatedError();
+    if (identity.userPublicId !== requestedIdentity.userPublicId) {
+      throw createUnauthenticatedError();
+    }
     requestConfig.sessionRetried = true;
     if (identity.jwtToken === requestedIdentity.jwtToken && identity.refreshToken === requestedIdentity.refreshToken) {
       await refreshRequestSession(identity);
@@ -169,7 +185,9 @@ export function createQueryFn() {
   instance.interceptors.response.use(
     (response) => response,
     (error: unknown) => {
-      if (isAxiosError(error)) error.message = getRequestErrorMessage(error);
+      if (isAxiosError(error)) {
+        error.message = getRequestErrorMessage(error);
+      }
       return Promise.reject(error);
     },
   );

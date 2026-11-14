@@ -1,23 +1,22 @@
+import type { CreateEventModalProps } from './CreateEventModal.type';
+export type { CreateEventModalProps } from './CreateEventModal.type';
 import { Alert, Box, Button, TextField, Typography } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
 import { Modal } from '@/Assets/Components/Modal/Modal';
 import { useEventEditor } from '../../hooks/useEventEditor/useEventEditor';
-import type { EventEditorOptions } from '../../hooks/useEventEditor/useEventEditor.types';
-import { EventAttendeePicker } from '../EventAttendeePicker/EventAttendeePicker';
-import {
-  MODAL_TITLE_CREATE, MODAL_TITLE_EDIT, LABEL_TITLE, LABEL_DESCRIPTION, LABEL_DATE,
-  LABEL_START_TIME, LABEL_END_TIME, BUTTON_CANCEL, BUTTON_SUBMIT_CREATE, BUTTON_SUBMIT_EDIT,
-  STUDENTS_LOADING_TEXT, STUDENTS_ERROR_TEXT, STUDENTS_RETRY_TEXT, SAVING_TEXT, STUDENTS_LOADER_SIZE,
-} from './CreateEventModal.const';
-import { styles } from './CreateEventModal.styles';
 
-export type CreateEventModalProps = EventEditorOptions;
+import { EventAttendeePicker } from '../EventAttendeePicker/EventAttendeePicker';
+import { MODAL_TITLE_CREATE, MODAL_TITLE_EDIT, LABEL_TITLE, LABEL_DESCRIPTION, LABEL_DATE, LABEL_START_TIME, LABEL_END_TIME, BUTTON_CANCEL, BUTTON_SUBMIT_CREATE, BUTTON_SUBMIT_EDIT, STUDENTS_LOADING_TEXT, STUDENTS_ERROR_TEXT, STUDENTS_RETRY_TEXT, SAVING_TEXT, STUDENTS_LOADER_SIZE } from './CreateEventModal.const';
+import { styles } from './CreateEventModal.styles';
 
 export function CreateEventModal(props: CreateEventModalProps) {
   const editor = useEventEditor(props);
   return (
     <Modal title={editor.isEdit ? MODAL_TITLE_EDIT : MODAL_TITLE_CREATE} onClose={props.onClose} disableClose={editor.isSaving}>
-      <Box component="form" sx={styles.form} onSubmit={event => { event.preventDefault(); editor.submit(); }} noValidate>
+      <Box component="form" sx={styles.form} onSubmit={event => {
+        event.preventDefault();
+        editor.submit();
+      }} noValidate>
         <TextField label={LABEL_TITLE} value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-title' } }} required fullWidth disabled={editor.isSaving} autoFocus />
         <TextField label={LABEL_DESCRIPTION} value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-description' } }} multiline minRows={2} fullWidth disabled={editor.isSaving} />
         <TextField label={LABEL_DATE} type="date" value={editor.form.date} onChange={event => editor.setField('date', event.target.value)} slotProps={{ htmlInput: { 'data-testid': 'schedule-form-date' }, inputLabel: { shrink: true } }} required fullWidth disabled={editor.isSaving} />

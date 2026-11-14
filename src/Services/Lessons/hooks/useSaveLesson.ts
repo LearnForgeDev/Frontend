@@ -2,7 +2,7 @@ import { useIsMutating, useMutation, useQueryClient } from '@tanstack/react-quer
 import { isAxiosError } from 'axios';
 import { lessonsEndpoints } from '@/Endpoints';
 import type { UpdateLessonRequest } from '@/Endpoints/lessons/types';
-import type { Lesson } from '../components/FileManager/FileManager.types';
+import type { Lesson } from '../components/FileManager/FileManager.type';
 import { LESSON_CONFLICT_STATUS } from './useSaveLesson.const';
 
 export function useSaveLesson(schoolPublicId: string, lessonId: string | number) {

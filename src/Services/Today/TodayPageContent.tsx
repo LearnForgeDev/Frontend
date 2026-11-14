@@ -61,7 +61,7 @@ export default function TodayPageContent() {
               variant="contained"
               startIcon={<AddIcon />}
               disabled={isCreatingLesson}
-              data-testid="today-lesson-create" onClick={createLesson}
+              data-testid="today-lesson-create" onClick={() => void createLesson()}
               sx={S.primaryActionSx}
             >
               {isCreatingLesson ? (

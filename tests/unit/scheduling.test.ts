@@ -9,7 +9,7 @@ import {
   getWeekStart, isSlotEmpty, localDateTimeToIso,
   isoToLocalDateInput, isoToLocalTimeInput,
 } from '../../src/Services/Scheduling/utils/time.utils';
-import type { ScheduleEvent } from '../../src/Services/Scheduling/Scheduling.types';
+import type { ScheduleEvent } from '../../src/Services/Scheduling/Scheduling.type';
 
 const event: ScheduleEvent = {
   id: 'event', title: 'Занятие', description: null,
@@ -17,20 +17,23 @@ const event: ScheduleEvent = {
   room: 'room', hostUserPublicId: 'teacher', attendees: [],
 };
 const MINUTE_MS = 60_000;
-afterEach(() => { cleanup(); vi.useRealTimers(); });
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
 
 describe('Расписание и звонки', () => {
-  it('разрешает ученику вход при открытии окна и закрывает после окончания', () => {
+  it('разрешает ученику вход при открытии окна и закрывает после окончания', async () => {
     vi.useFakeTimers();
     const opensAt = new Date(event.start).getTime() - 5 * MINUTE_MS;
     vi.setSystemTime(opensAt - 1);
     const { result } = renderHook(() => useJoinWindow(event, false));
     expect(result.current.canJoin).toBe(false);
-    act(() => vi.advanceTimersByTime(100));
+    await act(() => vi.advanceTimersByTime(100));
     expect(result.current.canJoin).toBe(true);
     expect(getCallButtonText(result.current.canJoin, result.current.isFuture)).toBe('Войти');
-    act(() => vi.advanceTimersByTime(new Date(event.start).getTime() - Date.now() + 100));
-    act(() => vi.advanceTimersByTime(new Date(event.end).getTime() - Date.now() + 100));
+    await act(() => vi.advanceTimersByTime(new Date(event.start).getTime() - Date.now() + 100));
+    await act(() => vi.advanceTimersByTime(new Date(event.end).getTime() - Date.now() + 100));
     expect(result.current.isEnded).toBe(true);
     expect(result.current.canJoin).toBe(false);
     expect(getCallButtonText(result.current.canJoin, result.current.isFuture)).toBe('Завершено');

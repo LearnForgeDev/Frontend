@@ -1,14 +1,8 @@
-import type { ReactNode } from 'react';
+import type { ProfileSectionHeaderProps } from './ProfileSectionHeader.type';
+
 import { Box, IconButton, Tooltip, Typography } from '@mui/material';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import * as S from './ProfileSectionHeader.styles';
-
-type ProfileSectionHeaderProps = {
-  title: string;
-  actionLabel: string;
-  onAction?: () => void;
-  actionIcon?: ReactNode;
-};
 
 export function ProfileSectionHeader({ title, actionLabel, onAction, actionIcon }: ProfileSectionHeaderProps) {
   return (

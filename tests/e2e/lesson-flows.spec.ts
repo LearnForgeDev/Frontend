@@ -65,13 +65,21 @@ for (const auto of [false, true]) {
     const editor = actor.page.getByTestId('lesson-editor');
     await expect(editor).toHaveAttribute('contenteditable', 'true');
     await editor.fill(text);
-    if (auto) await expect(actor.page.getByRole('status').filter({ hasText: 'Есть несохранённые изменения' })).toBeVisible();
-    else await saveLesson(actor.page, lesson);
+    if (auto) {
+      await expect(actor.page.getByRole('status').filter({ hasText: 'Есть несохранённые изменения' })).toBeVisible();
+    }
+    else {
+      await saveLesson(actor.page, lesson);
+    }
     await actor.page.reload();
     await expect(editor).toContainText(text);
     const serverFile = await actor.page.request.get(`/api/ApiFiles/${SCHOOL_ID}/${lesson.lessonJsonFile!.publicId}/content`);
-    if (auto) expect(await serverFile.text()).not.toContain(text);
-    else expect(await serverFile.text()).toContain(text);
+    if (auto) {
+      expect(await serverFile.text()).not.toContain(text);
+    }
+    else {
+      expect(await serverFile.text()).toContain(text);
+    }
   });
 }
 
@@ -84,8 +92,12 @@ for (const [format, tag] of [['Жирный', 'strong'], ['Курсив', 'em'],
     await editor.fill('Форматированный текст');
     await editor.press('ControlOrMeta+a');
     await actor.page.getByRole('button', { name: format, exact: true }).click();
-    if (tag === 'u' || tag === 's') await expect(editor.locator(tag === 'u' ? '.editor-text-underline' : '.editor-text-strikethrough')).toHaveCount(1);
-    else await expect(editor.locator(tag)).toHaveCount(1);
+    if (tag === 'u' || tag === 's') {
+      await expect(editor.locator(tag === 'u' ? '.editor-text-underline' : '.editor-text-strikethrough')).toHaveCount(1);
+    }
+    else {
+      await expect(editor.locator(tag)).toHaveCount(1);
+    }
     await saveLesson(actor.page, lesson);
     await actor.page.reload();
     await expect(editor).toContainText('Форматированный текст');
@@ -100,7 +112,9 @@ for (const [label, selector] of [['Заголовок 1', 'h1'], ['Заголо�
     const editor = actor.page.getByTestId('lesson-editor');
     await editor.fill('Структура документа');
     await editor.press('ControlOrMeta+a');
-    if (!label.includes('список')) await actor.page.getByRole('button', { name: 'Обычный текст', exact: true }).click();
+    if (!label.includes('список')) {
+      await actor.page.getByRole('button', { name: 'Обычный текст', exact: true }).click();
+    }
     await actor.page.getByRole('button', { name: label, exact: true }).click();
     await expect(editor.locator(selector)).toContainText('Структура документа');
   });
@@ -136,7 +150,10 @@ test('COMMON-03 LESSON-02: повторное нажатие создания н
   await expect(actor.page).toHaveURL(url => url.pathname.startsWith(`${SCHOOL_PATH}/lessons/`) && url.searchParams.get('edit') === 'true');
   const after = await readJson<Array<{ id: string }>>(await actor.page.request.get(`/api/ApiLessons/${SCHOOL_ID}/all`));
   const created = after.filter(lesson => !before.some(previous => previous.id === lesson.id));
-  for (const lesson of created) actor.cleanup.push(async () => { expect((await actor.page.request.delete(`/api/ApiLessons/${SCHOOL_ID}/${lesson.id}`)).ok()).toBe(true); });
+  for (const lesson of created)
+    actor.cleanup.push(async () => {
+    expect((await actor.page.request.delete(`/api/ApiLessons/${SCHOOL_ID}/${lesson.id}`)).ok()).toBe(true);
+  });
   expect(created).toHaveLength(1);
   await actor.page.reload();
   await expect(actor.page.getByTestId('lesson-editor')).toHaveAttribute('contenteditable', 'true');

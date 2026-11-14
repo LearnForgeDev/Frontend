@@ -1,34 +1,13 @@
+import type { User, GlobalState } from './useGlobalContext.type';
+export type { User, GlobalState } from './useGlobalContext.type';
 import { create } from 'zustand';
 import type { UserIdentity } from '@/Assets/Types/commonTypes.ts';
 import { persistActiveSchool, persistUserIdentity } from './useGlobalContext.utils';
 import { USER_STORAGE_KEY } from '../UserContext/UserContext.const';
 import { getJwtExpiry } from '@/Endpoints/auth/utils';
 
-export interface User {
-    userPublicId: string;
-    userName: string;
-    roles: UserIdentity['userRoles'];
-    activeSchoolPublicId?: string;
-    email?: string;
-    phone?: string;
-}
-
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('useGlobalContext');
-
-
-interface AuthSlice {
-    user: User | null;
-    isAuthenticated: boolean;
-    jwtExpiresAt: number | null;
-    setActiveSchoolPublicId: (schoolPublicId: string) => void;
-    setUser: (userIdentity: UserIdentity) => void;
-    logout: () => void;
-}
-
-export interface GlobalState {
-    auth: AuthSlice;
-}
 
 export const useGlobalContext = create<GlobalState>((set) => ({
     auth: {
@@ -37,7 +16,9 @@ export const useGlobalContext = create<GlobalState>((set) => ({
         jwtExpiresAt: null,
         setActiveSchoolPublicId: (schoolPublicId: string) =>
             set((state) => {
-                if (!state.auth.user) return state;
+                if (!state.auth.user) {
+                  return state;
+                }
                 const newUser: User = { ...state.auth.user, activeSchoolPublicId: schoolPublicId };
 
                 try {

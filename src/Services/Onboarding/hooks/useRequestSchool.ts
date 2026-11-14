@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authEndpoints } from '@/Endpoints/auth/auth.endpoints';
 import { schoolsEndpoints } from '@/Endpoints/schools/schools.endpoints';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import type { SchoolRequestPointer } from '../types/onboarding.types';
+import type { SchoolRequestPointer } from '../types/onboarding.type';
 import { saveSchoolRequestPointer } from '../utils/schoolRequestStorage.utils';
 
 export function useRequestSchool() {
@@ -28,7 +28,9 @@ export function useRequestSchool() {
         ),
       };
 
-      if (userPublicId) saveSchoolRequestPointer(userPublicId, pointer);
+      if (userPublicId) {
+        saveSchoolRequestPointer(userPublicId, pointer);
+      }
       return pointer;
     },
     onSuccess: (pointer) => {

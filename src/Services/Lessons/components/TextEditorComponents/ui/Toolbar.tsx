@@ -64,7 +64,9 @@ export default function Toolbar() {
 
   const updateToolbar = useCallback(() => {
     const selection = $getSelection();
-    if (!$isRangeSelection(selection)) return;
+    if (!$isRangeSelection(selection)) {
+      return;
+    }
 
     const anchorNode = selection.anchor.getNode();
     const element =
@@ -143,7 +145,9 @@ export default function Toolbar() {
 
   useEffect(() => {
     const target = sentinelRef.current;
-    if (!target) return;
+    if (!target) {
+      return;
+    }
 
     const observer = new IntersectionObserver(
       ([entry]) => setIsFloating(!entry.isIntersecting),

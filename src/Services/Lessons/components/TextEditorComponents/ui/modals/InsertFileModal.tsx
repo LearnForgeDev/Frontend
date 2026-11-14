@@ -1,13 +1,13 @@
+import type { DragEvent, ChangeEvent } from 'react';
 import { Modal } from '@/Assets/Components/Modal/Modal';
-import React, {useState} from 'react';
-import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {$getSelection, $insertNodes, $isRangeSelection} from 'lexical';
-import {$createFileNode} from '../../nodes/FileNode.tsx';
+import { useState } from 'react';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getSelection, $insertNodes, $isRangeSelection } from 'lexical';
+import { $createFileNode } from '../../nodes/FileNode.tsx';
 import { filesEndpoints } from '@/Endpoints';
 import { useParams } from 'react-router-dom';
 import { createDebugger, DebugSeverity } from '@/Assets/debugUtils';
 const logger = createDebugger('InsertFileModal');
-
 
 export default function InsertFileModal({onClose}: {onClose: () => void}) {
   const [editor] = useLexicalComposerContext();
@@ -27,7 +27,7 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
     onClose();
   };
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
   };
@@ -36,13 +36,13 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
     setIsDragging(false);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(false);
-    handleAddFile(e);
+    void handleAddFile(e);
   };
 
-  const handleAddFile = async (e: React.DragEvent<HTMLDivElement> | React.ChangeEvent<HTMLInputElement>) => {
+  const handleAddFile = async (e: DragEvent<HTMLDivElement> | ChangeEvent<HTMLInputElement>) => {
     const file = 'dataTransfer' in e
       ? e.dataTransfer?.files[0]
       : e.target?.files?.[0];
@@ -91,7 +91,7 @@ export default function InsertFileModal({onClose}: {onClose: () => void}) {
             aria-hidden={true}
             style={{display: 'none'}}
             id='fileInputAttach'
-            onChange={handleAddFile}
+            onChange={event => { void handleAddFile(event); }}
             onClick={(e) => e.stopPropagation()}
             disabled={isUploading}
           />

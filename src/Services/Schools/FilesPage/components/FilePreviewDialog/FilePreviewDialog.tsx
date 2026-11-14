@@ -1,19 +1,13 @@
+import type { Props } from './FilePreviewDialog.type';
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
-import type { ApiFile } from '@/Endpoints';
+
 import { useFilePreview } from '../../hooks/useFilePreview';
 import ImagePreview from './ImagePreview';
 import PdfPreview from './PdfPreview';
 import FilePreviewLoading from './FilePreviewLoading';
 import { FILE_PREVIEW_TEXT, FILE_PREVIEW_TITLE_ID } from './FilePreviewDialog.const';
 import * as S from './FilePreviewDialog.styles';
-
-type Props = {
-  schoolPublicId: string;
-  file: ApiFile;
-  onClose: () => void;
-  onDownload: (file: ApiFile) => void;
-};
 
 export default function FilePreviewDialog({ schoolPublicId, file, onClose, onDownload }: Props) {
   const preview = useFilePreview(schoolPublicId, file);

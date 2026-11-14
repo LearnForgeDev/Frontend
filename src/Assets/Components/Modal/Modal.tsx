@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Box, Dialog, DialogContent, IconButton, Fade, Typography, Icon } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import type { ModalProps } from './Modal.types';
+import type { ModalProps } from './Modal.type';
 import { styles } from './Modal.styles';
 
 export function Modal({ title, subtitle, icon, time, className, onClose, children, disableClose = false, onRequestClose }: ModalProps) {
@@ -9,7 +9,9 @@ export function Modal({ title, subtitle, icon, time, className, onClose, childre
   const [timeLeft, setTimeLeft] = useState(time ?? 0);
 
   const handleClose = useCallback(() => {
-    if (disableClose) return;
+    if (disableClose) {
+      return;
+    }
     if (onRequestClose) {
       onRequestClose();
       return;
@@ -22,7 +24,9 @@ export function Modal({ title, subtitle, icon, time, className, onClose, childre
   }, [onClose]);
 
   useEffect(() => {
-    if (!time || time <= 0) return;
+    if (!time || time <= 0) {
+      return;
+    }
 
     const interval = 100;
     const timer = setInterval(() => {
