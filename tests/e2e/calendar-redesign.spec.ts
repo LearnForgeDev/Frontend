@@ -63,6 +63,31 @@ async function expectControlsToFit(page: Page, width: number) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
 
+async function expectHeaderToFit(page: Page, width: number) {
+  const header = page.getByRole('banner');
+  const school = header.getByRole('button', { name: /CI School/ });
+  const profile = header.getByTestId('profile-open');
+  const avatar = profile.locator('.MuiAvatar-root');
+  const headerBounds = await header.boundingBox();
+  expect(headerBounds).not.toBeNull();
+  for (const control of [school, profile, avatar]) {
+    await expect(control).toBeInViewport({ ratio: 1 });
+    const bounds = await control.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.x).toBeGreaterThanOrEqual(0);
+    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+    expect(bounds!.y).toBeGreaterThanOrEqual(headerBounds!.y);
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(headerBounds!.y + headerBounds!.height);
+  }
+  const schoolBounds = await school.boundingBox();
+  const profileBounds = await profile.boundingBox();
+  expect(schoolBounds!.x + schoolBounds!.width).toBeLessThanOrEqual(profileBounds!.x);
+  await profile.click();
+  await expect(page).toHaveURL('/app/profile');
+  await page.getByRole('button', { name: 'Назад', exact: true }).click();
+  await expect(page).toHaveURL(`${SCHOOL_PATH}/schedule`);
+}
+
 async function expectListEvent(calendar: Locator, page: Page, event: TestEvent) {
   const item = calendar.getByRole('listitem').filter({ has: page.getByRole('heading', { name: event.title, exact: true }) });
   await expect(item).toBeVisible();
@@ -85,6 +110,7 @@ for (const width of [320, 444]) {
     const week = await createCalendarWeek(actor);
     const { page } = actor;
     await page.goto(`${SCHOOL_PATH}/schedule`);
+    await expectHeaderToFit(page, width);
     const controls = page.getByRole('group', { name: 'Вид расписания', exact: true });
     const calendar = page.getByTestId('schedule-calendar');
     await expect(controls.getByRole('button', { name: 'День', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -148,6 +174,28 @@ test('SCHEDULE-16: неделя на компьютере сохраняет в�
   await expect(calendar.locator('[data-testid^="schedule-slot-"]')).toHaveCount(7 * 24);
   const expectedSlots = week.days.flatMap(day => Array.from({ length: 24 }, (_, hour) => `schedule-slot-${day.slotDate}-${hour}`));
   expect(await calendar.locator('[data-testid^="schedule-slot-"]').evaluateAll(slots => slots.map(slot => slot.getAttribute('data-testid')))).toEqual(expectedSlots);
+  const outsideToday = week.events[week.todayIndex === 6 ? 0 : 6];
+  for (const direction of ['schedule-next', 'schedule-previous']) {
+    await calendar.getByRole('button', { name: new RegExp(`^${outsideToday.title} · `) }).click();
+    await expect(page.getByTestId('schedule-selected-event')).toContainText(outsideToday.title);
+    await page.getByTestId(direction).click();
+    await expect(page.getByTestId('schedule-selected-event')).toHaveCount(0);
+    await page.getByTestId('schedule-today').click();
+  }
+  await calendar.getByRole('button', { name: new RegExp(`^${outsideToday.title} · `) }).click();
+  await expect(page.getByTestId('schedule-selected-event')).toContainText(outsideToday.title);
+  await page.getByRole('group', { name: 'Вид расписания', exact: true }).getByRole('button', { name: 'День', exact: true }).click();
+  await expect(page.getByTestId('schedule-selected-event')).toHaveCount(0);
+  for (const direction of ['schedule-next', 'schedule-previous']) {
+    const currentDay = await expectListEvent(calendar, page, week.events[week.todayIndex]);
+    await currentDay.getByRole('button', { name: 'Открыть занятие', exact: true }).click();
+    await expect(page.getByTestId('schedule-selected-event')).toContainText(week.events[week.todayIndex].title);
+    await page.getByTestId(direction).click();
+    await expect(page.getByTestId('schedule-selected-event')).toHaveCount(0);
+    await page.getByTestId('schedule-today').click();
+    await expectListEvent(calendar, page, week.events[week.todayIndex]);
+  }
+  await page.getByRole('group', { name: 'Вид расписания', exact: true }).getByRole('button', { name: 'Неделя', exact: true }).click();
   for (const [index, time] of [[0, '06:00'], [6, '22:00']] as const) {
     const event = week.events[index];
     const button = calendar.getByRole('button', { name: new RegExp(`^${event.title} · `) });
@@ -165,7 +213,9 @@ test('SCHEDULE-16: неделя на компьютере сохраняет в�
   }
   await calendar.getByTestId(`schedule-slot-${week.days[week.todayIndex].slotDate}-10`).scrollIntoViewIfNeeded();
   await capture(page, testInfo, 'calendar-desktop-week');
+  await calendar.getByRole('button', { name: new RegExp(`^${outsideToday.title} · `) }).click();
   await page.getByRole('group', { name: 'Вид расписания', exact: true }).getByRole('button', { name: 'День', exact: true }).click();
+  await expect(page.getByTestId('schedule-selected-event')).toHaveCount(0);
   await expectListEvent(calendar, page, week.events[week.todayIndex]);
   await capture(page, testInfo, 'calendar-desktop-day');
 });
