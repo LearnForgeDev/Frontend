@@ -8,6 +8,31 @@ owners get teaching actions; backend authorization still decides each write.
 
 ## Behavior and rules
 
+The schedule uses the shared page hierarchy with one creation action and one
+period/view toolbar. Day lists the selected day's events. Events lists the selected
+week once per event, with one empty state when the week has no events. Week shows
+seven full-day timeline columns on desktop and seven dated list groups below the
+medium breakpoint, including empty dates. All three controls remain available at
+320px and 444px without horizontal clipping.
+
+Desktop Week retains every hour from 00:00 through 23:00 and initially scrolls to
+10:00. Overlapping visible blocks use separate columns; overnight records are clipped
+to each displayed day rather than dropped. The initial narrow view is Day. Day
+navigation advances one date; Week and Events advance seven dates. Today returns to
+the current local date, and period labels include the actual day/week boundaries.
+
+Selecting an event opens its inline summary. Its explicit details action opens the
+existing description, attendees, calendar export and meeting controls. Teaching
+users can edit or request deletion directly from the summary. Deep links retain the
+existing details-dialog behavior. The summary stores only an event ID and follows
+current query data after writes, rather than retaining a second event record.
+
+Creation defaults to the selected date and keeps the form's full time choices. The
+Day list replaces its former timeline; desktop Week retains hour-slot creation.
+The final hour defaults its end to 23:59 so the one-date form starts with a valid
+interval instead of crossing midnight.
+The former mini-calendar/sidebar is replaced by the approved single-toolbar layout.
+
 Event forms require a title, date and valid start/end time with start before end.
 Local form time is converted to UTC for transport and formatted locally for display.
 The current form uses one date, so it cannot directly create a cross-midnight range.
@@ -50,7 +75,10 @@ against the backend, not inferred from a frontend join button.
 
 - Schedule rules, time/audit boundaries and form/access validation.
 - Attendee selection, offline delete and deep-link recovery.
-- Core browser creation and mobile navigation.
+- Core browser creation, permissions and mobile navigation.
+- Day/week/agenda composition, overlap positioning and period boundaries.
+- CI browser checks and desktop/320px/444px captures cover all seven narrow-week
+  dates, untruncated controls, early/late events and inline selection before details.
 
 ## When changing this feature
 
