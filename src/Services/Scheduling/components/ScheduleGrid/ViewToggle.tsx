@@ -1,20 +1,14 @@
-import type { ReactNode } from 'react';
 import { Box } from '@mui/material';
 import PillButtonGroup from '@/Assets/Components/PillButtonGroup/PillButtonGroup';
-import { useSchedulingContext, type ScheduleView } from '@/Storage/SchedulingContext/SchedulingContext.tsx';
-import { getIsMobileDevice } from '@/Assets/device.utils';
+import type { PillChoice } from '@/Assets/Components/PillButtonGroup/PillButtonGroup.type';
+import { useSchedulingContext } from '@/Storage/SchedulingContext/SchedulingContext';
+import type { ScheduleView } from '@/Storage/SchedulingContext/SchedulingContext';
 
-// Fixed equal-width labels so PillButtonGroup's slider thumb — which assumes
-// equal thirds — stays aligned despite the differing label lengths
-// (День / Неделя / События). The width must fit the longest label.
 const labelSx = {
-  display: 'inline-block',
-  width: 84,
-  textAlign: 'center',
-  whiteSpace: 'nowrap',
+  display: 'inline-block', width: { xs: 64, sm: 84 }, textAlign: 'center', whiteSpace: 'nowrap',
 } as const;
 
-const OPTIONS: { label: ReactNode; value: ScheduleView }[] = [
+const OPTIONS: PillChoice<ScheduleView>[] = [
   { label: <Box component="span" sx={labelSx}>День</Box>, value: 'day' },
   { label: <Box component="span" sx={labelSx}>Неделя</Box>, value: 'week' },
   { label: <Box component="span" sx={labelSx}>События</Box>, value: 'agenda' },
@@ -22,10 +16,13 @@ const OPTIONS: { label: ReactNode; value: ScheduleView }[] = [
 
 export function ViewToggle() {
   const { view, setView } = useSchedulingContext();
-  const isMobile = getIsMobileDevice();
-  const visibleOptions = isMobile
-    ? OPTIONS.filter((option) => option.value !== 'week')
-    : OPTIONS;
-
-  return <PillButtonGroup options={visibleOptions} value={view} onChange={setView} />;
+  return (
+    <PillButtonGroup
+      aria-label="Вид расписания"
+      options={OPTIONS}
+      value={view}
+      onChange={setView}
+      sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: '100%', '& .MuiToggleButton-root': { minWidth: 0, minHeight: 44, px: { xs: 1, sm: 2 } } }}
+    />
+  );
 }

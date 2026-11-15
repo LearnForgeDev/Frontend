@@ -107,6 +107,7 @@ export const topbarSx: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'space-between',
+  gap: { xs: 1, sm: 2 },
   px: { xs: 2, sm: 3, lg: 4 },
   borderBottom: '1px solid var(--app-border)',
   backgroundColor: 'color-mix(in srgb, var(--app-background) 88%, transparent)',
@@ -117,10 +118,17 @@ export const topbarSx: SxProps<Theme> = {
 export const mobileBrandSx: SxProps<Theme> = {
   display: { xs: 'flex', lg: 'none' },
   alignItems: 'center',
+  flex: { xs: 1, sm: '0 1 auto' },
+  minWidth: 0,
   gap: 1,
 };
 
 export const titleSx: SxProps<Theme> = {
+  display: { xs: 'none', sm: 'block' },
+  minWidth: 0,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
   fontFamily: 'Manrope, sans-serif',
   fontSize: { xs: '1.05rem', sm: '1.2rem' },
   fontWeight: 800,

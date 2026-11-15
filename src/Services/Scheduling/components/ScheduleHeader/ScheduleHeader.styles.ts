@@ -1,50 +1,19 @@
 export const styles = {
-  root: {
+  root: { display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 },
+  headingRow: {
     display: 'flex',
-    alignItems: 'center',
+    flexDirection: { xs: 'column', sm: 'row' },
+    alignItems: { xs: 'stretch', sm: 'center' },
     justifyContent: 'space-between',
-    flexWrap: 'wrap',
     gap: 2,
-    py: 1,
-    px: 0.5,
-    borderBottom: '1px solid',
-    borderColor: 'divider',
-    flexShrink: 0,
   },
-  leftGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 2,
-    flexWrap: 'wrap',
+  createButton: { flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } },
+  toolbar: {
+    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+    flexWrap: 'wrap', gap: 2, minWidth: 0,
   },
-  heading: {
-    fontWeight: 700,
-    fontSize: { xs: '1.25rem', sm: '1.5rem' },
-    color: 'text.primary',
-    mr: 1,
-  },
-  navControls: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 0.5,
-  },
-  todayButton: {
-    fontWeight: 600,
-    textTransform: 'none',
-    borderRadius: 1.5,
-    px: 2,
-    py: 0.5,
-  },
-  monthYearTitle: {
-    fontSize: { xs: '1rem', sm: '1.2rem' },
-    fontWeight: 600,
-    color: 'text.primary',
-    minWidth: { sm: 220 },
-  },
-  mobileCreate: { display: { xs: 'inline-flex', md: 'none' } },
-  rightGroup: {
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1.5,
-  },
+  navigation: { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1, minWidth: 0 },
+  navControls: { display: 'flex', alignItems: 'center', gap: 1 },
+  arrowButton: { width: 44, height: 44 },
+  period: { fontSize: '1.2rem', fontWeight: 800, overflowWrap: 'anywhere' },
 } as const;

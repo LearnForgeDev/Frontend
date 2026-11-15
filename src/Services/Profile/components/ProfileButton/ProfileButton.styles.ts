@@ -20,6 +20,7 @@ export const profileHintSx: SxProps<Theme> = {
 };
 
 export const topbarProfileButtonSx: SxProps<Theme> = {
+  flexShrink: 0,
   minWidth: 40,
   minHeight: 44,
   gap: 1,

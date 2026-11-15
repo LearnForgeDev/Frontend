@@ -39,6 +39,9 @@ navigation remains independent. Accounts without memberships do not show an empt
 school switcher and can add a school from [Profile](profile.md). In short desktop
 windows, the navigation scrolls while school switching and the collapse toggle retain
 their space; the sidebar can also scroll if those fixed controls exceed its height.
+Below the small breakpoint, the optional header page caption yields space to the
+logo, school switcher and profile action. Long school names shrink with ellipsis;
+the profile action remains fully reachable at 320px and 444px.
 
 The school-selection hook resolves a school route only against confirmed accessible
 memberships. An unknown route never falls back to another school's scope. Account

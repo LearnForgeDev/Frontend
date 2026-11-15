@@ -69,7 +69,7 @@ describe('Collapsible desktop navigation', () => {
     mocks.schools.mockReturnValue({ data: [] });
     renderShell('/app/profile');
     expect(screen.queryByRole('button', { name: 'Выберите школу', hidden: true })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Профиль' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Открыть профиль' })).toBeTruthy();
   });
 
   it('retains the confirmed route school when opening profile from a direct school URL', () => {

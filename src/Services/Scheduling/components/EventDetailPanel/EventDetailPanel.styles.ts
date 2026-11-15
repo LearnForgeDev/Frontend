@@ -1,4 +1,3 @@
-import { EVENT_COLOR } from '@/Services/Scheduling/Scheduling.const';
 import {
   ICON_COLUMN_WIDTH_PX,
   COLOR_DOT_SIZE_PX,
@@ -36,7 +35,7 @@ export const styles = {
     width: `${COLOR_DOT_SIZE_PX}px`,
     height: `${COLOR_DOT_SIZE_PX}px`,
     borderRadius: `${COLOR_DOT_RADIUS_PX}px`,
-    backgroundColor: EVENT_COLOR,
+    backgroundColor: 'primary.main',
     mt: 0.5,
   },
   rowIcon: {

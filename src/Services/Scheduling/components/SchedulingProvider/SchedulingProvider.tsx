@@ -2,16 +2,17 @@ import type { ScheduleView, SchedulingContextValue } from "@/Storage/SchedulingC
 
 import { useState, useMemo, type ReactNode } from 'react';
 
-import { getIsMobileDevice } from '@/Assets/device.utils';
+import { useMediaQuery, useTheme } from '@mui/material';
 
 import { SchedulingContext } from '@/Services/Scheduling/SchedulingContext.context';
 
 export function SchedulingProvider({ children }: { children: ReactNode }) {
-  const isMobile = getIsMobileDevice();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [selectedDate, setSelectedDate] = useState<Date>(() => new Date());
-  const [selectedView, setSelectedView] = useState<ScheduleView>(() => isMobile ? 'agenda' : 'week');
+  const [selectedView, setSelectedView] = useState<ScheduleView>(() => isMobile ? 'day' : 'week');
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
-  const view = isMobile && selectedView === 'week' ? 'agenda' : selectedView;
+  const view = selectedView;
 
   const value = useMemo<SchedulingContextValue>(
     () => ({
