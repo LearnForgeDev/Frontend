@@ -35,14 +35,14 @@ describe('Закрытие формы курса', () => {
     expect(onClose).toHaveBeenCalledOnce();
   });
 
-  it('учитывает порядок уроков и аудиторию, но не текст ошибки', () => {
+  it('учитывает аудиторию, но не текст ошибки', () => {
     const onClose = vi.fn();
     const initial = createCourseForm();
     const { result, rerender } = renderHook(({ form }) => useCourseDismissal(form, false, onClose), { initialProps: { form: initial } });
     rerender({ form: { ...initial, error: 'Заполните название' } });
     act(() => result.current.requestClose());
     expect(onClose).toHaveBeenCalledOnce();
-    rerender({ form: { ...initial, lessonIds: [2, 1], studentPublicIds: ['student'] } });
+    rerender({ form: { ...initial, studentPublicIds: ['student'] } });
     act(() => result.current.requestClose());
     expect(onClose).toHaveBeenCalledOnce();
     expect(result.current.needsConfirmation).toBe(true);

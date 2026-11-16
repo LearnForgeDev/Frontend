@@ -1,96 +1,65 @@
-import { useReducer, useRef } from 'react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { lessonsEndpoints, studentsEndpoints } from '@/Endpoints';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import type { CourseDetail, CourseInput } from '../Courses.type';
+import { isAxiosError } from 'axios';
+import { useEffect, useReducer, useRef, useState } from 'react';
+import type { CourseBlock, CourseDetail } from '../Courses.type';
 import { useToast } from '@/Storage/useToastStore';
-import { getLessonOptions, getStudentOptions } from '../utils/courseOptions';
-import { canEditCourseProgram, toCourseDetail } from '../utils/courseMapping';
+import { getStudentOptions } from '../utils/courseOptions';
 import { validateCourse } from '../validation/courseValidation';
 import { courseFormReducer, createCourseForm, getCourseInput } from './courseFormReducer';
-import { COURSE_QUERY_STALE_TIME } from './useCourseQueries.const';
-import { COURSE_SAVE_ERROR, EDITOR_OPTIONS_ERROR } from './useCourseEditor.const';
-import { saveCourse } from './saveCourse';
+import { COURSE_SAVE_ERROR } from './useCourseEditor.const';
 import { CourseCreationUncertainError } from './saveCourse.errors';
+import { useCourses } from './useCourses';
 
 export function useCourseEditor(schoolPublicId: string, onSaved: (course: CourseDetail) => void, course?: CourseDetail) {
   const [form, dispatch] = useReducer(courseFormReducer, course, createCourseForm);
   const draftPublicId = useRef(course?.publicId);
-  const authorPublicId = useGlobalContext(state => state.auth.user?.userPublicId ?? '');
-  const queryClient = useQueryClient();
+  const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
+  const isSaveBlocked = blockedMessage !== null;
+  const feature = useCourses(schoolPublicId);
+  const { read } = feature;
   const toast = useToast();
-  const options = useQuery({
-    queryKey: ['course-editor-options', schoolPublicId],
-    networkMode: 'always',
-    queryFn: async () => {
-      try {
-        const [lessons, students, groups] = await Promise.all([
-          lessonsEndpoints.getLessons(schoolPublicId),
-          studentsEndpoints.getStudentsSimple(schoolPublicId),
-          studentsEndpoints.getStudentGroups(schoolPublicId),
-        ]);
-        return { lessons, students, groups };
-      } catch (error) {
-        toast.error(EDITOR_OPTIONS_ERROR);
-        throw error;
-      }
-    },
-    staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  });
-  const lessonOptions = getLessonOptions(options.data?.lessons ?? [], course);
-  const studentOptions = getStudentOptions(options.data?.students ?? [], course);
-  const invalidate = () => {
-    void queryClient.invalidateQueries({ queryKey: ['courses', schoolPublicId] });
-    void queryClient.invalidateQueries({ queryKey: ['course-progress', schoolPublicId] });
-    void queryClient.invalidateQueries({ queryKey: ['course-roster', schoolPublicId] });
-  };
-  const mutation = useMutation({
-    networkMode: 'always',
-    mutationFn: (input: CourseInput) => saveCourse({
-      schoolPublicId, coursePublicId: draftPublicId.current, authorPublicId, input,
-      lessons: lessonOptions, studentIds: studentOptions.map(student => student.userPublicId),
-      onCreated: created => {
-        draftPublicId.current = created.publicId;
-        queryClient.setQueryData(['courses', schoolPublicId, created.publicId], created);
-      },
-    }),
-    onSuccess: savedCourse => {
-      queryClient.setQueryData(['courses', schoolPublicId, savedCourse.publicId], savedCourse);
-      invalidate();
-      toast.success(course ? 'Курс сохранён' : 'Курс создан');
-    },
-    onError: error => {
-      invalidate();
-      const message = error instanceof CourseCreationUncertainError ? error.message : COURSE_SAVE_ERROR;
-      dispatch({ type: 'error', error: message });
-      toast.error(message);
-    },
-  });
-  const selectedLessons = form.lessonIds.flatMap(id => {
-    const lesson = lessonOptions.find(option => option.lessonId === id);
-    return lesson ? [lesson] : [];
-  });
-  const submit = () => {
+  useEffect(() => {
+    void read({ kind: 'options', refresh: true });
+  }, [read]);
+  const optionsRequest = feature.state.requests.options;
+  const studentOptions = getStudentOptions(feature.state.options?.students ?? [], course);
+  const isSaving = feature.state.operations.save ?? false;
+  const isLoading = !feature.state.options && optionsRequest?.status !== 'error';
+  const isError = optionsRequest?.status === 'error';
+  const submit = async () => {
     const input = getCourseInput(form);
     const error = validateCourse(input);
     dispatch({ type: 'error', error });
-    if (error || options.isPending || options.isError || mutation.isPending || mutation.error instanceof CourseCreationUncertainError) {
+    if (error || isLoading || isError || isSaving || isSaveBlocked) {
       return;
     }
-    mutation.mutate(input, { onSuccess: saved => onSaved(toCourseDetail(saved)) });
+    try {
+      const saved = await feature.save(input, draftPublicId.current, publicId => {
+        draftPublicId.current = publicId;
+      }, (clientId, publicId) => dispatch({ type: 'created', clientId, publicId }));
+      toast.success(course ? 'Курс сохранён' : 'Курс создан');
+      onSaved(saved);
+    } catch (failure) {
+      if (failure instanceof CourseCreationUncertainError) {
+        setBlockedMessage(failure.message);
+      }
+      const message = failure instanceof Error && !isAxiosError(failure) ? failure.message : COURSE_SAVE_ERROR;
+      dispatch({ type: 'error', error: message });
+      toast.error(message);
+    }
   };
   return {
-    form, lessonOptions, studentOptions, selectedLessons,
-    errorMessage: mutation.error instanceof CourseCreationUncertainError ? mutation.error.message : form.error,
-    groupOptions: options.data?.groups ?? [],
-    canEditProgram: canEditCourseProgram(course),
-    isLoading: options.isPending, isError: options.isError, isSaving: mutation.isPending, isSaveBlocked: mutation.error instanceof CourseCreationUncertainError,
-    submit, retry: () => void options.refetch(),
+    form, resources: feature.resources, studentOptions,
+    errorMessage: blockedMessage ?? form.error, groupOptions: feature.state.options?.groups ?? [],
+    isLoading, isError, isSaving, isSaveBlocked,
+    homeworkError: feature.homework.status === 'error',
+    submit, retry: () => {
+      void read({ kind: 'options', refresh: true });
+      void feature.homework.refresh();
+    },
     setField: (field: 'title' | 'description', value: string) => dispatch({ type: 'field', field, value }),
-    setLessons: (lessonIds: number[]) => dispatch({ type: 'lessons', lessonIds }),
+    setBlocks: (blocks: CourseBlock[]) => dispatch({ type: 'blocks', blocks }),
     setStudents: (studentPublicIds: string[]) => dispatch({ type: 'students', studentPublicIds }),
     setGroups: (groupIds: number[]) => dispatch({ type: 'groups', groupIds }),
-    setAccessMode: (accessMode: CourseInput['accessMode']) => dispatch({ type: 'access', accessMode }),
-    moveLesson: (lessonId: number, direction: -1 | 1) => dispatch({ type: 'move', lessonId, direction }),
+    setAccessMode: (accessMode: 'selected' | 'school') => dispatch({ type: 'access', accessMode }),
   };
 }

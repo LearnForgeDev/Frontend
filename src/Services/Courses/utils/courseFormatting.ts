@@ -13,6 +13,7 @@ function formatCount(count: number, forms: readonly [string, string, string]) {
 }
 
 export const formatLessonCount = (count: number) => formatCount(count, LESSON_PLURAL_FORMS);
+export const formatBlockCount = (count: number) => formatCount(count, ['блок', 'блока', 'блоков']);
 export const formatStudentCount = (count: number) => formatCount(count, STUDENT_PLURAL_FORMS);
 
 export function getCourseProgress(completed: number, total: number) {

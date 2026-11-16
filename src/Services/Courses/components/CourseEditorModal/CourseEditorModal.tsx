@@ -5,7 +5,7 @@ import { Modal } from '@/Assets/Components/Modal/Modal';
 import { useCourseEditor } from '../../hooks/useCourseEditor';
 import { useCourseDismissal } from '../../hooks/useCourseDismissal';
 import CourseState from '../CourseState/CourseState';
-import CourseLessonPicker from '../CourseLessonPicker/CourseLessonPicker';
+import CourseProgramBuilder from '../CourseProgramBuilder/CourseProgramBuilder';
 import CourseAccessPicker from '../CourseAccessPicker/CourseAccessPicker';
 import CourseStudentPicker from '../CourseStudentPicker/CourseStudentPicker';
 import { styles } from './CourseEditorModal.styles';
@@ -17,14 +17,15 @@ export default function CourseEditorModal({ schoolPublicId, course, onClose, onS
     <Modal title={course ? 'Настройки курса' : 'Новый курс'} onClose={onClose} onRequestClose={dismissal.requestClose} disableClose={editor.isSaving}>
       <Box component="form" sx={styles.form} onSubmit={event => {
         event.preventDefault();
-        editor.submit();
+        void editor.submit();
       }} noValidate>
         <TextField label="Название курса" value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} required autoFocus fullWidth disabled={editor.isSaving} />
         <TextField label="Описание" value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} multiline minRows={2} fullWidth disabled={editor.isSaving} />
         {editor.isLoading && <CourseState kind="loading" title="Загружаем уроки и учеников" />}
         {editor.isError && <CourseState kind="error" title="Не удалось загрузить состав курса" actionLabel="Повторить" onAction={editor.retry} />}
         {!editor.isLoading && !editor.isError && <>
-          {editor.canEditProgram ? <CourseLessonPicker options={editor.lessonOptions} selected={editor.selectedLessons} onChange={editor.setLessons} onMove={editor.moveLesson} disabled={editor.isSaving} /> : <Typography color="text.secondary">Состав этого курса включает другие материалы. Они сохранятся без изменений.</Typography>}
+          <CourseProgramBuilder blocks={editor.form.blocks} resources={editor.resources} onChange={editor.setBlocks} disabled={editor.isSaving} />
+          {editor.homeworkError && <Alert severity="warning" action={<Button onClick={editor.retry}>Повторить</Button>}>Не удалось загрузить домашние задания. Остальные блоки доступны.</Alert>}
           <CourseAccessPicker mode={editor.form.accessMode} onModeChange={editor.setAccessMode} groups={editor.groupOptions} selectedGroupIds={editor.form.groupIds} onGroupsChange={editor.setGroups} disabled={editor.isSaving} />
           {editor.form.accessMode === 'selected' && <CourseStudentPicker options={editor.studentOptions} selectedIds={editor.form.studentPublicIds} onChange={editor.setStudents} disabled={editor.isSaving} />}
         </>}

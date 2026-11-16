@@ -1,4 +1,4 @@
-import type { CourseAccessInput } from '@/Endpoints/courses';
+import type { CourseAccessInput } from '@/Endpoints/Courses';
 import type { CourseInput } from '../Courses.type';
 
 export function getCourseAudience(input: CourseInput, existingUserIds: string[], studentIds: string[], authorPublicId: string): CourseAccessInput {

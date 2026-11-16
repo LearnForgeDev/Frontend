@@ -1,6 +1,6 @@
 export class CourseCreationUncertainError extends Error {
-  constructor() {
-    super('Не удалось подтвердить создание. Закройте форму и проверьте список курсов перед повтором.');
+  constructor(message = 'Ответ о создании курса не получен. Закройте редактор и обновите список перед продолжением.') {
+    super(message);
     this.name = 'CourseCreationUncertainError';
   }
 }

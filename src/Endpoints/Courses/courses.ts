@@ -1,5 +1,5 @@
 import { createQueryFnWithRefresh } from '../factory/factory';
-import type { CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './courses.contract.type';
+import type { CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseItemUpdateInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './courses.type';
 
 const client = createQueryFnWithRefresh();
 const schoolPath = (schoolPublicId: string) => `/api/ApiCourses/${encodeURIComponent(schoolPublicId)}`;
@@ -30,6 +30,13 @@ export const coursesEndpoints = {
   },
   async addItem(schoolPublicId: string, coursePublicId: string, body: CourseItemInput): Promise<CourseItemDto> {
     return (await client.post<CourseItemDto>(`${coursePath(schoolPublicId, coursePublicId)}/items`, body)).data;
+  },
+  async updateItem(schoolPublicId: string, coursePublicId: string, itemPublicId: string, body: CourseItemUpdateInput): Promise<CourseItemDto> {
+    return (await client.put<CourseItemDto>(itemPath(schoolPublicId, coursePublicId, itemPublicId), body)).data;
+  },
+  async getMaterial(schoolPublicId: string, coursePublicId: string, itemPublicId: string, signal?: AbortSignal): Promise<Blob> {
+    const response = await client.get<Blob>(`${itemPath(schoolPublicId, coursePublicId, itemPublicId)}/file`, { responseType: 'blob', signal });
+    return response.data;
   },
   async moveItem(schoolPublicId: string, coursePublicId: string, itemPublicId: string, position: number): Promise<void> {
     await client.patch(`${itemPath(schoolPublicId, coursePublicId, itemPublicId)}/position`, { position });

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { CourseInput } from '../Courses.type';
 import { getCourseAudience, getRestrictedCourseAudience } from './courseAudience';
 
-const input: CourseInput = { title: 'Курс', description: '', lessonIds: [], studentPublicIds: [], groupIds: [], accessMode: 'selected' };
+const input: CourseInput = { title: 'Курс', description: '', blocks: [], sourceItemPublicIds: [], studentPublicIds: [], groupIds: [], accessMode: 'selected' };
 
 describe('Состав курса', () => {
   it('убирает прежнюю аудиторию до изменения программы, а новую добавляет только после сохранения', () => {
