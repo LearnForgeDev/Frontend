@@ -1,12 +1,6 @@
-import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { useState } from 'react';
 import { Alert } from '@mui/material';
-import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
-import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
-import { ContentEditable } from '@lexical/react/LexicalContentEditable';
-import { AutoFocusPlugin } from '@lexical/react/LexicalAutoFocusPlugin';
-import { ListPlugin } from '@lexical/react/LexicalListPlugin';
+import RichEditorCore from '@/Assets/Components/RichEditorCore/RichEditorCore';
 import LinkPlugin from '../TextEditorComponents/plugins/LinkPlugin.tsx';
 import ImagesPlugin from '../TextEditorComponents/plugins/ImagesPlugin.tsx';
 import GraphPlugin from '../TextEditorComponents/plugins/GraphPlugin.tsx';
@@ -38,16 +32,7 @@ export default function TextEditor({
     return <Alert severity="error">Не удалось прочитать содержимое урока. Обратитесь к преподавателю.</Alert>;
   }
   return (
-    <LexicalComposer initialConfig={{ ...INITIAL_EDITOR_CONFIG, editable: isEditMode }}>
-      {isEditMode && <Toolbar />}
-
-      <RichTextPlugin
-        contentEditable={<ContentEditable data-testid="lesson-editor" className="editor-input" />}
-        ErrorBoundary={LexicalErrorBoundary}
-      />
-      {isEditMode && <AutoFocusPlugin />}
-      <HistoryPlugin />
-      <ListPlugin />
+    <RichEditorCore configuration={INITIAL_EDITOR_CONFIG} editable={isEditMode} label="Содержимое урока" testId="lesson-editor" className="editor-input" autoFocus toolbar={<Toolbar />}>
       <LinkPlugin />
       <ImagesPlugin />
       <GraphPlugin />
@@ -64,6 +49,6 @@ export default function TextEditor({
       {isEditMode && onDraft && <AutoSavePlugin onDraft={onDraft} initialDocument={editorState} />}
 
       {isEditMode && onSave && <ControlsPlugin onSave={onSave} isSaving={isSaving} isSaveBlocked={isSaveBlocked} status={saveStatus} />}
-    </LexicalComposer>
+    </RichEditorCore>
   );
 }

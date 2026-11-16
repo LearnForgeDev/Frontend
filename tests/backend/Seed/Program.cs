@@ -35,7 +35,8 @@ master.UserRoles.AddRange(
 await master.SaveChangesAsync();
 await using var tenant = new SchoolDbContext(new DbContextOptionsBuilder<SchoolDbContext>()
     .UseNpgsql(school.ConnectionString).Options);
-tenant.SchoolUsers.AddRange(new[] { owner, teacher, student, secondStudent }.Select(user => new SchoolUser
+var existingTenantUsers = await tenant.SchoolUsers.Select(user => user.PublicId).ToListAsync();
+tenant.SchoolUsers.AddRange(new[] { owner, teacher, student, secondStudent }.Where(user => !existingTenantUsers.Contains(user.PublicId)).Select(user => new SchoolUser
 {
     UserId = user.Id, Name = user.Name, PublicId = user.PublicId
 }));
@@ -52,7 +53,8 @@ master.UserRoles.Add(new UserRole { User = teacher, School = otherSchool, Role =
 await master.SaveChangesAsync();
 await using var otherTenant = new SchoolDbContext(new DbContextOptionsBuilder<SchoolDbContext>()
     .UseNpgsql(otherSchool.ConnectionString).Options);
-otherTenant.SchoolUsers.AddRange(new[] { outsider, teacher }.Select(user => new SchoolUser
+var existingOtherUsers = await otherTenant.SchoolUsers.Select(user => user.PublicId).ToListAsync();
+otherTenant.SchoolUsers.AddRange(new[] { outsider, teacher }.Where(user => !existingOtherUsers.Contains(user.PublicId)).Select(user => new SchoolUser
 {
     UserId = user.Id, Name = user.Name, PublicId = user.PublicId
 }));

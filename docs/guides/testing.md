@@ -1,5 +1,13 @@
 # Testing policy
 
+The browser workflow runs against the backend revision pinned in CI. A shared test
+backend is eligible only when its configured `CI_BACKEND_REF` matches that revision;
+otherwise CI creates its temporary backend. This keeps new homework contracts and
+tenant migrations under test before deployment, without relying on an older shared
+server. The frontend and companion backend draft PRs must retain matching revisions.
+The seed preserves tenant profiles already created by school provisioning instead
+of inserting duplicate owners.
+
 Executable details belong in [package.json](../../package.json), the
 [verification workflow](../../.github/workflows/test.yml) and the
 [deployment workflow](../../.github/workflows/deploy.yml). Read the implementation

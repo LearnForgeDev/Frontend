@@ -1,5 +1,9 @@
 # Authentication and current user
 
+The account-keyed session boundary also replaces the [application domain store](application.md).
+Homework entities and offline snapshots remain scoped to their original account
+and school; replacing the session must not install an old request's data in the new store.
+
 ## Status and scope
 
 Login, registration, restoration and logout are connected. The required architecture

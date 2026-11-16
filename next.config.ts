@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
     if (!backend) {
       return [];
     }
-    return ['/api/:path*', '/Admin/:path*', '/SoftAdmin/:path*', '/css/site.css', '/lib/bootstrap/dist/css/bootstrap.min.css', '/health', '/chatHub/:path*', '/directChatHub/:path*']
+    return ['/api/:path*', '/Admin/:path*', '/SoftAdmin/:path*', '/css/site.css', '/lib/bootstrap/dist/css/bootstrap.min.css', '/health', '/chatHub/:path*', '/directChatHub/:path*', '/homeworkHub/:path*']
       .map((source) => ({ source, destination: `${backend}${source}` }));
   },
 };

@@ -3,7 +3,8 @@
 ## Status and scope
 
 Implemented at `files`: listing/filtering, direct upload, download, preview and
-confirmed deletion. File storage is also used by lessons and chat attachments.
+confirmed deletion. File storage is also used by lessons, chat attachments and
+[homework](homework.md).
 
 ## Behavior and rules
 
@@ -30,6 +31,11 @@ failure is distinct from successful HTTP delivery.
 The backend owns metadata/access and object storage owns bytes. File public IDs,
 storage keys and filenames have different purposes; never identify a record by its
 display name alone. Lists are scoped by school and file category.
+
+Homework question images use the homework bucket plus explicit question attachment.
+Student answer files use attempt/question-specific authorization and content routes,
+including retained submission files. Generic file access must not bypass those
+ownership rules. Review annotations reference immutable answer-file identities.
 
 Preview queries include school, file ID and category, accept cancellation and are
 not retained after use. Created object URLs must be revoked on replacement/unmount,
