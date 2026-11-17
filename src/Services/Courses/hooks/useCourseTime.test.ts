@@ -64,3 +64,21 @@ it('reopens a time session after another tab or a teacher reset invalidates it',
   await act(() => vi.advanceTimersByTimeAsync(5000));
   expect(activity).toHaveBeenLastCalledWith('course', 'item', { kind: 1, sessionId, elapsedSeconds: 5 });
 });
+
+
+it('keeps one time report in flight and resumes cumulative reporting after it settles', async () => {
+  let finish: () => void = () => undefined;
+  const activity = vi.fn<CourseTimeOptions['activity']>().mockImplementationOnce(() => new Promise<void>(resolve => {
+    finish = resolve;
+  })).mockResolvedValue();
+  renderHook(() => useCourseTime({ coursePublicId: 'course', itemPublicId: 'item', enabled: true, activity }));
+  await act(() => vi.advanceTimersByTimeAsync(15_000));
+  expect(activity).toHaveBeenCalledOnce();
+  await act(async () => {
+    finish();
+    await Promise.resolve();
+  });
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+  expect(activity).toHaveBeenCalledTimes(2);
+  expect(activity.mock.calls[1][2]).toMatchObject({ kind: 1, elapsedSeconds: 20 });
+});

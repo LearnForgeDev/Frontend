@@ -161,3 +161,28 @@ describe('Course domain state', () => {
   });
 
 });
+
+
+it('checks learner progression before fetching a deep-linked article and recovers unavailable content', async () => {
+  const store = storeFor('student/school');
+  store.dispatch(courseSaved({ scope: 'student/school', accessEpoch: 0, course: makeCourse({ canManage: false }) }));
+  const blocked = new AxiosError('locked');
+  blocked.response = { status: 409, statusText: 'Conflict', data: '', headers: {}, config: { headers: new AxiosHeaders() } };
+  const activity = vi.spyOn(coursesEndpoints, 'recordActivity').mockRejectedValueOnce(blocked);
+  const lesson = vi.spyOn(lessonsEndpoints, 'getLessonById').mockResolvedValue({ id: '10', publicId: 'article', title: 'Статья' });
+  const content = vi.spyOn(filesEndpoints, 'getFileContent').mockResolvedValue({ editorState: { root: { type: 'root', children: [] } } });
+  const request = { kind: 'lesson' as const, scope: 'student/school', schoolPublicId: 'school', coursePublicId: 'course', itemPublicId: 'lesson-item', lessonId: 10, refresh: true };
+  await store.dispatch(fetchCourseResource(request));
+  expect(lesson).not.toHaveBeenCalled();
+  expect(content).not.toHaveBeenCalled();
+  expect(store.getState().courses.lessons).toEqual({});
+  activity.mockResolvedValue({ coursePublicId: 'course', completedItemsCount: 0, totalRequiredItemsCount: 1, percent: 0, startedAt: '', lastActivityAt: '', completedAt: null, items: [] });
+  await store.dispatch(fetchCourseResource(request));
+  expect(store.getState().courses.requests['lesson:course:lesson-item']).toMatchObject({ status: 'error', denied: false });
+  expect(content).not.toHaveBeenCalled();
+  lesson.mockResolvedValue({ id: '10', publicId: 'article', title: 'Статья', lessonJsonFile: { publicId: 'document', fileName: 'article.json', storageKey: 'key' } });
+  await store.dispatch(fetchCourseResource(request));
+  expect(content).toHaveBeenCalledWith('school', 'document');
+  expect(store.getState().courses.requests['lesson:course:lesson-item'].status).toBe('success');
+  expect(store.getState().courses.lessons['lesson-item'].editorState.root.children).toEqual([]);
+});

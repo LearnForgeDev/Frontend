@@ -242,3 +242,22 @@ it.each(['course', 'item'] as const)('guards late %s creation callbacks and reta
   expect(store.getState().courses.details).toEqual({});
   expect(store.getState().courses.operations.save).toBe(false);
 });
+
+
+it('refreshes the roster only after teacher approval succeeds and releases a rejected approval lock', async () => {
+  const { result, store } = setup();
+  const item = toCourseDetail(makeCourse()).items[0];
+  const approve = vi.spyOn(coursesEndpoints, 'setStudentProgress').mockResolvedValue(progress);
+  await act(() => result.current.approve('course', 'student', item, 2));
+  expect(approve).toHaveBeenLastCalledWith('school', 'course', item.publicId, 'student', 2);
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledOnce();
+  expect(store.getState().courses.rosters.course.students).toEqual([]);
+  approve.mockRejectedValueOnce(new Error('approval failed'));
+  await act(async () => {
+    await expect(result.current.approve('course', 'student', item, 0)).rejects.toThrow('approval failed');
+  });
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledOnce();
+  expect(store.getState().courses.operations['approve:course']).toBe(false);
+  await act(() => result.current.approve('course', 'student', item, 0));
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledTimes(2);
+});

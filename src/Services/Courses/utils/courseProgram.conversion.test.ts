@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { makeCourse, makeCourseInput, makeCourseItem, makeSupportedBlock } from './course.fixtures';
 import { courseBlockTitle, fromLocalDateTime, isCourseItemAvailable, toCourseBlock, toLocalDateTime } from './courseProgram.conversion';
 import { courseFormReducer, createCourseForm } from '../hooks/courseFormReducer';
+import { parseLessonContent } from './lessonContent';
 import { validateCourse } from '../validation/courseValidation';
 
 it('maps all reference types and preserves unknown or malformed blocks', () => {
@@ -73,4 +74,22 @@ describe('Course form', () => {
     expect(validateCourse({ ...input, description: 'x'.repeat(2001) })).toContain('2000');
     expect(validateCourse(makeCourseInput(makeCourse({ items: [makeCourseItem({ itemType: 99 })] })))).toBeNull();
   });
+});
+
+
+it('rejects completion rules that cannot be evaluated before saving the program', () => {
+  const input = makeCourseInput();
+  const article = input.blocks[0];
+  if (article.kind !== 'supported') {
+    throw new Error('Fixture must be supported');
+  }
+  article.input.requiredSeconds = 0;
+  expect(validateCourse(input)).toContain('время в статье');
+  article.input.requiredSeconds = 86401;
+  expect(validateCourse(input)).toContain('время в статье');
+  article.input.requiredSeconds = 60;
+  expect(validateCourse(input)).toBeNull();
+  input.blocks = [toCourseBlock(makeCourseItem({ itemType: 1, lessonId: null, scheduleEventPublicId: 'call', completionRule: 6, completeAfterUtc: null }))];
+  expect(validateCourse(input)).toContain('время прохождения занятия');
+  expect(() => parseLessonContent({ editorState: { root: { type: 'root', children: null } } })).toThrow('Не удалось прочитать статью');
 });
