@@ -40,7 +40,11 @@ export default function LoginPage() {
       onKeyDown={(event: KeyboardEvent<HTMLFormElement>) => {
         if (event.key === 'Enter' && event.target instanceof HTMLInputElement && !event.nativeEvent.isComposing) {
           event.preventDefault();
-          submitForm(event.currentTarget);
+          if (event.target.name === 'name') {
+            event.currentTarget.querySelector<HTMLInputElement>('input[name="password"]')?.focus();
+          } else {
+            submitForm(event.currentTarget);
+          }
         }
       }}
       noValidate
