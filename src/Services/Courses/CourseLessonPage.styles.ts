@@ -1,6 +1,6 @@
 import type { SxProps, Theme } from '@mui/material';
 
-export const lessonPageSx: SxProps<Theme> = { display: 'flex', flexDirection: 'column', gap: 2.5, width: '100%', maxWidth: 1040, mx: 'auto' };
+export const lessonPageSx: SxProps<Theme> = { display: 'flex', flexDirection: 'column', gap: 0, flex: 1, width: '100%', height: '100%', minHeight: 0, minWidth: 0, overflow: 'hidden', '& > header': { flexShrink: 0, p: 2 } };
 export const lessonHeaderSx: SxProps<Theme> = { display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', alignItems: 'start', gap: 1.5 };
 export const lessonBackSx: SxProps<Theme> = { minWidth: 44, minHeight: 44, color: 'var(--admin-muted)' };
 export const lessonStatusSx: SxProps<Theme> = { display: 'flex', alignItems: 'center', gap: 2, py: 4 };

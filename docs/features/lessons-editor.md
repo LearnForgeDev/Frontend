@@ -35,6 +35,15 @@ The edit session carries the source file's `storageKey`. Saving sends
 draft. A conflict response refreshes metadata. Loading the current version discards
 the local draft explicitly, rather than silently replacing user input.
 
+## Document workspace
+
+Article editing and viewing fill the available workspace width and height. The
+page owns the available height; the document scrolls within the remaining space
+while its toolbar, title and publication controls remain reachable. The editor has
+no centered sheet width cap. Course article readers use the same full-width,
+scrollable document area. This sizing does not make embedded homework editors
+full-screen or change draft, publication or mobile-editing rules.
+
 ## Data and dependencies
 
 The backend owns lesson metadata and published content. Local draft keys include
