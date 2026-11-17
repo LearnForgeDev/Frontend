@@ -9,7 +9,7 @@ import CourseStudentsPanel from '../../components/CourseStudentsPanel/CourseStud
 import CourseProgressPanel from '../../components/CourseProgressPanel/CourseProgressPanel';
 import CourseState from '../../components/CourseState/CourseState';
 import { useCoursePage } from '../../hooks/useCoursePage';
-import { formatLessonCount, formatStudentCount } from '../../utils/courseFormatting';
+import { formatLessonCount } from '../../utils/courseFormatting';
 import { MANAGER_COURSE_TABS, STUDENT_COURSE_TABS } from './CourseWorkspace.const';
 import { styles } from './CourseWorkspace.styles';
 
@@ -26,7 +26,7 @@ export default function CourseWorkspace({ schoolPublicId, coursePublicId }: Cour
         <Box sx={styles.titleGroup}>
           <Typography component="h1" variant="h4" sx={styles.title}>{course.title}</Typography>
           {course.description && <Typography sx={styles.description}>{course.description}</Typography>}
-          <Box sx={styles.meta}><Chip size="small" variant="outlined" label={formatLessonCount(course.lessonCount)} />{course.canManage && course.studentCount !== null && <Chip size="small" variant="outlined" label={formatStudentCount(course.studentCount)} />}</Box>
+          <Box sx={styles.meta}><Chip size="small" variant="outlined" label={formatLessonCount(course.lessonCount)} /></Box>
         </Box>
         {course.canManage && <Box sx={styles.actions}>
           <Button variant="outlined" startIcon={<EditOutlined />} onClick={() => view.setDialog('edit')} sx={styles.button}>Настройки</Button>

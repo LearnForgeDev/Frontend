@@ -20,11 +20,15 @@ Current saves span several backend operations. Partial failure or an unknown cre
 result must not silently duplicate a course. Progress belongs to a program item, not
 merely to a lesson title. Deleting a course is distinct from deleting source lessons.
 
-## Discussion boundary
+## Course direction, 2026-11-17
 
-The owner wants to discuss the course design later. These observations describe the
-existing implementation, not approval of its architecture. Do not select a replacement
-model or create implementation tasks in this docs-only iteration.
+The owner wants a teacher-built progression of file, rich-text lesson, scheduled-call
+and homework steps. Teachers choose each step's completion conditions. Exact unlock
+rules, supported completion signals and behavior after editing a step are still
+being discussed. This direction is not yet implemented in this branch.
+
+Course cards and headers omit student counts. Enrollment management and learner
+progress remain available through their existing controls.
 
 Related modules: [lessons](lessons-editor.md), [students](students-invitations.md) and
 [homework](homework.md).
