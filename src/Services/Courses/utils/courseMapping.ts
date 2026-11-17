@@ -1,6 +1,7 @@
-import type { CourseDto, CourseProgressDto, CourseRosterDto } from '@/Endpoints/courses';
+import type { CourseDto, CourseProgressDto, CourseRosterDto } from '@/Endpoints/Courses';
 import type { CourseDetail, CourseSummary } from '../Courses.type';
 import { COURSE_ITEM_TYPES, COURSE_PROGRESS_STATUS } from './courseMapping.const';
+import { toCourseBlock } from './courseProgram.conversion';
 import { getCourseProgress } from './courseFormatting';
 import type { Lesson } from '@/Services/Lessons/components/FileManager/FileManager.type';
 
@@ -9,6 +10,7 @@ export function toCourseSummary(course: CourseDto, progress?: CourseProgressDto)
     publicId: course.publicId,
     title: course.title,
     description: course.description ?? '',
+    itemCount: course.items.length,
     lessonCount: course.items.filter(item => item.itemType === COURSE_ITEM_TYPES.LESSON).length,
     studentCount: null,
     completedLessonCount: progress?.completedItemsCount ?? null,
@@ -24,12 +26,17 @@ export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, 
     raw: course,
     canManage: course.canManage,
     studentCount: roster?.students.length ?? null,
-    lessons: course.items.filter(item => item.itemType === COURSE_ITEM_TYPES.LESSON && item.lessonId !== null)
-      .sort((a, b) => a.position - b.position).map(item => ({
-        lessonId: item.lessonId!, itemPublicId: item.publicId, title: lessons?.find(lesson => String(lesson.id) === String(item.lessonId))?.title ?? item.title, position: item.position,
+    items: [...course.items].sort((a, b) => a.position - b.position).map(item => ({
+      block: toCourseBlock(item), publicId: item.publicId, position: item.position,
+      title: item.title, description: item.description ?? '', itemType: item.itemType,
+      isRequired: item.isRequired, isCompleted: completed.has(item.publicId),
+      availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
+    })),
+    lessons: [...course.items].sort((a, b) => a.position - b.position).flatMap(item => item.itemType === COURSE_ITEM_TYPES.LESSON && item.lessonId !== null ? [{
+        lessonId: item.lessonId, itemPublicId: item.publicId, title: lessons?.find(lesson => String(lesson.id) === String(item.lessonId))?.title ?? item.title, position: item.position,
         isRequired: item.isRequired, isCompleted: completed.has(item.publicId),
         availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
-      })),
+      }] : []),
     otherItems: course.items.filter(item => item.itemType !== COURSE_ITEM_TYPES.LESSON).sort((a, b) => a.position - b.position),
     students: roster?.students.map(student => ({
       userPublicId: student.publicId, displayName: student.login,
@@ -40,11 +47,4 @@ export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, 
       percentage: getCourseProgress(student.progress?.completedItemsCount ?? 0, roster.totalRequiredItemsCount),
     })) ?? [],
   };
-}
-
-export function canEditCourseProgram(course?: CourseDetail) {
-  if (!course) {
-    return true;
-  }
-  return course.otherItems.length === 0 && new Set(course.lessons.map(item => item.lessonId)).size === course.lessons.length;
 }

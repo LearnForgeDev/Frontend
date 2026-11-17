@@ -2,7 +2,7 @@ import type { CourseCardProps } from './CourseCard.type';
 import { Box, Card, CardActionArea, LinearProgress, Typography } from '@mui/material';
 import { AutoStoriesOutlined, GroupOutlined, SchoolOutlined } from '@mui/icons-material';
 
-import { formatLessonCount, formatStudentCount, getCourseProgressLabel } from '../../utils/courseFormatting';
+import { formatBlockCount, formatStudentCount, getCourseProgressLabel } from '../../utils/courseFormatting';
 import { styles } from './CourseCard.styles';
 
 export default function CourseCard({ course, onOpen }: CourseCardProps) {
@@ -13,7 +13,7 @@ export default function CourseCard({ course, onOpen }: CourseCardProps) {
         <Typography variant="h6" component="h2" sx={styles.title}>{course.title}</Typography>
         {course.description && <Typography variant="body2" sx={styles.description}>{course.description}</Typography>}
         <Box sx={styles.meta}>
-          <Typography variant="body2" component="span" sx={styles.metaItem}><AutoStoriesOutlined fontSize="small" />{formatLessonCount(course.lessonCount)}</Typography>
+          <Typography variant="body2" component="span" sx={styles.metaItem}><AutoStoriesOutlined fontSize="small" />{formatBlockCount(course.itemCount)}</Typography>
           {course.studentCount !== null && <Typography variant="body2" component="span" sx={styles.metaItem}><GroupOutlined fontSize="small" />{formatStudentCount(course.studentCount)}</Typography>}
         </Box>
         {course.completedLessonCount !== null && <Box sx={styles.progress}>

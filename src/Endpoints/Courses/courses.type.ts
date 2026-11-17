@@ -9,6 +9,7 @@ export interface CourseItemDto {
   description: string | null;
   file: { publicId: string; fileName: string; sizeBytes: number; mimeType: string | null } | null;
   scheduleEventId: number | null;
+  scheduleEventPublicId: string | null;
   lessonId: number | null;
   homeworkId: number | null;
   isRequired: boolean;
@@ -66,10 +67,20 @@ export interface CourseAccessInput {
   allowedGroupIds: number[];
 }
 
-export interface CourseItemInput {
+export interface CourseItemFields {
   title: string;
-  itemType: number;
-  lessonId: number;
-  position: number;
+  description: string | null;
   isRequired: boolean;
+  availableFromUtc: string | null;
+  availableUntilUtc: string | null;
 }
+
+export type CourseItemUpdateInput = CourseItemFields & (
+  | { itemType: 0; filePublicId: string }
+  | { itemType: 1; scheduleEventPublicId: string }
+  | { itemType: 1; scheduleEventId: number }
+  | { itemType: 2; lessonId: number }
+  | { itemType: 3; homeworkId: number }
+);
+
+export type CourseItemInput = CourseItemUpdateInput & { position: number };

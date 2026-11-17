@@ -13,7 +13,7 @@ export default function CoursesWorkspace({ schoolPublicId }: CoursesWorkspacePro
     <Box sx={styles.header}>
       <Box sx={styles.titleGroup}>
         <Typography component="h1" variant="h4">Курсы</Typography>
-        <Typography sx={styles.muted}>{view.canManage ? 'Уроки, ученики и их прогресс — в одном месте.' : 'Ваша программа обучения.'}</Typography>
+        <Typography sx={styles.muted}>{view.canManage ? 'Программы обучения, ученики и их прогресс.' : 'Ваша программа обучения.'}</Typography>
       </Box>
       {view.canManage && <Button variant="contained" startIcon={<Add />} onClick={view.openEditor} sx={styles.primaryButton}>Создать курс</Button>}
     </Box>
@@ -24,7 +24,7 @@ export default function CoursesWorkspace({ schoolPublicId }: CoursesWorkspacePro
       {view.hasCourses && <Box sx={styles.toolbar}>
         <TextField size="small" label="Поиск курсов" value={view.search} onChange={event => view.setSearch(event.target.value)} sx={styles.search} slotProps={{ input: { startAdornment: <InputAdornment position="start"><Search /></InputAdornment> } }} />
       </Box>}
-      {!view.hasCourses && <CourseState kind="empty" title={view.canManage ? 'Создайте первый курс' : 'Вам пока не назначены курсы'} description={view.canManage ? 'Соберите программу из уроков школы и добавьте учеников.' : 'Здесь появятся курсы, на которые вас добавит преподаватель.'} actionLabel={view.canManage ? 'Создать курс' : undefined} onAction={view.canManage ? view.openEditor : undefined} />}
+      {!view.hasCourses && <CourseState kind="empty" title={view.canManage ? 'Создайте первый курс' : 'Вам пока не назначены курсы'} description={view.canManage ? 'Соберите путь из уроков, материалов, занятий и домашних заданий.' : 'Здесь появятся курсы, на которые вас добавит преподаватель.'} actionLabel={view.canManage ? 'Создать курс' : undefined} onAction={view.canManage ? view.openEditor : undefined} />}
       {view.hasCourses && !view.courses.length && <CourseState kind="empty" title="Ничего не найдено" description="Попробуйте другое название." actionLabel="Сбросить поиск" onAction={() => view.setSearch('')} />}
       {!!view.courses.length && <CoursesList courses={view.courses} onOpenCourse={view.openCourse} />}
     </>}

@@ -1,14 +1,17 @@
-import type { SaveCourseOptions } from './saveCourse.type';
-import { coursesEndpoints, type CourseDto } from '@/Endpoints/courses';
-
 import { isAxiosError } from 'axios';
+import { coursesEndpoints } from '@/Endpoints/Courses';
+import type { CourseDto } from '@/Endpoints/Courses';
 import { HTTP_STATUS } from '@/Endpoints/factory/factory.const';
+import type { SaveCourseOptions } from './saveCourse.type';
 import { CourseCreationUncertainError } from './saveCourse.errors';
 import { getCourseAudience, getRestrictedCourseAudience } from '../utils/courseAudience';
-import { canEditCourseProgram, toCourseDetail } from '../utils/courseMapping';
-import { COURSE_ITEM_TYPES } from '../utils/courseMapping.const';
 
-export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicId, input, lessons, studentIds, onCreated }: SaveCourseOptions) {
+function isRejectedWrite(error: unknown) {
+  const status = isAxiosError(error) ? error.response?.status : undefined;
+  return status !== undefined && status >= HTTP_STATUS.BAD_REQUEST && status < HTTP_STATUS.SERVER_ERROR;
+}
+
+export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicId, input, studentIds, onCreated, onItemCreated }: SaveCourseOptions) {
   if (!authorPublicId) {
     throw new Error('Войдите в аккаунт заново');
   }
@@ -16,25 +19,23 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
   let current: CourseDto;
   if (coursePublicId) {
     current = await coursesEndpoints.getCourse(schoolPublicId, coursePublicId);
-  }
-  else {
+    if (!current.canManage) {
+      throw new Error('Нет доступа к изменению курса');
+    }
+  } else {
     try {
       current = await coursesEndpoints.createCourse(schoolPublicId, { ...metadata, allowedUserPublicIds: [authorPublicId], allowedGroupIds: [] });
     } catch (error) {
-      const status = isAxiosError(error) ? error.response?.status : undefined;
-      if (status && status >= HTTP_STATUS.BAD_REQUEST && status < HTTP_STATUS.SERVER_ERROR) {
+      if (isRejectedWrite(error)) {
         throw error;
       }
       throw new CourseCreationUncertainError();
     }
-  }
-  if (!coursePublicId) {
     onCreated(current);
   }
   const publicId = current.publicId;
-  const currentView = toCourseDetail(current);
-  const editableProgram = canEditCourseProgram(currentView);
-  if (!editableProgram && currentView.lessons.map(lesson => lesson.lessonId).join(',') !== input.lessonIds.join(',')) {
+  const knownIds = new Set(input.sourceItemPublicIds);
+  if (current.items.some(item => !knownIds.has(item.publicId)) || input.blocks.some(block => block.publicId && !current.items.some(item => item.publicId === block.publicId))) {
     throw new Error('Программа изменилась. Откройте курс заново.');
   }
   const audience = getCourseAudience(input, current.allowedUserPublicIds ?? [], studentIds, authorPublicId);
@@ -45,40 +46,48 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
     await coursesEndpoints.updateAccess(schoolPublicId, publicId, restricted);
   }
   await coursesEndpoints.updateCourse(schoolPublicId, publicId, metadata);
-  const program = [...current.items].sort((a, b) => a.position - b.position);
-  if (editableProgram) {
-    let nextPosition = program.reduce((position, item) => Math.max(position, item.position + 1), 0);
-    for (const lessonId of input.lessonIds) {
-      if (program.some(item => item.lessonId === lessonId)) {
-        continue;
+  const desiredIds: string[] = [];
+  let nextPosition = current.items.reduce((position, item) => Math.max(position, item.position + 1), 0);
+  for (const block of input.blocks) {
+    if (block.kind === 'unsupported') {
+      desiredIds.push(block.publicId);
+    } else if (block.publicId) {
+      await coursesEndpoints.updateItem(schoolPublicId, publicId, block.publicId, block.input);
+      desiredIds.push(block.publicId);
+    } else {
+      try {
+        const created = await coursesEndpoints.addItem(schoolPublicId, publicId, { ...block.input, position: nextPosition++ });
+        desiredIds.push(created.publicId);
+        onItemCreated(block.clientId, created.publicId);
+      } catch (error) {
+        if (isRejectedWrite(error)) {
+          throw error;
+        }
+        throw new CourseCreationUncertainError('Ответ о создании блока не получен. Закройте редактор и обновите курс перед продолжением.');
       }
-      const lesson = lessons.find(option => option.lessonId === lessonId);
-      if (!lesson) {
-        throw new Error('Урок больше недоступен');
-      }
-      await coursesEndpoints.addItem(schoolPublicId, publicId, {
-        title: lesson.title, lessonId, itemType: COURSE_ITEM_TYPES.LESSON,
-        position: nextPosition++, isRequired: true,
+    }
+  }
+  for (const item of current.items.filter(item => !desiredIds.includes(item.publicId))) {
+    await coursesEndpoints.removeItem(schoolPublicId, publicId, item.publicId);
+  }
+  const refreshed = await coursesEndpoints.getCourse(schoolPublicId, publicId);
+  if (refreshed.items.some(item => !desiredIds.includes(item.publicId))) {
+    throw new Error('Программа изменилась во время сохранения. Обновите курс.');
+  }
+  const ordered = [...refreshed.items].sort((a, b) => a.position - b.position);
+  for (const [position, itemPublicId] of desiredIds.entries()) {
+    const index = ordered.findIndex(item => item.publicId === itemPublicId);
+    const item = ordered[index];
+    if (!item) {
+      throw new Error('Не удалось сохранить программу. Обновите курс.');
+    }
+    if (index !== position || item.position !== position) {
+      await coursesEndpoints.moveItem(schoolPublicId, publicId, itemPublicId, position);
+      ordered.splice(index, 1);
+      ordered.splice(position, 0, item);
+      ordered.forEach((entry, order) => {
+        entry.position = order;
       });
-    }
-    for (const item of program.filter(item => !input.lessonIds.includes(item.lessonId!))) {
-      await coursesEndpoints.removeItem(schoolPublicId, publicId, item.publicId);
-    }
-    const refreshed = await coursesEndpoints.getCourse(schoolPublicId, publicId);
-    const ordered = [...refreshed.items].sort((a, b) => a.position - b.position);
-    for (const [position, lessonId] of input.lessonIds.entries()) {
-      const index = ordered.findIndex(item => item.lessonId === lessonId);
-      if (index < 0) {
-        throw new Error('Не удалось сохранить программу');
-      }
-      if (index !== position || ordered[index].position !== position) {
-        await coursesEndpoints.moveItem(schoolPublicId, publicId, ordered[index].publicId, position);
-        const [item] = ordered.splice(index, 1);
-        ordered.splice(position, 0, item);
-        ordered.forEach((entry, order) => {
-          entry.position = order;
-        });
-      }
     }
   }
   await coursesEndpoints.updateAccess(schoolPublicId, publicId, audience);

@@ -1,7 +1,7 @@
 # Course acceptance
 
-Course architecture discussion is deferred. These are existing acceptance goals,
-not approval of a replacement design or evidence that the full suite exists.
+Courses use flat typed blocks. These are acceptance goals; scenario presence alone
+does not prove execution against the real backend.
 See [course scope](../features/courses.md).
 
 Use real backend contracts, authorized course managers, independent learners,
@@ -35,4 +35,9 @@ groups and published lessons. Basic fixtures alone do not prove all these contra
 
 Verify course-specific management rights rather than assuming every school teacher
 can edit every course. Preserve assignments outside the editable student selection.
-Homework, grading and non-lesson creation are not established frontend workflows.
+Mixed-path browser checks now exercise material, scheduled-class, lesson and
+homework navigation, repeated lesson identities, independent persisted progress,
+source preservation and warmed-access revocation. These checks depend on the
+companion backend revision. Manual homework progress must remain unavailable;
+backend tests establish historical Checked-pass reconciliation. Browser grading,
+group access and every failure stage are still separate acceptance work.

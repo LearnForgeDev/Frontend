@@ -12,6 +12,11 @@ attempts, histories and unsaved business drafts. Entities and recovery snapshots
 also include school/resource scope. Public feature hooks expose data and operations;
 components do not dispatch or call typed endpoints directly.
 
+Courses uses the same store for its catalogue, program items, audiences, authorized
+reader content and progress. Its former query-cache ownership is removed. Course
+and homework hooks remain the public interfaces; selecting a homework does not
+create a second mutable homework record in the course slice.
+
 The backend remains authoritative for accepted writes and permissions. Network
 operations stay in feature hooks/endpoints; reducers only apply state transitions.
 Local storage contains recovery snapshots rather than an independent live model.

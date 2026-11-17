@@ -11,8 +11,26 @@ export function validateCourse(input: CourseInput): string | null {
   if (input.description.length > COURSE_DESCRIPTION_MAX_LENGTH) {
     return `Описание не должно превышать ${COURSE_DESCRIPTION_MAX_LENGTH} символов`;
   }
-  if (input.lessonIds.length > COURSE_LESSON_MAX_COUNT) {
-    return `В курсе может быть не больше ${COURSE_LESSON_MAX_COUNT} уроков`;
+  if (input.blocks.length > COURSE_LESSON_MAX_COUNT) {
+    return `В курсе может быть не больше ${COURSE_LESSON_MAX_COUNT} блоков`;
+  }
+  if (new Set(input.blocks.map(block => block.clientId)).size !== input.blocks.length) {
+    return 'В программе есть повторяющиеся идентификаторы блоков';
+  }
+  for (const block of input.blocks) {
+    if (block.kind === 'unsupported') {
+      continue;
+    }
+    if (!block.input.title.trim()) {
+      return 'Введите название каждого блока';
+    }
+    const { availableFromUtc, availableUntilUtc } = block.input;
+    if ((availableFromUtc && !Number.isFinite(Date.parse(availableFromUtc))) || (availableUntilUtc && !Number.isFinite(Date.parse(availableUntilUtc)))) {
+      return 'Проверьте даты доступности блоков';
+    }
+    if (availableFromUtc && availableUntilUtc && Date.parse(availableFromUtc) >= Date.parse(availableUntilUtc)) {
+      return 'Начало доступности блока должно быть раньше окончания';
+    }
   }
   if (input.studentPublicIds.length > COURSE_STUDENT_MAX_COUNT) {
     return `В курсе может быть не больше ${COURSE_STUDENT_MAX_COUNT} учеников`;

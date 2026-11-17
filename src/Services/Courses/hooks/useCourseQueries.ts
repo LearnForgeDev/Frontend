@@ -1,92 +1,76 @@
-import { useQueries, useQuery } from '@tanstack/react-query';
-import { coursesEndpoints } from '@/Endpoints/courses';
-import { lessonsEndpoints } from '@/Endpoints/lessons';
-import { useToast } from '@/Storage/useToastStore';
-import { canRetainCourseData, isCourseAccessError } from '../utils/courseAccess';
-import { toCourseDetail, toCourseSummary } from '../utils/courseMapping';
-import { COURSE_QUERY_ERROR, COURSE_QUERY_STALE_TIME, COURSES_QUERY_ERROR, COURSE_ROSTER_QUERY_ERROR, COURSE_PROGRESS_QUERY_ERROR } from './useCourseQueries.const';
+import { useEffect } from 'react';
+import type { CourseRequestStatus } from '@/Storage/Courses/courses.type';
+import { useCourses } from './useCourses';
+
+const IDLE: CourseRequestStatus = { status: 'idle' };
 
 export function useCoursesQuery(schoolPublicId: string) {
-  const toast = useToast();
-  const query = useQuery({
-    queryKey: ['courses', schoolPublicId],
-    queryFn: async () => {
-      try {
-        return await coursesEndpoints.getCourses(schoolPublicId);
+  const feature = useCourses(schoolPublicId);
+  const { read } = feature;
+  const request = feature.state.requests.catalogue ?? IDLE;
+  useEffect(() => {
+    const refresh = () => {
+      void read({ kind: 'catalogue', refresh: true });
+    };
+    refresh();
+    window.addEventListener('focus', refresh);
+    return () => window.removeEventListener('focus', refresh);
+  }, [read]);
+  useEffect(() => {
+    for (const course of feature.state.catalogue ?? []) {
+      if (!course.canManage) {
+        void read({ kind: 'progress', coursePublicId: course.publicId, refresh: true });
       }
-      catch (error) {
-        toast.error(COURSES_QUERY_ERROR);
-        throw error;
-      }
-    },
-    enabled: !!schoolPublicId, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  });
-  const isBlocked = query.isError && !canRetainCourseData(query.error);
-  const courses = isBlocked ? undefined : query.data;
-  const progress = useQueries({ queries: (courses ?? []).map(course => ({
-    queryKey: ['course-progress', schoolPublicId, course.publicId],
-    queryFn: () => coursesEndpoints.getProgress(schoolPublicId, course.publicId),
-    enabled: !course.canManage, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  })) });
-  return { ...query, data: courses?.map((course, index) => toCourseSummary(course, progress[index]?.isError ? undefined : progress[index]?.data)), isBlocked, isAccessError: isCourseAccessError(query.error) };
+    }
+  }, [feature.state.catalogue, read]);
+  return {
+    feature, data: feature.catalogue,
+    isPending: request.status === 'idle' || request.status === 'pending' && !feature.state.catalogue,
+    isFetching: request.status === 'pending', isError: request.status === 'error',
+    isBlocked: request.status === 'error' && request.denied,
+    refetch: () => read({ kind: 'catalogue', refresh: true }),
+  };
 }
 
 export function useCourseQuery(schoolPublicId: string, coursePublicId: string) {
-  const toast = useToast();
-  const query = useQuery({
-    queryKey: ['courses', schoolPublicId, coursePublicId],
-    queryFn: async () => {
-      try {
-        return await coursesEndpoints.getCourse(schoolPublicId, coursePublicId);
+  const feature = useCourses(schoolPublicId);
+  const { read } = feature;
+  const course = feature.getCourse(coursePublicId);
+  const request = feature.state.requests[`course:${coursePublicId}`] ?? IDLE;
+  const progress = feature.state.requests[`progress:${coursePublicId}`] ?? IDLE;
+  const roster = feature.state.requests[`roster:${coursePublicId}`] ?? IDLE;
+  const canManage = course?.canManage;
+  useEffect(() => {
+    void read({ kind: 'course', coursePublicId });
+  }, [read, coursePublicId]);
+  useEffect(() => {
+    if (canManage !== undefined) {
+      void read({ kind: canManage ? 'roster' : 'progress', coursePublicId });
+    }
+  }, [read, coursePublicId, canManage]);
+  useEffect(() => {
+    const refresh = () => {
+      void read({ kind: 'course', coursePublicId, refresh: true });
+      if (canManage !== undefined) {
+        void read({ kind: canManage ? 'roster' : 'progress', coursePublicId, refresh: true });
       }
-      catch (error) {
-        toast.error(COURSE_QUERY_ERROR);
-        throw error;
-      }
-    },
-    enabled: !!schoolPublicId && !!coursePublicId, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  });
-  const isBlocked = query.isError && !canRetainCourseData(query.error);
-  const course = isBlocked ? undefined : query.data;
-  const progressQuery = useQuery({
-    queryKey: ['course-progress', schoolPublicId, coursePublicId],
-    queryFn: async () => {
-      try {
-        return await coursesEndpoints.getProgress(schoolPublicId, coursePublicId);
-      }
-      catch (error) {
-        toast.error(COURSE_PROGRESS_QUERY_ERROR);
-        throw error;
-      }
-    },
-    enabled: !!course && !course.canManage, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  });
-  const rosterQuery = useQuery({
-    queryKey: ['course-roster', schoolPublicId, coursePublicId],
-    queryFn: async () => {
-      try {
-        return await coursesEndpoints.getRoster(schoolPublicId, coursePublicId);
-      }
-      catch (error) {
-        toast.error(COURSE_ROSTER_QUERY_ERROR);
-        throw error;
-      }
-    },
-    enabled: !!course?.canManage, staleTime: COURSE_QUERY_STALE_TIME, retry: false,
-  });
-  const lessonsQuery = useQuery({
-    queryKey: ['lessons', schoolPublicId],
-    queryFn: () => lessonsEndpoints.getLessons(schoolPublicId),
-    enabled: Boolean(course),
-    staleTime: COURSE_QUERY_STALE_TIME,
-    retry: false,
+    };
+    window.addEventListener('focus', refresh);
+    refresh();
+    return () => window.removeEventListener('focus', refresh);
+  }, [read, coursePublicId, canManage]);
+  const statusView = (status: CourseRequestStatus, kind: 'progress' | 'roster') => ({
+    isPending: status.status === 'idle' || status.status === 'pending',
+    isError: status.status === 'error', isSuccess: status.status === 'success',
+    isFetching: status.status === 'pending',
+    refetch: () => read({ kind, coursePublicId, refresh: true }),
   });
   return {
-    ...query,
-    data: course ? toCourseDetail(course,
-      progressQuery.isError ? undefined : progressQuery.data,
-      course.canManage && !rosterQuery.isError ? rosterQuery.data : undefined,
-      lessonsQuery.data) : undefined,
-    progressQuery, rosterQuery, isBlocked, isAccessError: isCourseAccessError(query.error),
+    feature, data: course, isPending: request.status === 'idle' || request.status === 'pending' && !course,
+    isLoading: request.status === 'idle' || request.status === 'pending' && !course,
+    isFetching: request.status === 'pending', isError: request.status === 'error',
+    isBlocked: request.status === 'error' && request.denied,
+    refetch: () => read({ kind: 'course', coursePublicId, refresh: true }),
+    progressQuery: statusView(progress, 'progress'), rosterQuery: statusView(roster, 'roster'),
   };
 }
