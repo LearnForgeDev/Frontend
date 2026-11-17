@@ -15,12 +15,12 @@ export function ScheduleHeader({ canManage, onCreate }: ScheduleHeaderProps) {
     <Box component="header" sx={styles.root}>
       <Box sx={styles.headingRow}>
         <Box sx={profile.headerSx}>
-          <Typography component="h1" sx={profile.pageTitleSx}>{HEADER_TITLE_TEXT}</Typography>
-          <Typography sx={profile.subtitleSx}>Занятия школы и время для новых встреч.</Typography>
+          <Typography component="h1" sx={styles.title}>{HEADER_TITLE_TEXT}</Typography>
+          <Typography sx={styles.subtitle}>Занятия школы и время для новых встреч.</Typography>
         </Box>
         {canManage && (
-          <Button variant="contained" startIcon={<AddRoundedIcon />} data-testid="schedule-create" onClick={onCreate} sx={styles.createButton}>
-            {NEW_EVENT_TEXT}
+          <Button variant="contained" startIcon={<AddRoundedIcon />} data-testid="schedule-create" aria-label={NEW_EVENT_TEXT} title={NEW_EVENT_TEXT} onClick={onCreate} sx={styles.createButton}>
+            <Box component="span" sx={styles.createLabel}>{NEW_EVENT_TEXT}</Box>
           </Button>
         )}
       </Box>
