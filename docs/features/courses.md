@@ -88,7 +88,10 @@ Unexpected concurrently added/deleted program items require reopening the editor
 When an existing block's content, source or completion settings change, saving asks
 the teacher whether to keep or reset earned completion for changed blocks. Continuing
 to edit cancels that save. The chosen policy travels with each update; a reset clears
-that block's stored completion and time. Unchanged blocks keep their progress.
+that block's stored completion and time. The reset policy applies only to changed blocks. Unchanged blocks keep their
+progress even when the teacher resets other edited blocks in the same save. Retrying
+a partial save does not reset a block already saved, including normalized titles
+and equivalent timestamp formats returned by the backend.
 
 Read failures differ from empty results. Temporary refresh failures may retain
 previously authorized data with a warning. A source lesson or its content file returning

@@ -3,6 +3,7 @@ import { useEffect, useReducer, useRef, useState } from 'react';
 import type { CourseBlock, CourseDetail } from '../Courses.type';
 import { useToast } from '@/Storage/useToastStore';
 import { getStudentOptions } from '../utils/courseOptions';
+import { areCourseItemInputsEqual } from '../utils/courseProgram.conversion';
 import { validateCourse } from '../validation/courseValidation';
 import { courseFormReducer, createCourseForm, getCourseInput } from './courseFormReducer';
 import { COURSE_SAVE_ERROR } from './useCourseEditor.const';
@@ -38,7 +39,7 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
         return false;
       }
       const original = course.items.find(item => item.publicId === block.publicId)?.block;
-      return original?.kind === 'supported' && JSON.stringify(original.input) !== JSON.stringify(block.input);
+      return original?.kind === 'supported' && !areCourseItemInputsEqual(original.input, block.input);
     });
     if (programChanged && keepCompletion === undefined) {
       setNeedsCompletionChoice(true);

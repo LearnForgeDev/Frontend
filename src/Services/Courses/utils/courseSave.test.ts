@@ -36,7 +36,12 @@ beforeEach(() => {
     if (!item) {
       throw new Error('Missing item');
     }
-    const updated = { ...item, ...input };
+    const updated = {
+      ...item, ...input, title: input.title.trim(),
+      availableFromUtc: input.availableFromUtc?.replace('.000Z', 'Z') ?? null,
+      availableUntilUtc: input.availableUntilUtc?.replace('.000Z', 'Z') ?? null,
+      completeAfterUtc: input.completeAfterUtc?.replace('.000Z', 'Z') ?? null,
+    };
     persisted.items = persisted.items.map(candidate => candidate.publicId === publicId ? updated : candidate);
     return Promise.resolve(updated);
   });
@@ -62,6 +67,35 @@ describe('Mixed course saves', () => {
     expect(coursesEndpoints.removeItem).not.toHaveBeenCalled();
     expect(coursesEndpoints.moveItem).toHaveBeenCalledWith('school', 'course', 'repeat', 0);
     expect(coursesEndpoints.updateItem).toHaveBeenCalledTimes(2);
+  });
+
+  it('resets only changed blocks and retains untouched progress regardless of input key order', async () => {
+    persisted.items.push(makeCourseItem({ id: 2, publicId: 'untouched', position: 1 }));
+    const input = makeCourseInput(persisted);
+    input.keepCompletion = false;
+    input.blocks = input.blocks.map(block => {
+      if (block.kind !== 'supported') {
+        return block;
+      }
+      const { title, ...fields } = block.input;
+      return { ...block, input: { title: block.publicId === 'lesson-item' ? 'Изменённый блок' : title, ...fields } };
+    });
+    await saveCourse(options({ input }));
+    expect(coursesEndpoints.updateItem).toHaveBeenCalledWith('school', 'course', 'lesson-item', expect.objectContaining({ keepCompletion: false }));
+    expect(coursesEndpoints.updateItem).toHaveBeenCalledWith('school', 'course', 'untouched', expect.objectContaining({ keepCompletion: true }));
+  });
+
+  it('retains backend-normalized saved blocks when retrying after a later audience failure', async () => {
+    const input = makeCourseInput(persisted);
+    input.keepCompletion = false;
+    input.blocks = input.blocks.map(block => block.kind === 'supported'
+      ? { ...block, input: { ...block.input, title: '  Изменённый блок  ', availableFromUtc: '2026-11-17T10:00:00.000Z' } } : block);
+    vi.mocked(coursesEndpoints.updateAccess).mockRejectedValueOnce(new Error('audience failed'));
+    await expect(saveCourse(options({ input }))).rejects.toThrow('audience failed');
+    expect(coursesEndpoints.updateItem).toHaveBeenLastCalledWith('school', 'course', 'lesson-item', expect.objectContaining({ keepCompletion: false }));
+    vi.mocked(coursesEndpoints.updateItem).mockClear();
+    await saveCourse(options({ input }));
+    expect(coursesEndpoints.updateItem).toHaveBeenLastCalledWith('school', 'course', 'lesson-item', expect.objectContaining({ keepCompletion: true }));
   });
 
   it('adds all supported references without granting source access and keeps created identity', async () => {

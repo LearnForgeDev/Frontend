@@ -1,6 +1,19 @@
 import type { CourseItemDto, CourseItemUpdateInput } from '@/Endpoints/Courses';
 import type { CourseBlock } from '../Courses.type';
 
+export function areCourseItemInputsEqual(left: CourseItemUpdateInput, right: CourseItemUpdateInput) {
+  const normalized = (input: CourseItemUpdateInput) => ({
+    ...input,
+    title: input.title.trim(),
+    availableFromUtc: input.availableFromUtc ? Date.parse(input.availableFromUtc) : null,
+    availableUntilUtc: input.availableUntilUtc ? Date.parse(input.availableUntilUtc) : null,
+    completeAfterUtc: input.completeAfterUtc ? Date.parse(input.completeAfterUtc) : null,
+  });
+  const first = normalized(left);
+  const second = normalized(right);
+  return JSON.stringify(first, Object.keys(first).sort()) === JSON.stringify(second, Object.keys(second).sort());
+}
+
 export function toCourseBlock(item: CourseItemDto): CourseBlock {
   const fields = {
     completionRule: item.completionRule, requiredSeconds: item.requiredSeconds, completeAfterUtc: item.completeAfterUtc,
