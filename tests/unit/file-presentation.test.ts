@@ -125,10 +125,10 @@ it('keeps lesson timestamps meaningful at minute, hour, day and invalid boundari
 it('offers retry only for a failed lesson and disables duplicate retry while pending', () => {
   const retry = vi.fn().mockResolvedValue(undefined);
   const view = render(createElement(LessonEditorStatus, { isLoading: true, isError: false, isRetrying: false, retry }));
-  expect(screen.getByRole('status').textContent).toContain('Загрузка урока');
+  expect(screen.getByRole('status').textContent).toContain('Загрузка статьи');
   expect(screen.queryByRole('button')).toBeNull();
   view.rerender(createElement(LessonEditorStatus, { isLoading: false, isError: false, isRetrying: false, retry }));
-  expect(screen.getByText('Содержимое урока пока недоступно.')).toBeTruthy();
+  expect(screen.getByText('Содержимое статьи пока недоступно.')).toBeTruthy();
   expect(screen.queryByRole('button')).toBeNull();
   view.rerender(createElement(LessonEditorStatus, { isLoading: false, isError: true, isRetrying: false, retry }));
   fireEvent.click(screen.getByRole('button', { name: 'Повторить' }));
@@ -148,10 +148,10 @@ it('formats stored file metadata and groups documents without case-sensitive ext
 it('opens a lesson card from the keyboard and routes its management menu without selecting it', () => {
   const actions = { onClick: vi.fn(), onOpen: vi.fn(), onRename: vi.fn(), onMove: vi.fn(), onDelete: vi.fn() };
   render(createElement(LessonCard, { ...actions, lesson: { id: 'lesson', publicId: 'lesson', title: 'Алгебра' }, selected: true, canManage: true }));
-  const card = screen.getByRole('button', { name: 'Урок: Алгебра' });
+  const card = screen.getByRole('button', { name: 'Статья: Алгебра' });
   fireEvent.keyDown(card, { key: ' ' });
   expect(actions.onOpen).toHaveBeenCalledOnce();
-  fireEvent.click(screen.getByRole('button', { name: 'Опции урока' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Опции статьи' }));
   expect(actions.onClick).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('menuitem', { name: 'Переименовать' }));
   expect(actions.onRename).toHaveBeenCalledOnce();
@@ -165,11 +165,11 @@ it('opens a lesson card from the keyboard and routes its management menu without
 it('preserves keyboard and context actions for published lessons in list view', () => {
   const actions = { onClick: vi.fn(), onOpen: vi.fn(), onRename: vi.fn(), onMove: vi.fn(), onDelete: vi.fn() };
   render(createElement(LessonListItem, { ...actions, lesson: { id: 'lesson', publicId: 'lesson', title: 'Алгебра', status: 'published', updatedAt: '2026-11-14T10:00:00Z' }, selected: true }));
-  const row = screen.getByRole('button', { name: 'Урок: Алгебра, статус: published' });
+  const row = screen.getByRole('button', { name: 'Статья: Алгебра, статус: published' });
   expect(screen.getByText('Опубликован')).toBeTruthy();
   fireEvent.keyDown(row, { key: 'Enter' });
   expect(actions.onOpen).toHaveBeenCalledOnce();
-  fireEvent.click(screen.getByRole('button', { name: 'Опции урока' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Опции статьи' }));
   expect(actions.onClick).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('menuitem', { name: 'Переместить' }));
   expect(actions.onMove).toHaveBeenCalledOnce();

@@ -1,5 +1,8 @@
 # User profile
 
+The local header uses a circular arrow-only Back control. Its accessible name and
+title retain the return action without adding visible text.
+
 ## Status and scope
 
 Implemented at `/app/profile`: identity/contact display, school roles, upcoming
@@ -13,9 +16,12 @@ The page composes its public feature hook, which observes the existing auth stor
 and membership/schedule queries. The upcoming event opens the selected school's
 calendar with the event ID. Membership and schedule failures render independently.
 
+Profile opens from the desktop sidebar footer or the mobile More drawer. The
+collapsed sidebar exposes the same action as an avatar with a tooltip.
+
 Opening profile from a confirmed school route retains that school as the active
 selection, including when the route was opened directly. The switcher and school
-navigation remain available on profile. The visible Back action restores the recorded
+navigation remain available on profile. The Back action restores the recorded
 in-app source path, query and fragment. Direct entry, an invalid return path or a
 profile loop falls back to the selected confirmed school's Today page, or `/app`
 without a school. Back does not depend on external browser history.

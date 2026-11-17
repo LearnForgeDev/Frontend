@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
+import { Box, IconButton, Tooltip } from '@mui/material';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
@@ -18,6 +18,7 @@ export default function AppShell() {
   const [isSidebarCollapsed, setSidebarCollapsed] = useState(false);
   const sidebarToggleLabel = isSidebarCollapsed ? SIDEBAR_EXPAND_LABEL : SIDEBAR_COLLAPSE_LABEL;
   const location = useLocation();
+  const isFullCanvas = /\/(?:schedule|lessons\/[^/]+)\/?$/.test(location.pathname);
   const { schoolPublicId, school, capabilities, schoolsQuery, selectSchool } = useCurrentSchool();
   const schools = schoolsQuery.data ?? [];
   const hasSchools = schools.length > 0;
@@ -32,11 +33,6 @@ export default function AppShell() {
     }
   };
 
-  const pageTitle = activeItem?.label
-    ?? (location.pathname === '/app/schools' ? 'Мои школы' : undefined)
-    ?? (location.pathname === '/app/profile' ? 'Профиль' : undefined)
-    ?? school?.schoolName
-    ?? 'LearnForge';
 
   return (
     <Box sx={isSidebarCollapsed ? S.collapsedRootSx : S.rootSx}>
@@ -69,6 +65,7 @@ export default function AppShell() {
         </Box>
 
         <Box sx={S.sidebarFooterSx}>
+          <ProfileButton compact={isSidebarCollapsed} />
           <Tooltip title={sidebarToggleLabel} placement="right">
             <IconButton
               aria-label={sidebarToggleLabel}
@@ -83,38 +80,21 @@ export default function AppShell() {
         </Box>
       </Box>
 
-      <Box component="header" sx={S.topbarSx}>
-        <Box sx={S.mobileBrandSx}>
-          <Box sx={S.logoFrameSx}>
-            <Box component="img" src="/brand-mark.png" alt="" sx={S.logoSx} />
-          </Box>
-          {hasSchools && (
-            <SchoolSwitcher
-              schools={schools}
-              currentSchool={school}
-              compact
-              onSelectSchool={selectSchool}
-              onOpenSchoolList={() => navigate('/app/schools')}
-            />
-          )}
-        </Box>
-        <Typography component="h1" sx={S.titleSx}>{pageTitle}</Typography>
-        <ProfileButton />
-      </Box>
-
-      <Box component="main" sx={S.mainSx}>
-        <Box sx={S.contentSx}>
+      <Box component="main" sx={isFullCanvas ? S.canvasMainSx : S.mainSx}>
+        <Box sx={isFullCanvas ? S.canvasContentSx : S.contentSx}>
           <Outlet />
         </Box>
       </Box>
 
-      {schoolPublicId && (
-        <MobileNavigation
-          items={navigationItems}
-          activeItemId={activeItem?.id}
-          onSelect={handleSelectNavigation}
-        />
-      )}
+      <MobileNavigation
+        items={navigationItems}
+        activeItemId={activeItem?.id}
+        onSelect={handleSelectNavigation}
+        schools={schools}
+        currentSchool={school}
+        onSelectSchool={selectSchool}
+        onOpenSchoolList={() => navigate('/app/schools')}
+      />
     </Box>
   );
 }

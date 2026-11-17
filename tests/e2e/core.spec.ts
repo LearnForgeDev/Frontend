@@ -53,8 +53,8 @@ for (const role of ['owner', 'teacher', 'student']) {
   test(`ACCESS-02: права роли ${role} определяют действия с уроками и студентами`, async ({ page }) => {
     await login(page, role);
     await page.goto(`${SCHOOL_PATH}/lessons`);
-    await expect(page.getByRole('heading', { name: 'Мои уроки' })).toBeVisible();
-    const createButton = page.getByRole('button', { name: 'Создать урок', exact: true });
+    await expect(page.getByRole('heading', { name: 'Статьи' })).toBeVisible();
+    const createButton = page.getByRole('button', { name: 'Создать статью', exact: true });
     if (role === 'student') {
       await expect(createButton).toHaveCount(0);
       await page.goto(`${SCHOOL_PATH}/students`);
@@ -69,8 +69,8 @@ for (const role of ['owner', 'teacher', 'student']) {
 
 for (const [route, endpoint, title] of [
   ['today', `/api/ApiSchedule/${SCHOOL_ID}/events`, 'Сегодня'],
-  ['lessons', `/api/ApiLessons/${SCHOOL_ID}/all`, 'Мои уроки'],
-  ['files', `/api/ApiFiles/${SCHOOL_ID}`, 'Материалы'],
+  ['lessons', `/api/ApiLessons/${SCHOOL_ID}/all`, 'Статьи'],
+  ['files', `/api/ApiFiles/${SCHOOL_ID}`, 'Файлы'],
   ['schedule', `/api/ApiSchedule/${SCHOOL_ID}/events`, ''],
 ]) {
   test(`COMMON-01: раздел ${route} загружает данные настоящего backend`, async ({ page }) => {
@@ -81,7 +81,7 @@ for (const [route, endpoint, title] of [
     expect((await response).ok()).toBe(true);
     await expect(page.getByRole('main').first()).toBeVisible();
     if (title) {
-      await expect(page.getByRole('main').first().getByRole('heading', { name: new RegExp(`^${title}`) })).toBeVisible();
+      await expect(page.getByRole('main').first().getByRole('heading', { level: 1, name: new RegExp(`^${title}`) })).toBeVisible();
     }
     else {
       await expect(page.getByTestId('schedule-create')).toBeVisible();
@@ -92,11 +92,11 @@ for (const [route, endpoint, title] of [
 test('LESSON-02: создание урока открывает редактор и сохраняет урок на сервере', async ({ page }) => {
   await login(page);
   await page.goto(`${SCHOOL_PATH}/lessons`);
-  await page.getByRole('button', { name: 'Создать урок', exact: true }).click();
+  await page.getByRole('button', { name: 'Создать статью', exact: true }).click();
   await expect(page).toHaveURL(new RegExp(`${SCHOOL_PATH}/lessons/[^/?]+\\?edit=true$`), {
     timeout: BACKEND_TIMEOUT_MS,
   });
-  await expect(page.getByRole('heading', { name: 'Новый урок', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Новая статья', exact: true })).toBeVisible();
   const id = new URL(page.url()).pathname.split('/').pop();
   const response = await page.request.get(`/api/ApiLessons/${SCHOOL_ID}/${id}`);
   expect(response.ok()).toBe(true);

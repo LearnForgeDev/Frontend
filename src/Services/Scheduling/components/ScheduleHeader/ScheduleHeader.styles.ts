@@ -1,13 +1,16 @@
 export const styles = {
-  root: { display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 },
+  root: { display: 'flex', flexDirection: 'column', flexShrink: 0, gap: 1.5, p: 2, minWidth: 0, borderBottom: '1px solid var(--app-border)' },
   headingRow: {
     display: 'flex',
-    flexDirection: { xs: 'column', sm: 'row' },
-    alignItems: { xs: 'stretch', sm: 'center' },
+    flexDirection: 'row',
+    alignItems: 'center',
     justifyContent: 'space-between',
     gap: 2,
   },
-  createButton: { flexShrink: 0, alignSelf: { xs: 'flex-start', sm: 'center' } },
+  title: { fontFamily: 'Manrope, sans-serif', fontWeight: 800, fontSize: { xs: '1.3rem', sm: '2rem' }, letterSpacing: '-0.025em', color: 'var(--admin-text)' },
+  subtitle: { display: { xs: 'none', sm: 'block' }, color: 'var(--admin-muted)' },
+  createButton: { flexShrink: 0, minWidth: { xs: 44, sm: 'auto' }, minHeight: 44, px: { xs: 0, sm: 2 }, '& .MuiButton-startIcon': { mr: { xs: 0, sm: 1 }, ml: { xs: 0, sm: -0.5 } } },
+  createLabel: { display: { xs: 'none', sm: 'inline' } },
   toolbar: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
     flexWrap: 'wrap', gap: 2, minWidth: 0,

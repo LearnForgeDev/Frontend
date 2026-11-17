@@ -8,6 +8,9 @@ confirmed deletion. File storage is also used by lessons, chat attachments and
 
 ## Behavior and rules
 
+The product names the file workspace `Файлы`; the navigation and page heading
+use the same name. This terminology change does not rename file APIs or routes.
+
 Direct upload has three stages: request a presigned URL from the backend, transfer
 bytes to storage, then complete the upload with the backend. Only completion
 establishes the usable file record. Preserve checksum, progress and cancellation

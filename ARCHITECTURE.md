@@ -27,7 +27,7 @@ modules describe backend contracts. Shared UI and themes support the product mod
 | Identity and school access | Login, restoration, memberships, school selection, onboarding, and the school workspace |
 | Students and invitations | School rosters and invitation entry, subject to membership capabilities |
 | Lessons | Lesson metadata, rich documents, publication, and local draft recovery |
-| Courses | Programs, audiences, and progress, with references to source lessons |
+| Courses | Strict ordered programs, audiences, teacher-configured completion and progress, with references to teaching resources |
 | Scheduling | Events, participants, and meeting entry; Today and Profile derive their event summaries from this data |
 | Files | Authorized upload, listing, preview, download, and deletion for lessons and attachments |
 | Chat | Group and direct conversations, history, drafts, attachments, and call invitations |
@@ -35,9 +35,10 @@ modules describe backend contracts. Shared UI and themes support the product mod
 | Platform administration | School provisioning decisions through a separate administrative session |
 
 The [feature map](docs/features/README.md) describes connected workflows and gaps.
-Courses and calls have existing integrations while their broader design remains
-under discussion. A course references lessons; deleting a course does not imply
-deleting its source teaching material.
+Courses reference files, lessons, scheduled calls and homework. The backend owns
+step unlocking and completion. Required predecessors gate later course steps;
+optional steps never block progress. Content references retain their independent
+permissions and lifecycle. Deleting a course preserves its source resources.
 
 ## Rendering and navigation
 
@@ -70,6 +71,10 @@ The school identifier in the route selects the resource scope. Membership guards
 control entry into that school's workspace, and capability guards limit teaching
 screens. Failed membership reads remain distinct from a confirmed empty school list.
 Browser-only editors and external clients load when their owning feature is active.
+
+The app shell owns service gutters and sidebar/mobile navigation. It has no global
+top header. Profile and school selection remain in navigation. Service roots reuse
+shared gutters; calendar and article routes use a full-height workspace canvas.
 
 ## State ownership
 

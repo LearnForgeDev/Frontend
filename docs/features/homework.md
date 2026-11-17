@@ -1,5 +1,9 @@
 # Homework
 
+Back navigation uses circular arrow-only controls in each local page header.
+Accessible names and titles retain the assignment, roster and course return
+destinations, including the originating course item query parameters.
+
 ## Status and scope
 
 School routes under `homework` connect a catalogue, teacher authoring, student
@@ -31,6 +35,9 @@ homework or files. Source homework deletion is refused while attempts or course
 references exist.
 Opening homework from a course retains its stable item ID through attempts and the
 return link, so the course can restore the student's original place in the path.
+An attempt opened from a course returns directly to that course and item through
+its circular back control. Without course context, it returns to the assignment
+and preserves the current query parameters.
 
 ## Immutable versions and publication
 

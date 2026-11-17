@@ -54,7 +54,7 @@ beforeEach(() => {
     lessons = lessons.filter(lesson => lesson.id !== id);
   });
   endpoints.upload.mockResolvedValue({ publicId: 'uploaded' });
-  endpoints.createLesson.mockResolvedValue({ id: 'created', publicId: 'created', title: 'Новый урок' });
+  endpoints.createLesson.mockResolvedValue({ id: 'created', publicId: 'created', title: 'Новая статья' });
 });
 
 afterEach(() => {
@@ -65,7 +65,7 @@ afterEach(() => {
 
 it('keeps keyboard selection, opening and deletion scoped to the active school', async () => {
   const callbacks = renderManager();
-  await screen.findByRole('button', { name: 'Урок: Алгебра' });
+  await screen.findByRole('button', { name: 'Статья: Алгебра' });
   const root = managerRoot();
   fireEvent.keyDown(root, { key: 'ArrowRight' });
   expect(screen.getByTestId('lesson-state').textContent).toContain('algebra');
@@ -79,21 +79,21 @@ it('keeps keyboard selection, opening and deletion scoped to the active school',
   expect(screen.getByText('Удалить элемент?')).toBeTruthy();
   fireEvent.click(screen.getByRole('button', { name: /^Удалить$/ }));
   await waitFor(() => expect(endpoints.deleteLesson).toHaveBeenCalledWith('school', 'geometry'));
-  await waitFor(() => expect(screen.queryByRole('button', { name: 'Урок: Геометрия' })).toBeNull());
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Статья: Геометрия' })).toBeNull());
   expect(screen.getByTestId('lesson-state').textContent).toContain('"selectedItemId":null');
 });
 
 it('debounces search, clears it with Escape and preserves opening in list view', async () => {
   const callbacks = renderManager();
-  await screen.findByRole('button', { name: 'Урок: Алгебра' });
-  fireEvent.change(screen.getByPlaceholderText('Поиск уроков...'), { target: { value: 'АЛГ' } });
-  await waitFor(() => expect(screen.queryByRole('button', { name: 'Урок: Геометрия' })).toBeNull());
+  await screen.findByRole('button', { name: 'Статья: Алгебра' });
+  fireEvent.change(screen.getByPlaceholderText('Поиск статей...'), { target: { value: 'АЛГ' } });
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Статья: Геометрия' })).toBeNull());
   expect(screen.getByTestId('lesson-state').textContent).toContain('АЛГ');
   fireEvent.keyDown(managerRoot(), { key: 'Escape' });
-  await screen.findByRole('button', { name: 'Урок: Геометрия' });
-  expect(screen.getByPlaceholderText('Поиск уроков...')).toHaveProperty('value', '');
+  await screen.findByRole('button', { name: 'Статья: Геометрия' });
+  expect(screen.getByPlaceholderText('Поиск статей...')).toHaveProperty('value', '');
   fireEvent.click(screen.getByRole('button', { name: /^Список$/ }));
-  fireEvent.doubleClick(screen.getByRole('button', { name: 'Урок: Алгебра, статус: черновик' }));
+  fireEvent.doubleClick(screen.getByRole('button', { name: 'Статья: Алгебра, статус: черновик' }));
   expect(callbacks.onOpenLesson).toHaveBeenCalledWith('algebra', 'Алгебра');
   fireEvent.click(screen.getByRole('button', { name: 'Сортировка по возрастанию' }));
   expect(screen.getByRole('button', { name: 'Сортировка по убыванию' })).toBeTruthy();
@@ -101,7 +101,7 @@ it('debounces search, clears it with Escape and preserves opening in list view',
 
 it('uploads supported dropped files sequentially and refreshes only after their completion', async () => {
   renderManager();
-  await screen.findByRole('button', { name: 'Урок: Алгебра' });
+  await screen.findByRole('button', { name: 'Статья: Алгебра' });
   const image = new File(['image'], 'image.PNG', { type: 'image/png' });
   const document = new File(['document'], 'lesson.docx');
   fireEvent.drop(managerRoot(), { dataTransfer: { files: [image, new File(['ignored'], 'program.exe'), document] } });
@@ -119,21 +119,21 @@ it('recovers a failed list through retry and leaves failed uploads out of the co
   renderManager();
   await screen.findByRole('alert');
   fireEvent.click(screen.getByRole('button', { name: 'Повторить' }));
-  await screen.findByRole('button', { name: 'Урок: Алгебра' });
+  await screen.findByRole('button', { name: 'Статья: Алгебра' });
   endpoints.upload.mockRejectedValueOnce(new Error('storage failed'));
   fireEvent.drop(managerRoot(), { dataTransfer: { files: [new File(['data'], 'failed.pdf')] } });
   await waitFor(() => expect(endpoints.upload).toHaveBeenCalledOnce());
   await waitFor(() => expect(screen.queryByText('Загрузка файлов...')).toBeNull());
   expect(endpoints.getLessons).toHaveBeenCalledTimes(2);
-  expect(screen.getByRole('button', { name: 'Урок: Алгебра' })).toBeTruthy();
+  expect(screen.getByRole('button', { name: 'Статья: Алгебра' })).toBeTruthy();
 });
 
 it('creates a lesson only after its initial document is uploaded and opens the server identity', async () => {
   const callbacks = renderManager();
-  await screen.findByRole('button', { name: 'Урок: Алгебра' });
-  fireEvent.click(screen.getByRole('button', { name: 'Создать новый урок' }));
-  await waitFor(() => expect(callbacks.onOpenLesson).toHaveBeenCalledWith('created', 'Новый урок'));
-  expect(endpoints.createLesson).toHaveBeenCalledWith('school', { title: 'Новый урок', description: '', lessonJsonFilePublicId: 'uploaded' });
+  await screen.findByRole('button', { name: 'Статья: Алгебра' });
+  fireEvent.click(screen.getByRole('button', { name: 'Создать новую статью' }));
+  await waitFor(() => expect(callbacks.onOpenLesson).toHaveBeenCalledWith('created', 'Новая статья'));
+  expect(endpoints.createLesson).toHaveBeenCalledWith('school', { title: 'Новая статья', description: '', lessonJsonFilePublicId: 'uploaded' });
   expect(endpoints.upload.mock.invocationCallOrder[0]).toBeLessThan(endpoints.createLesson.mock.invocationCallOrder[0] ?? 0);
-  expect(endpoints.notify).toHaveBeenCalledWith('Урок успешно создан', undefined, 'success');
+  expect(endpoints.notify).toHaveBeenCalledWith('Статья успешно создана', undefined, 'success');
 });

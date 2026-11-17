@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Alert, Box, Button, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import { Alert, Box, Button, IconButton, CircularProgress, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useHomeworkAttempt } from './hooks/useHomeworkAttempt';
 import { HOMEWORK_STATUSES } from './homework.const';
 import HomeworkQuestionView from './components/HomeworkQuestionView/HomeworkQuestionView';
@@ -23,9 +24,17 @@ export default function HomeworkAttemptPage() {
   const comment = historical ? historical.reviewComment : attempt.reviewComment;
   const passed = historical ? historical.passed : attempt.passed;
   const base = `/app/schools/${encodeURIComponent(view.schoolPublicId)}/homework/${attempt.homeworkPublicId}`;
+  const originCourse = search.get('course');
+  const originItem = search.get('item');
+  const backLabel = originCourse ? 'Вернуться к курсу' : 'К заданию';
+  const backPath = originCourse
+    ? `/app/schools/${encodeURIComponent(view.schoolPublicId)}/courses/${encodeURIComponent(originCourse)}${originItem ? `?item=${encodeURIComponent(originItem)}` : ''}`
+    : `${base}?${search.toString()}`;
   return <Stack spacing={3} sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 4 } }}>
-    <Button sx={{ alignSelf: 'flex-start' }} onClick={() => navigate(`${base}?${search.toString()}`)}>К заданию</Button>
-    <Typography variant="h4">{attempt.homework.title}</Typography>
+    <Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+      <IconButton aria-label={backLabel} title={backLabel} sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(backPath)}><ArrowBackRoundedIcon /></IconButton>
+      <Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0, overflowWrap: 'anywhere' }}>{attempt.homework.title}</Typography>
+    </Stack>
     <Typography color="text.secondary">Попытка {attempt.attemptNumber} · версия {attempt.version} · {HOMEWORK_STATUSES[status]}</Typography>
     {attempt.homework.activeVersion !== null && attempt.version < attempt.homework.activeVersion && <Alert severity="info">Вы выполняете версию {attempt.version}. Опубликована новая версия {attempt.homework.activeVersion}, ваши ответы останутся в текущей.</Alert>}
     {attempt.homework.publicationState === 'Queued' && <Alert severity="info">Преподаватель подготовил новую версию задания. Вы можете закончить текущую работу.</Alert>}

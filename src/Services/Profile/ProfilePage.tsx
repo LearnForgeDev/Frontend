@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from '@mui/material';
+import { Box, IconButton, Typography } from '@mui/material';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import SchoolOutlinedIcon from '@mui/icons-material/SchoolOutlined';
 import EventNoteIcon from '@mui/icons-material/EventNote';
@@ -25,9 +25,7 @@ export default function ProfilePage() {
   return (
     <Box sx={S.pageRootSx}>
       <Box component="header" sx={S.headerSx}>
-        <Button startIcon={<ArrowBackRoundedIcon />} onClick={profile.goBack} sx={S.backButtonSx}>
-          {PROFILE_PAGE_TEXT.back}
-        </Button>
+        <IconButton onClick={profile.goBack} sx={S.backButtonSx} aria-label={PROFILE_PAGE_TEXT.back} title={PROFILE_PAGE_TEXT.back}><ArrowBackRoundedIcon /></IconButton>
         <Typography component="h1" sx={S.pageTitleSx}>{PROFILE_PAGE_TEXT.title}</Typography>
         <Typography sx={S.subtitleSx}>{PROFILE_PAGE_TEXT.subtitle}</Typography>
       </Box>

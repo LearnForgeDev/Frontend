@@ -1,12 +1,15 @@
 import type { SxProps, Theme } from '@mui/material';
 
 export const lessonContentSx: SxProps<Theme> = {
-  p: { xs: 2, md: 4 },
-  borderRadius: 3,
+  display: 'flex',
+  flexDirection: 'column',
+  flex: 1,
+  minHeight: 0,
+  minWidth: 0,
+  width: '100%',
   bgcolor: 'var(--admin-surface)',
-  border: '1px solid var(--admin-border)',
   overflowWrap: 'anywhere',
-  '& .editor-input': { minHeight: 0, outline: 'none' },
+  '& .editor-input': { flex: 1, minHeight: 0, width: '100%', boxSizing: 'border-box', overflow: 'auto', border: 0, borderRadius: 0, p: { xs: 2, md: 3 }, outline: 'none' },
   '& .resize-handle': { display: 'none' },
   '& img, & iframe': { maxWidth: '100%' },
 };

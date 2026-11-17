@@ -17,7 +17,7 @@ test('EDITOR-02 EDITOR-11: сохранение и переименование 
   expect((await savedResponse).ok()).toBe(true);
   await expect(page.getByRole('status').filter({ hasText: 'Сохранено на сервере' })).toBeVisible();
   await page.getByRole('button', { name: 'Переименовать', exact: true }).click();
-  await page.getByLabel('Название урока', { exact: true }).fill(RENAMED_LESSON_TITLE);
+  await page.getByLabel('Название статьи', { exact: true }).fill(RENAMED_LESSON_TITLE);
   await page.getByRole('button', { name: 'Сохранить название', exact: true }).click();
   await expect(page.getByRole('heading', { name: RENAMED_LESSON_TITLE, exact: true })).toBeVisible();
   await page.reload();
@@ -99,7 +99,7 @@ test('старый черновик не затирает новое сохра�
     const rejected = page.waitForResponse(response => response.request().method() === 'PUT' && response.url().endsWith(`/ApiLessons/${SCHOOL_ID}/${lesson.id}`));
     await page.getByRole('button', { name: 'Сохранить', exact: true }).click();
     expect((await rejected).status()).toBe(409);
-    await expect(page.getByRole('alert').filter({ hasText: 'Урок изменён на сервере' })).toBeVisible();
+    await expect(page.getByRole('alert').filter({ hasText: 'Статья изменена на сервере' })).toBeVisible();
     await expect(editor).toContainText(OFFLINE_LESSON_CONTENT);
     await page.screenshot({ path: testInfo.outputPath('lesson-conflict.png'), fullPage: true });
     await page.reload();
@@ -116,7 +116,7 @@ test('старый черновик не затирает новое сохра�
 test('ошибка метаданных не открывает пустой редактор', async ({ page }) => {
   await login(page, 'teacher');
   await page.goto(`${SCHOOL_PATH}/lessons/9223372036854775806?edit=true`);
-  await expect(page.getByRole('alert').filter({ hasText: 'Не удалось открыть урок' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: 'Не удалось открыть статью' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
   await expect(page.locator('.editor-input')).toHaveCount(0);
 });

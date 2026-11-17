@@ -4,6 +4,7 @@ import type { CourseDto } from '@/Endpoints/Courses';
 import { HTTP_STATUS } from '@/Endpoints/factory/factory.const';
 import type { SaveCourseOptions } from './saveCourse.type';
 import { CourseCreationUncertainError } from './saveCourse.errors';
+import { areCourseItemInputsEqual, toCourseBlock } from '../utils/courseProgram.conversion';
 import { getCourseAudience, getRestrictedCourseAudience } from '../utils/courseAudience';
 
 function isRejectedWrite(error: unknown) {
@@ -52,7 +53,10 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
     if (block.kind === 'unsupported') {
       desiredIds.push(block.publicId);
     } else if (block.publicId) {
-      await coursesEndpoints.updateItem(schoolPublicId, publicId, block.publicId, block.input);
+      const original = current.items.find(item => item.publicId === block.publicId);
+      const originalBlock = original ? toCourseBlock(original) : undefined;
+      const changed = originalBlock?.kind !== 'supported' || !areCourseItemInputsEqual(originalBlock.input, block.input);
+      await coursesEndpoints.updateItem(schoolPublicId, publicId, block.publicId, { ...block.input, keepCompletion: changed ? input.keepCompletion ?? true : true });
       desiredIds.push(block.publicId);
     } else {
       try {

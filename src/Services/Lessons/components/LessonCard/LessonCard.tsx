@@ -51,7 +51,7 @@ export default function LessonCard({
       <Card
         role="button"
         tabIndex={0}
-        aria-label={`Урок: ${lesson.title}`}
+        aria-label={`Статья: ${lesson.title}`}
         sx={cardStyle}
         data-testid={`lesson-${lesson.id}`}
         onClick={onClick}
@@ -63,7 +63,7 @@ export default function LessonCard({
           <ArticleIcon sx={styles.thumbnailIcon} />
           {canManage && (
             <IconButton
-              aria-label="Опции урока"
+              aria-label="Опции статьи"
               size="small"
               sx={styles.kebabButton}
               data-testid="lesson-options"

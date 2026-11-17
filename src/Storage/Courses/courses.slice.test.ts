@@ -17,6 +17,21 @@ function storeFor(scope = 'teacher/school') {
 afterEach(() => vi.restoreAllMocks());
 
 describe('Course domain state', () => {
+  it.each([403, 404])('treats an article activity %i as course denial before reading the independent source', async status => {
+    const store = storeFor();
+    const scope = 'teacher/school';
+    store.dispatch(courseSaved({ scope, accessEpoch: 0, course: makeCourse({ canManage: false }) }));
+    const denied = new AxiosError('denied');
+    denied.response = { status, statusText: '', data: '', headers: {}, config: { headers: new AxiosHeaders() } };
+    vi.spyOn(coursesEndpoints, 'recordActivity').mockRejectedValue(denied);
+    vi.spyOn(lessonsEndpoints, 'getLessonById');
+    await store.dispatch(fetchCourseResource({ kind: 'lesson', scope, schoolPublicId: 'school', coursePublicId: 'course', itemPublicId: 'lesson-item', lessonId: 10 }));
+    expect(lessonsEndpoints.getLessonById).not.toHaveBeenCalled();
+    expect(store.getState().courses.details.course).toBeUndefined();
+    expect(store.getState().courses.accessEpoch).toBe(1);
+    expect(store.getState().courses.requests['course:course']).toMatchObject({ status: 'error', denied: true });
+  });
+
   it('ignores late responses and operations belonging to a previous account or school', async () => {
     const store = storeFor();
     let finish: (course: CourseDto) => void = () => undefined;
@@ -160,4 +175,29 @@ describe('Course domain state', () => {
     expect(store.getState().courses.details.course).toBeUndefined();
   });
 
+});
+
+
+it('checks learner progression before fetching a deep-linked article and recovers unavailable content', async () => {
+  const store = storeFor('student/school');
+  store.dispatch(courseSaved({ scope: 'student/school', accessEpoch: 0, course: makeCourse({ canManage: false }) }));
+  const blocked = new AxiosError('locked');
+  blocked.response = { status: 409, statusText: 'Conflict', data: '', headers: {}, config: { headers: new AxiosHeaders() } };
+  const activity = vi.spyOn(coursesEndpoints, 'recordActivity').mockRejectedValueOnce(blocked);
+  const lesson = vi.spyOn(lessonsEndpoints, 'getLessonById').mockResolvedValue({ id: '10', publicId: 'article', title: 'Статья' });
+  const content = vi.spyOn(filesEndpoints, 'getFileContent').mockResolvedValue(JSON.stringify({ editorState: { root: { type: 'root', children: [] } } }));
+  const request = { kind: 'lesson' as const, scope: 'student/school', schoolPublicId: 'school', coursePublicId: 'course', itemPublicId: 'lesson-item', lessonId: 10, refresh: true };
+  await store.dispatch(fetchCourseResource(request));
+  expect(lesson).not.toHaveBeenCalled();
+  expect(content).not.toHaveBeenCalled();
+  expect(store.getState().courses.lessons).toEqual({});
+  activity.mockResolvedValue({ coursePublicId: 'course', completedItemsCount: 0, totalRequiredItemsCount: 1, percent: 0, startedAt: '', lastActivityAt: '', completedAt: null, items: [] });
+  await store.dispatch(fetchCourseResource(request));
+  expect(store.getState().courses.requests['lesson:course:lesson-item']).toMatchObject({ status: 'error', denied: false });
+  expect(content).not.toHaveBeenCalled();
+  lesson.mockResolvedValue({ id: '10', publicId: 'article', title: 'Статья', lessonJsonFile: { publicId: 'document', fileName: 'article.json', storageKey: 'key' } });
+  await store.dispatch(fetchCourseResource(request));
+  expect(content).toHaveBeenCalledWith('school', 'document');
+  expect(store.getState().courses.requests['lesson:course:lesson-item'].status).toBe('success');
+  expect(store.getState().courses.lessons['lesson-item'].editorState.root.children).toEqual([]);
 });

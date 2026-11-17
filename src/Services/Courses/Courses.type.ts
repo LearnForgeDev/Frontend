@@ -1,4 +1,4 @@
-import type { CourseDto, CourseItemDto, CourseItemUpdateInput } from '@/Endpoints/Courses';
+import type { CourseCompletionRule, CourseDto, CourseItemDto, CourseItemUpdateInput } from '@/Endpoints/Courses';
 
 export interface CourseSummary {
   publicId: string;
@@ -18,6 +18,11 @@ export interface CourseLesson {
   title: string;
   position: number;
   isCompleted: boolean;
+  isUnlocked: boolean;
+  elapsedSeconds: number;
+  completionRule: CourseCompletionRule;
+  requiredSeconds: number | null;
+  completeAfterUtc: string | null;
   isRequired: boolean;
   availableFromUtc: string | null;
   availableUntilUtc: string | null;
@@ -36,6 +41,11 @@ export interface CourseProgramItem {
   itemType: number;
   isRequired: boolean;
   isCompleted: boolean;
+  isUnlocked: boolean;
+  elapsedSeconds: number;
+  completionRule: CourseCompletionRule;
+  requiredSeconds: number | null;
+  completeAfterUtc: string | null;
   availableFromUtc: string | null;
   availableUntilUtc: string | null;
 }
@@ -51,6 +61,7 @@ export interface CourseStudent extends CourseStudentOption {
   percentage: number;
   isDirectlyAssigned: boolean;
   accessLabel: string;
+  items: { itemPublicId: string; isCompleted: boolean; isUnlocked: boolean }[];
 }
 
 export interface CourseDetail extends CourseSummary {
@@ -70,6 +81,7 @@ export interface CourseInput {
   studentPublicIds: string[];
   groupIds: number[];
   accessMode: 'selected' | 'school';
+  keepCompletion?: boolean;
 }
 
 export interface CourseResourceOption {

@@ -1,5 +1,8 @@
 # Chat and message history
 
+Chat headers keep an arrow-only circular back control with a 44px touch target.
+Its accessible name and title describe returning to the chat list.
+
 ## Status and scope
 
 Branch/group and direct conversations, history, messages, attachments and call

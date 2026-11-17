@@ -18,7 +18,7 @@ it('adds a repeated source as a separate block, then edits and reorders by clien
   });
   const props = { resources, disabled: false, onChange: changed };
   const view = render(<CourseProgramBuilder {...props} blocks={blocks} />);
-  fireEvent.mouseDown(screen.getByRole('combobox'));
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Выберите: статья' }));
   fireEvent.click(screen.getByRole('option', { name: 'Урок школы' }));
   fireEvent.click(screen.getByRole('button', { name: 'Добавить' }));
   expect(blocks).toHaveLength(2);
@@ -41,12 +41,12 @@ it('edits optionality, description and availability and exposes the homework pal
   render(<CourseProgramBuilder blocks={blocks} resources={[]} disabled={false} onChange={changed} />);
   fireEvent.change(screen.getByRole('textbox', { name: 'Описание блока' }), { target: { value: 'Для повторения' } });
   expect(changed).toHaveBeenLastCalledWith([expect.objectContaining({ input: expect.objectContaining({ description: 'Для повторения' }) })]);
-  fireEvent.click(screen.getByRole('checkbox', { name: 'Обязательный блок' }));
+  fireEvent.change(screen.getByRole('combobox', { name: 'Условие прохождения' }), { target: { value: '0' } });
   expect(changed).toHaveBeenLastCalledWith([expect.objectContaining({ input: expect.objectContaining({ isRequired: false }) })]);
   fireEvent.change(screen.getByLabelText('Доступен с'), { target: { value: '2026-11-17T10:00' } });
   expect(changed).toHaveBeenLastCalledWith([expect.objectContaining({ input: expect.objectContaining({ availableFromUtc: expect.stringContaining('2026-11-17') }) })]);
   fireEvent.change(screen.getByLabelText('Доступен до'), { target: { value: '2026-11-18T10:00' } });
   fireEvent.click(screen.getByRole('button', { name: 'Домашнее задание' }));
-  expect(screen.getByRole('combobox').getAttribute('value')).toBe('');
+  expect(screen.getByRole('combobox', { name: 'Выберите: домашнее задание' }).getAttribute('value')).toBe('');
   expect(screen.getByRole('button', { name: 'Добавить' }).hasAttribute('disabled')).toBe(true);
 });

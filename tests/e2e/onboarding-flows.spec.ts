@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { loginAdmin } from './admin.utils';
 import { ERROR_RESPONSE } from './flows.const';
@@ -59,7 +60,7 @@ for (const route of ['/onboarding', '/onboarding/waiting/aaaaaaaa-aaaa-4aaa-8aaa
   test(`PROFILE-05: профиль и выход доступны без готовой школы на ${route}`, async ({ actors }) => {
     const { page } = await actors('new');
     await page.goto(route);
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await expect(page).toHaveURL(/\/app\/profile$/);
     await page.getByTestId('profile-logout').click();
     await expect(page).toHaveURL(/\/auth\/login$/);

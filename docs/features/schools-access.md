@@ -7,6 +7,9 @@ guards. Roles belong to each membership, not one global role for the whole accou
 
 ## Behavior and rules
 
+The school navigation names teaching documents `Статьи` and uploaded resources
+`Файлы`. Route identities and capability requirements remain unchanged.
+
 `/app` loads memberships and selects the stored active school if it remains available,
 otherwise the first school. No schools leads to onboarding. A loading/error response
 is not treated as an authoritative empty membership list.
@@ -32,16 +35,27 @@ list; membership-load failures show retry. The student-management route requires
 `canTeach`. Other domain actions may use narrower backend permissions, such as
 course-specific `canManage`.
 
+The shared shell has no global top header or reserved header gap. Service pages
+start at a 16px top gutter; their own headings provide page context. Service roots
+reuse the shell gutter instead of stacking outer padding. Card and form spacing
+remain local. Calendar and article reader/editor routes use the full workspace
+canvas without outer gutters or the general content width limit. On mobile, the
+canvas ends above the bottom navigation.
+
 The desktop sidebar can collapse to labeled icon actions while keeping navigation
 and school switching available. Collapse state lasts while the app shell is mounted;
-it is not persisted. The header and content follow the same sidebar width. Mobile
-navigation remains independent. Accounts without memberships do not show an empty
-school switcher and can add a school from [Profile](profile.md). In short desktop
-windows, the navigation scrolls while school switching and the collapse toggle retain
-their space; the sidebar can also scroll if those fixed controls exceed its height.
-Below the small breakpoint, the optional header page caption yields space to the
-logo, school switcher and profile action. Long school names shrink with ellipsis;
-the profile action remains fully reachable at 320px and 444px.
+it is not persisted. Content follows the sidebar width. Profile lives in the sidebar
+footer and becomes an avatar-only action with an accessible label and tooltip when
+collapsed. Navigation scrolls independently of school switching and footer controls;
+the whole sidebar can scroll in very short windows.
+
+Mobile keeps its bottom navigation. Its More drawer provides school switching and
+profile access, including account pages without memberships. The More control exposes
+whether its labelled dialog is open; selecting a destination closes it immediately,
+while its exit animation may finish after navigation. Reopening profile from another
+page uses a newly opened dialog rather than an action in the exiting one. Accounts without
+memberships do not show an empty school switcher and can add a school from
+[Profile](profile.md).
 
 The school-selection hook resolves a school route only against confirmed accessible
 memberships. An unknown route never falls back to another school's scope. Account

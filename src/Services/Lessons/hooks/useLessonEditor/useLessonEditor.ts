@@ -17,16 +17,16 @@ export const useLessonEditor = ({ lessonId }: UseLessonEditorProps) => {
     queryFn: async () => {
       try {
         if (!file) {
-          throw new Error('Содержимое урока недоступно');
+          throw new Error('Содержимое статьи недоступно');
         }
         const content = await filesEndpoints.getFileContent(schoolPublicId, file.publicId);
         const document = normalizeLessonDocument(typeof content === 'string' ? JSON.parse(content) : content);
         if (!document) {
-          throw new Error('Не удалось прочитать урок');
+          throw new Error('Не удалось прочитать статью');
         }
         return document;
       } catch (error) {
-        toast.error('Не удалось загрузить содержимое урока.');
+        toast.error('Не удалось загрузить содержимое статьи.');
         throw error;
       }
     },

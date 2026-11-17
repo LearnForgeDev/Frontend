@@ -1,12 +1,14 @@
 import type { MobileNavigationProps } from './MobileNavigation.type';
 import { useState } from 'react';
-import { BottomNavigation, BottomNavigationAction, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
+import { Box, BottomNavigation, BottomNavigationAction, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Typography } from '@mui/material';
 import MoreHorizRoundedIcon from '@mui/icons-material/MoreHorizRounded';
 import type { AppNavigationItem } from '../../AppShell.type';
 import { MORE_NAVIGATION_LABEL } from '../../AppShell.const';
+import ProfileButton from '@/Services/Profile/components/ProfileButton/ProfileButton';
+import SchoolSwitcher from '../SchoolSwitcher/SchoolSwitcher';
 import * as S from '../../AppShell.styles';
 
-export default function MobileNavigation({ items, activeItemId, onSelect }: MobileNavigationProps) {
+export default function MobileNavigation({ items, activeItemId, onSelect, schools, currentSchool, onSelectSchool, onOpenSchoolList }: MobileNavigationProps) {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const primaryItems = items.filter((item) => item.mobilePriority);
   const moreItems = items.filter((item) => !item.mobilePriority);
@@ -35,6 +37,9 @@ export default function MobileNavigation({ items, activeItemId, onSelect }: Mobi
         })}
         <BottomNavigationAction
           data-testid="nav-mobile-more"
+          aria-expanded={isMoreOpen}
+          aria-controls="mobile-navigation-more-menu"
+          aria-haspopup="dialog"
           value="more"
           label={MORE_NAVIGATION_LABEL}
           icon={<MoreHorizRoundedIcon fontSize="small" />}
@@ -46,11 +51,21 @@ export default function MobileNavigation({ items, activeItemId, onSelect }: Mobi
         anchor="bottom"
         open={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
-        slotProps={{ paper: { sx: S.moreSheetSx } }}
+        slotProps={{ paper: { id: 'mobile-navigation-more-menu', role: 'dialog', 'aria-labelledby': 'mobile-navigation-more-title', sx: S.moreSheetSx } }}
       >
-        <Typography component="h2" sx={{ px: 2, pt: 1, pb: 1.5, fontWeight: 800 }}>
+        <Typography id="mobile-navigation-more-title" component="h2" sx={{ px: 2, pt: 1, pb: 1.5, fontWeight: 800 }}>
           Разделы
         </Typography>
+        <Box sx={{ display: 'grid', gap: 1, px: 2 }}>
+          <ProfileButton onNavigate={() => setIsMoreOpen(false)} />
+          {schools.length > 0 && <SchoolSwitcher schools={schools} currentSchool={currentSchool} onSelectSchool={school => {
+            onSelectSchool(school);
+            setIsMoreOpen(false);
+          }} onOpenSchoolList={() => {
+            onOpenSchoolList();
+            setIsMoreOpen(false);
+          }} />}
+        </Box>
         <List>
           {moreItems.map((item) => {
             const Icon = item.icon;

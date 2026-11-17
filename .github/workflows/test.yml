@@ -22,7 +22,7 @@ env:
   VITE_SERVER_LINK: ""
   VITE_MEET_SERVER_LINK: ""
   CI_BASE_REF: ${{ github.event.pull_request.base.sha || github.event.before || github.sha }}
-  CI_BACKEND_REF: 0ea7764ecf133c866cf2e3c092c7d240c1dac69d
+  CI_BACKEND_REF: 9b62f584faecd71b2bb03c2ee3c0cfce07ffa709
 
 jobs:
   backend-target:

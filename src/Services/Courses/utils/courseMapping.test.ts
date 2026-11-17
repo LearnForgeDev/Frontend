@@ -7,12 +7,12 @@ const course: CourseDto = {
   id: 1, publicId: 'course', title: 'Курс', description: null, authorId: 1, createdAt: '', updatedAt: '',
   canManage: true, allowedUserIds: [1], allowedUserPublicIds: ['teacher'], allowedGroupIds: [7],
   items: [{ id: 2, publicId: 'item', title: 'Урок', description: null, position: 0, itemType: 2, lessonId: 10,
-    file: null, scheduleEventId: null, scheduleEventPublicId: null, homeworkId: null, isRequired: true, availableFromUtc: null, availableUntilUtc: null }],
+    file: null, scheduleEventId: null, scheduleEventPublicId: null, homeworkId: null, completionRule: 2, requiredSeconds: 60, completeAfterUtc: null, isRequired: true, availableFromUtc: null, availableUntilUtc: null }],
 };
 const progress: CourseProgressDto = {
   coursePublicId: 'course', completedItemsCount: 1, totalRequiredItemsCount: 2, percent: 50,
   startedAt: '', lastActivityAt: '', completedAt: null,
-  items: [{ itemPublicId: 'item', position: 0, status: 2, startedAt: '', completedAt: '' }],
+  items: [{ itemPublicId: 'item', position: 0, status: 2, startedAt: '', completedAt: '', isUnlocked: true, elapsedSeconds: 60 }],
 };
 
 describe('Контракт курсов feature/new-fun', () => {

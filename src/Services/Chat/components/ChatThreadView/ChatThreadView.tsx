@@ -20,8 +20,8 @@ export default function ChatThreadView() {
     return null;
   }
   return <>
-    <Box sx={widgetStyles.header}>
-      <IconButton color="inherit" onClick={() => setActiveThread(null)} edge="start" aria-label="К списку чатов"><ArrowBackIcon /></IconButton>
+    <Box component="header" sx={widgetStyles.header}>
+      <IconButton color="inherit" onClick={() => setActiveThread(null)} sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} aria-label="К списку чатов" title="К списку чатов"><ArrowBackIcon /></IconButton>
       <Avatar sx={styles.avatar}>{activeThread.type === 'branch' ? <GroupIcon fontSize="small" /> : <PersonIcon fontSize="small" />}</Avatar>
       <Box sx={styles.identity}>
         <Typography variant="subtitle2" noWrap>{activeThread.name}</Typography>

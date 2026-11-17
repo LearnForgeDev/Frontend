@@ -24,6 +24,12 @@ export function validateCourse(input: CourseInput): string | null {
     if (!block.input.title.trim()) {
       return 'Введите название каждого блока';
     }
+    if (block.input.completionRule === 2 && (!Number.isInteger(block.input.requiredSeconds) || (block.input.requiredSeconds ?? 0) < 1 || (block.input.requiredSeconds ?? 0) > 86400)) {
+      return 'Укажите время в статье: от одной секунды до суток';
+    }
+    if (block.input.completionRule === 6 && (!block.input.completeAfterUtc || !Number.isFinite(Date.parse(block.input.completeAfterUtc)))) {
+      return 'Укажите время прохождения занятия';
+    }
     const { availableFromUtc, availableUntilUtc } = block.input;
     if ((availableFromUtc && !Number.isFinite(Date.parse(availableFromUtc))) || (availableUntilUtc && !Number.isFinite(Date.parse(availableUntilUtc)))) {
       return 'Проверьте даты доступности блоков';

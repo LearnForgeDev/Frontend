@@ -8,7 +8,7 @@ import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { coursesEndpoints } from '@/Endpoints/Courses';
 import coursesReducer, { courseSaved } from '@/Storage/Courses/courses.slice';
-import { makeCourse, makeCourseInput, makeCourseItem } from '../utils/course.fixtures';
+import { makeCourse, makeCourseInput } from '../utils/course.fixtures';
 import { toCourseDetail } from '../utils/courseMapping';
 import { useCourses } from './useCourses';
 import type { CourseProgressDto } from '@/Endpoints/Courses';
@@ -43,7 +43,7 @@ beforeEach(() => {
   vi.spyOn(coursesEndpoints, 'getCourses').mockResolvedValue([makeCourse()]);
   vi.spyOn(coursesEndpoints, 'getCourse').mockResolvedValue(makeCourse());
   vi.spyOn(coursesEndpoints, 'getRoster').mockResolvedValue({ coursePublicId: 'course', isSchoolWide: false, totalRequiredItemsCount: 1, students: [] });
-  vi.spyOn(coursesEndpoints, 'setItemProgress').mockResolvedValue(progress);
+  vi.spyOn(coursesEndpoints, 'recordActivity').mockResolvedValue(progress);
   vi.spyOn(coursesEndpoints, 'deleteCourse').mockResolvedValue();
   vi.spyOn(coursesEndpoints, 'getMaterial').mockResolvedValue(new Blob(['content']));
 });
@@ -61,27 +61,24 @@ it('exposes scoped reads, published homework choices and real homework route con
   expect(await result.current.getMaterial('course', 'item')).toBeInstanceOf(Blob);
 });
 
-it('guards server-owned homework completion and serializes writes', async () => {
+it('records automatic activity and serializes writes', async () => {
   const { result, store } = setup();
   const item = toCourseDetail(makeCourse()).items[0];
-  const homework = toCourseDetail(makeCourse({ items: [makeCourseItem({ itemType: 3, homeworkId: 7 })] })).items[0];
-  await expect(result.current.mark('course', homework)).rejects.toThrow('автоматически');
-  expect(coursesEndpoints.setItemProgress).not.toHaveBeenCalled();
   let finish: (value: CourseProgressDto) => void = () => undefined;
-  vi.mocked(coursesEndpoints.setItemProgress).mockImplementationOnce(() => new Promise(resolve => {
+  vi.mocked(coursesEndpoints.recordActivity).mockImplementationOnce(() => new Promise(resolve => {
     finish = resolve;
   }));
   let pending = Promise.resolve();
   act(() => {
-    pending = result.current.mark('course', item);
+    pending = result.current.activity('course', item.publicId, { kind: 0, sessionId: 'session', elapsedSeconds: 0 });
   });
-  await expect(result.current.mark('course', item)).rejects.toThrow('Дождитесь');
+  await expect(result.current.activity('course', item.publicId, { kind: 0, sessionId: 'session', elapsedSeconds: 0 })).rejects.toThrow('Дождитесь');
   await act(async () => {
     finish(progress);
     await pending;
   });
   expect(store.getState().courses.progress.course.percent).toBe(100);
-  expect(store.getState().courses.operations['progress:course']).toBe(false);
+  expect(store.getState().courses.operations['activity:course:lesson-item']).toBe(false);
   await act(() => result.current.remove('course'));
   expect(coursesEndpoints.deleteCourse).toHaveBeenCalledWith('school', 'course');
   expect(store.getState().courses.progress.course).toBeUndefined();
@@ -181,14 +178,14 @@ it.each(['delete', 'progress', 'material'] as const)('rejects stale %s completio
   const grading = deferred<CourseProgressDto>();
   const material = deferred<Blob>();
   vi.mocked(coursesEndpoints.deleteCourse).mockReturnValueOnce(deletion.promise);
-  vi.mocked(coursesEndpoints.setItemProgress).mockReturnValueOnce(grading.promise);
+  vi.mocked(coursesEndpoints.recordActivity).mockReturnValueOnce(grading.promise);
   vi.mocked(coursesEndpoints.getMaterial).mockReturnValueOnce(material.promise);
   let pending: Promise<unknown> = Promise.resolve();
   act(() => {
     if (kind === 'delete') {
       pending = result.current.remove('course');
     } else if (kind === 'progress') {
-      pending = result.current.mark('course', toCourseDetail(makeCourse()).items[0]);
+      pending = result.current.activity('course', 'lesson-item', { kind: 0, sessionId: 'session', elapsedSeconds: 0 });
     } else {
       pending = result.current.getMaterial('course', 'item');
     }
@@ -244,4 +241,23 @@ it.each(['course', 'item'] as const)('guards late %s creation callbacks and reta
   expect(itemCreated).not.toHaveBeenCalled();
   expect(store.getState().courses.details).toEqual({});
   expect(store.getState().courses.operations.save).toBe(false);
+});
+
+
+it('refreshes the roster only after teacher approval succeeds and releases a rejected approval lock', async () => {
+  const { result, store } = setup();
+  const item = toCourseDetail(makeCourse()).items[0];
+  const approve = vi.spyOn(coursesEndpoints, 'setStudentProgress').mockResolvedValue(progress);
+  await act(() => result.current.approve('course', 'student', item, 2));
+  expect(approve).toHaveBeenLastCalledWith('school', 'course', item.publicId, 'student', 2);
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledOnce();
+  expect(store.getState().courses.rosters.course.students).toEqual([]);
+  approve.mockRejectedValueOnce(new Error('approval failed'));
+  await act(async () => {
+    await expect(result.current.approve('course', 'student', item, 0)).rejects.toThrow('approval failed');
+  });
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledOnce();
+  expect(store.getState().courses.operations['approve:course']).toBe(false);
+  await act(() => result.current.approve('course', 'student', item, 0));
+  expect(coursesEndpoints.getRoster).toHaveBeenCalledTimes(2);
 });

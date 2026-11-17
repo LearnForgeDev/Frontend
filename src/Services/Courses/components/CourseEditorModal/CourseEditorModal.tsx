@@ -21,7 +21,7 @@ export default function CourseEditorModal({ schoolPublicId, course, onClose, onS
       }} noValidate>
         <TextField label="Название курса" value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} required autoFocus fullWidth disabled={editor.isSaving} />
         <TextField label="Описание" value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} multiline minRows={2} fullWidth disabled={editor.isSaving} />
-        {editor.isLoading && <CourseState kind="loading" title="Загружаем уроки и учеников" />}
+        {editor.isLoading && <CourseState kind="loading" title="Загружаем статьи и учеников" />}
         {editor.isError && <CourseState kind="error" title="Не удалось загрузить состав курса" actionLabel="Повторить" onAction={editor.retry} />}
         {!editor.isLoading && !editor.isError && <>
           <CourseProgramBuilder blocks={editor.form.blocks} resources={editor.resources} onChange={editor.setBlocks} disabled={editor.isSaving} />
@@ -29,6 +29,14 @@ export default function CourseEditorModal({ schoolPublicId, course, onClose, onS
           <CourseAccessPicker mode={editor.form.accessMode} onModeChange={editor.setAccessMode} groups={editor.groupOptions} selectedGroupIds={editor.form.groupIds} onGroupsChange={editor.setGroups} disabled={editor.isSaving} />
           {editor.form.accessMode === 'selected' && <CourseStudentPicker options={editor.studentOptions} selectedIds={editor.form.studentPublicIds} onChange={editor.setStudents} disabled={editor.isSaving} />}
         </>}
+        {editor.needsCompletionChoice && <Alert severity="warning">
+          Условия или содержимое блоков изменились. Сохранить уже полученные отметки о прохождении?
+          <Box sx={styles.actions}>
+            <Button onClick={() => void editor.submit(true)} disabled={editor.isSaving}>Сохранить прохождение</Button>
+            <Button color="warning" onClick={() => void editor.submit(false)} disabled={editor.isSaving}>Сбросить прохождение</Button>
+            <Button onClick={editor.cancelCompletionChoice} disabled={editor.isSaving}>Продолжить редактирование</Button>
+          </Box>
+        </Alert>}
         {editor.errorMessage && <Typography role="alert" variant="body2" sx={styles.error}>{editor.errorMessage}</Typography>}
         <Box sx={styles.actions}>
           <Button onClick={dismissal.requestClose} disabled={editor.isSaving} sx={styles.button}>Отмена</Button>

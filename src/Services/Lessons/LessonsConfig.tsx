@@ -5,8 +5,8 @@ import { Box, Typography, FormControlLabel, Checkbox, FormControl, InputLabel, S
 export const LessonsConfig: FC = () => {
     return (
         <Box>
-            <Typography variant="h6" component="h3">Настройка уроков</Typography>
-            <Typography>Настройте редактор и просмотрщик уроков.</Typography>
+            <Typography variant="h6" component="h3">Настройка статей</Typography>
+            <Typography>Настройте редактор и просмотрщик статей.</Typography>
             {/* Here we would use react-hook-form or similar */}
             <Box component="form" className="lessons-config-form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
                 <FormControlLabel

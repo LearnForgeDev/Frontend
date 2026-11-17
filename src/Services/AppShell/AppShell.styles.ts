@@ -98,55 +98,23 @@ export const navigationItemSx: SxProps<Theme> = {
   },
 };
 
-export const topbarSx: SxProps<Theme> = {
-  position: 'fixed',
-  top: 0,
-  right: 0,
-  left: { xs: 0, lg: 'var(--app-sidebar-width)' },
-  height: APP_TOPBAR_HEIGHT_PX,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: { xs: 1, sm: 2 },
-  px: { xs: 2, sm: 3, lg: 4 },
-  borderBottom: '1px solid var(--app-border)',
-  backgroundColor: 'color-mix(in srgb, var(--app-background) 88%, transparent)',
-  backdropFilter: 'blur(18px)',
-  zIndex: 1100,
-};
-
-export const mobileBrandSx: SxProps<Theme> = {
-  display: { xs: 'flex', lg: 'none' },
-  alignItems: 'center',
-  flex: { xs: 1, sm: '0 1 auto' },
-  minWidth: 0,
-  gap: 1,
-};
-
-export const titleSx: SxProps<Theme> = {
-  display: { xs: 'none', sm: 'block' },
-  minWidth: 0,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  fontFamily: 'Manrope, sans-serif',
-  fontSize: { xs: '1.05rem', sm: '1.2rem' },
-  fontWeight: 800,
-  color: 'var(--app-text)',
-};
-
 export const mainSx: SxProps<Theme> = {
   ml: { xs: 0, lg: 'var(--app-sidebar-width)' },
-  pt: `${APP_TOPBAR_HEIGHT_PX}px`,
-  pb: { xs: `${APP_MOBILE_NAV_HEIGHT_PX + 16}px`, lg: 0 },
-  minHeight: '100vh',
+  pb: { xs: `${APP_MOBILE_NAV_HEIGHT_PX}px`, lg: 0 },
+  minHeight: '100dvh',
+  display: 'flex',
+  flexDirection: 'column',
 };
 
 export const contentSx: SxProps<Theme> = {
+  flex: 1,
+  minWidth: 0,
   width: '100%',
   maxWidth: APP_CONTENT_MAX_WIDTH_PX,
   mx: 'auto',
-  p: { xs: 2, sm: 3, lg: 4 },
+  px: { xs: 2, sm: 3, lg: 4 },
+  pt: 2,
+  pb: { xs: 2, sm: 3, lg: 4 },
   boxSizing: 'border-box',
 };
 
@@ -197,6 +165,9 @@ export const navigationLabelSx: SxProps<Theme> = {
 };
 
 export const sidebarFooterSx: SxProps<Theme> = {
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: 1,
   flexShrink: 0,
   mt: 'auto',
   p: 1.5,
@@ -218,3 +189,7 @@ export const sidebarToggleSx: SxProps<Theme> = {
     outlineOffset: 2,
   },
 };
+
+export const canvasMainSx: SxProps<Theme> = { ...mainSx, height: '100dvh', overflow: 'hidden' };
+
+export const canvasContentSx: SxProps<Theme> = { ...contentSx, maxWidth: 'none', minHeight: 0, px: 0, pt: 0, pb: 0, display: 'flex', flexDirection: 'column' };

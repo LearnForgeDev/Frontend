@@ -20,7 +20,7 @@ export function useCreateLessonFlow({
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
   const [isFileUploading, setIsFileUploading] = useState(false);
 
-  const handleCreateLesson = async (title: string = 'Новый урок', description: string = '') => {
+  const handleCreateLesson = async (title: string = 'Новая статья', description: string = '') => {
     if (!schoolPublicId) {
       createNotification('Школа не найдена', undefined, 'error');
       return;
@@ -45,11 +45,11 @@ export function useCreateLessonFlow({
         onSuccess(newLesson.id, newLesson.title);
       }
 
-      createNotification('Урок успешно создан', undefined, 'success');
+      createNotification('Статья успешно создана', undefined, 'success');
     } catch (error) {
       logger.logEventForDebug(DebugSeverity.DANGER, 'Failed to create lesson flow', error);
       setIsFileUploading(false);
-      createNotification('Ошибка при создании урока', undefined, 'error');
+      createNotification('Ошибка при создании статьи', undefined, 'error');
     }
   };
 

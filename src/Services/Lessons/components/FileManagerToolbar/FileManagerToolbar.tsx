@@ -98,13 +98,13 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
           </IconButton>
         ) : (
           <TextField
-            placeholder="Поиск уроков..."
+            placeholder="Поиск статей..."
             variant="outlined"
             size="small"
             value={localSearch}
             onChange={handleSearchChange}
             sx={styles.searchField}
-            aria-label="Поиск уроков"
+            aria-label="Поиск статей"
             slotProps={{
               input: {
                 startAdornment: (
@@ -183,7 +183,7 @@ export default function FileManagerToolbar({ folders, onNewFolder, onNewLesson }
 
         {/* New Lesson Action Button */}
         <IconButton
-          aria-label="Создать новый урок"
+          aria-label="Создать новую статью"
           color="primary"
           data-testid="lesson-create"
           onClick={onNewLesson}

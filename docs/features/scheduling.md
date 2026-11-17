@@ -8,9 +8,16 @@ owners get teaching actions; backend authorization still decides each write.
 
 ## Behavior and rules
 
-The schedule uses the shared page hierarchy with one creation action and one
-period/view toolbar. Day lists the selected day's events. Events lists the selected
-week once per event, with one empty state when the week has no events. Week shows
+The schedule fills the available workspace beside the navigation without an outer
+page gutter, maximum-width cap or card frame. The shared shell owns viewport and
+mobile-navigation space; the calendar fills the remaining height below its own
+compact toolbar. Day/Events lists and the full-day Week grid scroll inside that
+area, keeping controls visible. One creation action and one period/view toolbar
+remain available. Narrow screens keep the creation action as a labeled 44px icon
+and omit the decorative subtitle. Very short windows scroll the workspace rather
+than collapse the calendar below a usable height.
+
+Day lists the selected day's events. Events lists the selected week once per event, with one empty state when the week has no events. Week shows
 seven full-day timeline columns on desktop and seven dated list groups below the
 medium breakpoint, including empty dates. All three controls remain available at
 320px and 444px without horizontal clipping.

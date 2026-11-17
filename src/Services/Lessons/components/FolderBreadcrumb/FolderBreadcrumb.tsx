@@ -13,15 +13,15 @@ export default function FolderBreadcrumb({ folders, currentFolderId, onNavigate 
     <Box sx={styles.container}>
       <Breadcrumbs separator={<NavigateNextIcon fontSize="small" />} aria-label="breadcrumb">
         {currentFolderId === null ? (
-          <Typography sx={styles.currentFolder}>Мои уроки</Typography>
+          <Typography sx={styles.currentFolder}>Статьи</Typography>
         ) : (
           <Link
             underline="hover"
             sx={styles.rootLink}
             onClick={() => onNavigate(null)}
-            aria-label="Перейти к Мои уроки"
+            aria-label="Перейти к статьям"
           >
-            Мои уроки
+            Статьи
           </Link>
         )}
 

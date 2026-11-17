@@ -6,6 +6,9 @@ remain owned by Lessons. Homework uses its own compact rich-text toolbar and own
 its uploads, answers and save lifecycle. Each editor has its own identity and focus;
 mounting a homework question does not steal focus from another input.
 
+Article back navigation is an arrow-only circular control in the local page header.
+Its accessible name and title describe the existing catalogue destination.
+
 ## Status and scope
 
 Implemented: school lesson catalogue, creation/deletion, server-backed rename,
@@ -14,6 +17,12 @@ document viewing, publishing and local drafts. Routes are `lessons` and
 mobile document editing is disabled by the current device check.
 
 ## Behavior and rules
+
+Article content uses the same product name in the catalogue, editor and course reader.
+
+The product calls lesson resources articles (`Статьи`). Creation, rename, search,
+empty states and accessibility labels use article terminology; existing lesson
+identifiers, API contracts, routes and draft storage keys remain unchanged.
 
 The equation editor follows its explicit inline flag: inline equations use a
 single-line input and block equations use a textarea. Forwarded object/callback
@@ -34,6 +43,15 @@ The edit session carries the source file's `storageKey`. Saving sends
 `expectedStorageKey`; a different current version blocks overwriting from a stale
 draft. A conflict response refreshes metadata. Loading the current version discards
 the local draft explicitly, rather than silently replacing user input.
+
+## Document workspace
+
+Article editing and viewing fill the available workspace width and height. The
+page owns the available height; the document scrolls within the remaining space
+while its toolbar, title and publication controls remain reachable. The editor has
+no centered sheet width cap. Course article readers use the same full-width,
+scrollable document area. This sizing does not make embedded homework editors
+full-screen or change draft, publication or mobile-editing rules.
 
 ## Data and dependencies
 

@@ -3,7 +3,6 @@ import { Box, Button, Chip, Typography } from '@mui/material';
 import { PersonOutlined } from '@mui/icons-material';
 
 import CourseState from '../CourseState/CourseState';
-import { formatStudentCount } from '../../utils/courseFormatting';
 import { styles } from './CourseStudentsPanel.styles';
 
 export default function CourseStudentsPanel({ students, onEdit }: CourseStudentsPanelProps) {
@@ -12,7 +11,7 @@ export default function CourseStudentsPanel({ students, onEdit }: CourseStudents
   }
   return <Box sx={styles.panel}>
     <Box sx={styles.header}>
-      <Typography component="h2" variant="h6" sx={styles.title}>{formatStudentCount(students.length)}</Typography>
+      <Typography component="h2" variant="h6" sx={styles.title}>Ученики курса</Typography>
       <Button onClick={onEdit} sx={styles.button}>Изменить состав</Button>
     </Box>
     <Box component="ul" sx={styles.list}>

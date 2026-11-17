@@ -4,7 +4,7 @@ import { useCourseLesson } from './useCourseLesson';
 
 const { read, courseQuery } = vi.hoisted(() => {
   const read = vi.fn();
-  return { read, courseQuery: { data: { canManage: false, lessons: [{ itemPublicId: 'first', lessonId: 7, availableFromUtc: null, availableUntilUtc: null }] }, feature: { read, state: { requests: {}, lessons: {} } }, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() } };
+  return { read, courseQuery: { data: { canManage: false, lessons: [{ itemPublicId: 'first', lessonId: 7, isUnlocked: true, availableFromUtc: null, availableUntilUtc: null }] }, feature: { read, state: { requests: {}, lessons: {} } }, isLoading: false, isError: false, isFetching: false, refetch: vi.fn() } };
 });
 vi.mock('./useCourseQueries', () => ({ useCourseQuery: () => courseQuery }));
 vi.mock('react-router-dom', () => ({ useSearchParams: () => [new URLSearchParams('item=first')] }));

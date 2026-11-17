@@ -2,6 +2,7 @@ import { createAsyncThunk } from '@reduxjs/toolkit';
 import { isAxiosError } from 'axios';
 import { coursesEndpoints } from '@/Endpoints/Courses';
 import { filesEndpoints, lessonsEndpoints, scheduleEndpoints, studentsEndpoints } from '@/Endpoints';
+import type { CourseResourceOption } from '@/Services/Courses/Courses.type';
 import { parseLessonContent } from '@/Services/Courses/utils/lessonContent';
 import type { CourseEditorOptions, CourseReadRequest, CourseReadResult, CoursesState } from './courses.type';
 
@@ -27,18 +28,18 @@ async function getEditorOptions(schoolPublicId: string): Promise<CourseEditorOpt
   return {
     students, groups,
     resources: [
-      ...lessons.flatMap(lesson => {
+      ...lessons.flatMap<CourseResourceOption>(lesson => {
         const lessonId = Number(lesson.id);
         return Number.isSafeInteger(lessonId) && lessonId > 0 ? [{
           key: `lesson:${lessonId}`, title: lesson.title,
-          reference: { ...fields, title: lesson.title, itemType: 2 as const, lessonId },
+          reference: { ...fields, completionRule: 2, requiredSeconds: 60, completeAfterUtc: null, title: lesson.title, itemType: 2 as const, lessonId },
         }] : [];
       }),
-      ...files.map(file => ({ key: `file:${file.publicId}`, title: file.fileName,
-        reference: { ...fields, title: file.fileName, itemType: 0 as const, filePublicId: file.publicId } })),
-      ...events.map(event => ({
+      ...files.map<CourseResourceOption>(file => ({ key: `file:${file.publicId}`, title: file.fileName,
+        reference: { ...fields, completionRule: 1, requiredSeconds: null, completeAfterUtc: null, title: file.fileName, itemType: 0 as const, filePublicId: file.publicId } })),
+      ...events.map<CourseResourceOption>(event => ({
         key: `call:${event.id}`, title: event.title,
-        reference: { ...fields, title: event.title, itemType: 1 as const, scheduleEventPublicId: event.id },
+        reference: { ...fields, completionRule: 5, requiredSeconds: null, completeAfterUtc: null, title: event.title, itemType: 1 as const, scheduleEventPublicId: event.id },
       })),
     ],
   };
@@ -60,7 +61,7 @@ async function readResource(request: CourseReadRequest): Promise<CourseReadResul
     case 'lesson': {
       const lesson = await lessonsEndpoints.getLessonById(school, String(request.lessonId));
       if (!lesson.lessonJsonFile) {
-        throw new Error('Содержимое урока недоступно');
+        throw new Error('Содержимое статьи недоступно');
       }
       const content = await filesEndpoints.getFileContent(school, lesson.lessonJsonFile.publicId);
       return { kind: request.kind, itemPublicId: request.itemPublicId, value: parseLessonContent(content) };
@@ -72,14 +73,20 @@ export const fetchCourseResource = createAsyncThunk<CourseReadResult, CourseRead
   state: { courses: CoursesState };
   rejectValue: { message: string; denied: boolean; sourceOnly: boolean };
 }>('courses/read', async (request, api) => {
+  let sourceOnly = false;
   try {
+    const canManage = 'coursePublicId' in request && api.getState().courses.details[request.coursePublicId]?.canManage === true;
+    if (request.kind === 'lesson' && !canManage) {
+      await coursesEndpoints.recordActivity(request.schoolPublicId, request.coursePublicId, request.itemPublicId, { kind: 0, sessionId: crypto.randomUUID(), elapsedSeconds: 0 });
+    }
+    sourceOnly = request.kind === 'lesson';
     return await readResource(request);
   } catch (error) {
     const status = isAxiosError(error) ? error.response?.status : undefined;
     return api.rejectWithValue({
       message: 'Не удалось загрузить данные курса. Попробуйте ещё раз.',
       denied: status === 401 || status === 403 || status === 404,
-      sourceOnly: request.kind === 'lesson' && (status === 403 || status === 404),
+      sourceOnly: sourceOnly && (status === 403 || status === 404),
     });
   }
 }, {

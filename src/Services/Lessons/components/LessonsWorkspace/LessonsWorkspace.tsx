@@ -11,15 +11,15 @@ export default function LessonsWorkspace(props: LessonsMainPageProps) {
   const view = useLessonsWorkspace(props);
   return <Box className="lessons-main-page" sx={styles.root}>
     <Box component="header" sx={styles.header}>
-      <Typography variant="h4" component="h1" sx={styles.title}>Мои уроки</Typography>
-      {props.canManageLessons && <Button data-testid="lesson-create" variant="contained" startIcon={<AddIcon />} onClick={() => void view.createLesson()} disabled={view.isCreating}>Создать урок</Button>}
+      <Typography variant="h4" component="h1" sx={styles.title}>Статьи</Typography>
+      {props.canManageLessons && <Button data-testid="lesson-create" variant="contained" startIcon={<AddIcon />} onClick={() => void view.createLesson()} disabled={view.isCreating}>Создать статью</Button>}
     </Box>
     <Box component="main" sx={styles.content}>
       {view.isLoading ? <Box sx={styles.grid}>
         {Array.from({ length: LESSON_LOADING_CARD_COUNT }).map((_, index) => <Skeleton key={index} variant="rectangular" height={LESSON_LOADING_CARD_HEIGHT} sx={styles.skeleton} />)}
       </Box> : view.isError ? <Alert severity="error" action={<Button color="inherit" size="small" onClick={() => view.refetch()}>Повторить</Button>}>
-        Не удалось загрузить уроки.
-      </Alert> : !view.lessons?.length ? <Typography color="text.secondary">У вас пока нет уроков.</Typography> : <Box sx={styles.grid}>
+        Не удалось загрузить статьи.
+      </Alert> : !view.lessons?.length ? <Typography color="text.secondary">У вас пока нет статей.</Typography> : <Box sx={styles.grid}>
         {view.lessons.map(lesson => <LessonCard
           key={lesson.id}
           lesson={lesson}

@@ -45,10 +45,10 @@ export function useLessonEditing(schoolPublicId: string, lesson: Lesson, isEditM
         setStorageFailed(true);
       }
       setStatus('saved');
-      toast.success('Урок сохранён. Изменения доступны ученикам.');
+      toast.success('Статья сохранена. Изменения доступны ученикам.');
     } catch {
       setStatus('error');
-      toast.error('Не удалось сохранить урок. Попробуйте ещё раз.');
+      toast.error('Не удалось сохранить статью. Попробуйте ещё раз.');
     }
   };
 

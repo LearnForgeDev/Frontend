@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { CI_PASSWORD, SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { createLesson, openLessonEditor, uniqueName, readJson } from './flows.utils';
@@ -41,7 +42,7 @@ test('INV-04 INV-06: login по приглашению сохраняет нез
   const key = `${SCHOOL_REQUEST_STORAGE_KEY}:${applicant.identity.userPublicId}`;
   const pointer = await applicant.page.evaluate(key => localStorage.getItem(key), key);
   expect(pointer).toBeTruthy();
-  await applicant.page.getByTestId('profile-open').click();
+  await openProfile(applicant.page);
   await applicant.page.getByTestId('profile-logout').click();
   await applicant.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
   await applicant.page.getByLabel(/^Имя/).fill(applicant.identity.userName);

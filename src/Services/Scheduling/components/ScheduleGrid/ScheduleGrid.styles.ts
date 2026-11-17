@@ -2,7 +2,7 @@ import { SLOT_HEIGHT_PX } from '../../Scheduling.const';
 import { COLUMN_HEADER_HEIGHT_PX } from './ScheduleGrid.const';
 
 export const styles = {
-  weekRoot: { display: 'flex', alignItems: 'flex-start', overflow: 'auto', width: '100%', height: COLUMN_HEADER_HEIGHT_PX + 8 * SLOT_HEIGHT_PX, position: 'relative', '&:focus-visible': { outline: '3px solid var(--app-focus)', outlineOffset: -3 } },
+  weekRoot: { display: 'flex', alignItems: 'flex-start', overflow: 'auto', width: '100%', height: '100%', minHeight: 0, position: 'relative', '&:focus-visible': { outline: '3px solid var(--app-focus)', outlineOffset: -3 } },
   hourRail: { flex: '0 0 60px', userSelect: 'none' },
   hourRailSpacer: { height: COLUMN_HEADER_HEIGHT_PX, borderBottom: '1px solid var(--app-border)', position: 'sticky', top: 0, bgcolor: 'background.paper', zIndex: 3, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--app-text-muted)', fontSize: '0.75rem' },
   hourLabel: { height: SLOT_HEIGHT_PX, fontSize: '0.75rem', fontWeight: 500, color: 'var(--app-text-muted)', textAlign: 'right', pr: 1, pt: 0.5, boxSizing: 'border-box', fontVariantNumeric: 'tabular-nums' },

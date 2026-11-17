@@ -43,32 +43,38 @@ export function useCoursePage(schoolPublicId: string, coursePublicId: string) {
   }, [schoolPublicId, coursePublicId, feature.scope]);
   const course = query.data;
   const openItem = async (item: CourseProgramItem) => {
-    if (item.block.kind !== 'supported' || !course || !course.canManage && !isCourseItemAvailable(item)) {
+    if (item.block.kind !== 'supported' || !course || !course.canManage && (!item.isUnlocked || !isCourseItemAvailable(item))) {
       return;
     }
     setOpenError(null);
     const reference = item.block.input;
-    if (reference.itemType === 2) {
-      navigate(getCourseLessonPath(schoolPublicId, coursePublicId, reference.lessonId, item.publicId));
-    } else if (reference.itemType === 1) {
-      if (!('scheduleEventPublicId' in reference) || !reference.scheduleEventPublicId) {
-        setOpenError('Занятие недоступно. Обратитесь к преподавателю.');
-        return;
+    const sequence = ++openSequence.current;
+    setOpeningItemPublicId(item.publicId);
+    try {
+      if (!course.canManage && reference.itemType !== 0) {
+        await feature.activity(coursePublicId, item.publicId, { kind: 0, sessionId: crypto.randomUUID(), elapsedSeconds: 0 });
+        if (sequence !== openSequence.current) {
+          return;
+        }
       }
-      const search = new URLSearchParams({ eventId: reference.scheduleEventPublicId });
-      navigate(`/app/schools/${encodeURIComponent(schoolPublicId)}/schedule?${search.toString()}`);
-    } else if (reference.itemType === 3) {
-      const path = feature.getHomeworkPath(reference.homeworkId, coursePublicId, item.publicId);
-      if (path) {
-        navigate(path);
+      if (reference.itemType === 2) {
+        navigate(getCourseLessonPath(schoolPublicId, coursePublicId, reference.lessonId, item.publicId));
+      } else if (reference.itemType === 1) {
+        if (!('scheduleEventPublicId' in reference) || !reference.scheduleEventPublicId) {
+          setOpenError('Занятие недоступно. Обратитесь к преподавателю.');
+          return;
+        }
+        const search = new URLSearchParams({ eventId: reference.scheduleEventPublicId });
+        navigate(`/app/schools/${encodeURIComponent(schoolPublicId)}/schedule?${search.toString()}`);
+      } else if (reference.itemType === 3) {
+        const path = feature.getHomeworkPath(reference.homeworkId, coursePublicId, item.publicId);
+        if (path) {
+          navigate(path);
+        } else {
+          setOpenError('Задание недоступно для вашего аккаунта. Обратитесь к преподавателю или обновите курс.');
+          void feature.homework.refresh();
+        }
       } else {
-        setOpenError('Задание недоступно для вашего аккаунта. Обратитесь к преподавателю или обновите курс.');
-        void feature.homework.refresh();
-      }
-    } else {
-      const sequence = ++openSequence.current;
-      setOpeningItemPublicId(item.publicId);
-      try {
         const blob = await feature.getMaterial(coursePublicId, item.publicId);
         if (sequence !== openSequence.current) {
           return;
@@ -80,14 +86,15 @@ export function useCoursePage(schoolPublicId: string, coursePublicId: string) {
         materialUrl.current = url;
         const source = course.raw.items.find(candidate => candidate.publicId === item.publicId);
         setMaterial({ scope: feature.scope, url, mimeType: blob.type, fileName: source?.file?.fileName ?? item.title });
-      } catch {
-        if (sequence === openSequence.current) {
-          setOpenError('Не удалось открыть материал. Попробуйте ещё раз.');
-        }
-      } finally {
-        if (sequence === openSequence.current) {
-          setOpeningItemPublicId(null);
-        }
+      }
+    } catch {
+      if (sequence === openSequence.current) {
+        setOpenError('Не удалось открыть блок. Обновите курс и попробуйте ещё раз.');
+        void feature.read({ kind: 'progress', coursePublicId, refresh: true });
+      }
+    } finally {
+      if (sequence === openSequence.current) {
+        setOpeningItemPublicId(null);
       }
     }
   };
@@ -102,13 +109,10 @@ export function useCoursePage(schoolPublicId: string, coursePublicId: string) {
       toast.error('Не удалось удалить курс. Попробуйте ещё раз.');
     }
   };
-  const markItem = async (item: CourseProgramItem) => {
-    if (feature.state.operations[`progress:${coursePublicId}`] || !query.progressQuery.isSuccess || item.itemType === 3) {
-      return;
-    }
+  const approveItem = async (studentPublicId: string, item: CourseProgramItem, status: 0 | 2) => {
     setProgressError(false);
     try {
-      await feature.mark(coursePublicId, item);
+      await feature.approve(coursePublicId, studentPublicId, item, status);
     } catch {
       setProgressError(true);
     }
@@ -118,11 +122,13 @@ export function useCoursePage(schoolPublicId: string, coursePublicId: string) {
     audienceQuery: course?.canManage ? query.rosterQuery : query.progressQuery,
     tab: tab === 'students' && !course?.canManage ? 'lessons' as const : tab,
     setTab, dialog, setDialog,
-    progress: { isError: progressError, isPending: feature.state.operations[`progress:${coursePublicId}`] ?? false },
+    progress: { isError: progressError },
     remove: { isError: deleteError, isPending: feature.state.operations[`delete:${coursePublicId}`] ?? false },
     deleteCourse: () => { void deleteCourse(); },
     goBack: () => navigate(basePath), openItem: (item: CourseProgramItem) => { void openItem(item); },
-    closeDialog: () => setDialog(null), markItem: (item: CourseProgramItem) => { void markItem(item); },
+    closeDialog: () => setDialog(null),
+    approveItem: (studentPublicId: string, item: CourseProgramItem, status: 0 | 2) => { void approveItem(studentPublicId, item, status); },
+    isApproving: feature.state.operations[`approve:${coursePublicId}`] ?? false,
     openError, openingItemPublicId, material: material?.scope === feature.scope ? material : null, closeMaterial,
   };
 }

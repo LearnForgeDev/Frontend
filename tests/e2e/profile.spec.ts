@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { login } from './auth.utils';
 import { PROFILE_LAYOUT_PIXEL_TOLERANCE, PROFILE_LAYOUT_WIDTHS, PROFILE_MOBILE_VIEWPORT, PROFILE_STACK_MAX_WIDTH_PX } from './profile.const';
@@ -66,8 +67,8 @@ test('профиль сохраняет текущую школу и возвр�
   const { page } = await actors('teacher');
   const source = `${OTHER_SCHOOL_PATH}/lessons?view=recent#materials`;
   await page.goto(source);
-  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
-  await page.getByTestId('profile-open').click();
+  await expect(page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
+  await openProfile(page);
   await expect(page).toHaveURL(/\/app\/profile$/);
   await expect(page.getByRole('button', { name: /CI Other School/ }).first()).toBeVisible();
   await expect(page.getByRole('button', { name: 'Создать занятие', exact: true })).toHaveCount(0);

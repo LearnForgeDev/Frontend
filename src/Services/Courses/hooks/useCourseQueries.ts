@@ -41,11 +41,11 @@ export function useCourseQuery(schoolPublicId: string, coursePublicId: string) {
   const roster = feature.state.requests[`roster:${coursePublicId}`] ?? IDLE;
   const canManage = course?.canManage;
   useEffect(() => {
-    void read({ kind: 'course', coursePublicId });
+    void read({ kind: 'course', coursePublicId, refresh: true });
   }, [read, coursePublicId]);
   useEffect(() => {
     if (canManage !== undefined) {
-      void read({ kind: canManage ? 'roster' : 'progress', coursePublicId });
+      void read({ kind: canManage ? 'roster' : 'progress', coursePublicId, refresh: true });
     }
   }, [read, coursePublicId, canManage]);
   useEffect(() => {
@@ -56,8 +56,15 @@ export function useCourseQuery(schoolPublicId: string, coursePublicId: string) {
       }
     };
     window.addEventListener('focus', refresh);
-    refresh();
-    return () => window.removeEventListener('focus', refresh);
+    const interval = window.setInterval(() => {
+      if (canManage === false) {
+        void read({ kind: 'progress', coursePublicId, refresh: true });
+      }
+    }, 15_000);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.clearInterval(interval);
+    };
   }, [read, coursePublicId, canManage]);
   const statusView = (status: CourseRequestStatus, kind: 'progress' | 'roster') => ({
     isPending: status.status === 'idle' || status.status === 'pending',

@@ -9,13 +9,13 @@ import { RENAME_LOADER_SIZE } from './RenameLessonDialog.const';
 export default function RenameLessonDialog({ schoolPublicId, lesson, onClose }: RenameLessonDialogProps) {
   const view = useRenameLesson(schoolPublicId, lesson, onClose);
   return <Dialog open onClose={view.close} fullWidth maxWidth="sm">
-    <DialogTitle>Переименовать урок</DialogTitle>
+    <DialogTitle>Переименовать статью</DialogTitle>
     <form onSubmit={event => {
       event.preventDefault();
       void view.submit();
     }}>
       <DialogContent sx={styles.content}>
-        <TextField label="Название урока" autoFocus fullWidth value={view.title} disabled={view.isSaving} onChange={event => view.changeTitle(event.target.value)} />
+        <TextField label="Название статьи" autoFocus fullWidth value={view.title} disabled={view.isSaving} onChange={event => view.changeTitle(event.target.value)} />
         {view.error && <Alert severity="error">{view.error}</Alert>}
       </DialogContent>
       <DialogActions>

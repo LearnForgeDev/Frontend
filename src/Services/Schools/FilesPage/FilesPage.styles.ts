@@ -10,7 +10,6 @@ export const styles = {
   fileCell: { fontWeight: 500, maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
   fileRow: { display: 'flex', alignItems: 'center', gap: 1.5 },
   container: {
-    padding: (theme: Theme) => theme.spacing(4),
     maxWidth: '1200px',
     margin: '0 auto',
     display: 'flex',

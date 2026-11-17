@@ -6,6 +6,8 @@ export function makeCourseItem(overrides: Partial<CourseItemDto> = {}): CourseIt
   return {
     id: 1, publicId: 'lesson-item', position: 0, itemType: 2, title: 'Урок', description: null,
     file: null, scheduleEventId: null, scheduleEventPublicId: null, lessonId: 10, homeworkId: null,
+    completionRule: overrides.itemType === 0 ? 1 : overrides.itemType === 1 ? 5 : overrides.itemType === 3 ? 4 : 2,
+    requiredSeconds: overrides.itemType === undefined || overrides.itemType === 2 ? 60 : null, completeAfterUtc: null,
     isRequired: true, availableFromUtc: null, availableUntilUtc: null, ...overrides,
   };
 }

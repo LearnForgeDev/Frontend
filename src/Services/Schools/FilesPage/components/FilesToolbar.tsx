@@ -13,7 +13,7 @@ export default function FilesToolbar({ fileInputRef, cameraInputRef, handleUploa
     <>
       <Box sx={styles.header}>
         <Typography variant="h4" component="h1" sx={styles.title}>
-          Материалы
+          Файлы
         </Typography>
         <Box sx={styles.uploadActions}>
           <input

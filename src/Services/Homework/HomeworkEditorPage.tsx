@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Alert, Box, Button, CircularProgress, Divider, Paper, Stack, Typography } from '@mui/material';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import { Alert, Box, Button, IconButton, CircularProgress, Divider, Paper, Stack, Typography } from '@mui/material';
 import { useHomework } from './hooks/useHomework';
 import { useHomeworkRealtime } from './hooks/useHomeworkRealtime';
 import HomeworkAudience from './components/HomeworkAudience/HomeworkAudience';
@@ -22,7 +23,7 @@ export default function HomeworkEditorPage() {
   useHomeworkRealtime(view.schoolPublicId, homeworkPublicId ?? '', view.load);
   const listPath = `/app/schools/${encodeURIComponent(view.schoolPublicId)}/homework`;
   if (!homeworkPublicId) {
-    return <Stack spacing={3} sx={{ maxWidth: 900, mx: 'auto', p: 3 }}><Button sx={{ alignSelf: 'flex-start' }} onClick={() => navigate(listPath)}>Все задания</Button><Typography variant="h4">Новое домашнее задание</Typography>
+    return <Stack spacing={3} sx={{ maxWidth: 900, mx: 'auto', p: 3 }}><Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}><IconButton aria-label="Все задания" title="Все задания" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(listPath)}><ArrowBackRoundedIcon /></IconButton><Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0 }}>Новое домашнее задание</Typography></Stack>
       {view.error && <Alert severity="error">{view.error}</Alert>}
       <HomeworkMetadata busy={view.busy} onSave={async metadata => {
         const created = await view.create({ ...metadata, allowedUserPublicIds: [], allowedGroupIds: [] });
@@ -46,8 +47,9 @@ export default function HomeworkEditorPage() {
     }
   };
   return <Stack spacing={3} sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 4 } }}>
-    <Button sx={{ alignSelf: 'flex-start' }} onClick={() => navigate(`${listPath}/${homeworkPublicId}`)}>К заданию</Button>
-    <Stack direction="row" sx={{ alignItems: 'center', gap: 2, flexWrap: 'wrap' }}><Typography variant="h4" sx={{ flex: 1 }}>Редактор задания</Typography>
+    <Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+      <IconButton aria-label="К заданию" title="К заданию" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(`${listPath}/${homeworkPublicId}`)}><ArrowBackRoundedIcon /></IconButton>
+      <Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0 }}>Редактор задания</Typography>
       <Button variant="contained" disabled={disabled || editing !== null || metadataDirty || audienceDirty || !questions.length} onClick={() => void publish()}>Опубликовать версию {definition.version}</Button>
     </Stack>
     {view.error && <Alert severity="error">{view.error}</Alert>}

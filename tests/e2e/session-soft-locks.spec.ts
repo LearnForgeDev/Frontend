@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import type { Page } from '@playwright/test';
 import { test, expect } from './fixtures';
 import { expireStoredJwt } from './auth.utils';
@@ -128,7 +129,7 @@ test('SESSION-15: My Schools transport failure still permits profile logout', { 
   await page.route('**/api/ApiSchool/my-schools', route => route.fulfill(ERROR_RESPONSE));
   await page.goto('/app/schools');
   await expect(page.getByRole('alert').filter({ hasText: 'Не удалось загрузить список школ.' })).toBeVisible();
-  await page.getByTestId('profile-open').click();
+  await openProfile(page);
   await expect(page.getByTestId('profile-logout')).toBeEnabled();
   await signOutAndExpectLogin(page, 'profile-logout');
   await page.goto('/auth/login');

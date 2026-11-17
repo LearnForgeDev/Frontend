@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { OTHER_SCHOOL_ID, OTHER_SCHOOL_PATH, HTTP_DENIED, ERROR_RESPONSE, VIEWPORTS } from './flows.const';
@@ -24,7 +25,7 @@ test('NAV-01 NAV-02: корень школы и список сохраняют 
 test('NAV-03 ACCESS-02: Teacher в A становится Student в B без прежних действий', async ({ actors }) => {
   const { page } = await actors('teacher');
   await page.goto(`${SCHOOL_PATH}/lessons`);
-  await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Создать статью', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /CI School/ }).first().click();
   await Promise.all([
     page.waitForRequest(request => request.isNavigationRequest() && new URL(request.url()).pathname === `${OTHER_SCHOOL_PATH}/today`),
@@ -32,7 +33,7 @@ test('NAV-03 ACCESS-02: Teacher в A становится Student в B без п
   ]);
   await expect(page).toHaveURL(`${OTHER_SCHOOL_PATH}/today`);
   await page.goto(`${OTHER_SCHOOL_PATH}/lessons`);
-  await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Создать статью', exact: true })).toHaveCount(0);
   await page.goto(`${OTHER_SCHOOL_PATH}/students`);
   await expect(page).toHaveURL(`${OTHER_SCHOOL_PATH}/today`);
 });
@@ -50,7 +51,7 @@ test('NAV-04 ONB-01: новый аккаунт без школ может нач
   await expect(page).toHaveURL(/\/onboarding$/);
 });
 
-for (const [path, label] of [['today', 'Сегодня'], ['lessons', 'Уроки'], ['courses', 'Курсы'], ['schedule', 'Расписание'], ['chats', 'Чаты'], ['files', 'Материалы'], ['students', 'Ученики']]) {
+for (const [path, label] of [['today', 'Сегодня'], ['lessons', 'Статьи'], ['courses', 'Курсы'], ['schedule', 'Расписание'], ['chats', 'Чаты'], ['files', 'Файлы'], ['students', 'Ученики']]) {
   test(`NAV-05 COMMON-01: раздел ${label} доступен из навигации`, async ({ actors }) => {
     const { page } = await actors();
     await page.goto(`${SCHOOL_PATH}/today`);
@@ -146,7 +147,7 @@ test('TODAY-02 PROFILE-03: пустая школа не показывает в�
   await page.goto(`${OTHER_SCHOOL_PATH}/today`);
   await expect(page.getByText('Ближайших занятий пока нет.')).toBeVisible();
   await expect(page.getByText('На сегодня занятий нет.')).toBeVisible();
-  await expect(page.getByText('Уроки ещё не добавлены.')).toBeVisible();
+  await expect(page.getByText('Статьи ещё не добавлены.')).toBeVisible();
 });
 
 for (const role of ['owner', 'teacher', 'student']) {
@@ -154,8 +155,8 @@ for (const role of ['owner', 'teacher', 'student']) {
     const { page, identity } = await actors(role);
     await page.goto(`${SCHOOL_PATH}/today`);
     await expect(page.getByRole('heading', { name: 'Школа', exact: true })).toHaveCount(role === 'owner' ? 1 : 0);
-    await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toHaveCount(role === 'student' ? 0 : 1);
-    await page.getByTestId('profile-open').click();
+    await expect(page.getByRole('button', { name: 'Создать статью', exact: true })).toHaveCount(role === 'student' ? 0 : 1);
+    await openProfile(page);
     await expect(page).toHaveURL(/\/app\/profile$/);
     await expect(page.getByRole('main').first().getByText(identity.userName, { exact: true })).toBeVisible();
     const schools = await readJson<Array<{ schoolName: string }>>(await page.request.get('/api/ApiSchool/my-schools'));
@@ -173,7 +174,7 @@ for (const viewport of VIEWPORTS) {
       await page.getByTestId('nav-more-files').click();
       await expect(page).toHaveURL(`${SCHOOL_PATH}/files`);
     }
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await expect(page).toHaveURL(/\/app\/profile$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
@@ -184,7 +185,7 @@ test('TODAY-05: ошибка расписания отделена от оста
   await page.route(`**/api/ApiSchedule/${SCHOOL_ID}/events`, route => route.fulfill(ERROR_RESPONSE));
   await page.goto(`${SCHOOL_PATH}/today`);
   await expect(page.getByRole('alert').filter({ hasText: /заняти|расписани/ }).first()).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Последние уроки', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Последние статьи', exact: true })).toBeVisible();
   await page.unroute(`**/api/ApiSchedule/${SCHOOL_ID}/events`);
   await page.reload();
   await expect(page.getByRole('alert').filter({ hasText: /заняти|расписани/ })).toHaveCount(0);
@@ -193,7 +194,7 @@ test('TODAY-05: ошибка расписания отделена от оста
 test('LESSON-01 FILE-01 SCHEDULE-01: пустые разделы реальной второй школы', async ({ actors }) => {
   const { page } = await actors('outsider');
   await page.goto(`${OTHER_SCHOOL_PATH}/lessons`);
-  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
   await expect(page.getByTestId(/^lesson-\d+$/)).toHaveCount(0);
   await page.goto(`${OTHER_SCHOOL_PATH}/files`);
   await expect(page.getByText('Файлы не найдены', { exact: true })).toBeVisible();

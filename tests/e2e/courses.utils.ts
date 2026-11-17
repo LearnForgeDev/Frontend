@@ -23,10 +23,6 @@ export async function createPublishedCourseHomework(actor: Actor, studentPublicI
   const homework = await readJson<HomeworkDto>(await actor.page.request.post(`/api/ApiHomeworks/${SCHOOL_ID}`, {
     data: { title: uniqueName('Домашнее задание курса'), description: 'Проверка знаний', passingScore: 1, maxAttempts: 3, deadlineUtc: null, allowedUserPublicIds: [actor.identity.userPublicId, studentPublicId], allowedGroupIds: [] },
   }));
-  actor.cleanup.push(async () => {
-    const response = await actor.page.request.delete(`/api/ApiHomeworks/${SCHOOL_ID}/${homework.publicId}`);
-    expect([200, 204, 404]).toContain(response.status());
-  });
   await readJson(await actor.page.request.post(`/api/ApiHomeworks/${SCHOOL_ID}/${homework.publicId}/questions`, {
     data: { position: 0, text: 'Что удалось понять?', questionType: 2, isRequired: true, points: 1, validationJson: null, options: [], richText: null, teacherHint: null, studentHint: 'Ответьте своими словами' },
   }));

@@ -63,25 +63,28 @@ async function expectControlsToFit(page: Page, width: number) {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 }
 
-async function expectHeaderToFit(page: Page, width: number) {
-  const header = page.getByRole('banner');
-  const school = header.getByRole('button', { name: /CI School/ });
-  const profile = header.getByTestId('profile-open');
-  const avatar = profile.locator('.MuiAvatar-root');
-  const headerBounds = await header.boundingBox();
-  expect(headerBounds).not.toBeNull();
-  for (const control of [school, profile, avatar]) {
+async function expectWorkspaceToFit(page: Page, width: number) {
+  await expect(page.getByRole('banner')).toHaveCount(0);
+  const workspace = page.getByTestId('schedule-workspace');
+  await expect(workspace).toBeVisible();
+  const bounds = await workspace.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeCloseTo(0, 0);
+  expect(bounds!.y).toBeCloseTo(0, 0);
+  expect(bounds!.width).toBeCloseTo(width, 0);
+  const mobileNav = page.getByTestId('nav-mobile-more');
+  await expect(mobileNav).toBeInViewport({ ratio: 1 });
+  const navigationBounds = await mobileNav.boundingBox();
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(navigationBounds!.y + 1);
+  await mobileNav.click();
+  const school = page.getByRole('button', { name: /CI School/ });
+  const profile = page.getByTestId('profile-open').filter({ visible: true });
+  for (const control of [school, profile]) {
     await expect(control).toBeInViewport({ ratio: 1 });
-    const bounds = await control.boundingBox();
-    expect(bounds).not.toBeNull();
-    expect(bounds!.x).toBeGreaterThanOrEqual(0);
-    expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
-    expect(bounds!.y).toBeGreaterThanOrEqual(headerBounds!.y);
-    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(headerBounds!.y + headerBounds!.height);
+    const controlBounds = await control.boundingBox();
+    expect(controlBounds!.x).toBeGreaterThanOrEqual(0);
+    expect(controlBounds!.x + controlBounds!.width).toBeLessThanOrEqual(width);
   }
-  const schoolBounds = await school.boundingBox();
-  const profileBounds = await profile.boundingBox();
-  expect(schoolBounds!.x + schoolBounds!.width).toBeLessThanOrEqual(profileBounds!.x);
   await profile.click();
   await expect(page).toHaveURL('/app/profile');
   await page.getByRole('button', { name: 'Назад', exact: true }).click();
@@ -110,7 +113,7 @@ for (const width of [320, 444]) {
     const week = await createCalendarWeek(actor);
     const { page } = actor;
     await page.goto(`${SCHOOL_PATH}/schedule`);
-    await expectHeaderToFit(page, width);
+    await expectWorkspaceToFit(page, width);
     const controls = page.getByRole('group', { name: 'Вид расписания', exact: true });
     const calendar = page.getByTestId('schedule-calendar');
     await expect(controls.getByRole('button', { name: 'День', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -168,6 +171,11 @@ test('SCHEDULE-16: неделя на компьютере сохраняет в�
   const week = await createCalendarWeek(actor);
   const { page } = actor;
   await page.goto(`${SCHOOL_PATH}/schedule`);
+  const workspace = await page.getByTestId('schedule-workspace').boundingBox();
+  expect(workspace).not.toBeNull();
+  expect(workspace!.y).toBeCloseTo(0, 0);
+  expect(workspace!.x + workspace!.width).toBeCloseTo(1440, 0);
+  expect(workspace!.height).toBeCloseTo(1000, 0);
   const calendar = page.getByTestId('schedule-calendar');
   await page.getByRole('group', { name: 'Вид расписания', exact: true }).getByRole('button', { name: 'Неделя', exact: true }).click();
   await expectControlsToFit(page, 1440);
