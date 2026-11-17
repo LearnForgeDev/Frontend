@@ -170,7 +170,7 @@ it('checks learner progression before fetching a deep-linked article and recover
   blocked.response = { status: 409, statusText: 'Conflict', data: '', headers: {}, config: { headers: new AxiosHeaders() } };
   const activity = vi.spyOn(coursesEndpoints, 'recordActivity').mockRejectedValueOnce(blocked);
   const lesson = vi.spyOn(lessonsEndpoints, 'getLessonById').mockResolvedValue({ id: '10', publicId: 'article', title: 'Статья' });
-  const content = vi.spyOn(filesEndpoints, 'getFileContent').mockResolvedValue({ editorState: { root: { type: 'root', children: [] } } });
+  const content = vi.spyOn(filesEndpoints, 'getFileContent').mockResolvedValue(JSON.stringify({ editorState: { root: { type: 'root', children: [] } } }));
   const request = { kind: 'lesson' as const, scope: 'student/school', schoolPublicId: 'school', coursePublicId: 'course', itemPublicId: 'lesson-item', lessonId: 10, refresh: true };
   await store.dispatch(fetchCourseResource(request));
   expect(lesson).not.toHaveBeenCalled();
