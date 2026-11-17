@@ -17,6 +17,21 @@ function storeFor(scope = 'teacher/school') {
 afterEach(() => vi.restoreAllMocks());
 
 describe('Course domain state', () => {
+  it.each([403, 404])('treats an article activity %i as course denial before reading the independent source', async status => {
+    const store = storeFor();
+    const scope = 'teacher/school';
+    store.dispatch(courseSaved({ scope, accessEpoch: 0, course: makeCourse({ canManage: false }) }));
+    const denied = new AxiosError('denied');
+    denied.response = { status, statusText: '', data: '', headers: {}, config: { headers: new AxiosHeaders() } };
+    vi.spyOn(coursesEndpoints, 'recordActivity').mockRejectedValue(denied);
+    vi.spyOn(lessonsEndpoints, 'getLessonById');
+    await store.dispatch(fetchCourseResource({ kind: 'lesson', scope, schoolPublicId: 'school', coursePublicId: 'course', itemPublicId: 'lesson-item', lessonId: 10 }));
+    expect(lessonsEndpoints.getLessonById).not.toHaveBeenCalled();
+    expect(store.getState().courses.details.course).toBeUndefined();
+    expect(store.getState().courses.accessEpoch).toBe(1);
+    expect(store.getState().courses.requests['course:course']).toMatchObject({ status: 'error', denied: true });
+  });
+
   it('ignores late responses and operations belonging to a previous account or school', async () => {
     const store = storeFor();
     let finish: (course: CourseDto) => void = () => undefined;

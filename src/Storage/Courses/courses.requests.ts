@@ -45,7 +45,7 @@ async function getEditorOptions(schoolPublicId: string): Promise<CourseEditorOpt
   };
 }
 
-async function readResource(request: CourseReadRequest, canManage: boolean): Promise<CourseReadResult> {
+async function readResource(request: CourseReadRequest): Promise<CourseReadResult> {
   const school = request.schoolPublicId;
   switch (request.kind) {
     case 'catalogue':
@@ -59,9 +59,6 @@ async function readResource(request: CourseReadRequest, canManage: boolean): Pro
     case 'roster':
       return { kind: request.kind, coursePublicId: request.coursePublicId, value: await coursesEndpoints.getRoster(school, request.coursePublicId) };
     case 'lesson': {
-      if (!canManage) {
-        await coursesEndpoints.recordActivity(school, request.coursePublicId, request.itemPublicId, { kind: 0, sessionId: crypto.randomUUID(), elapsedSeconds: 0 });
-      }
       const lesson = await lessonsEndpoints.getLessonById(school, String(request.lessonId));
       if (!lesson.lessonJsonFile) {
         throw new Error('Содержимое статьи недоступно');
@@ -76,15 +73,20 @@ export const fetchCourseResource = createAsyncThunk<CourseReadResult, CourseRead
   state: { courses: CoursesState };
   rejectValue: { message: string; denied: boolean; sourceOnly: boolean };
 }>('courses/read', async (request, api) => {
+  let sourceOnly = false;
   try {
     const canManage = 'coursePublicId' in request && api.getState().courses.details[request.coursePublicId]?.canManage === true;
-    return await readResource(request, canManage);
+    if (request.kind === 'lesson' && !canManage) {
+      await coursesEndpoints.recordActivity(request.schoolPublicId, request.coursePublicId, request.itemPublicId, { kind: 0, sessionId: crypto.randomUUID(), elapsedSeconds: 0 });
+    }
+    sourceOnly = request.kind === 'lesson';
+    return await readResource(request);
   } catch (error) {
     const status = isAxiosError(error) ? error.response?.status : undefined;
     return api.rejectWithValue({
       message: 'Не удалось загрузить данные курса. Попробуйте ещё раз.',
       denied: status === 401 || status === 403 || status === 404,
-      sourceOnly: request.kind === 'lesson' && (status === 403 || status === 404),
+      sourceOnly: sourceOnly && (status === 403 || status === 404),
     });
   }
 }, {

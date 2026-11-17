@@ -98,11 +98,14 @@ previously authorized data with a warning. A source lesson or its content file r
 403/404 clears that block's cached document and shows a retryable error. It preserves
 the authorized course and progress, so automatic course refresh does not repeatedly
 reload the denied source. A later visit or explicit retry checks source access again.
-Course-endpoint denial or an expired session removes protected course, roster,
+Course-endpoint denial, including the activity check before reading an article,
+or an expired session removes protected course, roster,
 progress and lesson state and advances an access epoch. Reads started before
 that denial and writes/material downloads carrying an older epoch cannot restore
 protected data, report success or navigate. Pending writes still settle before their
 operation locks clear. A fresh authorized read can restore access normally.
+After course access denial, the reader waits for explicit retry, focus or another
+visit before reloading the course. Clearing denied state does not trigger a reread.
 Failed progress writes do not appear persisted.
 Refreshing or returning to the course rereads backend progress after homework review.
 
