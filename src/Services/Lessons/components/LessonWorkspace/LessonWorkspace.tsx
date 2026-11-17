@@ -21,10 +21,10 @@ export default function LessonWorkspace({ lessonId, requestedEditMode }: LessonW
 
   return <Box className="lesson-id-page">
     <Box className="lesson-page-actions">
-      <Button data-testid="lesson-back" startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate('../', { relative: 'path' })}>К урокам</Button>
+      <Button data-testid="lesson-back" startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate('../', { relative: 'path' })}>К статьям</Button>
       {capabilities.canTeach && view.lesson && <Button data-testid="lesson-rename" onClick={() => setIsRenaming(true)} disabled={save.isSaving}>Переименовать</Button>}
     </Box>
-    <Typography variant="h1" className="lesson-name">{view.lesson?.title ?? 'Урок'}</Typography>
+    <Typography variant="h1" className="lesson-name">{view.lesson?.title ?? 'Статья'}</Typography>
     {view.isLoading || view.isError || view.isUnavailable ? <LessonEditorStatus {...view} /> : view.lesson && view.editorState ? (
       <LessonEditorContainer key={`${view.schoolPublicId}:${lessonId}:${isEditMode}`} schoolPublicId={view.schoolPublicId} lesson={view.lesson} document={view.editorState} isEditMode={isEditMode} />
     ) : null}

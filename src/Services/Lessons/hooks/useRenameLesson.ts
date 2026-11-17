@@ -22,7 +22,7 @@ export function useRenameLesson(schoolPublicId: string, lesson: Lesson, onClose:
       onClose();
     } catch {
       setError('Не удалось сохранить название. Попробуйте ещё раз.');
-      toast.error('Не удалось сохранить название урока.');
+      toast.error('Не удалось сохранить название статьи.');
     }
   };
 

@@ -29,7 +29,7 @@ export default function TextEditor({
 }: TextEditorProps) {
   const [hasLoadError, setHasLoadError] = useState(false);
   if (hasLoadError) {
-    return <Alert severity="error">Не удалось прочитать содержимое урока. Обратитесь к преподавателю.</Alert>;
+    return <Alert severity="error">Не удалось прочитать содержимое статьи. Обратитесь к преподавателю.</Alert>;
   }
   return (
     <RichEditorCore configuration={INITIAL_EDITOR_CONFIG} editable={isEditMode} label="Содержимое урока" testId="lesson-editor" className="editor-input" autoFocus toolbar={<Toolbar />}>

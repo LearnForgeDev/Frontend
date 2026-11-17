@@ -19,13 +19,13 @@ const TextEditor = dynamic(() => import('../TextEditor/TextEditor'), {
 export default function LessonEditorContainer({ schoolPublicId, lesson, document, isEditMode }: LessonEditorContainerProps) {
   const view = useLessonEditing(schoolPublicId, lesson, isEditMode);
   if (!isEditMode && isLessonDocumentEmpty(document)) {
-    return <Alert severity="info">В уроке пока нет материалов.</Alert>;
+    return <Alert severity="info">В статье пока нет содержимого.</Alert>;
   }
   return <>
     {view.hasConflict && <Alert severity="warning" action={<Button color="inherit" onClick={view.loadCurrentVersion}>Загрузить версию с сервера</Button>}>
-      Урок изменён на сервере. Скопируйте нужные изменения: загрузка актуальной версии удалит этот черновик.
+      Статья изменена на сервере. Скопируйте нужные изменения: загрузка актуальной версии удалит этот черновик.
     </Alert>}
-    {view.storageFailed && <Alert severity="warning">Не удалось сохранить черновик на устройстве. Сохраните урок перед выходом.</Alert>}
+    {view.storageFailed && <Alert severity="warning">Не удалось сохранить черновик на устройстве. Сохраните статью перед выходом.</Alert>}
     <TextEditor
       id={lesson.id}
       isEditMode={isEditMode}

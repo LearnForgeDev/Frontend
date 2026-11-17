@@ -55,7 +55,7 @@ export default function LessonListItem({
       <Box
         role="button"
         tabIndex={0}
-        aria-label={`Урок: ${lesson.title}, статус: ${lesson.status || 'черновик'}`}
+        aria-label={`Статья: ${lesson.title}, статус: ${lesson.status || 'черновик'}`}
         sx={rowStyle}
         onClick={onClick}
         onDoubleClick={onOpen}
@@ -82,7 +82,7 @@ export default function LessonListItem({
             {formattedDate}
           </Typography>
           <IconButton
-            aria-label="Опции урока"
+            aria-label="Опции статьи"
             size="small"
             onClick={handleKebabClick}
           >

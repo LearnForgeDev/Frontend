@@ -33,12 +33,12 @@ for (const route of ['/auth/login', '/auth/register']) {
 test('SESSION-01 SESSION-07: сессия переносится в новый контекст и очищается при выходе', async ({ actors, browser }) => {
   const actor = await actors();
   await actor.page.goto(`${SCHOOL_PATH}/lessons`);
-  await expect(actor.page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+  await expect(actor.page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
   const restored = await browser.newContext({ storageState: await actor.context.storageState() });
   try {
     const page = await restored.newPage();
     await page.goto(new URL(`${SCHOOL_PATH}/lessons`, actor.page.url()).href);
-    await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
     await openProfile(page);
     await expect(page.getByTestId('profile-logout')).toBeVisible();
     const signedOut = page.waitForRequest(request => request.isNavigationRequest()
@@ -65,5 +65,5 @@ test('SESSION-06: ошибка восстановления блокирует �
   expect(await page.evaluate(() => localStorage.getItem('user_identity'))).not.toBeNull();
   await page.unroute('**/api/ApiAuth/refreshToken');
   await page.getByRole('button', { name: 'Повторить', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
 });

@@ -7,6 +7,9 @@ guards. Roles belong to each membership, not one global role for the whole accou
 
 ## Behavior and rules
 
+The school navigation names teaching documents `Статьи` and uploaded resources
+`Файлы`. Route identities and capability requirements remain unchanged.
+
 `/app` loads memberships and selects the stored active school if it remains available,
 otherwise the first school. No schools leads to onboarding. A loading/error response
 is not treated as an authoritative empty membership list.

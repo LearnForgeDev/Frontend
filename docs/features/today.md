@@ -8,6 +8,9 @@ owning another copy of their business data.
 
 ## Behavior and rules
 
+Article shortcuts and recent-resource headings use `Статьи`, matching the
+article catalogue. Scheduled teaching sessions still use `занятия`.
+
 The page combines current memberships, schedule and lessons. Teaching shortcuts
 depend on school capabilities; the owner summary requests students only when school
 management is available. Opening an event navigates to the schedule's event link.

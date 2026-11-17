@@ -15,6 +15,10 @@ mobile document editing is disabled by the current device check.
 
 ## Behavior and rules
 
+The product calls lesson resources articles (`Статьи`). Creation, rename, search,
+empty states and accessibility labels use article terminology; existing lesson
+identifiers, API contracts, routes and draft storage keys remain unchanged.
+
 The equation editor follows its explicit inline flag: inline equations use a
 single-line input and block equations use a textarea. Forwarded object/callback
 refs attach to the chosen field; inspecting the ref container is not a DOM-type test.

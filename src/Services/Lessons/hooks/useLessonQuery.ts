@@ -10,7 +10,7 @@ export function useLessonQuery(schoolPublicId: string, lessonId: string | number
       try {
         return await lessonsEndpoints.getLessonById(schoolPublicId, String(lessonId));
       } catch (error) {
-        toast.error('Не удалось открыть урок.');
+        toast.error('Не удалось открыть статью.');
         throw error;
       }
     },

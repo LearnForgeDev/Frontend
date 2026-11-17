@@ -27,7 +27,7 @@ export const APP_NAVIGATION_ITEMS: AppNavigationItem[] = [
   },
   {
     id: 'lessons',
-    label: 'Уроки',
+    label: 'Статьи',
     path: 'lessons',
     icon: MenuBookRoundedIcon,
     mobilePriority: true,
@@ -60,7 +60,7 @@ export const APP_NAVIGATION_ITEMS: AppNavigationItem[] = [
   },
   {
     id: 'files',
-    label: 'Материалы',
+    label: 'Файлы',
     path: 'files',
     icon: FolderOpenRoundedIcon,
   },

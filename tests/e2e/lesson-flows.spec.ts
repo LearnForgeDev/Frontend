@@ -40,10 +40,10 @@ test('LESSON-05: ошибка списка исправляется повтор
   const { page } = await actors();
   await page.route(`**/api/ApiLessons/${SCHOOL_ID}/all`, route => route.fulfill(ERROR_RESPONSE));
   await page.goto(`${SCHOOL_PATH}/lessons`);
-  await expect(page.getByText('Не удалось загрузить уроки.', { exact: true })).toBeVisible();
+  await expect(page.getByText('Не удалось загрузить статьи.', { exact: true })).toBeVisible();
   await page.unroute(`**/api/ApiLessons/${SCHOOL_ID}/all`);
   await page.getByRole('button', { name: 'Повторить', exact: true }).click();
-  await expect(page.getByText('Не удалось загрузить уроки.', { exact: true })).toHaveCount(0);
+  await expect(page.getByText('Не удалось загрузить статьи.', { exact: true })).toHaveCount(0);
 });
 
 test('LESSON-06 ACCESS-02: edit=true не даёт ученику редактор', async ({ actors }) => {

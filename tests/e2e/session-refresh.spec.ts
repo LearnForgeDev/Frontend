@@ -7,7 +7,7 @@ for (const { name, removeCookie } of SESSION_REFRESH_CASES) {
   test(`${name}: обновление токена сохраняет страницу и загружает данные настоящего backend`, async ({ page, context }) => {
     await login(page);
     await page.goto(`${SCHOOL_PATH}/lessons`);
-    await expect(page.getByRole('heading', { name: 'Мои уроки' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Статьи' })).toBeVisible();
     const previousRefreshToken = await page.evaluate(() => JSON.parse(localStorage.getItem('user_identity')!).refreshToken);
     if (removeCookie) {
       await context.clearCookies();
@@ -25,7 +25,7 @@ for (const { name, removeCookie } of SESSION_REFRESH_CASES) {
     const loaded = page.waitForResponse((response) =>
       new URL(response.url()).pathname === `/api/ApiFiles/${SCHOOL_ID}` && response.ok());
 
-    await page.getByRole('navigation', { name: 'Разделы школы' }).getByRole('button', { name: 'Материалы', exact: true }).click();
+    await page.getByRole('navigation', { name: 'Разделы школы' }).getByRole('button', { name: 'Файлы', exact: true }).click();
     await Promise.all([refreshed, loaded]);
 
     await expect(page).toHaveURL(`${SCHOOL_PATH}/files`, { timeout: BACKEND_TIMEOUT_MS });

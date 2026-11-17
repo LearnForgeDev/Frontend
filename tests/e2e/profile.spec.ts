@@ -67,7 +67,7 @@ test('профиль сохраняет текущую школу и возвр�
   const { page } = await actors('teacher');
   const source = `${OTHER_SCHOOL_PATH}/lessons?view=recent#materials`;
   await page.goto(source);
-  await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Статьи', exact: true })).toBeVisible();
   await openProfile(page);
   await expect(page).toHaveURL(/\/app\/profile$/);
   await expect(page.getByRole('button', { name: /CI Other School/ }).first()).toBeVisible();
