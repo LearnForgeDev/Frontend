@@ -293,8 +293,8 @@ describe('Student attempt', () => {
     expect(attemptView.save).toHaveBeenCalled();
     expect(attemptView.submit).toHaveBeenCalled();
     expect(screen.getByText(/Осталось 30 сек/)).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'К заданию' }));
-    expect(navigate).toHaveBeenCalledWith('/app/schools/school/homework/homework-1?course=course-1&item=item-1');
+    fireEvent.click(screen.getByRole('button', { name: 'Вернуться к курсу' }));
+    expect(navigate).toHaveBeenCalledWith('/app/schools/school/courses/course-1?item=item-1');
   });
   it('disables conflicted answers and keeps forced/unsaved recovery visible', () => {
     attemptView.attempt = homeworkAttempt({ wasForced: true, status: 1, score: 0, maxScore: 1, reviewComment: 'Проверьте решение' });

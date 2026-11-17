@@ -24,9 +24,15 @@ export default function HomeworkAttemptPage() {
   const comment = historical ? historical.reviewComment : attempt.reviewComment;
   const passed = historical ? historical.passed : attempt.passed;
   const base = `/app/schools/${encodeURIComponent(view.schoolPublicId)}/homework/${attempt.homeworkPublicId}`;
+  const originCourse = search.get('course');
+  const originItem = search.get('item');
+  const backLabel = originCourse ? 'Вернуться к курсу' : 'К заданию';
+  const backPath = originCourse
+    ? `/app/schools/${encodeURIComponent(view.schoolPublicId)}/courses/${encodeURIComponent(originCourse)}${originItem ? `?item=${encodeURIComponent(originItem)}` : ''}`
+    : `${base}?${search.toString()}`;
   return <Stack spacing={3} sx={{ maxWidth: 1000, mx: 'auto', p: { xs: 2, md: 4 } }}>
     <Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-      <IconButton aria-label="К заданию" title="К заданию" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(`${base}?${search.toString()}`)}><ArrowBackRoundedIcon /></IconButton>
+      <IconButton aria-label={backLabel} title={backLabel} sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(backPath)}><ArrowBackRoundedIcon /></IconButton>
       <Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0, overflowWrap: 'anywhere' }}>{attempt.homework.title}</Typography>
     </Stack>
     <Typography color="text.secondary">Попытка {attempt.attemptNumber} · версия {attempt.version} · {HOMEWORK_STATUSES[status]}</Typography>
