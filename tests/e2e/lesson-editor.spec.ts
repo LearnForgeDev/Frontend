@@ -116,7 +116,7 @@ test('старый черновик не затирает новое сохра�
 test('ошибка метаданных не открывает пустой редактор', async ({ page }) => {
   await login(page, 'teacher');
   await page.goto(`${SCHOOL_PATH}/lessons/9223372036854775806?edit=true`);
-  await expect(page.getByRole('alert').filter({ hasText: 'Не удалось открыть урок' })).toBeVisible();
+  await expect(page.getByRole('alert').filter({ hasText: 'Не удалось открыть статью' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Повторить', exact: true })).toBeVisible();
   await expect(page.locator('.editor-input')).toHaveCount(0);
 });

@@ -81,7 +81,7 @@ for (const [route, endpoint, title] of [
     expect((await response).ok()).toBe(true);
     await expect(page.getByRole('main').first()).toBeVisible();
     if (title) {
-      await expect(page.getByRole('main').first().getByRole('heading', { name: new RegExp(`^${title}`) })).toBeVisible();
+      await expect(page.getByRole('main').first().getByRole('heading', { level: 1, name: new RegExp(`^${title}`) })).toBeVisible();
     }
     else {
       await expect(page.getByTestId('schedule-create')).toBeVisible();
