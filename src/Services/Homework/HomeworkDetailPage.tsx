@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Alert, Box, Button, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Stack, Typography } from '@mui/material';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import { Alert, Box, Button, IconButton, Chip, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, Paper, Stack, Typography } from '@mui/material';
 import { useHomework } from './hooks/useHomework';
 import { useHomeworkAttempts } from './hooks/useHomeworkAttempts';
 import { useHomeworkRealtime } from './hooks/useHomeworkRealtime';
@@ -51,12 +52,15 @@ export default function HomeworkDetailPage() {
     setDeleting(false);
   };
   return <Stack spacing={3} sx={{ maxWidth: 1100, mx: 'auto', p: { xs: 2, md: 4 } }}>
-    <Button onClick={() => navigate('..', { relative: 'path' })} sx={{ alignSelf: 'flex-start' }}>Все домашние задания</Button>
-    {originCourse && <Button onClick={() => navigate(courseReturnPath)} sx={{ alignSelf: 'flex-start' }}>Вернуться к курсу</Button>}
+    <Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+      <IconButton aria-label="Все домашние задания" title="Все домашние задания" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate('..', { relative: 'path' })}><ArrowBackRoundedIcon /></IconButton>
+      {originCourse && <IconButton aria-label="Вернуться к курсу" title="Вернуться к курсу" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(courseReturnPath)}><ArrowBackRoundedIcon /></IconButton>}
+      <Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0, overflowWrap: 'anywhere' }}>{homework.title}</Typography>
+      <Chip label={`Версия ${homework.version}`} />
+      {homework.canManage && <Chip label={PUBLICATION_LABELS[homework.publicationState]} />}
+    </Stack>
     {view.error && <Alert severity="error">{view.error}</Alert>}
     <Stack spacing={2}>
-      <Stack direction="row" sx={{ alignItems: 'center', gap: 2, flexWrap: 'wrap' }}><Typography variant="h4" sx={{ flex: 1 }}>{homework.title}</Typography><Chip label={`Версия ${homework.version}`} />
-        {homework.canManage && <Chip label={PUBLICATION_LABELS[homework.publicationState]} />}</Stack>
       {homework.description && <Typography sx={{ whiteSpace: 'pre-wrap' }} color="text.secondary">{homework.description}</Typography>}
       <Typography>Вопросов: {homework.questions.length} · Баллов: {homework.questions.reduce((sum, question) => sum + question.points, 0)} · Проходной балл: {homework.passingScore}</Typography>
       {homework.deadlineUtc && <Typography>Сдать до {new Date(homework.deadlineUtc).toLocaleString('ru-RU')}</Typography>}

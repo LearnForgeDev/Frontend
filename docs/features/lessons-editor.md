@@ -6,6 +6,9 @@ remain owned by Lessons. Homework uses its own compact rich-text toolbar and own
 its uploads, answers and save lifecycle. Each editor has its own identity and focus;
 mounting a homework question does not steal focus from another input.
 
+Article back navigation is an arrow-only circular control in the local page header.
+Its accessible name and title describe the existing catalogue destination.
+
 ## Status and scope
 
 Implemented: school lesson catalogue, creation/deletion, server-backed rename,

@@ -1,6 +1,6 @@
 import type { LessonWorkspaceProps } from './LessonWorkspace.type';
 import { useState } from 'react';
-import { Box, Button, Typography } from '@mui/material';
+import { Box, Button, IconButton, Typography } from '@mui/material';
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentSchool } from '@/Services/AppShell/hooks/useCurrentSchool';
@@ -20,11 +20,11 @@ export default function LessonWorkspace({ lessonId, requestedEditMode }: LessonW
   const isEditMode = requestedEditMode && capabilities.canTeach && !getIsMobileDevice();
 
   return <Box className="lesson-id-page">
-    <Box className="lesson-page-actions">
-      <Button data-testid="lesson-back" startIcon={<ArrowBackRoundedIcon />} onClick={() => navigate('../', { relative: 'path' })}>К статьям</Button>
-      {capabilities.canTeach && view.lesson && <Button data-testid="lesson-rename" onClick={() => setIsRenaming(true)} disabled={save.isSaving}>Переименовать</Button>}
+    <Box component="header" sx={{ display: 'grid', gridTemplateColumns: { xs: 'auto minmax(0, 1fr)', sm: 'auto minmax(0, 1fr) auto' }, alignItems: 'start', gap: 1.5 }}>
+      <IconButton data-testid="lesson-back" aria-label="К статьям" title="К статьям" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate('../', { relative: 'path' })}><ArrowBackRoundedIcon /></IconButton>
+      <Typography component="h1" sx={{ minWidth: 0, fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 800, overflowWrap: 'anywhere' }}>{view.lesson?.title ?? 'Статья'}</Typography>
+      {capabilities.canTeach && view.lesson && <Button data-testid="lesson-rename" sx={{ gridColumn: { xs: '2 / -1', sm: 'auto' }, justifySelf: 'start' }} onClick={() => setIsRenaming(true)} disabled={save.isSaving}>Переименовать</Button>}
     </Box>
-    <Typography variant="h1" className="lesson-name">{view.lesson?.title ?? 'Статья'}</Typography>
     {view.isLoading || view.isError || view.isUnavailable ? <LessonEditorStatus {...view} /> : view.lesson && view.editorState ? (
       <LessonEditorContainer key={`${view.schoolPublicId}:${lessonId}:${isEditMode}`} schoolPublicId={view.schoolPublicId} lesson={view.lesson} document={view.editorState} isEditMode={isEditMode} />
     ) : null}

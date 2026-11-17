@@ -17,8 +17,8 @@ import { styles } from './ActiveChatView.styles';
 export default function ActiveChatView({ activeThread, isMobile, onBack }: ActiveChatViewProps) {
   const { messages, status, call, downloadFile, messagesEndRef, previewImage, previewImageFileId, closePreview, sendMessage } = useActiveChat(activeThread);
   return <Box sx={styles.root}>
-    <Box sx={pageStyles.chatHeader}>
-      {isMobile && <IconButton data-testid="chat-back" onClick={onBack} size="small" sx={styles.back} aria-label="К списку чатов"><ArrowBackIcon /></IconButton>}
+    <Box component="header" sx={pageStyles.chatHeader}>
+      {isMobile && <IconButton data-testid="chat-back" onClick={onBack} sx={styles.back} aria-label="К списку чатов" title="К списку чатов"><ArrowBackIcon /></IconButton>}
       <Avatar sx={styles.avatar}>{activeThread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}</Avatar>
       <Box sx={pageStyles.chatHeaderIdentity}>
         <Typography variant="subtitle1" sx={pageStyles.chatHeaderTitle} noWrap>{activeThread.name}</Typography>

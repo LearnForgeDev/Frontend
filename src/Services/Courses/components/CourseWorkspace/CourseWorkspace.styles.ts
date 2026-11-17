@@ -9,7 +9,7 @@ export const styles: Record<string, SxProps<Theme>> = {
   actions: { display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' },
   headerActions: { display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', gridColumn: { xs: '2 / -1', sm: 'auto' } },
   button: { textTransform: 'none', borderRadius: 2, fontWeight: 700 },
-  backButton: { minWidth: 44, minHeight: 44, mt: { xs: -0.5, md: 0 }, color: 'var(--admin-muted)' },
+  backButton: { width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', mt: { xs: -0.5, md: 0 }, color: 'var(--admin-muted)' },
   meta: { display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' },
   tabs: { alignSelf: 'flex-start', maxWidth: '100%', overflowX: 'auto' },
   deleteContent: { display: 'flex', flexDirection: 'column', gap: 2, pt: 1 },

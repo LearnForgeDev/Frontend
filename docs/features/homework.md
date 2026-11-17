@@ -1,5 +1,9 @@
 # Homework
 
+Back navigation uses circular arrow-only controls in each local page header.
+Accessible names and titles retain the assignment, roster and course return
+destinations, including the originating course item query parameters.
+
 ## Status and scope
 
 School routes under `homework` connect a catalogue, teacher authoring, student

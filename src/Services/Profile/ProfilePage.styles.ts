@@ -30,7 +30,11 @@ export const subtitleSx: SxProps<Theme> = {
 
 export const backButtonSx: SxProps<Theme> = {
   alignSelf: 'flex-start',
-  textTransform: 'none',
+  width: 44,
+  height: 44,
+  borderRadius: '50%',
+  border: '1px solid',
+  borderColor: 'divider',
 };
 
 export const contentGridSx: SxProps<Theme> = {

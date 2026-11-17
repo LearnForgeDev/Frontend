@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import dynamic from 'next/dynamic';
-import { Alert, Box, Button, Checkbox, CircularProgress, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
+import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
+import { Alert, Box, Button, IconButton, Checkbox, CircularProgress, FormControlLabel, Stack, TextField, Typography } from '@mui/material';
 import { useHomeworkAttempt } from './hooks/useHomeworkAttempt';
 import { useHomeworkReview } from './hooks/useHomeworkReview';
 import { HOMEWORK_STATUSES } from './homework.const';
@@ -23,8 +24,11 @@ export default function HomeworkReviewPage() {
   const editable = attempt.status === 1 || attempt.status === 2;
   const locked = !editable || review.busy;
   return <Stack spacing={3} sx={{ maxWidth: 1100, mx: 'auto', p: { xs: 2, md: 4 } }}>
-    <Button sx={{ alignSelf: 'flex-start' }} onClick={() => navigate(`/app/schools/${encodeURIComponent(view.schoolPublicId)}/homework/${attempt.homeworkPublicId}`)}>К работам учеников</Button>
-    <Typography variant="h4">{attempt.homework.title}</Typography><Typography variant="h6">{attempt.student.name}</Typography>
+    <Stack component="header" direction="row" sx={{ alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+      <IconButton aria-label="К работам учеников" title="К работам учеников" sx={{ width: 44, height: 44, borderRadius: '50%', border: '1px solid', borderColor: 'divider', flexShrink: 0 }} onClick={() => navigate(`/app/schools/${encodeURIComponent(view.schoolPublicId)}/homework/${attempt.homeworkPublicId}`)}><ArrowBackRoundedIcon /></IconButton>
+      <Typography component="h1" variant="h4" sx={{ flex: '1 1 240px', minWidth: 0, overflowWrap: 'anywhere' }}>{attempt.homework.title}</Typography>
+    </Stack>
+    <Typography variant="h6">{attempt.student.name}</Typography>
     <Typography color="text.secondary">Попытка {attempt.attemptNumber} · версия {attempt.version} · {HOMEWORK_STATUSES[attempt.status]}</Typography>
     {review.error && <Alert severity="error" action={<Button onClick={() => {
       review.discard();
