@@ -71,9 +71,12 @@ a Unicode decimal digit. The frontend checks before sending; the backend owns
 enforcement for all clients. Passwords are not trimmed or transformed. Login accepts
 existing passwords without applying the new-account policy.
 
-After hydration, the login button and Enter key capture the current native form
-values from the button or keyboard event and start the API request without dispatching native
-submission. An explicit form-submit event uses the same value capture and validation.
+After hydration, Enter in the username field focuses the password field without
+validation or an API request, even if a password is already filled or visible.
+Enter during input composition does not move focus or start authentication.
+The login button and Enter in the password field capture the current native form
+values and start the API request without dispatching native submission. An explicit
+form-submit event uses the same value capture and validation.
 Username/current-password autocomplete remains available, and failed or pending
 requests retain the same visible fields and input. Only a confirmed, normalized
 authentication response requests password saving through the browser Credential

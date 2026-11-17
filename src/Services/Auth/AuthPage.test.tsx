@@ -41,6 +41,31 @@ afterEach(() => {
 });
 
 describe('Login submission and password saving', () => {
+  it.each(['', 'old'])('moves Enter from username to password without submitting with password %j', (value) => {
+    renderAuth();
+    const name = screen.getByLabelText(/^Имя/);
+    const password = screen.getByLabelText(/^Пароль/);
+    fireEvent.change(password, { target: { value } });
+    name.focus();
+    expect(fireEvent.keyDown(name, { key: 'Enter' })).toBe(false);
+    expect(document.activeElement).toBe(password);
+    expect(mocks.login).not.toHaveBeenCalled();
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+
+  it('focuses the visible password field and leaves composing Enter alone', () => {
+    renderAuth();
+    const name = screen.getByLabelText(/^Имя/);
+    const password = screen.getByLabelText(/^Пароль/);
+    fireEvent.click(screen.getByTestId('auth-password-toggle'));
+    name.focus();
+    expect(fireEvent.keyDown(name, { key: 'Enter', isComposing: true })).toBe(true);
+    expect(document.activeElement).toBe(name);
+    expect(fireEvent.keyDown(name, { key: 'Enter' })).toBe(false);
+    expect(document.activeElement).toBe(password);
+    expect(mocks.login).not.toHaveBeenCalled();
+  });
+
   it('keeps autofill hints and does not dispatch native submission on click or Enter', async () => {
     mocks.login.mockRejectedValue(new Error('Неверный пароль'));
     renderAuth();
