@@ -1,4 +1,4 @@
-import { Alert, Box, Button, Typography } from '@mui/material';
+import { Alert, Box, Button, IconButton, Typography } from '@mui/material';
 import { ArrowBack } from '@mui/icons-material';
 import { Link, useParams } from 'react-router-dom';
 import { ClipLoader } from 'react-spinners';
@@ -6,21 +6,23 @@ import ErrorBoundary from '@/Assets/Components/ErrorBoundary/ErrorBoundary';
 import CourseLessonContent from './components/CourseLessonContent/CourseLessonContent';
 import { useCourseLesson } from './hooks/useCourseLesson';
 import { getCoursePath } from './utils/coursePath';
-import { lessonBackSx, lessonPageSx, lessonStatusSx, lessonTitleSx } from './CourseLessonPage.styles';
+import { lessonBackSx, lessonHeaderSx, lessonPageSx, lessonStatusSx, lessonTitleSx } from './CourseLessonPage.styles';
 
 export default function CourseLessonPage() {
   const { schoolPublicId = '', coursePublicId = '', lessonId = '' } = useParams();
-  const { course, lesson, content, isLoading, isError, isRetrying, retry } = useCourseLesson(schoolPublicId, coursePublicId, lessonId);
+  const { course, lesson, content, isLoading, isError, isRetrying, retry, timingError } = useCourseLesson(schoolPublicId, coursePublicId, lessonId);
 
   return (
     <Box className="admin-page" sx={lessonPageSx}>
-      <Button component={Link} to={getCoursePath(schoolPublicId, coursePublicId)} startIcon={<ArrowBack />} sx={lessonBackSx}>
-        К курсу
-      </Button>
-      <Box>
-        <Typography className="admin-page-description">{course?.title}</Typography>
-        <Typography component="h1" sx={lessonTitleSx}>{lesson?.title ?? 'Урок'}</Typography>
+      <Box component="header" sx={lessonHeaderSx}>
+        <IconButton component={Link} to={getCoursePath(schoolPublicId, coursePublicId)} sx={lessonBackSx} aria-label="К курсу" title="К курсу"><ArrowBack /></IconButton>
+        <Box sx={{ minWidth: 0 }}>
+          <Typography className="admin-page-description">{course?.title}</Typography>
+          <Typography component="h1" sx={lessonTitleSx}>{lesson?.title ?? 'Урок'}</Typography>
+          {lesson?.completionRule === 2 && lesson.requiredSeconds !== null && <Typography variant="body2" color="text.secondary">{lesson.isCompleted ? 'Шаг пройден' : `Открыто: ${Math.floor(lesson.elapsedSeconds / 60)} из ${Math.ceil(lesson.requiredSeconds / 60)} мин.`}</Typography>}
+        </Box>
       </Box>
+      {timingError && <Alert severity="warning">Не удалось сохранить время. Повторяем автоматически.</Alert>}
       {isLoading ? (
         <Box sx={lessonStatusSx} role="status"><ClipLoader color="var(--admin-primary)" />Загрузка урока…</Box>
       ) : isError ? (

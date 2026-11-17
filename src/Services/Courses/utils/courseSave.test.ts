@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AxiosError, AxiosHeaders } from 'axios';
+import type { CourseItemFields } from '@/Endpoints/Courses';
 import { coursesEndpoints } from '@/Endpoints/Courses';
 import { makeCourse, makeCourseInput, makeCourseItem } from './course.fixtures';
 import { saveCourse } from '../hooks/saveCourse';
@@ -65,7 +66,7 @@ describe('Mixed course saves', () => {
 
   it('adds all supported references without granting source access and keeps created identity', async () => {
     const input = makeCourseInput(makeCourse({ items: [] }));
-    const fields = { title: 'Блок', description: null, isRequired: false, availableFromUtc: null, availableUntilUtc: null };
+    const fields = { title: 'Блок', description: null, completionRule: 0, requiredSeconds: null, completeAfterUtc: null, isRequired: false, availableFromUtc: null, availableUntilUtc: null } satisfies CourseItemFields;
     input.blocks = [
       { kind: 'supported', clientId: 'file', publicId: null, input: { ...fields, itemType: 0, filePublicId: 'file' } },
       { kind: 'supported', clientId: 'call', publicId: null, input: { ...fields, itemType: 1, scheduleEventPublicId: 'event-guid' } },
@@ -104,7 +105,7 @@ describe('Mixed course saves', () => {
     await expect(saveCourse(options({ coursePublicId: undefined, input: makeCourseInput(makeCourse({ items: [] })) }))).rejects.toBeInstanceOf(CourseCreationUncertainError);
     expect(onCreated).not.toHaveBeenCalled();
     const input = makeCourseInput(persisted);
-    input.blocks.push({ kind: 'supported', publicId: null, clientId: 'new', input: { title: 'Новое', description: null, itemType: 2, lessonId: 20, isRequired: true, availableFromUtc: null, availableUntilUtc: null } });
+    input.blocks.push({ kind: 'supported', publicId: null, clientId: 'new', input: { title: 'Новое', description: null, itemType: 2, lessonId: 20, completionRule: 2, requiredSeconds: 60, completeAfterUtc: null, isRequired: true, availableFromUtc: null, availableUntilUtc: null } });
     vi.mocked(coursesEndpoints.addItem).mockRejectedValueOnce(new Error('lost response'));
     await expect(saveCourse(options({ input }))).rejects.toBeInstanceOf(CourseCreationUncertainError);
     expect(onItemCreated).not.toHaveBeenCalled();

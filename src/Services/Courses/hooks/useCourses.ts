@@ -4,13 +4,13 @@ import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { coursesEndpoints } from '@/Endpoints/Courses';
 import { fetchCourseResource } from '@/Storage/Courses/courses.requests';
 import { courseRemoved, courseSaved, createCoursesState, operationChanged, progressSaved, scopeChanged } from '@/Storage/Courses/courses.slice';
+import type { CourseActivityInput } from '@/Endpoints/Courses';
 import type { CourseLocalReadRequest } from '@/Storage/Courses/courses.type';
 import { useHomework } from '@/Services/Homework/hooks/useHomework';
 import type { CourseInput, CourseProgramItem, CourseResourceOption } from '../Courses.type';
 import { toCourseDetail, toCourseSummary } from '../utils/courseMapping';
 import { saveCourse } from './saveCourse';
 import { CourseCreationUncertainError } from './saveCourse.errors';
-import { isCourseItemAvailable } from '../utils/courseProgram.conversion';
 
 const EMPTY_COURSES = createCoursesState();
 
@@ -114,21 +114,30 @@ export function useCourses(schoolPublicId: string) {
     dispatch(courseRemoved({ scope, accessEpoch, publicId: coursePublicId }));
   }), [dispatch, run, schoolPublicId, scope]);
 
-  const mark = useCallback((coursePublicId: string, item: CourseProgramItem) => run(`progress:${coursePublicId}`, async (accessEpoch) => {
-    if (item.itemType === 3 || !isCourseItemAvailable(item)) {
-      throw new Error('Прогресс этого блока обновляется автоматически или блок недоступен');
-    }
-    const progress = await coursesEndpoints.setItemProgress(schoolPublicId, coursePublicId, item.publicId, item.isCompleted ? 0 : 2);
+  const activity = useCallback((coursePublicId: string, itemPublicId: string, input: CourseActivityInput) => run(`activity:${coursePublicId}:${itemPublicId}`, async (accessEpoch) => {
+    const progress = await coursesEndpoints.recordActivity(schoolPublicId, coursePublicId, itemPublicId, input);
     dispatch(progressSaved({ scope, accessEpoch, progress }));
   }), [dispatch, run, schoolPublicId, scope]);
 
+  const approve = useCallback((coursePublicId: string, studentPublicId: string, item: CourseProgramItem, status: 0 | 2) => run(`approve:${coursePublicId}`, async (_, assertCurrent) => {
+    await coursesEndpoints.setStudentProgress(schoolPublicId, coursePublicId, item.publicId, studentPublicId, status);
+    assertCurrent();
+    await read({ kind: 'roster', coursePublicId, refresh: true });
+  }), [read, run, schoolPublicId]);
+
   const getMaterial = useCallback((coursePublicId: string, itemPublicId: string, signal?: AbortSignal) =>
-    run(`material:${coursePublicId}:${itemPublicId}`, () => coursesEndpoints.getMaterial(schoolPublicId, coursePublicId, itemPublicId, signal)), [run, schoolPublicId]);
+    run(`material:${coursePublicId}:${itemPublicId}`, async (_, assertCurrent) => {
+      const blob = await coursesEndpoints.getMaterial(schoolPublicId, coursePublicId, itemPublicId, signal);
+      assertCurrent();
+      await read({ kind: 'progress', coursePublicId, refresh: true });
+      return blob;
+    }), [read, run, schoolPublicId]);
 
   const homeworkResources: CourseResourceOption[] = homework.homeworks.filter(item => item.activeVersion !== null).map(item => ({
     key: `homework:${item.id}`, title: item.title,
     reference: {
       title: item.title, itemType: 3, homeworkId: item.id, description: null,
+      completionRule: 4, requiredSeconds: null, completeAfterUtc: null,
       isRequired: true, availableFromUtc: null, availableUntilUtc: null,
     },
   }));
@@ -141,7 +150,7 @@ export function useCourses(schoolPublicId: string) {
     return `/app/schools/${encodeURIComponent(schoolPublicId)}/homework/${encodeURIComponent(assignment.publicId)}?${query.toString()}`;
   };
   return {
-    scope, accountPublicId, state, read, save, remove, mark, getMaterial, getHomeworkPath,
+    scope, accountPublicId, state, read, save, remove, activity, approve, getMaterial, getHomeworkPath,
     homework, resources: [...state.options?.resources ?? [], ...homeworkResources],
     catalogue: state.catalogue?.map(course => toCourseSummary(course, state.progress[course.publicId])),
     getCourse: (publicId: string) => {

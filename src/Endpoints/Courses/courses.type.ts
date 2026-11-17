@@ -1,5 +1,7 @@
 
 
+export type CourseCompletionRule = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
+
 export interface CourseItemDto {
   id: number;
   publicId: string;
@@ -12,6 +14,9 @@ export interface CourseItemDto {
   scheduleEventPublicId: string | null;
   lessonId: number | null;
   homeworkId: number | null;
+  completionRule: CourseCompletionRule;
+  requiredSeconds: number | null;
+  completeAfterUtc: string | null;
   isRequired: boolean;
   availableFromUtc: string | null;
   availableUntilUtc: string | null;
@@ -40,7 +45,7 @@ export interface CourseProgressDto {
   startedAt: string;
   lastActivityAt: string;
   completedAt: string | null;
-  items: { itemPublicId: string; position: number; status: number; startedAt: string; completedAt: string | null }[];
+  items: { itemPublicId: string; position: number; status: number; startedAt: string; completedAt: string | null; isUnlocked: boolean; elapsedSeconds: number }[];
 }
 
 export interface CourseRosterDto {
@@ -70,6 +75,9 @@ export interface CourseAccessInput {
 export interface CourseItemFields {
   title: string;
   description: string | null;
+  completionRule: CourseCompletionRule;
+  requiredSeconds: number | null;
+  completeAfterUtc: string | null;
   isRequired: boolean;
   availableFromUtc: string | null;
   availableUntilUtc: string | null;
@@ -84,3 +92,9 @@ export type CourseItemUpdateInput = CourseItemFields & (
 );
 
 export type CourseItemInput = CourseItemUpdateInput & { position: number };
+
+export interface CourseActivityInput {
+  kind: 0 | 1;
+  sessionId: string;
+  elapsedSeconds: number;
+}

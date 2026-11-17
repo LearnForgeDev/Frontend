@@ -56,8 +56,16 @@ export function useCourseQuery(schoolPublicId: string, coursePublicId: string) {
       }
     };
     window.addEventListener('focus', refresh);
+    const interval = window.setInterval(() => {
+      if (canManage === false) {
+        void read({ kind: 'progress', coursePublicId, refresh: true });
+      }
+    }, 15_000);
     refresh();
-    return () => window.removeEventListener('focus', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      window.clearInterval(interval);
+    };
   }, [read, coursePublicId, canManage]);
   const statusView = (status: CourseRequestStatus, kind: 'progress' | 'roster') => ({
     isPending: status.status === 'idle' || status.status === 'pending',

@@ -20,7 +20,7 @@ import { courseSaved, progressSaved, scopeChanged } from '@/Storage/Courses/cour
 
 const mocks = vi.hoisted(() => ({ save: vi.fn(), getLessons: vi.fn(), getStudentsSimple: vi.fn(), getStudentGroups: vi.fn(),
   listFiles: vi.fn(), listEvents: vi.fn(), getCourses: vi.fn(), getCourse: vi.fn(), getProgress: vi.fn(), getRoster: vi.fn(),
-  success: vi.fn(), error: vi.fn(), setItemProgress: vi.fn(), deleteCourse: vi.fn() }));
+  success: vi.fn(), error: vi.fn(), recordActivity: vi.fn(), deleteCourse: vi.fn() }));
 vi.mock('@/Endpoints', () => ({ lessonsEndpoints: mocks, studentsEndpoints: mocks, filesEndpoints: mocks, scheduleEndpoints: mocks }));
 vi.mock('@/Endpoints/Courses', () => ({ coursesEndpoints: mocks }));
 vi.mock('@/Services/Courses/hooks/saveCourse', () => ({ saveCourse: mocks.save }));
@@ -31,7 +31,7 @@ const raw = makeCourse({ publicId: 'created', title: 'Сохранённый к�
   items: [makeCourseItem({ publicId: 'item', lessonId: 1 })] });
 const lesson = { id: '1', publicId: 'lesson', title: 'Тема' };
 const progress = { coursePublicId: 'created', completedItemsCount: 1, totalRequiredItemsCount: 1, percent: 100,
-  startedAt: '', lastActivityAt: '', completedAt: '', items: [{ itemPublicId: 'item', position: 0, status: 2, startedAt: '', completedAt: '' }] };
+  startedAt: '', lastActivityAt: '', completedAt: '', items: [{ itemPublicId: 'item', position: 0, status: 2, startedAt: '', completedAt: '', isUnlocked: true, elapsedSeconds: 60 }] };
 
 function context() {
   const store = createApplicationStore();
@@ -53,7 +53,7 @@ beforeEach(() => {
   mocks.getCourse.mockResolvedValue(raw);
   mocks.getProgress.mockResolvedValue(progress);
   mocks.getRoster.mockResolvedValue({ coursePublicId: 'created', isSchoolWide: false, totalRequiredItemsCount: 1, students: [] });
-  mocks.setItemProgress.mockResolvedValue(progress);
+  mocks.recordActivity.mockResolvedValue(progress);
   useGlobalContext.getState().auth.setUser({ userPublicId: 'author', userName: 'Учитель', jwtToken: 'token', refreshToken: 'refresh', exp: 0, userRoles: [] });
 });
 afterEach(() => {
@@ -141,8 +141,7 @@ describe('Course audience and mixed program controls', () => {
   it('offers creation only for an empty manager program and opens occurrences by item identity', () => {
     const onEdit = vi.fn();
     const onOpen = vi.fn();
-    const onToggleCompleted = vi.fn();
-    const props = { items: [], canManage: false, isSavingProgress: false, openingItemPublicId: null, onOpen, onToggleCompleted, onEdit };
+    const props = { items: [], canManage: false, openingItemPublicId: null, onOpen, onEdit };
     const view = render(createElement(CourseProgramPanel, props));
     expect(screen.getByText('Программа пока пуста')).toBeTruthy();
     expect(screen.queryByRole('button', { name: 'Собрать программу' })).toBeNull();
@@ -152,11 +151,8 @@ describe('Course audience and mixed program controls', () => {
     const selected = toCourseDetail(raw).items;
     view.rerender(createElement(CourseProgramPanel, { ...props, items: selected }));
     fireEvent.click(screen.getByRole('button', { name: 'Открыть' }));
-    fireEvent.click(screen.getByRole('checkbox'));
     expect(onOpen).toHaveBeenCalledWith(expect.objectContaining({ publicId: 'item' }));
-    expect(onToggleCompleted).toHaveBeenCalledWith(selected[0]);
-    view.rerender(createElement(CourseProgramPanel, { ...props, items: selected, isSavingProgress: true }));
-    expect(screen.getByRole('checkbox')).toHaveProperty('disabled', true);
+    expect(screen.queryByRole('checkbox')).toBeNull();
   });
 
   it('keeps assigned students separate from the empty state and its management action', () => {
@@ -165,7 +161,7 @@ describe('Course audience and mixed program controls', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Добавить учеников' }));
     expect(onEdit).toHaveBeenCalledOnce();
     view.rerender(createElement(CourseStudentsPanel, { students: [{ userPublicId: 'student', displayName: 'Ученик', completedCount: 0, totalCount: 1,
-      percentage: 0, isDirectlyAssigned: false, accessLabel: 'Через группу' }], onEdit }));
+      percentage: 0, isDirectlyAssigned: false, accessLabel: 'Через группу', items: [] }], onEdit }));
     expect(screen.getByText('Ученик')).toBeTruthy();
     expect(screen.getByText('Через группу')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Изменить состав' }));
@@ -195,8 +191,7 @@ describe('Course page accepted writes', () => {
     expect(mocks.success).toHaveBeenCalledWith('Курс удалён');
   });
 
-  it('does not write unknown progress and toggles completion by stable program-item identity', async () => {
-    const course = toCourseDetail({ ...raw, canManage: false });
+  it('blocks actions until server unlock state is known and validates the exact item before opening', async () => {
     mocks.getCourse.mockResolvedValue({ ...raw, canManage: false });
     let release: () => void = () => undefined;
     mocks.getProgress.mockImplementation(() => new Promise(resolve => {
@@ -204,12 +199,20 @@ describe('Course page accepted writes', () => {
     }));
     const { result } = renderHook(() => useCoursePage('school', 'created'), context());
     await waitFor(() => expect(result.current.course).toBeTruthy());
-    act(() => result.current.markItem(course.items[0]));
-    expect(mocks.setItemProgress).not.toHaveBeenCalled();
+    const item = result.current.course?.items[0];
+    if (!item) {
+      throw new Error('Expected loaded course item');
+    }
+    act(() => result.current.openItem(item));
+    expect(mocks.recordActivity).not.toHaveBeenCalled();
     await act(async () => release());
     await waitFor(() => expect(result.current.query.progressQuery.isSuccess).toBe(true));
-    act(() => result.current.markItem(course.items[0]));
-    await waitFor(() => expect(mocks.setItemProgress).toHaveBeenCalledWith('school', 'created', 'item', 2));
+    const unlocked = result.current.course?.items[0];
+    if (!unlocked) {
+      throw new Error('Expected unlocked course item');
+    }
+    act(() => result.current.openItem(unlocked));
+    await waitFor(() => expect(mocks.recordActivity).toHaveBeenCalledWith('school', 'created', 'item', expect.objectContaining({ kind: 0, elapsedSeconds: 0 })));
     act(() => result.current.closeDialog());
     expect(result.current.dialog).toBeNull();
   });

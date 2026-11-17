@@ -21,6 +21,7 @@ export function toCourseSummary(course: CourseDto, progress?: CourseProgressDto)
 
 export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, roster?: CourseRosterDto, lessons?: Lesson[]): CourseDetail {
   const completed = new Set(progress?.items.filter(item => item.status === COURSE_PROGRESS_STATUS.COMPLETED).map(item => item.itemPublicId));
+  const itemProgress = new Map(progress?.items.map(item => [item.itemPublicId, item]));
   return {
     ...toCourseSummary(course, progress),
     raw: course,
@@ -30,17 +31,24 @@ export function toCourseDetail(course: CourseDto, progress?: CourseProgressDto, 
       block: toCourseBlock(item), publicId: item.publicId, position: item.position,
       title: item.title, description: item.description ?? '', itemType: item.itemType,
       isRequired: item.isRequired, isCompleted: completed.has(item.publicId),
+      isUnlocked: course.canManage || itemProgress.get(item.publicId)?.isUnlocked === true,
+      elapsedSeconds: itemProgress.get(item.publicId)?.elapsedSeconds ?? 0,
+      completionRule: item.completionRule, requiredSeconds: item.requiredSeconds, completeAfterUtc: item.completeAfterUtc,
       availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
     })),
     lessons: [...course.items].sort((a, b) => a.position - b.position).flatMap(item => item.itemType === COURSE_ITEM_TYPES.LESSON && item.lessonId !== null ? [{
         lessonId: item.lessonId, itemPublicId: item.publicId, title: lessons?.find(lesson => String(lesson.id) === String(item.lessonId))?.title ?? item.title, position: item.position,
         isRequired: item.isRequired, isCompleted: completed.has(item.publicId),
+        isUnlocked: course.canManage || itemProgress.get(item.publicId)?.isUnlocked === true,
+        elapsedSeconds: itemProgress.get(item.publicId)?.elapsedSeconds ?? 0,
+        completionRule: item.completionRule, requiredSeconds: item.requiredSeconds, completeAfterUtc: item.completeAfterUtc,
         availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
       }] : []),
     otherItems: course.items.filter(item => item.itemType !== COURSE_ITEM_TYPES.LESSON).sort((a, b) => a.position - b.position),
     students: roster?.students.map(student => ({
       userPublicId: student.publicId, displayName: student.login,
       isDirectlyAssigned: student.isDirectlyAssigned,
+      items: student.progress?.items.map(item => ({ itemPublicId: item.itemPublicId, isCompleted: item.status === COURSE_PROGRESS_STATUS.COMPLETED, isUnlocked: item.isUnlocked })) ?? [],
       accessLabel: student.isDirectlyAssigned ? 'Назначен лично' : roster.isSchoolWide ? 'Вся школа' : 'Через группу',
       completedCount: student.progress?.completedItemsCount ?? 0,
       totalCount: roster.totalRequiredItemsCount,

@@ -1,5 +1,5 @@
 import { createQueryFnWithRefresh } from '../factory/factory';
-import type { CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseItemUpdateInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './courses.type';
+import type { CourseActivityInput, CourseAccessInput, CourseDto, CourseItemDto, CourseItemInput, CourseItemUpdateInput, CourseMetadataInput, CourseProgressDto, CourseRosterDto } from './courses.type';
 
 const client = createQueryFnWithRefresh();
 const schoolPath = (schoolPublicId: string) => `/api/ApiCourses/${encodeURIComponent(schoolPublicId)}`;
@@ -31,7 +31,7 @@ export const coursesEndpoints = {
   async addItem(schoolPublicId: string, coursePublicId: string, body: CourseItemInput): Promise<CourseItemDto> {
     return (await client.post<CourseItemDto>(`${coursePath(schoolPublicId, coursePublicId)}/items`, body)).data;
   },
-  async updateItem(schoolPublicId: string, coursePublicId: string, itemPublicId: string, body: CourseItemUpdateInput): Promise<CourseItemDto> {
+  async updateItem(schoolPublicId: string, coursePublicId: string, itemPublicId: string, body: CourseItemUpdateInput & { keepCompletion: boolean }): Promise<CourseItemDto> {
     return (await client.put<CourseItemDto>(itemPath(schoolPublicId, coursePublicId, itemPublicId), body)).data;
   },
   async getMaterial(schoolPublicId: string, coursePublicId: string, itemPublicId: string, signal?: AbortSignal): Promise<Blob> {
@@ -47,7 +47,11 @@ export const coursesEndpoints = {
   async deleteCourse(schoolPublicId: string, coursePublicId: string): Promise<void> {
     await client.delete(coursePath(schoolPublicId, coursePublicId));
   },
-  async setItemProgress(schoolPublicId: string, coursePublicId: string, itemPublicId: string, status: number): Promise<CourseProgressDto> {
-    return (await client.put<CourseProgressDto>(`${itemPath(schoolPublicId, coursePublicId, itemPublicId)}/progress`, { status })).data;
+  async recordActivity(schoolPublicId: string, coursePublicId: string, itemPublicId: string, body: CourseActivityInput): Promise<CourseProgressDto> {
+    return (await client.post<CourseProgressDto>(`${itemPath(schoolPublicId, coursePublicId, itemPublicId)}/activity`, body)).data;
   },
+  async setStudentProgress(schoolPublicId: string, coursePublicId: string, itemPublicId: string, studentPublicId: string, status: 0 | 2): Promise<CourseProgressDto> {
+    return (await client.put<CourseProgressDto>(`${itemPath(schoolPublicId, coursePublicId, itemPublicId)}/students/${encodeURIComponent(studentPublicId)}/progress`, { status })).data;
+  },
+
 };

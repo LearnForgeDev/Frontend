@@ -52,7 +52,7 @@ export async function saveCourse({ schoolPublicId, coursePublicId, authorPublicI
     if (block.kind === 'unsupported') {
       desiredIds.push(block.publicId);
     } else if (block.publicId) {
-      await coursesEndpoints.updateItem(schoolPublicId, publicId, block.publicId, block.input);
+      await coursesEndpoints.updateItem(schoolPublicId, publicId, block.publicId, { ...block.input, keepCompletion: input.keepCompletion ?? true });
       desiredIds.push(block.publicId);
     } else {
       try {

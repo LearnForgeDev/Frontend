@@ -2,6 +2,9 @@ import { ToggleButtonGroup, styled, type Theme } from '@mui/material';
 import { type SxProps } from '@mui/system';
 
 export const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
+    display: 'inline-grid',
+    gridAutoFlow: 'column',
+    gridAutoColumns: '1fr',
     backgroundColor: theme.palette.action.hover,
     borderRadius: 50,
     padding: theme.spacing(0.5),
@@ -12,7 +15,8 @@ export const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => 
         border: 0,
         borderRadius: 50,
         textTransform: 'none',
-        flex: 1,
+        whiteSpace: 'nowrap',
+        minHeight: 44,
         zIndex: 2,
         transition: 'color 0.3s ease',
         '&.Mui-selected': {

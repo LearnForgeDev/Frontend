@@ -26,7 +26,7 @@ vi.mock('@/Services/Homework/hooks/useHomework', () => ({ useHomework: () => ({ 
 function lessonItem(lessonId: number, position: number): CourseItemDto {
   return { id: lessonId, publicId: `item-${lessonId}`, title: `Урок ${lessonId}`, description: null,
     position, itemType: 2, lessonId, file: null, scheduleEventId: null, scheduleEventPublicId: null, homeworkId: null,
-    isRequired: true, availableFromUtc: null, availableUntilUtc: null };
+    completionRule: 2, requiredSeconds: 60, completeAfterUtc: null, isRequired: true, availableFromUtc: null, availableUntilUtc: null };
 }
 function makeCourse(overrides: Partial<CourseDto> = {}): CourseDto {
   return { id: 1, publicId: 'course', title: 'Курс', description: null, authorId: 1,
@@ -34,7 +34,7 @@ function makeCourse(overrides: Partial<CourseDto> = {}): CourseDto {
     allowedUserIds: [1], allowedUserPublicIds: ['author', 'student'], allowedGroupIds: [], ...overrides };
 }
 const progress: CourseProgressDto = { coursePublicId: 'course', completedItemsCount: 1, totalRequiredItemsCount: 2, percent: 50,
-  startedAt: '', lastActivityAt: '', completedAt: null, items: [{ itemPublicId: 'item-1', position: 0, status: 2, startedAt: '', completedAt: '' }] };
+  startedAt: '', lastActivityAt: '', completedAt: null, items: [{ itemPublicId: 'item-1', position: 0, status: 2, startedAt: '', completedAt: '', isUnlocked: true, elapsedSeconds: 60 }] };
 function queryContext() {
   const store = createApplicationStore();
   const wrapper = ({ children }: PropsWithChildren) => createElement(Provider, { store, children });
@@ -198,11 +198,11 @@ describe('Course form and displayed progress', () => {
     expect(form.blocks.map(block => block.publicId)).toEqual(['item-1', 'item-2']);
   });
   it('distinguishes unknown progress, an empty program and a completed learner program', () => {
-    const view = render(createElement(CourseProgressPanel, { course: toCourseDetail(makeCourse({ items: [] })) }));
+    const view = render(createElement(CourseProgressPanel, { isApproving: false, onApproveItem: vi.fn(), course: toCourseDetail(makeCourse({ items: [] })) }));
     expect(screen.getByText('Прогресс появится вместе с программой')).toBeTruthy();
-    view.rerender(createElement(CourseProgressPanel, { course: toCourseDetail(makeCourse()) }));
+    view.rerender(createElement(CourseProgressPanel, { isApproving: false, onApproveItem: vi.fn(), course: toCourseDetail(makeCourse()) }));
     expect(screen.getByText('Пока нет данных о прогрессе')).toBeTruthy();
-    view.rerender(createElement(CourseProgressPanel, { course: toCourseDetail(makeCourse({ canManage: false }), { ...progress, totalRequiredItemsCount: 1, percent: 100 }) }));
+    view.rerender(createElement(CourseProgressPanel, { isApproving: false, onApproveItem: vi.fn(), course: toCourseDetail(makeCourse({ canManage: false }), { ...progress, totalRequiredItemsCount: 1, percent: 100 }) }));
     expect(screen.getByRole('heading', { name: 'Мой прогресс' })).toBeTruthy();
     expect(screen.getByRole('progressbar', { name: 'Прогресс: Мой прогресс' }).getAttribute('aria-valuenow')).toBe('100');
     expect(screen.getByText('Пройден')).toBeTruthy();

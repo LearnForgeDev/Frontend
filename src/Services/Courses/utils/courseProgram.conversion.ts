@@ -3,6 +3,7 @@ import type { CourseBlock } from '../Courses.type';
 
 export function toCourseBlock(item: CourseItemDto): CourseBlock {
   const fields = {
+    completionRule: item.completionRule, requiredSeconds: item.requiredSeconds, completeAfterUtc: item.completeAfterUtc,
     title: item.title, description: item.description, isRequired: item.isRequired,
     availableFromUtc: item.availableFromUtc, availableUntilUtc: item.availableUntilUtc,
   };

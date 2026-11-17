@@ -72,3 +72,22 @@ describe('Course editor recovery', () => {
     await waitFor(() => expect(read).toHaveBeenCalledWith({ kind: 'options', refresh: true }));
   });
 });
+
+it.each([true, false])('asks whether earned completion should be kept before changing an existing block: %s', async keepCompletion => {
+  const course = toCourseDetail(makeCourse());
+  save.mockResolvedValue(course);
+  const onSaved = vi.fn();
+  const { result } = renderHook(() => useCourseEditor('school', onSaved, course));
+  const block = makeSupportedBlock();
+  act(() => result.current.setBlocks([{ ...block, input: { ...block.input, requiredSeconds: 120 } }]));
+  await act(() => result.current.submit());
+  expect(save).not.toHaveBeenCalled();
+  expect(result.current.needsCompletionChoice).toBe(true);
+  act(() => result.current.cancelCompletionChoice());
+  expect(result.current.needsCompletionChoice).toBe(false);
+  expect(result.current.form.blocks[0]).toMatchObject({ input: { requiredSeconds: 120 } });
+  await act(() => result.current.submit());
+  await act(() => result.current.submit(keepCompletion));
+  expect(save).toHaveBeenCalledWith(expect.objectContaining({ keepCompletion }), 'course', expect.any(Function), expect.any(Function));
+  expect(onSaved).toHaveBeenCalledOnce();
+});

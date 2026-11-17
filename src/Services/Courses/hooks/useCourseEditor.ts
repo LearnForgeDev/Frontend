@@ -12,6 +12,7 @@ import { useCourses } from './useCourses';
 export function useCourseEditor(schoolPublicId: string, onSaved: (course: CourseDetail) => void, course?: CourseDetail) {
   const [form, dispatch] = useReducer(courseFormReducer, course, createCourseForm);
   const draftPublicId = useRef(course?.publicId);
+  const [needsCompletionChoice, setNeedsCompletionChoice] = useState(false);
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
   const isSaveBlocked = blockedMessage !== null;
   const feature = useCourses(schoolPublicId);
@@ -25,15 +26,27 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
   const isSaving = feature.state.operations.save ?? false;
   const isLoading = !feature.state.options && optionsRequest?.status !== 'error';
   const isError = optionsRequest?.status === 'error';
-  const submit = async () => {
+  const submit = async (keepCompletion?: boolean) => {
     const input = getCourseInput(form);
     const error = validateCourse(input);
     dispatch({ type: 'error', error });
     if (error || isLoading || isError || isSaving || isSaveBlocked) {
       return;
     }
+    const programChanged = course && form.blocks.some(block => {
+      if (block.kind !== 'supported' || !block.publicId) {
+        return false;
+      }
+      const original = course.items.find(item => item.publicId === block.publicId)?.block;
+      return original?.kind === 'supported' && JSON.stringify(original.input) !== JSON.stringify(block.input);
+    });
+    if (programChanged && keepCompletion === undefined) {
+      setNeedsCompletionChoice(true);
+      return;
+    }
+    setNeedsCompletionChoice(false);
     try {
-      const saved = await feature.save(input, draftPublicId.current, publicId => {
+      const saved = await feature.save({ ...input, keepCompletion: keepCompletion ?? true }, draftPublicId.current, publicId => {
         draftPublicId.current = publicId;
       }, (clientId, publicId) => dispatch({ type: 'created', clientId, publicId }));
       toast.success(course ? 'Курс сохранён' : 'Курс создан');
@@ -52,7 +65,7 @@ export function useCourseEditor(schoolPublicId: string, onSaved: (course: Course
     errorMessage: blockedMessage ?? form.error, groupOptions: feature.state.options?.groups ?? [],
     isLoading, isError, isSaving, isSaveBlocked,
     homeworkError: feature.homework.status === 'error',
-    submit, retry: () => {
+    submit, needsCompletionChoice, cancelCompletionChoice: () => setNeedsCompletionChoice(false), retry: () => {
       void read({ kind: 'options', refresh: true });
       void feature.homework.refresh();
     },

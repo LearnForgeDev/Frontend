@@ -4,9 +4,11 @@
 
 Courses provide a flat ordered path of lesson, material, scheduled-class and homework
 blocks. Teachers select existing resources, customize each block title/description,
-reorder or remove blocks, mark them required or optional and set an availability
-window. A resource may appear more than once. Sections and prerequisite unlocking
-are outside this model.
+reorder or remove blocks, choose completion conditions or make blocks optional and set an availability
+window. A resource may appear more than once. The path is strictly linear: a learner
+can open a block only after all earlier required blocks are complete. Optional
+blocks have no completion condition, do not affect the denominator and never delay
+later blocks. Sections and branching are outside this model.
 
 ## Ownership and access
 
@@ -42,11 +44,30 @@ Availability starts inclusively and ends exclusively, in UTC. Forms display loca
 browser time. Managers may inspect dated content; learner actions are disabled
 outside the window and the backend remains responsible for authorization.
 
-Learners manually mark supported non-homework blocks complete or incomplete.
-Required blocks determine the progress denominator. Homework completion is owned by
-the backend and requires a Checked attempt meeting that attempt version's passing
-score. Historical passes survive later publication; opening/submitting homework
-alone does not complete its course block. There is no manual homework completion.
+New steps default to file opening, one minute of reading, the scheduled call end
+or homework approval. Teachers can change these conditions before saving.
+
+Teachers choose each block's completion condition. Files complete after a successful
+authorized opening. Lessons complete after the configured accumulated time with the
+lesson open in a tab, including background-tab time. Teachers enter whole minutes;
+the API stores seconds. Leaving the reader stops counting, and reopening resumes
+from persisted time. There is no activity or visibility detection.
+
+Homework can complete after submission or after approval. Approval keeps the existing
+rule: a Checked attempt meeting that attempt version's passing score. Historical
+passes survive later publication. Calls use Jitsi through the existing scheduled
+event. A call can complete at its scheduled end, at a teacher-selected timestamp,
+or after manual teacher confirmation for that learner. Manual confirmation and
+reset controls live in the teacher's progress view. Learners cannot manually check
+automatic or teacher-approved blocks complete.
+
+The backend owns unlock decisions, automatic completion, accumulated time and
+teacher approvals. Course navigation checks the latest access before opening a
+resource; direct course lesson reads also validate the item. Progress polls while
+the course is open so time-based call completion appears without a reload.
+
+Course cards and headers omit student counts. Enrollment and progress management
+remain available. Back navigation belongs in the course and lesson headers.
 
 Unknown or malformed item types remain visible and retain their original payload
 when other parts of the course change. They are not converted into lesson blocks.
@@ -60,6 +81,11 @@ input and known created course/item identities for retry. An uncertain creation
 response blocks retry until the user reloads, preventing automatic duplication.
 Its recovery notice remains visible when the user edits other form fields.
 Unexpected concurrently added/deleted program items require reopening the editor.
+
+When an existing block's content, source or completion settings change, saving asks
+the teacher whether to keep or reset earned completion for changed blocks. Continuing
+to edit cancels that save. The chosen policy travels with each update; a reset clears
+that block's stored completion and time. Unchanged blocks keep their progress.
 
 Read failures differ from empty results. Temporary refresh failures may retain
 previously authorized data with a warning. A source lesson or its content file returning
@@ -79,7 +105,9 @@ Refreshing or returning to the course rereads backend progress after homework re
 Focused tests cover mixed reference mapping, duplicate identities, safe multi-stage
 saves, uncertainty, audience preservation, scoped Redux reads and editor recovery.
 Component tests exercise mixed program actions and block authoring controls.
-Browser scenarios cover real teacher/student mixed paths, persisted independent
+Focused progression checks cover locked actions, completion-rule authoring,
+keep/reset confirmation and tab-time accumulation. Browser scenarios cover real
+teacher/student mixed paths, persisted independent
 progress, source preservation and warmed-access revocation. They require the
 companion backend revision and run in CI; adding them is not a claim of execution.
 See [course acceptance scenarios](../e2e/courses.md) and [testing policy](../guides/testing.md).
