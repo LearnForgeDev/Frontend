@@ -29,6 +29,11 @@ const WaitingConfirmationPage = lazy(() => import('../Services/Onboarding/Waitin
 const CoursesPage = lazy(() => import('../Services/Courses/CoursesPage'));
 const CoursePage = lazy(() => import('../Services/Courses/CoursePage'));
 const CourseLessonPage = lazy(() => import('../Services/Courses/CourseLessonPage'));
+const HomeworkPage = lazy(() => import('../Services/Homework/HomeworkPage'));
+const HomeworkDetailPage = lazy(() => import('../Services/Homework/HomeworkDetailPage'));
+const HomeworkEditorPage = lazy(() => import('../Services/Homework/HomeworkEditorPage'));
+const HomeworkAttemptPage = lazy(() => import('../Services/Homework/HomeworkAttemptPage'));
+const HomeworkReviewPage = lazy(() => import('../Services/Homework/HomeworkReviewPage'));
 
 export const routes: RouteObject[] = [
   {
@@ -64,6 +69,9 @@ export const routes: RouteObject[] = [
               { path: 'courses', element: <CoursesPage /> },
               { path: 'courses/:coursePublicId', element: <CoursePage /> },
               { path: 'courses/:coursePublicId/lessons/:lessonId', element: <CourseLessonPage /> },
+              { path: 'homework', element: <HomeworkPage /> },
+              { path: 'homework/:homeworkPublicId', element: <HomeworkDetailPage /> },
+              { path: 'homework/:homeworkPublicId/attempts/:attemptPublicId', element: <HomeworkAttemptPage /> },
               { path: 'lessons/:lessonId', element: <LessonIdPage /> },
               { path: 'schedule', element: <SchedulePage /> },
               { path: 'calls', element: <CallsPage /> },
@@ -71,7 +79,12 @@ export const routes: RouteObject[] = [
               { path: 'chats', element: <ChatsPage /> },
               {
                 element: <SchoolCapabilityGuard capability="canTeach" />,
-                children: [{ path: 'students', element: <StudentsPage /> }],
+                children: [
+                  { path: 'students', element: <StudentsPage /> },
+                  { path: 'homework/new', element: <HomeworkEditorPage /> },
+                  { path: 'homework/:homeworkPublicId/edit', element: <HomeworkEditorPage /> },
+                  { path: 'homework/:homeworkPublicId/attempts/:attemptPublicId/review', element: <HomeworkReviewPage /> },
+                ],
               },
             ],
           },

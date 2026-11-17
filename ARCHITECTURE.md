@@ -79,6 +79,7 @@ Browser-only editors and external clients load when their owning feature is acti
 | Browser identity, roles, decoded token expiry, and selected school | Global auth store |
 | Session restoration, current credentials, and recovery status | Session query and user context, backed by the persisted browser session |
 | Loaded lessons, courses, events, files, and conversations | Query caches observed through feature hooks |
+| Homework definitions, pinned attempts, histories and working drafts | Account/school-scoped Redux domain state behind public homework hooks |
 | Unsaved lesson documents | Browser storage, scoped by account, school, and lesson |
 | Conversation drafts | In-memory chat state scoped to the conversation |
 | Forms, open dialogs, focus, and view selection | Local component and hook state |
@@ -91,9 +92,13 @@ on identity changes. Local lesson drafts remain associated with their original o
 
 ## State migration boundary
 
-Consolidation behind public feature hooks with Redux is a requested future design.
-Redux domain state is not implemented in the current runtime. The ownership table
-above describes the existing application rather than that proposed replacement.
+Consolidation behind public feature hooks with Redux begins with homework. Its
+request-local provider lives inside the account-keyed session boundary and owns
+its records and unsaved business drafts. Feature hooks orchestrate typed endpoint
+operations and reducer updates. Components receive data and operations; reducers
+perform no I/O. The [application state boundary](docs/features/application.md)
+describes this migration without duplicating records in query caches.
+Other modules retain the legacy owners in the table until explicitly migrated.
 
 ## API and authentication
 

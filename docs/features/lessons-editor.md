@@ -1,5 +1,11 @@
 # Lessons and rich-text editor
 
+The lesson editor and homework share a domain-neutral Lexical composition core.
+Lesson-specific media, publication controls, source-version checks and draft recovery
+remain owned by Lessons. Homework uses its own compact rich-text toolbar and owns
+its uploads, answers and save lifecycle. Each editor has its own identity and focus;
+mounting a homework question does not steal focus from another input.
+
 ## Status and scope
 
 Implemented: school lesson catalogue, creation/deletion, server-backed rename,

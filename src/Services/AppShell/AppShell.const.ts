@@ -5,6 +5,7 @@ import Groups2RoundedIcon from '@mui/icons-material/Groups2Rounded';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import MenuBookRoundedIcon from '@mui/icons-material/MenuBookRounded';
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
+import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import type { AppNavigationItem } from './AppShell.type';
 
 export const APP_SIDEBAR_WIDTH_PX = 272;
@@ -36,6 +37,12 @@ export const APP_NAVIGATION_ITEMS: AppNavigationItem[] = [
     label: 'Курсы',
     path: 'courses',
     icon: SchoolRoundedIcon,
+  },
+  {
+    id: 'homework',
+    label: 'Домашние задания',
+    path: 'homework',
+    icon: AssignmentOutlinedIcon,
   },
   {
     id: 'schedule',

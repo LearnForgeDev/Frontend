@@ -1,9 +1,11 @@
 import { test, expect } from './fixtures';
+import { ERROR_RESPONSE } from './flows.const';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 
 for (const role of ['teacher', 'student']) {
-  test(`COURSE-01 COURSE-02 COURSE-14: недоступный API курсов не превращается в пустой каталог для ${role}`, async ({ actors }) => {
+  test(`COURSE-01 COURSE-02 COURSE-14: недоступный API курсов не превращается в пустой каталог для ${role}`, { tag: '@ui-errors' }, async ({ actors }) => {
     const { page } = await actors(role);
+    await page.route(`**/api/ApiCourses/${SCHOOL_ID}`, route => route.fulfill({ ...ERROR_RESPONSE, status: 403 }));
     const load = page.waitForResponse(response => response.url().endsWith(`/ApiCourses/${SCHOOL_ID}`));
     await page.goto(`${SCHOOL_PATH}/courses`);
     const response = await load;

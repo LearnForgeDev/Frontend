@@ -19,11 +19,12 @@ School routes below start at `/app/schools/:schoolPublicId`.
 | [Calls](calls.md) | Backend-authorized meeting entry; `calls` | Connected; architecture discussion deferred |
 | [Profile](profile.md) | Identity, school roles, upcoming event and logout; `/app/profile` | Read-only profile |
 | [Platform administration](platform-administration.md) | Provisioning and separate admin login on the backend; frontend page removed | Backend-owned |
-| [Homework](homework.md) | Course-item contract fragment | Not implemented as a frontend workflow |
+| [Homework](homework.md) | Versioned authoring, attempts, handwritten review; `homework/*` | Connected; companion backend contract required |
 
 ## Shared foundations
 
 - [Architecture](../../ARCHITECTURE.md): dependency boundaries and state ownership.
+- [Application state](application.md): account-scoped Redux migration and recovery ownership.
 - [React component guide](../guides/react-components.md): how to implement UI.
 - [Testing](../guides/testing.md): configured checks and limitations.
 - [AGENTS.md](../../AGENTS.md): knowledge handoff and working rules.
@@ -36,7 +37,7 @@ The route configuration defines which screens are connected.
 Settings, the old school overview/layout and old admin dashboard files are not
 independent current routes. A service registry entry does not expose a route.
 
-Standalone whiteboard collaboration, grading, quizzes and marketplace workflows
+Standalone whiteboard collaboration, standalone quizzes and marketplace workflows
 are not connected. Meeting endpoint helpers mention whiteboard archival and screen
 sharing, but that does not establish a complete frontend feature. Define and document
 their scope before implementing them.

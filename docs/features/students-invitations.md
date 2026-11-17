@@ -33,6 +33,10 @@ Role-specific invitation rights must be verified on the backend; `canTeach` alon
 does not authorize every invitation operation.
 There is no connected student editing, removal or group CRUD workflow here.
 
+[Homework](homework.md) reuses the school roster and existing group read contracts
+to choose an assignment audience. Selecting those entries grants homework access;
+it does not create a student or group, or grant access to a containing course.
+
 ## Verification
 
 Invitation unit tests cover return-path and
