@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { BACKEND_TIMEOUT_MS, CI_PASSWORD, SCHOOL_PATH } from './core.const';
 
@@ -25,7 +26,7 @@ test('ONB-07 COMMON-05: заявки изолированы, недоступн�
   await page.getByTestId('onboarding-school-submit').click();
   await expect(page.getByRole('heading', { name: 'Заявка на рассмотрении' })).toBeVisible();
   const waitingUrl = page.url();
-  await page.getByTestId('profile-open').click();
+  await openProfile(page);
   await page.getByTestId('profile-logout').click();
   await page.getByRole('link', { name: 'Зарегистрироваться' }).click();
   await page.getByLabel(/^Имя пользователя/i).fill(student);
@@ -38,7 +39,7 @@ test('ONB-07 COMMON-05: заявки изолированы, недоступн�
   await expect(page.getByRole('heading', { name: 'Заявка недоступна' })).toBeVisible();
   await page.getByRole('button', { name: 'К выбору школы' }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
-  await page.getByTestId('profile-open').click();
+  await openProfile(page);
   await page.getByTestId('profile-logout').click();
   await page.getByLabel(/^Имя/i).fill(owner);
   await page.getByLabel(/^Пароль/i).fill(CI_PASSWORD);

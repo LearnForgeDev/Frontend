@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { BACKEND_TIMEOUT_MS, CI_PASSWORD, SCHOOL_PATH } from './core.const';
 import { ERROR_RESPONSE } from './flows.const';
@@ -38,7 +39,7 @@ test('SESSION-01 SESSION-07: сессия переносится в новый �
     const page = await restored.newPage();
     await page.goto(new URL(`${SCHOOL_PATH}/lessons`, actor.page.url()).href);
     await expect(page.getByRole('heading', { name: 'Мои уроки', exact: true })).toBeVisible();
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await expect(page.getByTestId('profile-logout')).toBeVisible();
     const signedOut = page.waitForRequest(request => request.isNavigationRequest()
       && request.resourceType() === 'document' && new URL(request.url()).pathname === '/auth/login');

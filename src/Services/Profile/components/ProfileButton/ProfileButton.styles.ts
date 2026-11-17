@@ -19,20 +19,24 @@ export const profileHintSx: SxProps<Theme> = {
   fontSize: '0.72rem',
 };
 
-export const topbarProfileButtonSx: SxProps<Theme> = {
+export const profileButtonSx: SxProps<Theme> = {
   flexShrink: 0,
   minWidth: 40,
   minHeight: 44,
   gap: 1,
-  px: { xs: 0.5, sm: 1 },
+  px: 1,
+  width: '100%',
+  justifyContent: 'flex-start',
   borderRadius: '12px',
   color: 'var(--app-text-muted)',
   textTransform: 'none',
 };
 
-export const topbarProfileTextSx: SxProps<Theme> = {
-  display: { xs: 'none', sm: 'block' },
+export const profileTextSx: SxProps<Theme> = {
+  display: 'block',
   minWidth: 0,
   maxWidth: 180,
   textAlign: 'left',
 };
+
+export const compactProfileButtonSx: SxProps<Theme> = { ...profileButtonSx, width: 44, p: 0, justifyContent: 'center' };

@@ -13,6 +13,9 @@ The page composes its public feature hook, which observes the existing auth stor
 and membership/schedule queries. The upcoming event opens the selected school's
 calendar with the event ID. Membership and schedule failures render independently.
 
+Profile opens from the desktop sidebar footer or the mobile More drawer. The
+collapsed sidebar exposes the same action as an avatar with a tooltip.
+
 Opening profile from a confirmed school route retains that school as the active
 selection, including when the route was opened directly. The switcher and school
 navigation remain available on profile. The visible Back action restores the recorded

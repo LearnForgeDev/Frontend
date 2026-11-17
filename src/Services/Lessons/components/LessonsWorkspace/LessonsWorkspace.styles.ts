@@ -1,5 +1,5 @@
 export const styles = {
-  root: { display: 'flex', flexDirection: 'column', height: '100%', p: 3 },
+  root: { display: 'flex', flexDirection: 'column', height: '100%' },
   header: { mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 2 },
   title: { fontWeight: 700 },
   content: { flexGrow: 1, height: '100%' },

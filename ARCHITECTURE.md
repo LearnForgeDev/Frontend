@@ -72,6 +72,10 @@ control entry into that school's workspace, and capability guards limit teaching
 screens. Failed membership reads remain distinct from a confirmed empty school list.
 Browser-only editors and external clients load when their owning feature is active.
 
+The app shell owns service gutters and sidebar/mobile navigation. It has no global
+top header. Profile and school selection remain in navigation. Service roots reuse
+shared gutters; calendar and article routes use a full-height workspace canvas.
+
 ## State ownership
 
 | State | Current owner |

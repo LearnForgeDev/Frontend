@@ -1,5 +1,4 @@
 import '@/Services/Lessons/LessonIdPage.css';
-import '@/Services/Lessons/LessonsMainPage.css';
 import '@/Services/Lessons/components/LessonItem/LessonItem.css';
 import '@/Services/Lessons/components/TextEditor/lexicalEditorTheme.css';
 import '@/Services/Lessons/components/TextEditorComponents/nodes/fileNode.css';

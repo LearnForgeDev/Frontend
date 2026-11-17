@@ -1,3 +1,4 @@
+import { openProfile, showProfileAction } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { expireStoredJwt } from './auth.utils';
@@ -29,7 +30,7 @@ test('SESSION-05 SESSION-09: истёкший JWT запускает один re
 test('SESSION-08: поздний ответ уроков не восстанавливает пользователя после выхода', { tag: '@ui-errors' }, async ({ actors }) => {
   const { page } = await actors();
   await page.goto(`${SCHOOL_PATH}/today`);
-  await expect(page.getByTestId('profile-open')).toBeVisible();
+  await expect(await showProfileAction(page)).toBeVisible();
   let release!: () => void;
   let started!: () => void;
   const gate = new Promise<void>(resolve => {
@@ -47,7 +48,7 @@ test('SESSION-08: поздний ответ уроков не восстанав
   try {
     await page.goto(`${SCHOOL_PATH}/lessons`);
     await ready;
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await page.getByTestId('profile-logout').click();
     await expect(page.getByTestId('auth-login-submit')).toBeVisible();
   } finally {

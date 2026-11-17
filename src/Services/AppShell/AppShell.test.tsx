@@ -36,7 +36,7 @@ afterEach(() => {
   localStorage.clear();
 });
 
-describe('Collapsible desktop navigation', () => {
+describe('App navigation without a global header', () => {
   it('keeps named navigation and school selection available after collapsing', async () => {
     renderShell();
     const sidebar = screen.getByRole('complementary');
@@ -44,6 +44,8 @@ describe('Collapsible desktop navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Свернуть меню', hidden: true }));
     expect(screen.getByRole('button', { name: 'Развернуть меню', hidden: true }).getAttribute('aria-expanded')).toBe('false');
     expect(navigation.textContent).toBe('');
+    const profile = within(sidebar).getByRole('button', { name: 'Открыть профиль', hidden: true });
+    expect(within(profile).queryByText('Профиль')).toBeNull();
     fireEvent.click(within(navigation).getByRole('button', { name: 'Расписание', hidden: true }));
     expect(screen.getByTestId('current-path').textContent).toBe('/app/schools/school/schedule');
     fireEvent.click(within(sidebar).getByRole('button', { name: school.schoolName, hidden: true }));
@@ -69,13 +71,15 @@ describe('Collapsible desktop navigation', () => {
     mocks.schools.mockReturnValue({ data: [] });
     renderShell('/app/profile');
     expect(screen.queryByRole('button', { name: 'Выберите школу', hidden: true })).toBeNull();
+    fireEvent.click(screen.getByTestId('nav-mobile-more'));
     expect(screen.getByRole('button', { name: 'Открыть профиль' })).toBeTruthy();
+    expect(screen.queryByRole('banner')).toBeNull();
   });
 
   it('retains the confirmed route school when opening profile from a direct school URL', () => {
     useGlobalContext.getState().auth.setActiveSchoolPublicId('previous-school');
     renderShell('/app/schools/school/lessons?view=recent#lesson');
-    fireEvent.click(screen.getByRole('button', { name: 'Открыть профиль' }));
+    fireEvent.click(within(screen.getByRole('complementary')).getByRole('button', { name: 'Открыть профиль', hidden: true }));
     expect(screen.getByTestId('current-path').textContent).toBe('/app/profile');
     expect(useGlobalContext.getState().auth.user?.activeSchoolPublicId).toBe(school.schoolPublicId);
     expect(within(screen.getByRole('complementary')).getByRole('button', { name: /Тестовая школа/, hidden: true })).toBeTruthy();

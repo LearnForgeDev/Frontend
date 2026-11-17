@@ -1,3 +1,4 @@
+import { openProfile } from './navigation.utils';
 import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { OTHER_SCHOOL_ID, OTHER_SCHOOL_PATH, HTTP_DENIED, ERROR_RESPONSE, VIEWPORTS } from './flows.const';
@@ -155,7 +156,7 @@ for (const role of ['owner', 'teacher', 'student']) {
     await page.goto(`${SCHOOL_PATH}/today`);
     await expect(page.getByRole('heading', { name: 'Школа', exact: true })).toHaveCount(role === 'owner' ? 1 : 0);
     await expect(page.getByRole('button', { name: 'Создать урок', exact: true })).toHaveCount(role === 'student' ? 0 : 1);
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await expect(page).toHaveURL(/\/app\/profile$/);
     await expect(page.getByRole('main').first().getByText(identity.userName, { exact: true })).toBeVisible();
     const schools = await readJson<Array<{ schoolName: string }>>(await page.request.get('/api/ApiSchool/my-schools'));
@@ -173,7 +174,7 @@ for (const viewport of VIEWPORTS) {
       await page.getByTestId('nav-more-files').click();
       await expect(page).toHaveURL(`${SCHOOL_PATH}/files`);
     }
-    await page.getByTestId('profile-open').click();
+    await openProfile(page);
     await expect(page).toHaveURL(/\/app\/profile$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   });
