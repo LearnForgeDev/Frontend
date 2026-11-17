@@ -18,19 +18,19 @@ export default function CourseLessonPage() {
         <IconButton component={Link} to={getCoursePath(schoolPublicId, coursePublicId)} sx={lessonBackSx} aria-label="К курсу" title="К курсу"><ArrowBack /></IconButton>
         <Box sx={{ minWidth: 0 }}>
           <Typography className="admin-page-description">{course?.title}</Typography>
-          <Typography component="h1" sx={lessonTitleSx}>{lesson?.title ?? 'Урок'}</Typography>
+          <Typography component="h1" sx={lessonTitleSx}>{lesson?.title ?? 'Статья'}</Typography>
           {lesson?.completionRule === 2 && lesson.requiredSeconds !== null && <Typography variant="body2" color="text.secondary">{lesson.isCompleted ? 'Шаг пройден' : `Открыто: ${Math.floor(lesson.elapsedSeconds / 60)} из ${Math.ceil(lesson.requiredSeconds / 60)} мин.`}</Typography>}
         </Box>
       </Box>
       {timingError && <Alert severity="warning">Не удалось сохранить время. Повторяем автоматически.</Alert>}
       {isLoading ? (
-        <Box sx={lessonStatusSx} role="status"><ClipLoader color="var(--admin-primary)" />Загрузка урока…</Box>
+        <Box sx={lessonStatusSx} role="status"><ClipLoader color="var(--admin-primary)" />Загрузка статьи…</Box>
       ) : isError ? (
         <Alert severity="error" action={<Button color="inherit" disabled={isRetrying} onClick={() => void retry()}>Повторить</Button>}>
-          Не удалось загрузить урок. Попробуйте ещё раз.
+          Не удалось загрузить статью. Попробуйте ещё раз.
         </Alert>
       ) : !lesson ? (
-        <Alert severity="info">Этот урок недоступен в курсе.</Alert>
+        <Alert severity="info">Эта статья недоступна в курсе.</Alert>
       ) : content ? (
         <ErrorBoundary key={`${coursePublicId}/${lessonId}`}>
           <CourseLessonContent lessonId={lessonId} content={content} />

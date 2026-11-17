@@ -64,7 +64,7 @@ async function readResource(request: CourseReadRequest, canManage: boolean): Pro
       }
       const lesson = await lessonsEndpoints.getLessonById(school, String(request.lessonId));
       if (!lesson.lessonJsonFile) {
-        throw new Error('Содержимое урока недоступно');
+        throw new Error('Содержимое статьи недоступно');
       }
       const content = await filesEndpoints.getFileContent(school, lesson.lessonJsonFile.publicId);
       return { kind: request.kind, itemPublicId: request.itemPublicId, value: parseLessonContent(content) };

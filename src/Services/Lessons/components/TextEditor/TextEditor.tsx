@@ -32,7 +32,7 @@ export default function TextEditor({
     return <Alert severity="error">Не удалось прочитать содержимое статьи. Обратитесь к преподавателю.</Alert>;
   }
   return (
-    <RichEditorCore configuration={INITIAL_EDITOR_CONFIG} editable={isEditMode} label="Содержимое урока" testId="lesson-editor" className="editor-input" autoFocus toolbar={<Toolbar />}>
+    <RichEditorCore configuration={INITIAL_EDITOR_CONFIG} editable={isEditMode} label="Содержимое статьи" testId="lesson-editor" className="editor-input" autoFocus toolbar={<Toolbar />}>
       <LinkPlugin />
       <ImagesPlugin />
       <GraphPlugin />

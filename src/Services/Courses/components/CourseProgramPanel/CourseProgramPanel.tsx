@@ -6,7 +6,7 @@ import { isCourseItemAvailable } from '../../utils/courseProgram.conversion';
 import { COURSE_COMPLETION_OPTIONS } from '../../utils/courseCompletion.const';
 import CourseState from '../CourseState/CourseState';
 
-const BLOCK_LABELS = ['Материал', 'Занятие', 'Урок', 'Домашнее задание'];
+const BLOCK_LABELS = ['Файл', 'Занятие', 'Статья', 'Домашнее задание'];
 
 export default function CourseProgramPanel({ items, focusItemPublicId, canManage, openingItemPublicId, onOpen, onEdit }: CourseProgramPanelProps) {
   const [now, setNow] = useState(Date.now);
@@ -23,7 +23,7 @@ export default function CourseProgramPanel({ items, focusItemPublicId, canManage
     return () => window.clearInterval(timer);
   }, []);
   if (!items.length) {
-    return <CourseState kind="empty" title={canManage ? 'В программе пока нет блоков' : 'Программа пока пуста'} description={canManage ? 'Соберите путь из уроков, материалов, занятий и домашних заданий.' : 'Преподаватель добавит материалы курса.'} actionLabel={canManage ? 'Собрать программу' : undefined} onAction={canManage ? onEdit : undefined} />;
+    return <CourseState kind="empty" title={canManage ? 'В программе пока нет блоков' : 'Программа пока пуста'} description={canManage ? 'Соберите путь из статей, файлов, занятий и домашних заданий.' : 'Преподаватель добавит материалы курса.'} actionLabel={canManage ? 'Собрать программу' : undefined} onAction={canManage ? onEdit : undefined} />;
   }
   return <Box data-testid="course-program" component="ol" sx={{ listStyle: 'none', m: 0, p: 0, display: 'grid', gap: 2 }}>
     {items.map((item, index) => {
@@ -45,7 +45,7 @@ export default function CourseProgramPanel({ items, focusItemPublicId, canManage
             {item.availableUntilUtc && `До ${new Date(item.availableUntilUtc).toLocaleString('ru-RU')}.`}
           </Typography>}
           {item.isRequired && <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{COURSE_COMPLETION_OPTIONS[item.itemType]?.find(option => option.value === item.completionRule)?.label}</Typography>}
-          {item.completionRule === 2 && <Typography variant="caption" color="text.secondary">Время в уроке: {Math.floor(item.elapsedSeconds / 60)} из {Math.ceil((item.requiredSeconds ?? 0) / 60)} мин.</Typography>}
+          {item.completionRule === 2 && <Typography variant="caption" color="text.secondary">Время в статье: {Math.floor(item.elapsedSeconds / 60)} из {Math.ceil((item.requiredSeconds ?? 0) / 60)} мин.</Typography>}
           {item.completionRule === 6 && item.completeAfterUtc && <Typography variant="caption" component="p" color="text.secondary">Засчитывается после {new Date(item.completeAfterUtc).toLocaleString('ru-RU')}</Typography>}
           {!canManage && !item.isUnlocked && <Typography color="text.secondary" role="status">Сначала пройдите предыдущие обязательные блоки</Typography>}
           {!available && (canManage || item.isUnlocked) && <Typography color="text.secondary" role="status">Блок сейчас недоступен</Typography>}

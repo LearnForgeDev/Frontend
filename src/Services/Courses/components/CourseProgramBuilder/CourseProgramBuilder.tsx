@@ -6,7 +6,7 @@ import type { CourseBlock, CourseResourceOption } from '../../Courses.type';
 import { COURSE_COMPLETION_OPTIONS, OPTIONAL_COMPLETION } from '../../utils/courseCompletion.const';
 import { courseBlockTitle, fromLocalDateTime, toLocalDateTime } from '../../utils/courseProgram.conversion';
 
-const BLOCK_LABELS = ['Материал', 'Занятие', 'Урок', 'Домашнее задание'];
+const BLOCK_LABELS = ['Файл', 'Занятие', 'Статья', 'Домашнее задание'];
 
 export default function CourseProgramBuilder({ blocks, resources, disabled, onChange }: CourseProgramBuilderProps) {
   const [type, setType] = useState(2);
@@ -43,12 +43,12 @@ export default function CourseProgramBuilder({ blocks, resources, disabled, onCh
     <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
       <Autocomplete options={options} value={selected} onChange={(_, option) => setSelected(option)} disabled={disabled}
         isOptionEqualToValue={(a, b) => a.key === b.key} getOptionLabel={option => option.title}
-        noOptionsText={type === 3 ? 'Нет опубликованных заданий с доступом для вас' : 'Доступных материалов нет'}
+        noOptionsText={type === 3 ? 'Нет опубликованных заданий с доступом для вас' : 'Нет доступных ресурсов'}
         openText="Открыть список" closeText="Закрыть список" clearText="Сбросить выбор" sx={{ flex: 1 }}
         renderInput={params => <TextField {...params} label={`Выберите: ${BLOCK_LABELS[type].toLocaleLowerCase('ru')}`} />} />
       <Button variant="outlined" startIcon={<Add />} onClick={add} disabled={disabled || !selected}>Добавить</Button>
     </Box>
-    <Typography variant="caption" color="text.secondary">Доступ к исходным урокам, занятиям и заданиям настраивается отдельно. Добавление блока не меняет их аудиторию.</Typography>
+    <Typography variant="caption" color="text.secondary">Доступ к исходным статьям, занятиям и заданиям настраивается отдельно. Добавление блока не меняет их аудиторию.</Typography>
     {!blocks.length && <Alert severity="info">В программе пока нет блоков. Курс можно сохранить и заполнить позже.</Alert>}
     <Box component="ol" sx={{ listStyle: 'none', p: 0, m: 0, display: 'grid', gap: 2 }}>
       {blocks.map((block, index) => <Box component="li" key={block.clientId} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 2, p: 2, display: 'grid', gap: 2 }}>
@@ -69,7 +69,7 @@ export default function CourseProgramBuilder({ blocks, resources, disabled, onCh
           }}>
             {[...COURSE_COMPLETION_OPTIONS[block.input.itemType], OPTIONAL_COMPLETION].map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
           </TextField>
-          {block.input.completionRule === 2 && <TextField type="number" label="Время в уроке, минут" value={(block.input.requiredSeconds ?? 60) / 60} disabled={disabled} slotProps={{ htmlInput: { min: 1, max: 1440, step: 1 } }} helperText="Считаем время, пока урок открыт во вкладке. Время разных посещений складывается." onChange={event => update({ ...block, input: { ...block.input, requiredSeconds: Number(event.target.value) * 60 } })} />}
+          {block.input.completionRule === 2 && <TextField type="number" label="Время в статье, минут" value={(block.input.requiredSeconds ?? 60) / 60} disabled={disabled} slotProps={{ htmlInput: { min: 1, max: 1440, step: 1 } }} helperText="Считаем время, пока статья открыта во вкладке. Время разных посещений складывается." onChange={event => update({ ...block, input: { ...block.input, requiredSeconds: Number(event.target.value) * 60 } })} />}
           {block.input.completionRule === 6 && <TextField type="datetime-local" required label="Засчитать после" value={toLocalDateTime(block.input.completeAfterUtc)} disabled={disabled} slotProps={{ inputLabel: { shrink: true } }} onChange={event => update({ ...block, input: { ...block.input, completeAfterUtc: fromLocalDateTime(event.target.value) } })} />}
           {block.input.completionRule === 0 && <Typography variant="caption" color="text.secondary">Этот блок можно пропустить. Он не влияет на прогресс курса и не задерживает открытие следующих блоков.</Typography>}
           {block.input.completionRule === 4 && <Typography variant="caption" color="text.secondary">Задание должно быть проверено с проходным баллом.</Typography>}

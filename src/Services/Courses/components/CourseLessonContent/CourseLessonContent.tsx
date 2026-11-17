@@ -11,7 +11,7 @@ const TextEditor = dynamic(() => import('@/Services/Lessons/components/TextEdito
     if (error) {
       throw error;
     }
-    return <ClipLoader color="var(--admin-primary)" aria-label="Загрузка урока" />;
+    return <ClipLoader color="var(--admin-primary)" aria-label="Загрузка статьи" />;
   },
 });
 

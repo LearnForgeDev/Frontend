@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { isAxiosError } from 'axios';
 import type { CourseTimeOptions } from './useCourseTime.type';
 
 export function useCourseTime({ coursePublicId, itemPublicId, enabled, activity }: CourseTimeOptions) {
@@ -27,7 +28,10 @@ export function useCourseTime({ coursePublicId, itemPublicId, enabled, activity 
         if (active) {
           setErrorItem(null);
         }
-      } catch {
+      } catch (error) {
+        if (isAxiosError(error) && error.response?.status === 409) {
+          startedAt = null;
+        }
         if (active) {
           setErrorItem(itemPublicId);
         }

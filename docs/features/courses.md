@@ -2,7 +2,7 @@
 
 ## Status and scope
 
-Courses provide a flat ordered path of lesson, material, scheduled-class and homework
+Courses provide a flat ordered path of article, file, scheduled-class and homework
 blocks. Teachers select existing resources, customize each block title/description,
 reorder or remove blocks, choose completion conditions or make blocks optional and set an availability
 window. A resource may appear more than once. The path is strictly linear: a learner
@@ -51,7 +51,9 @@ Teachers choose each block's completion condition. Files complete after a succes
 authorized opening. Lessons complete after the configured accumulated time with the
 lesson open in a tab, including background-tab time. Teachers enter whole minutes;
 the API stores seconds. Leaving the reader stops counting, and reopening resumes
-from persisted time. There is no activity or visibility detection.
+from persisted time. There is no activity or visibility detection. If another tab or a reset invalidates
+the current time session, reporting opens a new session automatically. The server
+keeps accumulated time unless the teacher resets it.
 
 Homework can complete after submission or after approval. Approval keeps the existing
 rule: a Checked attempt meeting that attempt version's passing score. Historical
@@ -66,7 +68,8 @@ teacher approvals. Course navigation checks the latest access before opening a
 resource; direct course lesson reads also validate the item. Progress polls while
 the course is open so time-based call completion appears without a reload.
 
-Course cards and headers omit student counts. Enrollment and progress management
+Course resource labels use «Статьи» and «Файлы»; identifiers and source APIs retain
+their existing names. Course cards and headers omit student counts. Enrollment and progress management
 remain available. Back navigation belongs in the course and lesson headers.
 
 Unknown or malformed item types remain visible and retain their original payload

@@ -15,6 +15,8 @@ mobile document editing is disabled by the current device check.
 
 ## Behavior and rules
 
+Article content uses the same product name in the catalogue, editor and course reader.
+
 The product calls lesson resources articles (`Статьи`). Creation, rename, search,
 empty states and accessibility labels use article terminology; existing lesson
 identifiers, API contracts, routes and draft storage keys remain unchanged.

@@ -1,3 +1,4 @@
+import { AxiosError, AxiosHeaders } from 'axios';
 import { act, cleanup, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import type { CourseTimeOptions } from './useCourseTime.type';
@@ -44,4 +45,22 @@ it('does not start optional, completed or teacher previews and retries a rejecte
   const sent = activity.mock.calls.length;
   await act(() => vi.advanceTimersByTimeAsync(10_000));
   expect(activity).toHaveBeenCalledTimes(sent);
+});
+
+
+it('reopens a time session after another tab or a teacher reset invalidates it', async () => {
+  const activity = vi.fn<CourseTimeOptions['activity']>(() => Promise.resolve());
+  const { result } = renderHook(() => useCourseTime({ coursePublicId: 'course', itemPublicId: 'item', enabled: true, activity }));
+  await act(async () => Promise.resolve());
+  const sessionId = activity.mock.calls[0][2].sessionId;
+  activity.mockRejectedValueOnce(new AxiosError('Session changed', undefined, undefined, undefined, {
+    status: 409, statusText: 'Conflict', data: {}, headers: new AxiosHeaders(), config: { headers: new AxiosHeaders() },
+  }));
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+  expect(result.current).toBe(true);
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+  expect(activity).toHaveBeenLastCalledWith('course', 'item', { kind: 0, sessionId, elapsedSeconds: 0 });
+  expect(result.current).toBe(false);
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+  expect(activity).toHaveBeenLastCalledWith('course', 'item', { kind: 1, sessionId, elapsedSeconds: 5 });
 });

@@ -18,7 +18,7 @@ it('adds a repeated source as a separate block, then edits and reorders by clien
   });
   const props = { resources, disabled: false, onChange: changed };
   const view = render(<CourseProgramBuilder {...props} blocks={blocks} />);
-  fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Выберите: урок' }));
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Выберите: статья' }));
   fireEvent.click(screen.getByRole('option', { name: 'Урок школы' }));
   fireEvent.click(screen.getByRole('button', { name: 'Добавить' }));
   expect(blocks).toHaveLength(2);

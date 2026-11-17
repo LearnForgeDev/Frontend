@@ -50,7 +50,7 @@ export default function CourseWorkspace({ schoolPublicId, coursePublicId }: Cour
       {view.dialog === 'edit'  && course.canManage && <CourseEditorModal key={`${schoolPublicId}/${coursePublicId}`} schoolPublicId={schoolPublicId} course={course} onClose={view.closeDialog} onSaved={view.closeDialog} />}
       {view.dialog === 'delete' && course.canManage && <Modal title="Удалить курс?" onClose={view.closeDialog}>
         <Box sx={styles.deleteContent}>
-          <Typography>Курс «{course.title}» и прогресс учеников будут удалены. Исходные уроки, материалы, занятия и задания останутся в школе.</Typography>
+          <Typography>Курс «{course.title}» и прогресс учеников будут удалены. Исходные статьи, файлы, занятия и задания останутся в школе.</Typography>
           {view.remove.isError && <Typography role="alert" sx={styles.error}>Не удалось удалить курс. Попробуйте ещё раз.</Typography>}
           <Box sx={styles.actions}><Button onClick={view.closeDialog} disabled={view.remove.isPending} sx={styles.button}>Отмена</Button><Button color="error" variant="contained" onClick={view.deleteCourse} disabled={view.remove.isPending} sx={styles.button}>{view.remove.isPending ? 'Удаляем…' : 'Удалить курс'}</Button></Box>
         </Box>

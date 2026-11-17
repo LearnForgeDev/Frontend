@@ -21,7 +21,7 @@ export default function CourseEditorModal({ schoolPublicId, course, onClose, onS
       }} noValidate>
         <TextField label="Название курса" value={editor.form.title} onChange={event => editor.setField('title', event.target.value)} required autoFocus fullWidth disabled={editor.isSaving} />
         <TextField label="Описание" value={editor.form.description} onChange={event => editor.setField('description', event.target.value)} multiline minRows={2} fullWidth disabled={editor.isSaving} />
-        {editor.isLoading && <CourseState kind="loading" title="Загружаем уроки и учеников" />}
+        {editor.isLoading && <CourseState kind="loading" title="Загружаем статьи и учеников" />}
         {editor.isError && <CourseState kind="error" title="Не удалось загрузить состав курса" actionLabel="Повторить" onAction={editor.retry} />}
         {!editor.isLoading && !editor.isError && <>
           <CourseProgramBuilder blocks={editor.form.blocks} resources={editor.resources} onChange={editor.setBlocks} disabled={editor.isSaving} />

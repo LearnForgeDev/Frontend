@@ -33,5 +33,5 @@ it.each(['course', 'lesson'])('offers recovery when the %s editor import fails',
   fireEvent.click(screen.getByTestId('error-boundary-login'));
   expect(logoutToLogin).toHaveBeenCalledOnce();
   expect(screen.queryByLabelText('Загрузка редактора')).toBeNull();
-  expect(screen.queryByLabelText('Загрузка урока')).toBeNull();
+  expect(screen.queryByLabelText('Загрузка статьи')).toBeNull();
 });
