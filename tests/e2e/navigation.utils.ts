@@ -5,8 +5,14 @@ export async function showProfileAction(page: Page) {
   const action = page.getByTestId('profile-open').filter({ visible: true });
   const more = page.getByTestId('nav-mobile-more').filter({ visible: true });
   await expect(action.or(more).first()).toBeVisible();
-  if (!await action.isVisible()) {
-    await more.click();
+  if (await more.isVisible()) {
+    if (await more.getAttribute('aria-expanded') !== 'true') {
+      await more.click();
+    }
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    const mobileAction = page.getByRole('dialog', { name: 'Разделы', exact: true }).getByTestId('profile-open');
+    await expect(mobileAction).toBeVisible();
+    return mobileAction;
   }
   await expect(action).toBeVisible();
   return action;

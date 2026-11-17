@@ -37,6 +37,9 @@ export default function MobileNavigation({ items, activeItemId, onSelect, school
         })}
         <BottomNavigationAction
           data-testid="nav-mobile-more"
+          aria-expanded={isMoreOpen}
+          aria-controls="mobile-navigation-more-menu"
+          aria-haspopup="dialog"
           value="more"
           label={MORE_NAVIGATION_LABEL}
           icon={<MoreHorizRoundedIcon fontSize="small" />}
@@ -48,9 +51,9 @@ export default function MobileNavigation({ items, activeItemId, onSelect, school
         anchor="bottom"
         open={isMoreOpen}
         onClose={() => setIsMoreOpen(false)}
-        slotProps={{ paper: { sx: S.moreSheetSx } }}
+        slotProps={{ paper: { id: 'mobile-navigation-more-menu', role: 'dialog', 'aria-labelledby': 'mobile-navigation-more-title', sx: S.moreSheetSx } }}
       >
-        <Typography component="h2" sx={{ px: 2, pt: 1, pb: 1.5, fontWeight: 800 }}>
+        <Typography id="mobile-navigation-more-title" component="h2" sx={{ px: 2, pt: 1, pb: 1.5, fontWeight: 800 }}>
           Разделы
         </Typography>
         <Box sx={{ display: 'grid', gap: 1, px: 2 }}>

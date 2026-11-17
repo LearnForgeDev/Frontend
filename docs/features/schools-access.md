@@ -50,7 +50,10 @@ collapsed. Navigation scrolls independently of school switching and footer contr
 the whole sidebar can scroll in very short windows.
 
 Mobile keeps its bottom navigation. Its More drawer provides school switching and
-profile access, including account pages without memberships. Accounts without
+profile access, including account pages without memberships. The More control exposes
+whether its labelled dialog is open; selecting a destination closes it immediately,
+while its exit animation may finish after navigation. Reopening profile from another
+page uses a newly opened dialog rather than an action in the exiting one. Accounts without
 memberships do not show an empty school switcher and can add a school from
 [Profile](profile.md).
 
