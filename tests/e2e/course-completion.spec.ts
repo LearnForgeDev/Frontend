@@ -1,4 +1,5 @@
 import type { CourseDto, CourseProgressDto } from '@/Endpoints/Courses';
+import type { HomeworkAttemptDto } from '@/Endpoints/Homework/homework.type';
 import { test, expect } from './fixtures';
 import { SCHOOL_ID, SCHOOL_PATH } from './core.const';
 import { readJson, uploadFile } from './flows.utils';
@@ -86,4 +87,16 @@ test('courses: submitted homework unlocks the next step while approval waits for
   const approved = await readJson<CourseProgressDto>(await student.page.request.get(progressPath));
   expect(approved.items.find(item => item.itemPublicId === course.items[1].publicId)?.status).toBe(2);
   expect(approved.percent).toBe(100);
+  const attemptsPath = `/api/ApiHomeworks/${SCHOOL_ID}/${homework.publicId}/attempts`;
+  const beforeDelete = await readJson<HomeworkAttemptDto[]>(await teacher.page.request.get(attemptsPath));
+  expect(beforeDelete).toHaveLength(2);
+  const deletion = await teacher.page.request.delete(`/api/ApiHomeworks/${SCHOOL_ID}/${homework.publicId}`);
+  expect(deletion.status()).toBe(409);
+  expect(await deletion.text()).toContain('homework with attempts cannot be deleted');
+  const afterDelete = await readJson<HomeworkAttemptDto[]>(await teacher.page.request.get(attemptsPath));
+  const histories = [beforeDelete, afterDelete].map(attempts => attempts.map(attempt => ({
+    publicId: attempt.publicId, version: attempt.version, submissionNumber: attempt.submissionNumber,
+    status: attempt.status, score: attempt.score, passed: attempt.passed, submissions: attempt.submissions,
+  })));
+  expect(histories[1]).toEqual(histories[0]);
 });
