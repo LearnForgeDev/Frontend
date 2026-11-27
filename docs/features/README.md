@@ -9,7 +9,7 @@ School routes below start at `/app/schools/:schoolPublicId`.
 | [Authentication and session](auth-session.md) | Login, registration, restore, logout; `/auth/*` | Implemented |
 | [Schools and access](schools-access.md) | Membership, school switching, navigation, guards; `/app`, `/app/schools` | Implemented |
 | [Onboarding](onboarding.md) | Request a school, wait for provisioning, join by invitation; `/onboarding/*` | Implemented |
-| [Students and invitations](students-invitations.md) | Student roster and invitation lifecycle; `students` | Implemented; group management UI absent |
+| [Students and invitations](students-invitations.md) | Student roster, groups and invitation lifecycle; `students` | Implemented |
 | [Lessons and editor](lessons-editor.md) | Lesson catalogue, rich document, publishing and drafts; `lessons/*` | Implemented; mobile editing restricted |
 | [Courses](courses.md) | Programs, audience, lesson access and progress; `courses/*` | Partial; architecture discussion deferred |
 | [Scheduling](scheduling.md) | Events, attendees, calendar and meeting entry; `schedule` | Implemented |

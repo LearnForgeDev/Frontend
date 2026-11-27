@@ -75,6 +75,8 @@ belong to school domain state, exposed through its public hook. The existing aut
 persistence still includes selected school; moving that out is a required migration,
 not the desired ownership. Preserve school identity in reads, links and writes.
 UI capability checks guide navigation; backend authorization remains authoritative.
+The existing teaching capability opens [student group management](students-invitations.md).
+Group writes require teacher or owner membership in the target school.
 
 Legacy admin-school URLs redirect through the existing adapter. Do not add routes
 to disconnected old layouts merely because their files remain in the repository.

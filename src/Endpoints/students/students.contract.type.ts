@@ -1,5 +1,7 @@
 
 
+import type { MemberDto } from '../schools/schools.contract.type';
+
 export interface StudentDto {
   publicId?: string;
   userPublicId?: string;
@@ -38,3 +40,14 @@ export interface StudentGroupDto {
   name: string;
   description?: string;
 }
+
+export type ManagedStudentGroup = {
+  publicId: string;
+  name: string;
+  memberPublicIds: string[];
+};
+
+export type StudentGroupDirectory = {
+  groups: ManagedStudentGroup[];
+  members: MemberDto[];
+};
