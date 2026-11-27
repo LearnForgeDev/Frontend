@@ -1,6 +1,5 @@
 export type { ChatsWorkspaceState } from './useChatsWorkspace.type';
 import { useCallback, useState } from 'react';
-import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
 import { useToast } from '@/Storage/useToastStore';
 import { getIsMobileDevice } from '@/Assets/device.utils';
 import type { ChatThread, ChatType } from '@/Services/Chat/Chat.type';
@@ -12,7 +11,6 @@ import { isChatGroupNameValid } from '../validation/chatGroup';
 export function useChatsWorkspace(schoolPublicId: string) {
   const chats = useChats(schoolPublicId);
   const toast = useToast();
-  const userPublicId = useGlobalContext(state => state.auth.user?.userPublicId);
   const [activeTab, setActiveTab] = useState<ChatType>('branch');
   const [activeReference, setActiveReference] = useState<{ id: string; type: ChatType } | null>(null);
   const [dialog, setDialog] = useState<ChatType | null>(null);
@@ -24,9 +22,12 @@ export function useChatsWorkspace(schoolPublicId: string) {
     setActiveTab('direct');
     setActiveReference({ id: thread.id, type: thread.type });
   }, []);
-  useRequestedDirectChat({ members: chats.members, directThreads: chats.directThreads, addDirectChat: chats.addDirectChat, onOpenThread: openRequestedThread });
-  const activeThread = [...chats.branchThreads, ...chats.directThreads].find(thread => thread.id === activeReference?.id && thread.type === activeReference?.type) ?? null;
-  const currentThreads = activeTab === 'branch' ? chats.branchThreads : chats.directThreads;
+  const directThreads = chats.direct.threads;
+  useRequestedDirectChat({ directThreads, onOpenThread: openRequestedThread });
+  const activeThreads = activeReference?.type === 'direct' ? directThreads : chats.branchThreads;
+  const activeThread = activeThreads.find(thread => thread.id === activeReference?.id) ?? null;
+  const currentThreads = activeTab === 'branch' ? chats.branchThreads : directThreads;
+  const currentList = activeTab === 'branch' ? chats : chats.direct;
 
   const createGroup = async () => {
     if (!isChatGroupNameValid(groupName) || chats.isCreatingBranch) {
@@ -44,18 +45,21 @@ export function useChatsWorkspace(schoolPublicId: string) {
     }
   };
   const createDirect = () => {
-    if (!selectedMember) {
+    const thread = directThreads.find(item => item.id === selectedMember?.userPublicId);
+    if (!thread) {
       return;
     }
-    openThread(chats.addDirectChat(selectedMember.displayName, selectedMember.userPublicId));
+    openThread(thread);
     setSelectedMember(null);
     setDialog(null);
   };
 
   return {
-    ...chats, activeTab, setActiveTab, activeThread, currentThreads, openThread,
+    activeTab, setActiveTab, activeThread, currentThreads, openThread,
     isMobile: Boolean(getIsMobileDevice()),
-    members: chats.members.filter(member => member.userPublicId !== userPublicId),
+    isLoading: currentList.isLoading, isError: currentList.isError, refetch: currentList.refetch,
+    members: chats.direct.members, isMembersLoading: chats.direct.isLoading,
+    isCreatingBranch: chats.isCreatingBranch,
     dialog, openDialog: () => setDialog(activeTab), closeDialog: () => setDialog(null),
     groupName, setGroupName, groupDesc, setGroupDesc, selectedMember, setSelectedMember,
     canCreateGroup: isChatGroupNameValid(groupName) && !chats.isCreatingBranch,

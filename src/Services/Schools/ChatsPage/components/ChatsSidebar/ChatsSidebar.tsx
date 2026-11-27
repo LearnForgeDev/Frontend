@@ -20,14 +20,14 @@ export default function ChatsSidebar({ view }: { view: ChatsWorkspaceState }) {
       </Tabs>
     </Box>
     {view.isLoading && <Box sx={styles.loading}><ClipLoader size={CHAT_LIST_LOADER_SIZE} color="currentColor" /></Box>}
-    {view.isError && <Box sx={styles.error}><Alert severity="error">Ошибка чатов</Alert></Box>}
+    {view.isError && <Box sx={styles.error}><Alert severity="error" action={<Button color="inherit" onClick={() => void view.refetch()}>Повторить</Button>}>Не удалось загрузить чаты.</Alert></Box>}
     {!view.isLoading && !view.isError && view.currentThreads.length === 0 && <Box sx={styles.empty}><Typography color="text.secondary" variant="body2">{view.activeTab === 'branch' ? 'Групповых чатов пока нет' : 'Нет личных диалогов'}</Typography></Box>}
     <List sx={pageStyles.chatList}>
       {view.currentThreads.map(thread => {
         const selected = view.activeThread?.id === thread.id && view.activeThread?.type === thread.type;
         return <ListItemButton key={`${thread.type}-${thread.id}`} data-testid={`chat-${thread.type}-${thread.id}`} onClick={() => view.openThread(thread)} selected={selected} sx={pageStyles.chatItem}>
           <ListItemAvatar><Avatar sx={styles.avatar(selected)}>{thread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}</Avatar></ListItemAvatar>
-          <ListItemText primary={<Typography sx={styles.name(selected)} noWrap>{thread.name}</Typography>} secondary={thread.type === 'branch' ? 'Групповой чат' : 'Личная переписка'} />
+          <ListItemText primary={<Typography sx={styles.name(selected)} noWrap>{thread.name}</Typography>} secondary={thread.type === 'branch' ? 'Групповой чат' : 'Напишите первым'} />
         </ListItemButton>;
       })}
     </List>

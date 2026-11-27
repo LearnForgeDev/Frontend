@@ -155,8 +155,9 @@ object storage owns the bytes. Previews and downloads obtain authorized content.
 
 Chat history comes from backend endpoints. SignalR hubs deliver messages and notify
 the browser when history needs refreshing. Connections follow the selected school
-and conversation. Direct-conversation shortcuts persist by school, but conversation
-drafts are in memory. Durable account-scoped offline history is not implemented.
+and conversation. The full chat page and quick chat share a member query scoped
+by account and school. Conversation drafts are in memory. Durable account-scoped
+offline history is not implemented.
 
 Schedule and chat links carry room references to the calls module. The backend
 returns meeting access before the browser creates an embedded conference client.

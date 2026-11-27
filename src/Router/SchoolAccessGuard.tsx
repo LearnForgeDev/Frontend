@@ -1,11 +1,16 @@
+import { lazy, Suspense } from 'react';
 import { Alert, Box, Button } from '@mui/material';
 import { ClipLoader } from 'react-spinners';
-import { Navigate, Outlet, useParams } from 'react-router-dom';
+import { Navigate, Outlet, useMatch, useParams } from 'react-router-dom';
 import { useMySchools } from '@/Services/Schools/hooks/useMySchools';
 import { getSchoolCapabilities } from '@/Services/AppShell/utils/getSchoolCapabilities';
+import { ChatProvider } from '@/Services/Chat/components/ChatProvider/ChatProvider';
+
+const ChatWidget = lazy(() => import('@/Services/Chat/components/ChatWidget/ChatWidget'));
 
 export default function SchoolAccessGuard() {
   const { schoolPublicId } = useParams<{ schoolPublicId: string }>();
+  const isChatsPage = useMatch('/app/schools/:schoolPublicId/chats');
   const schoolsQuery = useMySchools();
 
   if (schoolsQuery.isLoading) {
@@ -32,5 +37,14 @@ export default function SchoolAccessGuard() {
     return <Navigate to="/app/schools" replace />;
   }
 
-  return <Outlet />;
+  return <>
+    <Outlet />
+    {!isChatsPage && (
+      <Suspense fallback={null}>
+        <ChatProvider key={school.schoolPublicId}>
+          <ChatWidget schoolPublicId={school.schoolPublicId} />
+        </ChatProvider>
+      </Suspense>
+    )}
+  </>;
 }
