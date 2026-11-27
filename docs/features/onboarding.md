@@ -23,9 +23,14 @@ An unavailable request offers a way back. Approval alone does not prove the scho
 is usable: the waiting flow polls memberships until the approved school is visible,
 then clears the matching pointer and redirects to that school's Today page.
 
-Joining sends the invitation to the backend, installs the normalized returned
-identity and refreshes memberships. It opens the newly discovered school, or the
-school list if the target cannot be established safely.
+The setup form validates a pasted invitation link and opens its confirmation
+screen. Existing `/onboarding?invite=...` links open that screen directly after
+sign-in. The authenticated preview returns the school's name and ID without
+consuming a use. The join request runs only after explicit confirmation.
+
+Joining installs the normalized returned identity and refreshes memberships.
+It opens the previewed school if the membership is present, or the school list
+if membership reads fail or the school is missing.
 
 ## Data and dependencies
 
@@ -43,6 +48,10 @@ Keep request input on failure, distinguish unavailable requests from transient
 failures and avoid uncontrolled polling. An approval/provisioning delay is not a
 frontend permission to create membership locally. Never persist invitation or auth
 secrets in knowledge docs or screenshots intended for sharing.
+
+An invalid, expired, exhausted or revoked link has no confirmation action. A
+temporary preview failure offers retry. The backend rechecks the token at join
+time, since validity can change after preview.
 
 A rejected, expired or revoked invitation can return 401 even after the account's
 refresh succeeds. Keep the authenticated session, show the invitation failure and

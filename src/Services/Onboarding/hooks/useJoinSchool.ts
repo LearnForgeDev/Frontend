@@ -13,7 +13,7 @@ export function useJoinSchool() {
   const { setUser } = useUser();
 
   return useMutation<JoinSchoolResult, Error, JoinSchoolVariables>({
-    mutationFn: async ({ inviteToken, knownSchoolPublicIds }) => {
+    mutationFn: async ({ inviteToken, schoolPublicId }) => {
       const identity = normalizeRestoredSession(await authEndpoints.joinSchool({ inviteToken }));
       if (!identity) {
         throw new Error('Не удалось обновить сессию');
@@ -24,10 +24,7 @@ export function useJoinSchool() {
       if (!schools) {
         return { school: null };
       }
-      const joinedSchool =
-        schools.find(
-          (school) => !knownSchoolPublicIds.includes(school.schoolPublicId),
-        ) ?? (schools.length === 1 ? schools[0] : null);
+      const joinedSchool = schools.find(school => school.schoolPublicId === schoolPublicId) ?? null;
 
       return { school: joinedSchool };
     },

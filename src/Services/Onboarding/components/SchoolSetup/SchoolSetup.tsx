@@ -1,13 +1,9 @@
-import type { SchoolSetupProps } from './SchoolSetup.type';
-import { Alert, Box, Button, Paper, Typography } from '@mui/material';
-import { useOnboardingSchools } from '../../hooks/useOnboardingSchools';
+import { Box, Paper, Typography } from '@mui/material';
 import JoinSchoolForm from '../JoinSchoolForm/JoinSchoolForm';
 import RequestSchoolForm from '../RequestSchoolForm/RequestSchoolForm';
 import * as S from './SchoolSetup.styles';
 
-export default function SchoolSetup({ inviteToken }: SchoolSetupProps) {
-  const schoolsQuery = useOnboardingSchools();
-
+export default function SchoolSetup() {
   return (
     <Box sx={S.scenarios}>
       <Paper component="section" elevation={0} sx={S.card} aria-labelledby="school-join-title">
@@ -16,18 +12,7 @@ export default function SchoolSetup({ inviteToken }: SchoolSetupProps) {
             Вступить в школу
           </Typography>
         </Box>
-        {schoolsQuery.isError && (
-          <Alert severity="error" sx={S.error}>
-            Не удалось загрузить школы.
-            <Button onClick={() => void schoolsQuery.refetch()}>Повторить</Button>
-          </Alert>
-        )}
-        <JoinSchoolForm
-          knownSchoolPublicIds={schoolsQuery.knownSchoolPublicIds}
-          initialInviteToken={inviteToken}
-          allowInviteLink
-          disabled={!schoolsQuery.isSuccess}
-        />
+        <JoinSchoolForm allowInviteLink />
       </Paper>
       <Paper component="section" elevation={0} sx={S.card} aria-labelledby="school-create-title">
         <Box sx={S.cardHeader}>

@@ -125,7 +125,8 @@ retain credentials for retry; ordinary resource 403 does not sign the user out.
 Joining by invitation has a dedicated exception: a repeated join-school 401 after
 successful refresh rejects the invitation operation while retaining the confirmed
 session. Its refresh still runs normally and rejected refresh credentials still sign
-the user out. Other protected operations retain final-401 session invalidation.
+the user out. The [invitation preview](onboarding.md) returns 404 for unavailable
+tokens and retains the normal protected-request 401 behavior.
 Responses from a previous account or a logged-out session cannot complete protected
 operations or install an invitation response as the current user.
 Startup confirms an untrusted stored record through refresh, including a legacy

@@ -28,6 +28,11 @@ export type JoinSchoolByInviteParams = {
   inviteToken: string;
 };
 
+export type SchoolInvitePreviewDto = {
+  schoolPublicId: string;
+  schoolName: string;
+};
+
 export type SchoolRequestStatusDto = {
   requestPublicId: string;
   status: string;

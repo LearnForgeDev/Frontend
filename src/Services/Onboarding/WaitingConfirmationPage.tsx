@@ -11,7 +11,7 @@ import * as S from './WaitingConfirmationPage.styles';
 
 export default function WaitingConfirmationPage() {
   const { requestPublicId } = useParams<{ requestPublicId: string }>();
-  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, knownSchoolPublicIds, schoolName, isUnavailable, returnToOnboarding } = useWaitingConfirmation(requestPublicId);
+  const { statusQuery, approvedSchoolQuery, requestViewState, visibleViewState, schoolName, isUnavailable, returnToOnboarding } = useWaitingConfirmation(requestPublicId);
 
   if (!requestPublicId) {
     return <Navigate to="/onboarding" replace />;
@@ -57,7 +57,7 @@ export default function WaitingConfirmationPage() {
                 Есть приглашение в другую школу?
               </Typography>
             </Box>
-            <JoinSchoolForm knownSchoolPublicIds={knownSchoolPublicIds} />
+            <JoinSchoolForm />
           </Paper>
         </Box>
       </OnboardingFrame>
@@ -99,7 +99,7 @@ export default function WaitingConfirmationPage() {
                 Присоединиться к другой школе
               </Typography>
             </Box>
-            <JoinSchoolForm knownSchoolPublicIds={knownSchoolPublicIds} />
+            <JoinSchoolForm />
           </Paper>
         )}
 

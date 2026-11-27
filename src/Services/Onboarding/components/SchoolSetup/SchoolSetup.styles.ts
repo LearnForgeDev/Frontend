@@ -20,10 +20,6 @@ export const title: SxProps<Theme> = {
   fontSize: '1.375rem',
 };
 
-export const error: SxProps<Theme> = {
-  mb: 2,
-};
-
 export const cardHeader: SxProps<Theme> = {
   display: 'flex',
   alignItems: 'center',

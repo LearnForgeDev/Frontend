@@ -11,6 +11,7 @@ import type {
     RefreshTokenParams,
     InviteParams,
     JoinSchoolByInviteParams,
+    SchoolInvitePreviewDto,
     SchoolRequestStatusDto
 } from './auth.contract.type';
 import type { UserIdentity } from "@/Assets/Types/commonTypes.ts";
@@ -98,6 +99,11 @@ export const authEndpoints = {
             queryKey,
             queryFn: () => protectedQueryFn.get<SchoolRequestStatusDto[]>(queryKey[0])
         });
+        return response.data;
+    },
+
+    async previewInvite(dto: JoinSchoolByInviteParams): Promise<SchoolInvitePreviewDto> {
+        const response = await protectedQueryFn.post<SchoolInvitePreviewDto>('/api/ApiAuth/invites/preview', dto);
         return response.data;
     },
 

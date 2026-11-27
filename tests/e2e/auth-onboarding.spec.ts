@@ -57,5 +57,5 @@ test('регистрация сохраняет приглашение и яко
   await page.getByLabel(/^Подтвердите пароль/i).fill(CI_PASSWORD);
   await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(target, { timeout: BACKEND_TIMEOUT_MS });
-  await expect(page.getByTestId('onboarding-join-submit')).toBeVisible();
+  await expect(page.getByRole('alert')).toContainText('Приглашение недействительно');
 });

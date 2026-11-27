@@ -38,12 +38,3 @@ export const input: SxProps<Theme> = {
     borderRadius: '14px',
   },
 };
-
-export const confirmationText: SxProps<Theme> = {
-  color: 'text.primary',
-  mb: 2,
-};
-
-export const error: SxProps<Theme> = {
-  mb: 2,
-};
