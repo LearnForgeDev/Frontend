@@ -12,19 +12,22 @@ export default function ChatWidget({ schoolPublicId }: ChatWidgetProps) {
 
   return (
     <Box sx={widgetStyles.container}>
-      <Zoom in={isMiniOpen} unmountOnExit>
-        <Box className={CSS.miniPanel}>
-        <ChatMiniPanel schoolPublicId={schoolPublicId} />
-        </Box>
-      </Zoom>
-
       <Fab
         color="primary"
         className={CSS.fab}
+        aria-label={isMiniOpen ? 'Закрыть быстрый чат' : 'Открыть быстрый чат'}
+        aria-expanded={isMiniOpen}
+        aria-controls={isMiniOpen ? 'school-quick-chat' : undefined}
+        sx={{ order: 1 }}
         onClick={() => setMiniOpen(!isMiniOpen)}
       >
         {isMiniOpen ? <CloseIcon /> : <ChatIcon />}
       </Fab>
+      <Zoom in={isMiniOpen} unmountOnExit>
+        <Box className={CSS.miniPanel} id="school-quick-chat" role="region" aria-label="Быстрый чат">
+          <ChatMiniPanel schoolPublicId={schoolPublicId} />
+        </Box>
+      </Zoom>
     </Box>
   );
 }

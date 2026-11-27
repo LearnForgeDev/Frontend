@@ -1,18 +1,20 @@
+import { APP_MOBILE_NAV_HEIGHT_PX } from '@/Services/AppShell/AppShell.const';
+
 export const widgetStyles = {
   container: {
     position: 'fixed',
-    bottom: 24,
-    right: 24,
-    zIndex: 1300,
+    bottom: { xs: APP_MOBILE_NAV_HEIGHT_PX + 12, lg: 24 },
+    right: { xs: 12, lg: 24 },
+    zIndex: 'speedDial',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end',
     gap: 2,
   },
   panel: {
-    width: 360,
+    width: 'min(360px, calc(100vw - 24px))',
     height: 500,
-    maxHeight: 'calc(100vh - 100px)',
+    maxHeight: { xs: `calc(100dvh - ${APP_MOBILE_NAV_HEIGHT_PX + 96}px)`, lg: 'calc(100dvh - 112px)' },
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',

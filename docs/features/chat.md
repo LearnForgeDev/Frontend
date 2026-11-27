@@ -50,10 +50,15 @@ The [calls architecture discussion](calls.md) is deferred.
 
 ## Existing behavior and gaps
 
-Currently, history is read from the backend and realtime notifications trigger
-history refresh. Message sends use the realtime transport. Direct-conversation
-shortcuts are persisted locally by school without the account in their key; they
-are not a complete persisted inbox. Drafts are currently in-memory.
+History is read from the backend and realtime notifications trigger history
+refresh. Message sends use the realtime transport. The full chat page and the
+bottom-right quick chat use the same account- and school-scoped member list.
+Only other confirmed school members appear as direct contacts. Selecting one
+opens the existing backend history immediately, including messages received
+before the first visit. A member-list failure can be retried in either view.
+The quick chat opens on the direct tab and is available inside authorized school
+routes outside the full chat page. Switching schools resets its selection.
+The member list has no conversation ordering or unread state. Drafts are in memory.
 
 The required account-scoped local history fallback, backend-confirmed replacement
 rules and update-oriented UI still need implementation. Existing tests cover draft

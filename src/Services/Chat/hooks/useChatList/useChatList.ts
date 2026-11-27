@@ -1,31 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
 import { branchesEndpoints } from '@/Endpoints';
-import type { ChatThread } from '@/Services/Chat/Chat.type';
+import type { ChatThread, ChatType } from '@/Services/Chat/Chat.type';
 import type { Branch } from '@/Endpoints/branches/branches.contract.type';
+import { useDirectChatContacts } from '../useDirectChatContacts';
 
-export function useChatList(schoolPublicId: string) {
-  const { data: branches, isLoading, isError } = useQuery({
-    queryKey: ['chat-branches', schoolPublicId],
+export function useChatList(schoolPublicId: string, tab: ChatType) {
+  const direct = useDirectChatContacts(schoolPublicId);
+  const branches = useQuery({
+    queryKey: ['chats-branches', schoolPublicId],
     queryFn: () => branchesEndpoints.getBranches(schoolPublicId),
-    staleTime: 2 * 60 * 1000,
-    enabled: !!schoolPublicId,
+    staleTime: 30_000,
+    enabled: Boolean(schoolPublicId && tab === 'branch'),
   });
 
-  const branchThreads: ChatThread[] = branches?.map((branch: Branch) => ({
+  const branchThreads: ChatThread[] = branches.data?.map((branch: Branch) => ({
     id: branch.publicId,
     type: 'branch',
     name: branch.name,
     schoolPublicId,
   })) || [];
 
-  // Currently there is no endpoint to list users for direct chats.
-  // ACTION REQUIRED BY BACKEND:
-  // Build an endpoint like GET /api/ApiSchool/{schoolId}/users
-  // that returns an array of available contacts.
-  // Once built, fetch them here and map to ChatThread[] with type: 'direct'.
-  const directThreads: ChatThread[] = [];
-
-  const threads = [...branchThreads, ...directThreads];
-
-  return { threads, isLoading, isError };
+  return tab === 'direct' ? direct : { ...branches, threads: branchThreads };
 }

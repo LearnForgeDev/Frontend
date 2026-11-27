@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { 
   Box, Typography, Tabs, Tab, List, ListItemButton, 
-  ListItemAvatar, Avatar, ListItemText, CircularProgress, Alert
+  ListItemAvatar, Avatar, ListItemText, CircularProgress, Alert, Button
 } from '@mui/material';
 import GroupIcon from '@mui/icons-material/Group';
 import PersonIcon from '@mui/icons-material/Person';
@@ -10,11 +10,9 @@ import { useChatContext } from '@/Storage/useChatContext/useChatContext.tsx';
 import { widgetStyles } from '../ChatWidget/ChatWidget.styles';
 
 export default function ChatList({ schoolPublicId }: { schoolPublicId: string }) {
-  const [tab, setTab] = useState<'branch' | 'direct'>('branch');
-  const { threads, isLoading, isError } = useChatList(schoolPublicId);
+  const [tab, setTab] = useState<'branch' | 'direct'>('direct');
+  const { threads, isLoading, isError, refetch } = useChatList(schoolPublicId, tab);
   const { setActiveThread } = useChatContext();
-
-  const filteredThreads = threads.filter(t => t.type === tab);
 
   return (
     <>
@@ -43,11 +41,11 @@ export default function ChatList({ schoolPublicId }: { schoolPublicId: string })
         
         {isError && (
           <Box sx={{ p: 2 }}>
-            <Alert severity="error">Ошибка загрузки чатов</Alert>
+            <Alert severity="error" action={<Button color="inherit" onClick={() => void refetch()}>Повторить</Button>}>Не удалось загрузить чаты.</Alert>
           </Box>
         )}
 
-        {!isLoading && !isError && filteredThreads.length === 0 && (
+        {!isLoading && !isError && threads.length === 0 && (
           <Box sx={{ p: 4, textAlign: 'center' }}>
             <Typography color="text.secondary" variant="body2">
               {tab === 'branch' ? 'Ветки не найдены' : 'Нет доступных контактов'}
@@ -56,15 +54,16 @@ export default function ChatList({ schoolPublicId }: { schoolPublicId: string })
         )}
 
         <List disablePadding>
-          {filteredThreads.map(thread => (
+          {threads.map(thread => (
             <ListItemButton key={thread.id} onClick={() => setActiveThread(thread)}>
               <ListItemAvatar>
                 <Avatar sx={{ bgcolor: 'primary.light' }}>
                   {thread.type === 'branch' ? <GroupIcon /> : <PersonIcon />}
                 </Avatar>
               </ListItemAvatar>
-              <ListItemText 
-                primary={<Typography sx={{ fontWeight: 500 }}>{thread.name}</Typography>} 
+              <ListItemText
+                primary={<Typography sx={{ fontWeight: 500 }}>{thread.name}</Typography>}
+                secondary={thread.type === 'direct' ? 'Напишите первым' : undefined}
               />
             </ListItemButton>
           ))}

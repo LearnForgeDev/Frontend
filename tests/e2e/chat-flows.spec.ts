@@ -64,10 +64,22 @@ test('CHAT-05 CHAT-10: direct-диалог доставляет сообщени
   const sender = await actors('teacher');
   const recipient = await actors('student');
   await openDirect(sender, recipient);
-  await openDirect(recipient, sender);
   const message = uniqueName('Личное сообщение');
   await sender.page.getByTestId('chat-message-input').fill(message);
   await sender.page.getByTestId('chat-message-input').press('Enter');
+  await expect(sender.page.getByText(message, { exact: true })).toBeVisible();
+
+  await recipient.page.goto(`${SCHOOL_PATH}/today`);
+  await recipient.page.getByRole('button', { name: 'Открыть быстрый чат' }).click();
+  const quickChat = recipient.page.getByRole('region', { name: 'Быстрый чат' });
+  await quickChat.getByRole('button', { name: new RegExp(sender.identity.userName) }).click();
+  await expect(quickChat.getByText(message, { exact: true })).toBeVisible();
+
+  await recipient.page.goto(`${SCHOOL_PATH}/chats`);
+  await recipient.page.getByRole('tab', { name: 'Личные', exact: true }).click();
+  const contact = recipient.page.getByTestId(/^chat-direct-/).filter({ hasText: sender.identity.userName });
+  await expect(contact).toHaveCount(1);
+  await contact.click();
   await expect(recipient.page.getByText(message, { exact: true })).toBeVisible();
   await openDirect(sender, recipient);
   await expect(sender.page.getByText(message, { exact: true })).toBeVisible();
