@@ -3,11 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { InviteTokenWidget } from '../SchoolOverview/Components/InviteTokenWidget';
 import InviteList from './Components/InviteList';
 import { StudentsTable } from './Components/StudentsTable';
+import StudentGroups from '../components/StudentGroups/StudentGroups';
+import { useStudentGroups } from '../hooks/useStudentGroups';
 import { pageSx, headerRowSx, cardGridSx, pageTitleSx, sectionTitleSx } from './StudentsPage.styles';
 
 export default function StudentsPage() {
   const navigate = useNavigate();
   const { schoolPublicId = '' } = useParams<{ schoolPublicId: string }>();
+  const directory = useStudentGroups(schoolPublicId);
 
   return (
     <Box sx={pageSx}>
@@ -28,12 +31,15 @@ export default function StudentsPage() {
 
       <InviteList key={schoolPublicId} schoolPublicId={schoolPublicId} />
 
+      <StudentGroups key={schoolPublicId} directory={directory} />
+
       <Box>
         <Typography component="h2" sx={sectionTitleSx}>
           Все ученики
         </Typography>
         <StudentsTable
           schoolPublicId={schoolPublicId}
+          groups={directory.data?.groups}
           onOpenChat={(studentPublicId) => navigate(
             `../chats?user=${encodeURIComponent(studentPublicId)}`,
             { relative: 'path' },

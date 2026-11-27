@@ -6,7 +6,7 @@ import { useStudents } from '../hooks/useStudents';
 import { getStudentDisplayName, getStudentInitials, getStudentPublicId } from './StudentsTable.utils';
 import * as S from './StudentsTable.styles';
 
-export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps) {
+export function StudentsTable({ schoolPublicId, groups, onOpenChat }: StudentsTableProps) {
   const studentsQuery = useStudents(schoolPublicId);
 
   if (studentsQuery.isLoading) {
@@ -47,6 +47,9 @@ export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps
           {students.map((student) => {
             const displayName = getStudentDisplayName(student);
             const studentPublicId = getStudentPublicId(student);
+            const groupNames = studentPublicId && groups
+              ? groups.filter(group => group.memberPublicIds.includes(studentPublicId)).map(group => group.name)
+              : student.groupNames;
 
             return (
               <TableRow key={studentPublicId ?? `${displayName}-${student.email ?? ''}`} hover>
@@ -61,7 +64,7 @@ export function StudentsTable({ schoolPublicId, onOpenChat }: StudentsTableProps
                     </Box>
                   </Box>
                 </TableCell>
-                <TableCell>{student.groupNames?.join(', ') || 'Без группы'}</TableCell>
+                <TableCell>{groupNames?.join(', ') || (groupNames ? 'Без группы' : '—')}</TableCell>
                 <TableCell align="right">
                   <Button
                     startIcon={<ChatBubbleOutlineRoundedIcon />}
