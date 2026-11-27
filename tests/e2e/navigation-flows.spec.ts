@@ -45,7 +45,7 @@ test('NAV-04 ONB-01: новый аккаунт без школ может нач
   await expect(page.getByLabel('Название школы')).toBeVisible();
   await expect(page.getByLabel('Код приглашения')).toHaveCount(0);
   await expect(page.getByTestId('onboarding-invite-link')).toBeVisible();
-  await expect(page.getByTestId('onboarding-join-submit')).toBeEnabled();
+  await expect(page.getByTestId('onboarding-invite-submit')).toBeEnabled();
   await page.goto('/app/schools');
   await page.getByTestId('school-add').click();
   await expect(page).toHaveURL(/\/onboarding$/);

@@ -12,13 +12,17 @@ import { useAcceptInvite } from '@/Services/Onboarding/hooks/useAcceptInvite';
 import { isSchoolRequestUnavailable } from '@/Services/Onboarding/utils/schoolRequestError.utils';
 import { readSchoolRequestPointer } from '@/Services/Onboarding/utils/schoolRequestStorage.utils';
 import { useGlobalContext } from '@/Storage/useGlobalContext/useGlobalContext';
-import { AxiosError } from 'axios';
+import OnboardingPage from '@/Services/Onboarding/OnboardingPage';
+import { AxiosError, AxiosHeaders } from 'axios';
 
-const mocks = vi.hoisted(() => ({ joinSchool: vi.fn(), requestSchool: vi.fn(), getSchoolRequestStatus: vi.fn(), getMySchools: vi.fn(), setUser: vi.fn(), user: vi.fn(), error: vi.fn() }));
+const mocks = vi.hoisted(() => ({ previewInvite: vi.fn(), joinSchool: vi.fn(), requestSchool: vi.fn(), getSchoolRequestStatus: vi.fn(), getMySchools: vi.fn(), setUser: vi.fn(), user: vi.fn(), error: vi.fn() }));
 vi.mock('@/Endpoints/auth/auth.endpoints', () => ({ authEndpoints: mocks }));
 vi.mock('@/Endpoints/schools/schools.endpoints', () => ({ schoolsEndpoints: mocks }));
 vi.mock('@/Services/Auth/hooks/useUser', () => ({ useUser: () => mocks.user() }));
 vi.mock('@/Storage/useToastStore', () => ({ useToast: () => ({ error: mocks.error }) }));
+vi.mock('@/Services/Onboarding/components/OnboardingFrame/OnboardingFrame', () => ({
+  default: ({ children }: PropsWithChildren) => children,
+}));
 
 const identity = {
   userPublicId: 'user', userName: 'Пользователь', refreshToken: 'refresh', userRoles: [], exp: 0,
@@ -28,15 +32,15 @@ const oldSchool = { schoolPublicId: 'old', schoolName: 'Старая школа'
 const joinedSchool = { schoolPublicId: 'new', schoolName: 'Новая школа', roles: [] };
 const clients = new Set<QueryClient>();
 
-function context() {
+function context(path = '/onboarding') {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, gcTime: 0 }, mutations: { retry: false } } });
   clients.add(client);
-  const wrapper = ({ children }: PropsWithChildren) => createElement(QueryClientProvider, { client }, createElement(MemoryRouter, { initialEntries: ['/onboarding'] }, children));
+  const wrapper = ({ children }: PropsWithChildren) => createElement(QueryClientProvider, { client }, createElement(MemoryRouter, { initialEntries: [path] }, children));
   return { client, wrapper };
 }
 
 function InvitationForm({ token }: { token: string }) {
-  const action = useAcceptInvite(token, ['old']);
+  const action = useAcceptInvite(token, 'new');
   return createElement('form', { onSubmit: action.submit }, createElement('button', { type: 'submit' }, 'Вступить'));
 }
 
@@ -60,12 +64,12 @@ afterEach(() => {
 });
 
 describe('Joining and requesting schools', () => {
-  it('installs a confirmed identity, refreshes memberships and enters only the newly discovered school', async () => {
+  it('installs a confirmed identity, refreshes memberships and enters the previewed school', async () => {
     const setup = context();
     const invalidate = vi.spyOn(setup.client, 'invalidateQueries');
     const { result } = renderHook(() => ({ mutation: useJoinSchool(), location: useLocation() }), setup);
     await act(async () => {
-      await result.current.mutation.mutateAsync({ inviteToken: 'invite', knownSchoolPublicIds: ['old'] });
+      await result.current.mutation.mutateAsync({ inviteToken: 'invite', schoolPublicId: 'new' });
     });
     expect(mocks.joinSchool).toHaveBeenCalledWith({ inviteToken: 'invite' });
     expect(mocks.setUser).toHaveBeenCalledWith(expect.objectContaining({ userPublicId: 'user' }));
@@ -77,7 +81,7 @@ describe('Joining and requesting schools', () => {
     mocks.getMySchools.mockRejectedValue(new Error('offline'));
     const { result } = renderHook(() => ({ mutation: useJoinSchool(), location: useLocation() }), context());
     await act(async () => {
-      await result.current.mutation.mutateAsync({ inviteToken: 'invite', knownSchoolPublicIds: ['old'] });
+      await result.current.mutation.mutateAsync({ inviteToken: 'invite', schoolPublicId: 'new' });
     });
     expect(mocks.setUser).toHaveBeenCalledOnce();
     expect(result.current.location.pathname).toBe('/app/schools');
@@ -87,12 +91,12 @@ describe('Joining and requesting schools', () => {
     mocks.joinSchool.mockResolvedValueOnce({ jwtToken: 'invalid' });
     const { result } = renderHook(() => ({ mutation: useJoinSchool(), location: useLocation() }), context());
     await act(async () => {
-      await expect(result.current.mutation.mutateAsync({ inviteToken: 'invite', knownSchoolPublicIds: [] })).rejects.toThrow('Не удалось обновить сессию');
+      await expect(result.current.mutation.mutateAsync({ inviteToken: 'invite', schoolPublicId: 'new' })).rejects.toThrow('Не удалось обновить сессию');
     });
     expect(mocks.setUser).not.toHaveBeenCalled();
     expect(mocks.getMySchools).not.toHaveBeenCalled();
     await act(async () => {
-      await result.current.mutation.mutateAsync({ inviteToken: 'invite', knownSchoolPublicIds: ['old', 'new'] });
+      await result.current.mutation.mutateAsync({ inviteToken: 'invite', schoolPublicId: 'missing' });
     });
     expect(result.current.location.pathname).toBe('/app/schools');
   });
@@ -135,6 +139,39 @@ describe('Joining and requesting schools', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Вступить' }));
     await waitFor(() => expect(mocks.error).toHaveBeenCalledWith('Не удалось вступить. Ссылка могла истечь или исчерпать лимит.'));
     expect(screen.getByRole('button', { name: 'Вступить' })).toBeTruthy();
+  });
+
+  it('validates the pasted link and shows the school before submitting the invitation', async () => {
+    mocks.previewInvite.mockResolvedValue({ schoolPublicId: 'new', schoolName: 'Школа из приглашения' });
+    render(createElement(OnboardingPage), context());
+    fireEvent.click(screen.getByRole('button', { name: 'Продолжить' }));
+    expect(screen.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).toBeTruthy();
+    expect(mocks.previewInvite).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Ссылка-приглашение'), {
+      target: { value: 'https://learnforge.qzz.io/onboarding?invite=selected' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Продолжить' }));
+    expect(await screen.findByRole('heading', { name: 'Школа из приглашения' })).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Создать школу' })).toBeNull();
+    expect(mocks.previewInvite).toHaveBeenCalledWith({ inviteToken: 'selected' });
+    expect(mocks.joinSchool).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Вступить в школу' }));
+    await waitFor(() => expect(mocks.joinSchool).toHaveBeenCalledWith({ inviteToken: 'selected' }));
+  });
+
+  it('retries a failed preview and keeps an unavailable invitation from joining', async () => {
+    mocks.previewInvite.mockRejectedValueOnce(new Error('offline'));
+    mocks.previewInvite.mockRejectedValueOnce(new AxiosError('unavailable', undefined, undefined, undefined, {
+      data: null, status: 404, statusText: 'Not Found', headers: {}, config: { headers: new AxiosHeaders() },
+    }));
+    render(createElement(OnboardingPage), context('/onboarding?invite=unavailable'));
+    expect(await screen.findByText('Не удалось проверить приглашение.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Повторить' }));
+    expect(await screen.findByText(/Приглашение недействительно/)).toBeTruthy();
+    expect(screen.queryByRole('button', { name: 'Вступить в школу' })).toBeNull();
+    expect(mocks.joinSchool).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('link', { name: 'Назад к подключению' }));
+    expect(await screen.findByRole('button', { name: 'Продолжить' })).toBeTruthy();
   });
 
   it.each([401, 403, 404])('classifies HTTP %i as an unavailable request without hiding transport errors', status => {

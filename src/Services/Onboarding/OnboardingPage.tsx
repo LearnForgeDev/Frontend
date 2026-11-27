@@ -2,15 +2,20 @@ import { Box, Typography } from '@mui/material';
 import { Navigate, useSearchParams } from 'react-router-dom';
 import OnboardingFrame from './components/OnboardingFrame/OnboardingFrame';
 import SchoolSetup from './components/SchoolSetup/SchoolSetup';
+import InviteConfirmation from './components/InviteConfirmation/InviteConfirmation';
 import { useOnboardingEntry } from './hooks/useOnboardingEntry';
 import * as S from './OnboardingPage.styles';
 
 export default function OnboardingPage() {
   const [searchParams] = useSearchParams();
-  const inviteToken = searchParams.get('invite') ?? '';
+  const inviteToken = searchParams.get('invite')?.trim();
+  return inviteToken ? <InviteConfirmation key={inviteToken} inviteToken={inviteToken} /> : <SchoolSelection />;
+}
+
+function SchoolSelection() {
   const { pointer } = useOnboardingEntry();
 
-  if (pointer && !inviteToken) {
+  if (pointer) {
     return (
       <Navigate
         to={`/onboarding/waiting/${pointer.requestPublicId}`}
@@ -31,7 +36,7 @@ export default function OnboardingPage() {
           </Typography>
         </Box>
 
-        <SchoolSetup inviteToken={inviteToken} />
+        <SchoolSetup />
       </Box>
     </OnboardingFrame>
   );

@@ -70,8 +70,8 @@ test('INV-10: замена требует подтверждения, сохра
   expect(new URL(copied).searchParams.get('invite')).toBe(inviteToken);
   const nextMember = await actors('new');
   await nextMember.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
-  await nextMember.page.getByTestId('onboarding-join-submit').click();
-  await expect(nextMember.page.getByRole('alert').filter({ hasText: 'Не удалось вступить' })).toBeVisible();
+  await expect(nextMember.page.getByRole('alert').filter({ hasText: 'Приглашение недействительно' })).toBeVisible();
+  await expect(nextMember.page.getByTestId('onboarding-join-submit')).toHaveCount(0);
   await acceptInvite(nextMember, inviteToken);
   expect((await readInvite(owner, invite.id)).usedCount).toBe(2);
 });
@@ -94,8 +94,8 @@ test('INV-07 INV-11: удаление сохраняет карточку и и�
   await expect(card.getByText(member.identity.userName, { exact: true })).toBeVisible();
   const refused = await actors('new');
   await refused.page.goto(`/onboarding?invite=${encodeURIComponent(invite.token)}`);
-  await refused.page.getByTestId('onboarding-join-submit').click();
-  await expect(refused.page.getByRole('alert').filter({ hasText: 'Не удалось вступить' })).toBeVisible();
+  await expect(refused.page.getByRole('alert').filter({ hasText: 'Приглашение недействительно' })).toBeVisible();
+  await expect(refused.page.getByTestId('onboarding-join-submit')).toHaveCount(0);
   expect((await readInvite(owner, invite.id)).usedCount).toBe(1);
 });
 

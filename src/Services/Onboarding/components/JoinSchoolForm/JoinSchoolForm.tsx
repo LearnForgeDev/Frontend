@@ -3,16 +3,10 @@ import { Box, Button, TextField, Typography } from '@mui/material';
 import { useInviteEntry } from '../../hooks/useInviteEntry';
 import * as S from './JoinSchoolForm.styles';
 
-export default function JoinSchoolForm({
-  knownSchoolPublicIds,
-  initialInviteToken = '',
-  disabled = false,
-  allowInviteLink = false,
-}: JoinSchoolFormProps) {
-  const { inviteLink, changeInviteLink, submit, join, validationError } =
-    useInviteEntry(initialInviteToken, knownSchoolPublicIds);
+export default function JoinSchoolForm({ allowInviteLink = false }: JoinSchoolFormProps) {
+  const { inviteLink, changeInviteLink, submit, validationError } = useInviteEntry();
 
-  if (!initialInviteToken && !allowInviteLink) {
+  if (!allowInviteLink) {
     return (
       <Box sx={S.instructions}>
         <Typography sx={S.instructionTitle}>
@@ -27,39 +21,30 @@ export default function JoinSchoolForm({
 
   return (
     <Box component="form" onSubmit={submit} sx={S.form} noValidate>
-      <Typography sx={initialInviteToken ? S.confirmationText : S.helperText}>
-        {initialInviteToken ? 'Приглашение готово. Подтвердите вступление.' : 'Вставьте ссылку от преподавателя или владельца школы.'}
+      <Typography sx={S.helperText}>
+        Вставьте ссылку от преподавателя или владельца школы.
       </Typography>
-      {!initialInviteToken && (
-        <TextField
-          fullWidth
-          label="Ссылка-приглашение"
-          type="url"
-          value={inviteLink}
-          onChange={(event) => changeInviteLink(event.target.value)}
-          error={Boolean(validationError)}
-          helperText={validationError}
-          disabled={join.isPending}
-          autoComplete="off"
-          slotProps={{ htmlInput: { 'data-testid': 'onboarding-invite-link' } }}
-          sx={S.input}
-          margin="normal"
-        />
-      )}
-      {join.isError && (
-        <Typography color="error" role="alert" sx={S.error}>
-          Не удалось вступить. Ссылка могла истечь, быть удалена или исчерпать лимит.
-        </Typography>
-      )}
+      <TextField
+        fullWidth
+        label="Ссылка-приглашение"
+        type="url"
+        value={inviteLink}
+        onChange={(event) => changeInviteLink(event.target.value)}
+        error={Boolean(validationError)}
+        helperText={validationError}
+        autoComplete="off"
+        slotProps={{ htmlInput: { 'data-testid': 'onboarding-invite-link' } }}
+        sx={S.input}
+        margin="normal"
+      />
       <Button
-        data-testid="onboarding-join-submit"
+        data-testid="onboarding-invite-submit"
         type="submit"
         variant="contained"
         fullWidth
-        disabled={disabled || join.isPending}
         sx={S.submitButton}
       >
-        {join.isPending ? 'Присоединяем…' : 'Вступить в школу'}
+        Продолжить
       </Button>
     </Box>
   );

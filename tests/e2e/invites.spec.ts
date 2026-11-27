@@ -103,6 +103,7 @@ test('INV-04: Приглашение сохраняется при перехо�
   await page.getByLabel(/^Подтвердите пароль/).fill(CI_PASSWORD);
   await page.getByTestId('auth-register-submit').click();
   await expect(page).toHaveURL(`/onboarding?invite=${token}`);
+  await expect(page.getByRole('heading', { name: 'CI School', exact: true })).toBeVisible();
   await page.getByTestId('onboarding-join-submit').click();
   await expect(page).toHaveURL(`/app/schools/${SCHOOL_ID}/today`);
 });
@@ -181,10 +182,12 @@ test('Вступление по вставленной ссылке провер
   await page.getByRole('button', { name: 'Зарегистрироваться', exact: true }).click();
   await expect(page).toHaveURL(/\/onboarding$/);
   await page.getByLabel('Ссылка-приглашение').fill('не ссылка');
-  await page.getByTestId('onboarding-join-submit').click();
+  await page.getByTestId('onboarding-invite-submit').click();
   await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).toBeVisible();
   await page.getByTestId('onboarding-invite-link').fill(`${baseURL}/onboarding?invite=${token}`);
   await expect(page.getByText('Вставьте полную ссылку-приглашение в LearnForge.')).not.toBeVisible();
+  await page.getByTestId('onboarding-invite-submit').click();
+  await expect(page.getByRole('heading', { name: 'CI School', exact: true })).toBeVisible();
   await page.getByTestId('onboarding-join-submit').click();
   await expect(page).toHaveURL(`/app/schools/${SCHOOL_ID}/today`);
 });
